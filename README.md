@@ -1,9 +1,19 @@
 # TisOlimpSansi11
-# Iniciar FrontEnd
-Redirigirse a la carpeta TisOlimSansi_FrontEND
-cd TisOlimSansi_FrontEND
-Descargar dependencias
-npm install
-Hacer correr el servidor FrontEnd
-npm run dev
+##
+ Iniciar FrontEnd
 
+1. Redirigirse a la carpeta TisOlimSansi_FrontEND
+```sh
+cd TisOlimSansi_FrontEND
+```
+
+2. Descargar dependencias
+```sh
+npm install
+```
+
+3. Hacer correr el servidor FrontEnd
+```sh
+npm run dev
+```
+## Iniciar BackEnd
