@@ -1,11 +1,16 @@
-import Navbar from './components/Navbar';
+import { Routes, Route } from "react-router-dom";
+import Home from "./pages/borrar";
+import Navbar from "./components/Navbar";
 
-const App = () => {
+export default function App() {
   return (
-    <div className = 'overflow-x-hidden'>
-     <Navbar />
-     </div>
-    );
-};
-export default App;
+    <>
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<Home />} />
+      </Routes>
+    </>
+  );
+}
+
 
