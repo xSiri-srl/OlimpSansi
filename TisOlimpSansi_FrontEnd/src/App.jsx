@@ -1,11 +1,11 @@
+import { Routes, Route } from "react-router-dom";
+import Home from "./pages/borrar";
 
-function App() {
- 
+
+export default function App() {
   return (
-    <div className="text-3xl font-bold text-amber-500">
-      hola mundo que hace
-    </div>
-  )
+    <Routes>
+      <Route path="/" element={<Home />} />
+    </Routes>
+  );
 }
-
-export default App
