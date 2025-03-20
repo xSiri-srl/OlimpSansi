@@ -4,7 +4,7 @@
 
 1. Redirigirse a la carpeta TisOlimSansi_FrontEND
 ```sh
-cd TisOlimSansi_FrontEND
+cd TisOlimpSansi_FrontEnd
 ```
 
 2. Descargar dependencias
