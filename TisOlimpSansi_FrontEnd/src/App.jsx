@@ -1,11 +1,11 @@
+import Navbar from './components/Navbar';
 
-function App() {
- 
+const App = () => {
   return (
-    <div className="text-3xl font-bold text-amber-500">
-      hola mundo que hace
-    </div>
-  )
-}
+    <div className = 'overflow-x-hidden'>
+     <Navbar />
+     </div>
+    );
+};
+export default App;
 
-export default App
