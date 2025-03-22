@@ -17,6 +17,6 @@ export const navbarLinks = [
 {
     id: 3,
     title: "Comprobante",
-    link: "#"
+    link: "/subirComprobante"
 },
 ]
