@@ -1,17 +1,22 @@
 export const navbarLinks = [
     {
     id: 1,
-    title: "Home",
+    title: "Inicio",
     link: "/"
 },
 {
     id: 2,
-    title: "GenerarOrden",
+    title: "Administradores",
     link: "#"
 },
 {
     id: 3,
-    title: "nose",
+    title: "Orden de Pago",
+    link: "#"
+},
+{
+    id: 3,
+    title: "Comprobante",
     link: "#"
 },
 ]
