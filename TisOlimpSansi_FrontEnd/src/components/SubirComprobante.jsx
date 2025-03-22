@@ -80,6 +80,13 @@ const SubirComprobante = () => {
             </label>
             {selectedFile && <p className="text-sm text-green-600 mt-2">{selectedFile.name}</p>}
           </div>
+          <div className="bg-gray-300 p-4 rounded-md">
+            <h3 className="text-lg font-semibold mb-2">Ejemplo:</h3>
+            <div className="bg-gray-400 p-6 rounded-md flex flex-col items-center justify-center">
+              <div className="bg-gray-200 w-full h-16 mb-4"></div>
+            
+            </div>
+          </div>
         </div>
       )}
 
