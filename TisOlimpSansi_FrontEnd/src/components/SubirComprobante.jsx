@@ -17,6 +17,7 @@ const SubirComprobante = () => {
   };
 
   return (
+    <div className="p-10">
     <div className="max-w-3xl mx-auto bg-white p-6 shadow-lg rounded-lg">
       {/* Progreso */}
       <div className="flex items-center justify-between mb-6">
@@ -167,6 +168,7 @@ const SubirComprobante = () => {
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 };
