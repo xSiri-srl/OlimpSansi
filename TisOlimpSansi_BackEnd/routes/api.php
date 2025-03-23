@@ -3,17 +3,9 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\NombreDeHU1\UserPruebaController;
 
-
-use App\Http\Controllers\NombreDeHU1\EjemploController;
-
-
-//Rutas de registrar competidor
-Route::controller(EjemploController::class)->group(function(){
-    Route::post('/agregarEjemplo', [EjemploController::class, 'store']);
+Route::controller(UserPruebaController::class)->group(function(){
+    Route::post('/agregarEjemplo', [UserPruebaController::class, 'store']);
     
 });
-
-
-
-
