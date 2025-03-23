@@ -18,7 +18,6 @@ npm run dev
 ```
 ## 
 Iniciar BackEnd
-Iniciar FrontEnd
 
 1. Redirigirse a la carpeta TisOlimSansi_FrontEND
 ```sh
