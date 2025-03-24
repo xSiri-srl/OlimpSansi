@@ -6,7 +6,7 @@ export default function FormularioInscripcion() {
       <h2 className="text-xl font-semibold mb-4 text-center">
         Responsable de Inscripción
       </h2>
-      <form className="space-y-4 shadow-md mt-8 p-4 border rounded-md">
+      <form className="space-y-4 mt-8 p-4 shadow-md border rounded-md">
         <div className="flex items-center gap-2">
           <FaUser className="text-black" />
           <label>Apellidos</label>
