@@ -7,7 +7,7 @@ export const navbarLinks = [
   {
     id: 2,
     title: "GenerarOrden",
-    link: "/inscripcion",
+    link: "/inscripcion/responsable",
   },
   {
     id: 3,
