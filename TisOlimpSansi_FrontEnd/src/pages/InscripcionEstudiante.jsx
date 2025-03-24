@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   FaUserAlt,
   FaEnvelope,
@@ -10,6 +11,11 @@ import {
 } from "react-icons/fa";
 
 export default function FormularioEstudiante() {
+  const navigate = useNavigate();
+
+  const handleNext = () => {
+    navigate("/inscripcion/tutorLegal");
+  };
   const roles = ["Estudiante", "Padre/Madre", "Profesor"];
 
   const departamentos = {
@@ -242,6 +248,7 @@ export default function FormularioEstudiante() {
         <button
           type="button"
           className="bg-[#4C8EDA] text-white py-2 px-4 rounded-md hover:bg-[#2e4f96]"
+          onClick={handleNext}
         >
           Adelante
         </button>
