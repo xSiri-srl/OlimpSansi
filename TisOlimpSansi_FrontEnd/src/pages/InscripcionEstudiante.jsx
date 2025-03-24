@@ -1,6 +1,46 @@
+import { useState } from "react";
+
 export default function FormularioEstudiante() {
   const roles = ["Estudiante", "Padre/Madre", "Profesor"];
 
+  const departamentos = {
+    "La Paz": ["Murillo", "Pacajes", "Los Andes", "Larecaja", "Ingavi"],
+    Cochabamba: ["Cercado", "Quillacollo", "Chapare", "Arani", "Ayopaya"],
+    "Santa Cruz": ["Andrés Ibáñez", "Warnes", "Ichilo", "Sara", "Vallegrande"],
+    Oruro: ["Cercado", "Sajama", "Sabaya", "Litoral", "Pantaleón Dalence"],
+    Potosí: [
+      "Tomás Frías",
+      "Charcas",
+      "Chayanta",
+      "Nor Chichas",
+      "Sur Chichas",
+    ],
+    Chuquisaca: [
+      "Oropeza",
+      "Zudáñez",
+      "Tomina",
+      "Belisario Boeto",
+      "Nor Cinti",
+    ],
+    Tarija: ["Cercado", "Gran Chaco", "O’Connor", "Avilés", "Arce"],
+    Beni: ["Cercado", "Moxos", "Vaca Díez", "Marbán", "Yacuma"],
+    Pando: [
+      "Madre de Dios",
+      "Manuripi",
+      "Nicolás Suárez",
+      "Abuná",
+      "Federico Román",
+    ],
+  };
+
+  const [departamentoSeleccionado, setDepartamentoSeleccionado] = useState("");
+  const [provincias, setProvincias] = useState([]);
+
+  const handleDepartamentoChange = (e) => {
+    const departamento = e.target.value;
+    setDepartamentoSeleccionado(departamento);
+    setProvincias(departamentos[departamento] || []);
+  };
   return (
     <div className="p-6">
       <h2 className="text-2xl font-semibold text-center w-full mb-6">
@@ -112,22 +152,35 @@ export default function FormularioEstudiante() {
 
             <div>
               <label className="text-sm font-medium">Departamento</label>
-              <input
-                type="text"
-                name="Departamento"
+              <select
+                name="departamento"
                 className="mt-1 p-2 w-full border rounded-md"
-                placeholder="Departamento"
-              />
+                onChange={handleDepartamentoChange}
+                value={departamentoSeleccionado}
+              >
+                <option value="">Seleccione un Departamento</option>
+                {Object.keys(departamentos).map((dep) => (
+                  <option key={dep} value={dep}>
+                    {dep}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div>
               <label className="text-sm font-medium">Provincia</label>
-              <input
-                type="text"
-                name="Provincia"
+              <select
+                name="provincia"
                 className="mt-1 p-2 w-full border rounded-md"
-                placeholder="Cercado"
-              />
+                disabled={!departamentoSeleccionado}
+              >
+                <option value="">Seleccione una Provincia</option>
+                {provincias.map((provincia) => (
+                  <option key={provincia} value={provincia}>
+                    {provincia}
+                  </option>
+                ))}
+              </select>
             </div>
           </form>
         </div>
