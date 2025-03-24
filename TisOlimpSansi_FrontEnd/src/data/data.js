@@ -1,17 +1,17 @@
 export const navbarLinks = [
-    {
+  {
     id: 1,
     title: "Home",
-    link: "/"
-},
-{
+    link: "/",
+  },
+  {
     id: 2,
     title: "GenerarOrden",
-    link: "#"
-},
-{
+    link: "/inscripcion",
+  },
+  {
     id: 3,
     title: "nose",
-    link: "#"
-},
-]
+    link: "#",
+  },
+];
