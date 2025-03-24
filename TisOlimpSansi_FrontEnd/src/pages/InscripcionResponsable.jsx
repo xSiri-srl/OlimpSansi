@@ -1,6 +1,13 @@
 import { FaUser, FaIdCard } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 export default function FormularioInscripcion() {
+  const navigate = useNavigate();
+
+  const handleNext = () => {
+    navigate("/inscripcion/estudiante");
+  };
+  const roles = ["Estudiante", "Padre/Madre", "Profesor"];
   return (
     <div className="max-w-md mx-auto p-6 bg-white mt-3">
       <h2 className="text-xl font-semibold mb-4 text-center">
@@ -63,6 +70,7 @@ export default function FormularioInscripcion() {
           <button
             type="button"
             className="bg-[#4C8EDA] text-white py-2 px-4 rounded-md hover:bg-[#2e4f96]"
+            onClick={handleNext}
           >
             Adelante
           </button>
