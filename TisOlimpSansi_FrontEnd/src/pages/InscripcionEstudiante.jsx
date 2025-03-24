@@ -1,4 +1,13 @@
 import { useState } from "react";
+import {
+  FaUserAlt,
+  FaEnvelope,
+  FaIdCard,
+  FaCalendarAlt,
+  FaSchool,
+  FaBuilding,
+  FaMapMarkedAlt,
+} from "react-icons/fa";
 
 export default function FormularioEstudiante() {
   const roles = ["Estudiante", "Padre/Madre", "Profesor"];
@@ -64,7 +73,9 @@ export default function FormularioEstudiante() {
           </h2>
           <form className="space-y-4">
             <div>
-              <label className="text-sm font-medium">Apellidos</label>
+              <label className="flex items-center gap-2">
+                <FaUserAlt className="text-black" /> Apellidos
+              </label>
               <input
                 type="text"
                 name="apellido"
@@ -74,7 +85,9 @@ export default function FormularioEstudiante() {
             </div>
 
             <div>
-              <label className="text-sm font-medium">Nombres</label>
+              <label className="flex items-center gap-2">
+                <FaUserAlt className="text-black" /> Nombres
+              </label>
               <input
                 type="text"
                 name="nombre"
@@ -84,7 +97,9 @@ export default function FormularioEstudiante() {
             </div>
 
             <div>
-              <label className="text-sm font-medium">Cédula de Identidad</label>
+              <label className="flex items-center gap-2">
+                <FaIdCard className="text-black" /> Cédula de Identidad
+              </label>
               <input
                 type="text"
                 name="ci"
@@ -94,7 +109,9 @@ export default function FormularioEstudiante() {
             </div>
 
             <div>
-              <label className="text-sm font-medium">Fecha de Nacimiento</label>
+              <label className="flex items-center gap-2">
+                <FaCalendarAlt className="text-black" /> Fecha de Nacimiento
+              </label>
               <input
                 type="date"
                 name="fechaNacimiento"
@@ -103,7 +120,10 @@ export default function FormularioEstudiante() {
             </div>
 
             <div>
-              <label className="text-sm font-medium">Correo Electrónico</label>
+              <label className="flex items-center gap-2">
+                <FaEnvelope className="text-black" />
+                Correo Electrónico
+              </label>
               <input
                 type="email"
                 name="correo"
@@ -113,7 +133,7 @@ export default function FormularioEstudiante() {
             </div>
 
             <div>
-              <label className="text-sm font-medium">
+              <label className="flex items-center gap-2">
                 El correo pertenece a:
               </label>
               <div className="flex flex-row space-x-5 mt-3">
@@ -140,7 +160,10 @@ export default function FormularioEstudiante() {
           </h2>
           <form className="space-y-4">
             <div>
-              <label className="text-sm font-medium">Nombre del Colegio</label>
+              <label className="flex items-center gap-2">
+                <FaSchool className="text-black" />
+                Nombre del Colegio
+              </label>
               <input
                 type="text"
                 name="colegio"
@@ -150,7 +173,10 @@ export default function FormularioEstudiante() {
             </div>
 
             <div>
-              <label className="text-sm font-medium">Curso</label>
+              <label className="flex items-center gap-2">
+                <FaBuilding className="text-black" />
+                Curso
+              </label>
               <select
                 name="curso"
                 className="mt-1 p-2 w-full border
@@ -166,7 +192,10 @@ export default function FormularioEstudiante() {
             </div>
 
             <div>
-              <label className="text-sm font-medium">Departamento</label>
+              <label className="flex items-center gap-2">
+                <FaMapMarkedAlt className="text-black" />
+                Departamento
+              </label>
               <select
                 name="departamento"
                 className="mt-1 p-2 w-full border rounded-md"
@@ -183,7 +212,10 @@ export default function FormularioEstudiante() {
             </div>
 
             <div>
-              <label className="text-sm font-medium">Provincia</label>
+              <label className="text-sm font-medium">
+                <FaMapMarkedAlt className="text-black" />
+                Provincia
+              </label>
               <select
                 name="provincia"
                 className="mt-1 p-2 w-full border rounded-md"
