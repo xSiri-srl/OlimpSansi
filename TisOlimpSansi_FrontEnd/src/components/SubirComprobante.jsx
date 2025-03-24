@@ -12,35 +12,37 @@ const SubirComprobante = () => {
     const file = event.target.files[0];
   
     if (file) {
-      // Validar tipo de archivo
-      const validExtensions = ['image/jpeg', 'image/png', 'application/pdf'];
+      const validExtensions = ["image/jpeg", "image/png", "application/pdf"];
       if (!validExtensions.includes(file.type)) {
         setError("Solo se permiten archivos JPG, PNG o PDF.");
-        setSelectedFile(null); 
-        setPreview(null); 
+        setSelectedFile(null);
+        setPreview(null);
         return;
       }
   
-      // Validar tamaño de archivo (máximo 5MB)
-      const maxSize = 5 * 1024 * 1024; 
+      const maxSize = 5 * 1024 * 1024;
       if (file.size > maxSize) {
         setError("El archivo es demasiado grande. El límite es 5MB.");
-        setSelectedFile(null); 
-        setPreview(null); 
+        setSelectedFile(null);
+        setPreview(null);
         return;
       }
   
-    
       setSelectedFile(file);
-      setError(""); 
+      setError("");
   
-     
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreview(reader.result);
-        setStep(3); 
-      };
-      reader.readAsDataURL(file);
+      if (file.type === "application/pdf") {
+        const fileURL = URL.createObjectURL(file);
+        setPreview(fileURL);
+      } else {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setPreview(reader.result);
+        };
+        reader.readAsDataURL(file);
+      }
+  
+      setStep(3);
     }
   };
 
@@ -139,33 +141,38 @@ const SubirComprobante = () => {
 
         {/* Paso 3 - Vista previa */}
         {step === 3 && (
-          <div>
-            <div className="flex justify-center">
-              <div className="border-2 border-blue-500 p-4 w-64 h-64 flex items-center justify-center bg-gray-100">
-                {preview ? (
-                  <img src={preview} alt="Comprobante" className="max-w-full max-h-full rounded-lg" />
-                ) : (
-                  <div className="text-gray-500">Vista previa</div>
-                )}
-              </div>
-            </div>
-
-            <div className="flex justify-center mt-6 space-x-4">
-              <button
-                onClick={() => setStep(2)}
-                className="bg-gray-500 text-white px-6 py-2 rounded-md transition duration-300 ease-in-out text-white rounded-md hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500 shadow-md"
-              >
-                Atrás
-              </button>
-              <button
-                onClick={() => setStep(4)}
-                className="bg-blue-600 text-white px-6 py-2 rounded-md transition duration-300 ease-in-out text-white rounded-md hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500 shadow-md"
-              >
-                Escanear
-              </button>
-            </div>
-          </div>
+  <div>
+    <div className="flex justify-center">
+      <div className="border-2 border-blue-500 p-4 w-64 h-64 flex items-center justify-center bg-gray-100">
+        {preview ? (
+          selectedFile?.type === "application/pdf" ? (
+            <embed src={preview} type="application/pdf" width="100%" height="100%" />
+          ) : (
+            <img src={preview} alt="Comprobante" className="max-w-full max-h-full rounded-lg" />
+          )
+        ) : (
+          <div className="text-gray-500">Vista previa</div>
         )}
+      </div>
+      
+    </div>
+    <p className="flex justify-center text-sm text-green-600 mt-2">{selectedFile.name}</p>
+    <div className="flex justify-center mt-6 space-x-4">
+      <button
+        onClick={() => setStep(2)}
+        className="bg-gray-500 text-white px-6 py-2 rounded-md transition duration-300 ease-in-out text-white rounded-md hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500 shadow-md"
+      >
+        Atrás
+      </button>
+      <button
+        onClick={() => setStep(4)}
+        className="bg-blue-600 text-white px-6 py-2 rounded-md transition duration-300 ease-in-out text-white rounded-md hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500 shadow-md"
+      >
+        Escanear
+      </button>
+    </div>
+  </div>
+)}
 
         {/* Paso 4 - Datos escaneados */}
         {step === 4 && (
