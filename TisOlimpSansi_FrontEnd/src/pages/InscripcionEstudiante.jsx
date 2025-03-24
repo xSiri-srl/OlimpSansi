@@ -33,6 +33,15 @@ export default function FormularioEstudiante() {
     ],
   };
 
+  const curso = [
+    "1ro de Secundaria",
+    "2do de Secundaria",
+    "3ro de Secundaria",
+    "4to de Secundaria",
+    "5to de Secundaria",
+    "6to de Secundaria",
+  ];
+
   const [departamentoSeleccionado, setDepartamentoSeleccionado] = useState("");
   const [provincias, setProvincias] = useState([]);
 
@@ -142,12 +151,18 @@ export default function FormularioEstudiante() {
 
             <div>
               <label className="text-sm font-medium">Curso</label>
-              <input
-                type="text"
-                name="Curso"
-                className="mt-1 p-2 w-full border rounded-md"
-                placeholder="6to de Secundaria"
-              />
+              <select
+                name="curso"
+                className="mt-1 p-2 w-full border
+              rounded-md"
+              >
+                <option value="">Seleccione un Curso</option>
+                {curso.map((curso) => (
+                  <option key={curso} value={curso}>
+                    {curso}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div>
