@@ -1,17 +1,19 @@
 import { FaUser, FaIdCard, FaEnvelope, FaPhoneAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 export default function FormularioInscripcion() {
-   const navigate = useNavigate();
-  
-      const handleNext = () => {
-        navigate("/inscripcion/tutorAcademico");
-      };
-      const handlePrevious = () => {
-          navigate("/inscripcion/AreasCompetencia");
-      };
+  const navigate = useNavigate();
+
+  const handleNext = () => {
+    navigate("/inscripcion/tutorAcademico");
+  };
+  const handlePrevious = () => {
+    navigate("/inscripcion/AreasCompetencia");
+  };
 
   const roles = ["Estudiante", "Padre/Madre", "Profesor"];
+  const [selectedRole, setSelectedRole] = useState("");
 
   return (
     <div className="max-w-md mx-auto p-6 bg-white mt-3">
@@ -24,6 +26,8 @@ export default function FormularioInscripcion() {
                 type="checkbox"
                 name="roles"
                 value={role}
+                checked={selectedRole === role}
+                onChange={() => setSelectedRole(role)}
                 className="mr-2"
               />
               {role}
