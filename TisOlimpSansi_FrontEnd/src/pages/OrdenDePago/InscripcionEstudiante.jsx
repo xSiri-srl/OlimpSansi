@@ -13,6 +13,11 @@ import {
 export default function FormularioEstudiante() {
   const navigate = useNavigate();
   const [selectedRole, setSelectedRole] = useState("");
+  const [apellidos, setApellidos] = useState("");
+  const [nombres, setNombres] = useState("");
+  const [ci, setCi] = useState("");
+  const [colegio, setColegio] = useState("");
+  const roles = ["Estudiante", "Padre/Madre", "Profesor"];
 
   const handleNext = () => {
     navigate("/inscripcion/AreasCompetencia");
@@ -21,7 +26,12 @@ export default function FormularioEstudiante() {
     navigate("/inscripcion/responsable");
   };
 
-  const roles = ["Estudiante", "Padre/Madre", "Profesor"];
+  const handleInputChange = (setter, regex) => (e) => {
+    const value = e.target.value;
+    if (regex.test(value) || value === "") {
+      setter(value);
+    }
+  };
 
   const departamentos = {
     "La Paz": ["Murillo", "Pacajes", "Los Andes", "Larecaja", "Ingavi"],
@@ -96,6 +106,12 @@ export default function FormularioEstudiante() {
                 name="apellido"
                 className="mt-1 p-2 w-full border rounded-md"
                 placeholder="Apellidos"
+                value={apellidos}
+                onChange={handleInputChange(
+                  setApellidos,
+                  /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
+                )}
+                pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+"
               />
             </div>
 
@@ -108,6 +124,12 @@ export default function FormularioEstudiante() {
                 name="nombre"
                 className="mt-1 p-2 w-full border rounded-md"
                 placeholder="Nombres"
+                value={nombres}
+                onChange={handleInputChange(
+                  setNombres,
+                  /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
+                )}
+                pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+"
               />
             </div>
 
@@ -120,6 +142,10 @@ export default function FormularioEstudiante() {
                 name="ci"
                 className="mt-1 p-2 w-full border rounded-md"
                 placeholder="Número de Carnet de Identidad"
+                value={ci}
+                onChange={handleInputChange(setCi, /^[0-9]*$/)}
+                pattern="[0-9]+"
+                maxLength="8"
               />
             </div>
 
@@ -186,6 +212,12 @@ export default function FormularioEstudiante() {
                 name="colegio"
                 className="mt-1 p-2 w-full border rounded-md"
                 placeholder="Nombre del Colegio"
+                value={colegio}
+                onChange={handleInputChange(
+                  setColegio,
+                  /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
+                )}
+                pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+"
               />
             </div>
 
@@ -229,7 +261,7 @@ export default function FormularioEstudiante() {
             </div>
 
             <div>
-              <label className="text-sm font-medium">
+              <label className="flex items-center gap-2">
                 <FaMapMarkedAlt className="text-black" />
                 Provincia
               </label>
