@@ -49,6 +49,10 @@ export default function FormularioEstudiante() {
   };
 
   const curso = [
+    "3ro de Primaria",
+    "4to de Primaria",
+    "5to de Primaria",
+    "6to de Primaria",
     "1ro de Secundaria",
     "2do de Secundaria",
     "3ro de Secundaria",

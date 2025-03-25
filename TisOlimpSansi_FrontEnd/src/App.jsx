@@ -5,6 +5,7 @@ import InscripcionResponsable from "./pages/OrdenDePago/InscripcionResponsable";
 import InscripcionEstudiante from "./pages/OrdenDePago/InscripcionEstudiante";
 import InscripcionTutorLegal from "./pages/OrdenDePago/InscripcionTutorLegal";
 import SubirComprobante from "./pages/Comprobante/SubirComprobante";
+import AreaCompetencia from "./pages/OrdenDePago/AreasCompetencia";
 
 export default function App() {
   return (
@@ -24,7 +25,14 @@ export default function App() {
           path="/inscripcion/tutorLegal"
           element={<InscripcionTutorLegal />}
         />
-        <Route path="/SubirComprobante" element={<SubirComprobante />} />
+        <Route 
+          path="/SubirComprobante" 
+          element={<SubirComprobante />}
+        />
+        <Route 
+          path="/areasCompetencia" 
+          element={<AreaCompetencia />}
+        />
       </Routes>
     </>
   );
