@@ -8,6 +8,7 @@ export default function FormularioInscripcion() {
   const [apellidos, setApellidos] = useState("");
   const [nombres, setNombres] = useState("");
   const [ci, setCi] = useState("");
+  const roles = ["Estudiante", "Padre/Madre", "Profesor"];
 
   const handleNext = () => {
     navigate("/inscripcion/estudiante");
@@ -19,8 +20,6 @@ export default function FormularioInscripcion() {
       setter(value);
     }
   };
-
-  const roles = ["Estudiante", "Padre/Madre", "Profesor"];
 
   return (
     <div className="max-w-md mx-auto p-6 bg-white mt-3">
@@ -53,7 +52,10 @@ export default function FormularioInscripcion() {
           className="mt-1 p-2 w-full border rounded-md"
           placeholder="Apellidos"
           value={apellidos}
-          onChange={handleInputChange(setApellidos)}
+          onChange={handleInputChange(
+            setApellidos,
+            /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
+          )}
           pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+"
         />
 
@@ -67,7 +69,7 @@ export default function FormularioInscripcion() {
           className="mt-1 p-2 w-full border rounded-md"
           placeholder="Nombres"
           value={nombres}
-          onChange={handleInputChange(setNombres)}
+          onChange={handleInputChange(setNombres, /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/)}
           pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+"
         />
 
@@ -83,6 +85,7 @@ export default function FormularioInscripcion() {
           value={ci}
           onChange={handleInputChange(setCi, /^[0-9]*$/)}
           pattern="[0-9]+"
+          maxLength="8"
         />
 
         <div className="flex justify-end mt-4 gap-2">

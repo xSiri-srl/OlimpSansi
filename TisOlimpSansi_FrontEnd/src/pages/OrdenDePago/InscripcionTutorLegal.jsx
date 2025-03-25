@@ -4,7 +4,14 @@ import { useState } from "react";
 
 export default function FormularioInscripcion() {
   const navigate = useNavigate();
+  const [selectedRole, setSelectedRole] = useState("");
+  const [apellidos, setApellidos] = useState("");
+  const [nombres, setNombres] = useState("");
+  const [ci, setCi] = useState("");
+  const [telefono, setTelefono] = useState("");
+  const [correo, setCorreo] = useState("");
 
+  const roles = ["Estudiante", "Padre/Madre", "Profesor"];
   const handleNext = () => {
     navigate("/inscripcion/tutorAcademico");
   };
@@ -12,8 +19,12 @@ export default function FormularioInscripcion() {
     navigate("/inscripcion/AreasCompetencia");
   };
 
-  const roles = ["Estudiante", "Padre/Madre", "Profesor"];
-  const [selectedRole, setSelectedRole] = useState("");
+  const handleInputChange = (setter, regex) => (e) => {
+    const value = e.target.value;
+    if (regex.test(value) || value === "") {
+      setter(value);
+    }
+  };
 
   return (
     <div className="max-w-md mx-auto p-6 bg-white mt-3">
@@ -42,6 +53,12 @@ export default function FormularioInscripcion() {
           type="text"
           name="apellidos"
           className="mt-1 p-2 w-full border rounded-md"
+          value={apellidos}
+          onChange={handleInputChange(
+            setApellidos,
+            /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
+          )}
+          pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+"
           placeholder="Apellidos"
         />
 
@@ -53,6 +70,9 @@ export default function FormularioInscripcion() {
           type="text"
           name="nombre"
           className="mt-1 p-2 w-full border rounded-md"
+          value={nombres}
+          onChange={handleInputChange(setNombres, /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/)}
+          pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+"
           placeholder="Nombres"
         />
 
@@ -65,6 +85,10 @@ export default function FormularioInscripcion() {
           name="ci"
           className="mt-1 p-2 w-full border rounded-md"
           placeholder="Numero de Carnet de Identidad"
+          value={ci}
+          onChange={handleInputChange(setCi, /^[0-9]*$/)}
+          pattern="[0-9]+"
+          maxLength="8"
         />
 
         <div>
@@ -89,6 +113,10 @@ export default function FormularioInscripcion() {
           name="Telefono"
           className="mt-1 p-2 w-full border rounded-md"
           placeholder="Numero de telefono/Celular"
+          value={telefono}
+          onChange={handleInputChange(setTelefono, /^[0-9]*$/)}
+          pattern="[0-9]+"
+          maxLength="8"
         />
 
         <div className="flex justify-end mt-4 gap-2">
