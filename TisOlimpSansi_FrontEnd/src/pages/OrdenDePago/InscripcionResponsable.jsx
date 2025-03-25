@@ -1,13 +1,27 @@
 import { FaUser, FaIdCard } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 export default function FormularioInscripcion() {
   const navigate = useNavigate();
+  const [selectedRole, setSelectedRole] = useState("");
+  const [apellidos, setApellidos] = useState("");
+  const [nombres, setNombres] = useState("");
+  const [ci, setCi] = useState("");
 
   const handleNext = () => {
     navigate("/inscripcion/estudiante");
   };
+
+  const handleInputChange = (setter, regex) => (e) => {
+    const value = e.target.value;
+    if (regex.test(value) || value === "") {
+      setter(value);
+    }
+  };
+
   const roles = ["Estudiante", "Padre/Madre", "Profesor"];
+
   return (
     <div className="max-w-md mx-auto p-6 bg-white mt-3">
       <h2 className="text-xl font-semibold mb-4 text-center">
@@ -21,6 +35,8 @@ export default function FormularioInscripcion() {
                 type="checkbox"
                 name="roles"
                 value={role}
+                checked={selectedRole === role}
+                onChange={() => setSelectedRole(role)}
                 className="mr-2"
               />
               {role}
@@ -36,6 +52,9 @@ export default function FormularioInscripcion() {
           name="apellidos"
           className="mt-1 p-2 w-full border rounded-md"
           placeholder="Apellidos"
+          value={apellidos}
+          onChange={handleInputChange(setApellidos)}
+          pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+"
         />
 
         <div className="flex items-center gap-2">
@@ -47,6 +66,9 @@ export default function FormularioInscripcion() {
           name="nombre"
           className="mt-1 p-2 w-full border rounded-md"
           placeholder="Nombres"
+          value={nombres}
+          onChange={handleInputChange(setNombres)}
+          pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+"
         />
 
         <div className="flex items-center gap-2">
@@ -58,6 +80,9 @@ export default function FormularioInscripcion() {
           name="ci"
           className="mt-1 p-2 w-full border rounded-md"
           placeholder="Numero de Carnet de Identidad"
+          value={ci}
+          onChange={handleInputChange(setCi, /^[0-9]*$/)}
+          pattern="[0-9]+"
         />
 
         <div className="flex justify-end mt-4 gap-2">

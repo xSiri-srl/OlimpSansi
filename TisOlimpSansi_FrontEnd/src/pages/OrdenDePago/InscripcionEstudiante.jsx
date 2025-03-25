@@ -12,6 +12,7 @@ import {
 
 export default function FormularioEstudiante() {
   const navigate = useNavigate();
+  const [selectedRole, setSelectedRole] = useState("");
 
   const handleNext = () => {
     navigate("/inscripcion/AreasCompetencia");
@@ -19,7 +20,7 @@ export default function FormularioEstudiante() {
   const handlePrevious = () => {
     navigate("/inscripcion/responsable");
   };
-  
+
   const roles = ["Estudiante", "Padre/Madre", "Profesor"];
 
   const departamentos = {
@@ -157,6 +158,8 @@ export default function FormularioEstudiante() {
                       type="checkbox"
                       name="roles"
                       value={role}
+                      checked={selectedRole === role}
+                      onChange={() => setSelectedRole(role)}
                       className="mr-2"
                     />
                     {role}
