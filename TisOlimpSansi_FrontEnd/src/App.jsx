@@ -1,9 +1,10 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Home from "./pages/borrar";
+import Home from "./pages/Inicio/Inicio";
 import Navbar from "./components/Navbar";
-import InscripcionResponsable from "./pages/InscripcionResponsable";
-import InscripcionEstudiante from "./pages/InscripcionEstudiante";
-import InscripcionTutorLegal from "./pages/InscripcionTutorLegal";import SubirComprobante from "./components/SubirComprobante";
+import InscripcionResponsable from "./pages/OrdenDePago/InscripcionResponsable";
+import InscripcionEstudiante from "./pages/OrdenDePago/InscripcionEstudiante";
+import InscripcionTutorLegal from "./pages/OrdenDePago/InscripcionTutorLegal";
+import SubirComprobante from "./pages/Comprobante/SubirComprobante";
 
 export default function App() {
   return (
