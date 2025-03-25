@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { FaCheck } from "react-icons/fa"; 
 // Separar las áreas en dos filas 
 const primeraFila = [
@@ -15,6 +16,14 @@ const segundaFila = [
 ];
 
 const AreasDeCompetencia = () => {
+    const navigate = useNavigate();
+
+    const handleNext = () => {
+      navigate("/inscripcion/tutorLegal");
+    };
+    const handlePrevious = () => {
+        navigate("/inscripcion/estudiante");
+    };
   const [seleccionadas, setSeleccionadas] = useState([]);
 
   const manejarSeleccion = (nombre) => {
@@ -73,7 +82,24 @@ const AreasDeCompetencia = () => {
           <p className="font-semibold">Áreas seleccionadas: {seleccionadas.join(", ")}</p>
         </div>
       )}
+      <div className="flex justify-end mt-4 gap-2">
+       <button
+          type="button"
+          className="bg-[#4C8EDA] text-white py-2 px-4 rounded-md hover:bg-[#2e4f96]"
+          onClick={handlePrevious}
+        >
+          Atrás
+        </button>
+        <button
+          type="button"
+          className="bg-[#4C8EDA] text-white py-2 px-4 rounded-md hover:bg-[#2e4f96]"
+          onClick={handleNext}
+        >
+          Siguiente
+        </button>
+        </div>
     </div>
+    
   );
 };
 
