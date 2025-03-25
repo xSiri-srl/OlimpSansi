@@ -78,7 +78,7 @@ const SubirComprobante = () => {
           <div className="grid grid-cols-2 gap-6">
             <div>
               <h2 className="text-lg font-semibold mb-2 text-gray-500">
-                Por favor, ingrese el código proporcionado en el formulario anterior para continuar con su inscripción.
+                Por favor, ingrese el código proporcionado en el formulario de ORDEN DE PAGO.
               </h2>
               <input
                 type="text"
