@@ -1,32 +1,22 @@
-import { FaUser, FaIdCard } from "react-icons/fa";
+import { FaUser, FaIdCard, FaEnvelope, FaPhoneAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
 export default function FormularioInscripcion() {
-  const navigate = useNavigate();
+   const navigate = useNavigate();
+  
+      const handleNext = () => {
+        navigate("/inscripcion/fin");
+      };
+      const handlePrevious = () => {
+          navigate("/inscripcion/tutorLegal");
+      };
 
-  const handleNext = () => {
-    navigate("/inscripcion/estudiante");
-  };
-  const roles = ["Estudiante", "Padre/Madre", "Profesor"];
+
   return (
     <div className="max-w-md mx-auto p-6 bg-white mt-3">
-      <h2 className="text-xl font-semibold mb-4 text-center">
-        Responsable de Inscripción
-      </h2>
+      <h2 className="text-xl font-semibold mb-4 text-center">Tutor Académico</h2>
       <form className="space-y-4 mt-8 p-4 shadow-md border rounded-md">
-        <div className="flex flex-row space-x-5 mt-3">
-          {roles.map((role) => (
-            <label key={role} className="inline-flex items-center">
-              <input
-                type="checkbox"
-                name="roles"
-                value={role}
-                className="mr-2"
-              />
-              {role}
-            </label>
-          ))}
-        </div>
+
         <div className="flex items-center gap-2">
           <FaUser className="text-black" />
           <label>Apellidos</label>
@@ -60,10 +50,12 @@ export default function FormularioInscripcion() {
           placeholder="Numero de Carnet de Identidad"
         />
 
+
         <div className="flex justify-end mt-4 gap-2">
           <button
             type="button"
             className="bg-[#4C8EDA] text-white py-2 px-4 rounded-md hover:bg-[#2e4f96]"
+            onClick={handlePrevious}
           >
             Atrás
           </button>

@@ -1,6 +1,16 @@
 import { FaUser, FaIdCard, FaEnvelope, FaPhoneAlt } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 export default function FormularioInscripcion() {
+   const navigate = useNavigate();
+  
+      const handleNext = () => {
+        navigate("/inscripcion/tutorAcademico");
+      };
+      const handlePrevious = () => {
+          navigate("/inscripcion/AreasCompetencia");
+      };
+
   const roles = ["Estudiante", "Padre/Madre", "Profesor"];
 
   return (
@@ -81,14 +91,16 @@ export default function FormularioInscripcion() {
           <button
             type="button"
             className="bg-[#4C8EDA] text-white py-2 px-4 rounded-md hover:bg-[#2e4f96]"
+            onClick={handlePrevious}
           >
             Atrás
           </button>
           <button
             type="button"
             className="bg-[#4C8EDA] text-white py-2 px-4 rounded-md hover:bg-[#2e4f96]"
+            onClick={handleNext}
           >
-            Adelante
+            Siguiente
           </button>
         </div>
       </form>
