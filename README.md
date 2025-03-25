@@ -16,4 +16,20 @@ npm install
 ```sh
 npm run dev
 ```
-## Iniciar BackEnd
+## 
+Iniciar BackEnd
+
+1. Redirigirse a la carpeta TisOlimSansi_FrontEND
+```sh
+cd TisOlimpSansi_BackEnd
+```
+
+2. Hacer correr el servidor FrontEnd
+```sh
+php artisan serve
+```
+
+F. Formato de migraciones
+```sh
+php artisan make:migration create_nombre_tabla_table
+```
