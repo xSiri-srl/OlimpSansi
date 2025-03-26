@@ -1,165 +1,160 @@
+import React from "react";
 import { FaUser, FaIdCard, FaEnvelope, FaPhoneAlt } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
-import { useState } from "react";
 
-export default function FormularioInscripcion() {
-  const navigate = useNavigate();
-  const [selectedRole, setSelectedRole] = useState("");
-  const [apellidoPaterno, setApellidoPaterno] = useState("");
-  const [apellidoMaterno, setApellidoMaterno] = useState("");
-  const [nombres, setNombres] = useState("");
-  const [ci, setCi] = useState("");
-  const [telefono, setTelefono] = useState("");
-  const [correo, setCorreo] = useState("");
-
-  const roles = ["Estudiante", "Padre/Madre", "Profesor"];
-  const handleNext = () => {
-    navigate("/inscripcion/tutorAcademico");
-  };
-  const handlePrevious = () => {
-    navigate("/inscripcion/AreasCompetencia");
-  };
-
-  const handleInputChange = (setter, regex) => (e) => {
-    const value = e.target.value;
-    if (regex.test(value) || value === "") {
-      setter(value);
-    }
-  };
+export default function InscripcionTutorLegal({
+  formData,
+  handleInputChange,
+  handleNext,
+  handleBack,
+}) {
+  const roles = ["Padre", "Madre", "Tutor Legal"];
+  const selectedRole = formData.selectedRole || "";
 
   return (
-    <div className="max-w-md mx-auto p-6 bg-white mt-3">
-      <h2 className="text-xl font-semibold mb-4 text-center">Tutor Legal</h2>
-      <form className="space-y-4 mt-8 p-4 shadow-md border rounded-md">
-        <div className="flex flex-row space-x-5 mt-3">
-          {roles.map((role) => (
-            <label key={role} className="inline-flex items-center">
-              <input
-                type="checkbox"
-                name="roles"
-                value={role}
-                checked={selectedRole === role}
-                onChange={() => setSelectedRole(role)}
-                className="mr-2"
-              />
-              {role}
-            </label>
-          ))}
-        </div>
+    <div className="grid grid-cols-1 gap-6">
+      {/* Título */}
+      <div>
+        <h2 className="text-lg font-semibold mb-2 text-gray-500">
+          Tutor Legal
+        </h2>
+      </div>
+
+      {/* Selección de Rol */}
+      <div>
+        <h3 className="text-md font-semibold mb-2">Rol del Tutor</h3>
+        <div className="flex flex-row space-x-5 mt-2">
+    {["Padre", "Madre", "Tutor Legal"].map((rol) => (
+      <label key={rol} className="inline-flex items-center">
+        <input
+          type="radio"
+          name="correoPertenece"
+          value={rol}
+          checked={formData.legal?.correoPertenece === rol}
+          onChange={() =>
+            handleInputChange("legal", "correoPertenece", rol)
+          }
+          className="mr-2"
+        />
+        {rol}
+      </label>
+    ))}
+  </div>
+      </div>
+
+      {/* Formulario de Datos del Tutor */}
+      <div className="space-y-4">
         <div className="flex gap-4">
           <div className="w-full">
-            <div className="flex items-center gap-2">
-              <FaUser className="text-black" />
-              <label>Apellido Paterno</label>
-            </div>
+            <label className="flex items-center gap-2">
+              <FaUser className="text-black" /> Apellido Paterno
+            </label>
             <input
               type="text"
               name="apellidoPaterno"
               className="mt-1 p-2 w-full border rounded-md"
               placeholder="Apellido Paterno"
-              value={apellidoPaterno}
-              onChange={handleInputChange(
-                setApellidoPaterno,
-                /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
-              )}
-              pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+"
+              value={formData.legal?.apellidoPaterno || ""}
+              onChange={(e) =>
+              handleInputChange("legal","apellidoPaterno", e.target.value)
+              }
             />
           </div>
 
           <div className="w-full">
-            <div className="flex items-center gap-2">
-              <FaUser className="text-black" />
-              <label>Apellido Materno</label>
-            </div>
+            <label className="flex items-center gap-2">
+              <FaUser className="text-black" /> Apellido Materno
+            </label>
             <input
               type="text"
               name="apellidoMaterno"
               className="mt-1 p-2 w-full border rounded-md"
               placeholder="Apellido Materno"
-              value={apellidoMaterno}
-              onChange={handleInputChange(
-                setApellidoMaterno,
-                /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
-              )}
-              pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+"
+              value={formData.legal?.apellidoMaterno || ""}
+              onChange={(e) =>
+              handleInputChange("legal","apellidoMaterno", e.target.value)
+              }
             />
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <FaUser className="text-black" />
-          <label>Nombres</label>
+        <div>
+          <label className="flex items-center gap-2">
+            <FaUser className="text-black" /> Nombres
+          </label>
+          <input
+            type="text"
+            name="nombres"
+            className="mt-1 p-2 w-full border rounded-md"
+            placeholder="Nombres"
+            value={formData.legal?.nombres || ""}
+            onChange={(e) => 
+              handleInputChange("legal","nombres", e.target.value)}
+          />
         </div>
-        <input
-          type="text"
-          name="nombre"
-          className="mt-1 p-2 w-full border rounded-md"
-          value={nombres}
-          onChange={handleInputChange(setNombres, /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/)}
-          pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+"
-          placeholder="Nombres"
-        />
-
-        <div className="flex items-center gap-2">
-          <FaIdCard className="text-black" />
-          <label>CI</label>
-        </div>
-        <input
-          type="text"
-          name="ci"
-          className="mt-1 p-2 w-full border rounded-md"
-          placeholder="Numero de Carnet de Identidad"
-          value={ci}
-          onChange={handleInputChange(setCi, /^[0-9]*$/)}
-          pattern="[0-9]+"
-          maxLength="8"
-        />
 
         <div>
           <label className="flex items-center gap-2">
-            <FaEnvelope className="text-black" />
-            Correo Electrónico
+            <FaIdCard className="text-black" /> CI
+          </label>
+          <input
+            type="text"
+            name="ci"
+            className="mt-1 p-2 w-full border rounded-md"
+            placeholder="Número de Carnet de Identidad"
+            value={formData.legal?.ci || ""}
+            onChange={(e) => 
+            handleInputChange("legal","ci", e.target.value)}
+            maxLength="8"
+          />
+        </div>
+
+        <div>
+          <label className="flex items-center gap-2">
+            <FaEnvelope className="text-black" /> Correo Electrónico
           </label>
           <input
             type="email"
             name="correo"
             className="mt-1 p-2 w-full border rounded-md"
             placeholder="Correo Electrónico"
+            value={formData.legal?.correo || ""}
+            onChange={(e) => handleInputChange("legal","correo", e.target.value)}
           />
         </div>
 
-        <div className="flex items-center gap-2">
-          <FaPhoneAlt className="text-black" />
-          <label>Telefono/Celular</label>
+        <div>
+          <label className="flex items-center gap-2">
+            <FaPhoneAlt className="text-black" /> Teléfono/Celular
+          </label>
+          <input
+            type="text"
+            name="telefono"
+            className="mt-1 p-2 w-full border rounded-md"
+            placeholder="Número de Teléfono/Celular"
+            value={formData.legal?.telefono || ""}
+            onChange={(e) => handleInputChange("legal","telefono", e.target.value)}
+            maxLength="8"
+          />
         </div>
-        <input
-          type="text"
-          name="Telefono"
-          className="mt-1 p-2 w-full border rounded-md"
-          placeholder="Numero de telefono/Celular"
-          value={telefono}
-          onChange={handleInputChange(setTelefono, /^[0-9]*$/)}
-          pattern="[0-9]+"
-          maxLength="8"
-        />
+      </div>
 
-        <div className="flex justify-end mt-4 gap-2">
-          <button
-            type="button"
-            className="bg-[#4C8EDA] text-white py-2 px-4 rounded-md hover:bg-[#2e4f96]"
-            onClick={handlePrevious}
-          >
-            Atrás
-          </button>
-          <button
-            type="button"
-            className="bg-[#4C8EDA] text-white py-2 px-4 rounded-md hover:bg-[#2e4f96]"
-            onClick={handleNext}
-          >
-            Siguiente
-          </button>
-        </div>
-      </form>
+      {/* Botones de Navegación */}
+      <div className="flex justify-end mt-4 gap-2">
+        <button
+          type="button"
+          className="bg-[#4C8EDA] text-white py-2 px-4 rounded-md hover:bg-[#2e4f96]"
+          onClick={handleBack}
+        >
+          Atrás
+        </button>
+        <button
+          type="button"
+          className="bg-[#4C8EDA] text-white py-2 px-4 rounded-md hover:bg-[#2e4f96]"
+          onClick={handleNext}
+        >
+          Siguiente
+        </button>
+      </div>
     </div>
   );
 }
