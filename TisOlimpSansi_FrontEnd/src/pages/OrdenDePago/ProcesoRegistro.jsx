@@ -10,10 +10,16 @@ const ProcesoRegistro = ({
 }) => {
   const navigate = useNavigate();
   const [step, setStep] = useState(initialStep);
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState({
+    flow: { redirectToProfesor: false }
+  });
 
   const handleNext = () => {
-    if (step < steps.length) {
+    // Si necesitamos redirigir al registro de profesor
+    if (formData.flow?.redirectToProfesor) {
+      // Ir al paso del profesor (índice 4 en el array de pasos)
+      setStep(5); // Ajusta este valor según la posición de la pantalla del profesor
+    } else if (step < steps.length) {
       setStep(step + 1);
       if (step === steps.length - 1) {
         navigate(nextRoute);
@@ -65,7 +71,6 @@ const ProcesoRegistro = ({
         </div>
 
         {React.Children.map(children, (child, index) => {
-
           if (index + 1 === step) {
             return React.cloneElement(child, {
               formData,

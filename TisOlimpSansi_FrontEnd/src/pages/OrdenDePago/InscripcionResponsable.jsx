@@ -127,7 +127,7 @@ const InscripcionResponsable = () => {
     'Competidor', 
     'Áreas de Competencia',
     'Tutor Legal',
-    'Profesor o Entrenador',
+    'Profesor',
     'Confirmación'
   ];
 

@@ -7,19 +7,27 @@ export default function IncripcionTutorAcademico({
   handleNext,
   handleBack,
 }) {
+  const areaCompetencia = formData.profesor?.areaCompetencia || "[AREA DE COMPETENCIA]";
+  
+  // Función para manejar el siguiente paso después de registrar profesor
+  const handleProfesorNext = () => {
+    // Limpiar datos para el próximo profesor si es necesario
+    handleInputChange("flow", "redirectToProfesor", false);
+    handleNext();
+  };
   return (
     <div className="grid grid-cols-1 gap-6">
       {/* Título */}
       <div>
         <h2 className="text-lg font-semibold mb-2 text-gray-500">
-          Profesor o Entrenador
+          Profesor de {areaCompetencia}
         </h2>
         <p className="text-sm text-gray-600">
           Por favor, completa los datos del tutor académico.
         </p>
       </div>
 
-      {/* Formulario de Datos del Tutor Académico */}
+      {/* Datos del profesor */}
       <div className="space-y-4">
         <div className="flex gap-4">
           <div className="w-full">
@@ -115,7 +123,7 @@ export default function IncripcionTutorAcademico({
         <button
           type="button"
           className="bg-[#4C8EDA] text-white py-2 px-4 rounded-md hover:bg-[#2e4f96]"
-          onClick={handleNext}
+          onClick={handleProfesorNext}
         >
           Siguiente
         </button>
