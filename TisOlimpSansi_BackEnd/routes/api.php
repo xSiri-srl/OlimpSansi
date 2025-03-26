@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\NombreDeHU1\UserPruebaController;
 use App\Http\Controllers\Inscripcion\ResponsableInscripcionController;
+use App\Http\Controllers\Inscripcion\TutorLegalController; 
 
 Route::controller(UserPruebaController::class)->group(function(){
     Route::post('/agregarEjemplo', [UserPruebaController::class, 'store']);
