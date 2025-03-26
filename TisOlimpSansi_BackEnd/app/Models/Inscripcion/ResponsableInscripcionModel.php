@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\ResponsableInscripcion;
+namespace App\Models\Inscripcion;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
