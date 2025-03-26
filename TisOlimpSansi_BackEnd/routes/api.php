@@ -23,3 +23,14 @@ Route::controller(ResponsableInscripcionController::class)->group(function(){
     Route::delete('/eliminarResponsableInscrip/{id}', [ResponsableInscripcionController::class, 'destroy']);
     
 });
+
+//registrarTutorLegal
+Route::controller(TutorLegalController::class)->group(function(){
+
+    Route::get('/tutoresLegales', [TutorLegalController::class, 'index']);
+    Route::post('/agregarTutorLegal', [TutorLegalController::class, 'store']);
+    Route::get('/tutorLegal/{id}', [TutorLegalController::class, 'show']);
+    Route::put('/actualizarTutorLegal/{id}', [TutorLegalController::class, 'update']);
+    Route::delete('/eliminarTutorLegal/{id}', [TutorLegalController::class, 'destroy']);
+    
+});
