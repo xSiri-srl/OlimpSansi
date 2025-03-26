@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\TutorAcademico;
+namespace App\Http\Controllers\Inscripcion;
 
 use App\Http\Controllers\Controller;
-use App\Models\TutorAcademico\TutorAcademicoModel;
+use App\Models\Inscripcion\TutorAcademicoModel;
 use Illuminate\Http\Request;
 
 class TutorAcademicoController extends Controller
