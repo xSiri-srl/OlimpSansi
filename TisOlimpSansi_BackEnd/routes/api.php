@@ -7,6 +7,7 @@ use App\Http\Controllers\NombreDeHU1\UserPruebaController;
 use App\Http\Controllers\Inscripcion\ResponsableInscripcionController;
 use App\Http\Controllers\Inscripcion\TutorLegalController; 
 use App\Http\Controllers\Inscripcion\InscripcionAreaController; 
+use App\Http\Controllers\Inscripcion\EstudianteController; 
 
 Route::controller(UserPruebaController::class)->group(function(){
     Route::post('/agregarEjemplo', [UserPruebaController::class, 'store']);
@@ -44,5 +45,16 @@ Route::controller(InscripcionAreaController::class)->group(function(){
     Route::get('/inscripcionArea/{id}', [InscripcionAreaController::class, 'show']);
     Route::put('/actualizarInscripcionArea/{id}', [InscripcionAreaController::class, 'update']);
     Route::delete('/eliminarInscripcionArea/{id}', [InscripcionAreaController::class, 'destroy']);
+    
+});
+
+//Registrar datos del competidor
+Route::controller(EstudianteController::class)->group(function(){
+
+    Route::get('/estudiantes', [EstudianteController::class, 'index']);
+    Route::post('/agregarEstudiante', [EstudianteController::class, 'store']);
+    Route::get('/estudiante/{id}', [EstudianteController::class, 'show']);
+    Route::put('/actualizarEstudiante/{id}', [EstudianteController::class, 'update']);
+    Route::delete('/eliminarEstudiante/{id}', [EstudianteController::class, 'destroy']);
     
 });
