@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\NombreDeHU1\UserPruebaController;
 use App\Http\Controllers\Inscripcion\ResponsableInscripcionController;
 use App\Http\Controllers\Inscripcion\TutorLegalController; 
+use App\Http\Controllers\Inscripcion\InscripcionAreaController; 
 
 Route::controller(UserPruebaController::class)->group(function(){
     Route::post('/agregarEjemplo', [UserPruebaController::class, 'store']);
@@ -32,5 +33,16 @@ Route::controller(TutorLegalController::class)->group(function(){
     Route::get('/tutorLegal/{id}', [TutorLegalController::class, 'show']);
     Route::put('/actualizarTutorLegal/{id}', [TutorLegalController::class, 'update']);
     Route::delete('/eliminarTutorLegal/{id}', [TutorLegalController::class, 'destroy']);
+    
+});
+
+//SeleccionarAreasCompetencia
+Route::controller(InscripcionAreaController::class)->group(function(){
+
+    Route::get('/todasInscripciones', [InscripcionAreaController::class, 'index']);
+    Route::post('/agregarInscripcionArea', [InscripcionAreaController::class, 'store']);
+    Route::get('/inscripcionArea/{id}', [InscripcionAreaController::class, 'show']);
+    Route::put('/actualizarInscripcionArea/{id}', [InscripcionAreaController::class, 'update']);
+    Route::delete('/eliminarInscripcionArea/{id}', [InscripcionAreaController::class, 'destroy']);
     
 });
