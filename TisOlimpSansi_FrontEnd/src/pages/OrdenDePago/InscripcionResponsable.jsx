@@ -9,16 +9,29 @@ export default function FormularioInscripcion() {
   const [apellidoMaterno, setApellidoMaterno] = useState("");
   const [nombres, setNombres] = useState("");
   const [ci, setCi] = useState("");
+  const [errors, setErrors] = useState({});
   const roles = ["Estudiante", "Padre/Madre", "Profesor"];
 
   const handleNext = () => {
-    navigate("/inscripcion/estudiante");
+    const newErrors = {};
+    if (!selectedRole) newErrors.selectedRole = "Debe seleccionar un rol.";
+    if (!apellidoPaterno) newErrors.apellidoPaterno = "Campo obligatorio.";
+    if (!apellidoMaterno) newErrors.apellidoMaterno = "Campo obligatorio.";
+    if (!nombres) newErrors.nombres = "Campo obligatorio.";
+    if (!ci) newErrors.ci = "Campo obligatorio.";
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+    } else {
+      navigate("/inscripcion/estudiante");
+    }
   };
 
-  const handleInputChange = (setter, regex) => (e) => {
+  const handleInputChange = (setter, fieldName, regex) => (e) => {
     const value = e.target.value;
     if (regex.test(value) || value === "") {
       setter(value);
+      setErrors((prev) => ({ ...prev, [fieldName]: "" }));
     }
   };
 
@@ -36,13 +49,20 @@ export default function FormularioInscripcion() {
                 name="roles"
                 value={role}
                 checked={selectedRole === role}
-                onChange={() => setSelectedRole(role)}
+                onChange={() => {
+                  setSelectedRole(role);
+                  setErrors((prev) => ({ ...prev, selectedRole: "" }));
+                }}
                 className="mr-2"
               />
               {role}
             </label>
           ))}
         </div>
+        {errors.selectedRole && (
+          <p className="text-red-500 text-sm">{errors.selectedRole}</p>
+        )}
+
         <div className="flex gap-4">
           <div className="w-full">
             <div className="flex items-center gap-2">
@@ -57,10 +77,15 @@ export default function FormularioInscripcion() {
               value={apellidoPaterno}
               onChange={handleInputChange(
                 setApellidoPaterno,
+                "apellidoPaterno",
                 /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
               )}
-              pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+"
             />
+            {errors.apellidoPaterno && (
+              <p className="text-red-500 text-sm pt-3">
+                {errors.apellidoPaterno}
+              </p>
+            )}
           </div>
 
           <div className="w-full">
@@ -76,10 +101,15 @@ export default function FormularioInscripcion() {
               value={apellidoMaterno}
               onChange={handleInputChange(
                 setApellidoMaterno,
+                "apellidoMaterno",
                 /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
               )}
-              pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+"
             />
+            {errors.apellidoMaterno && (
+              <p className="text-red-500 text-sm pt-3">
+                {errors.apellidoMaterno}
+              </p>
+            )}
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -92,9 +122,15 @@ export default function FormularioInscripcion() {
           className="mt-1 p-2 w-full border rounded-md"
           placeholder="Nombres"
           value={nombres}
-          onChange={handleInputChange(setNombres, /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/)}
-          pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+"
+          onChange={handleInputChange(
+            setNombres,
+            "nombres",
+            /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
+          )}
         />
+        {errors.nombres && (
+          <p className="text-red-500 text-sm">{errors.nombres}</p>
+        )}
 
         <div className="flex items-center gap-2">
           <FaIdCard className="text-black" />
@@ -106,10 +142,10 @@ export default function FormularioInscripcion() {
           className="mt-1 p-2 w-full border rounded-md"
           placeholder="Numero de Carnet de Identidad"
           value={ci}
-          onChange={handleInputChange(setCi, /^[0-9]*$/)}
-          pattern="[0-9]+"
+          onChange={handleInputChange(setCi, "ci", /^[0-9]*$/)}
           maxLength="8"
         />
+        {errors.ci && <p className="text-red-500 text-sm">{errors.ci}</p>}
 
         <div className="flex justify-end mt-4 gap-2">
           <button
