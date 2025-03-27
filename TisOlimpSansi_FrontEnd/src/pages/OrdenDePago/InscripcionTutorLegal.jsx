@@ -11,6 +11,7 @@ export default function FormularioInscripcion() {
   const [ci, setCi] = useState("");
   const [telefono, setTelefono] = useState("");
   const [correo, setCorreo] = useState("");
+  const [errorCorreo, setErrorCorreo] = useState("");
 
   const roles = ["Estudiante", "Padre/Madre", "Profesor"];
   const handleNext = () => {
@@ -26,12 +27,20 @@ export default function FormularioInscripcion() {
       setter(value);
     }
   };
+  const validarCorreo = (email) => {
+    const regexCorreo = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!regexCorreo.test(email)) {
+      setErrorCorreo("Correo electrónico inválido");
+    } else {
+      setErrorCorreo("");
+    }
+  };
 
   return (
-    <div className="max-w-md mx-auto p-6 bg-white mt-3">
+    <div className="max-w-md mx-auto p-5 bg-white mt-3">
       <h2 className="text-xl font-semibold mb-4 text-center">Tutor Legal</h2>
-      <form className="space-y-4 mt-8 p-4 shadow-md border rounded-md">
-        <div className="flex flex-row space-x-5 mt-3">
+      <form className="space-y-4 mt-5 p-4 shadow-md border rounded-md">
+        <div className="flex flex-row space-x-5 mt-2">
           {roles.map((role) => (
             <label key={role} className="inline-flex items-center">
               <input
@@ -125,6 +134,11 @@ export default function FormularioInscripcion() {
             name="correo"
             className="mt-1 p-2 w-full border rounded-md"
             placeholder="Correo Electrónico"
+            value={correo}
+            onChange={(e) => {
+              setCorreo(e.target.value);
+              validarCorreo(e.target.value);
+            }}
           />
         </div>
 
