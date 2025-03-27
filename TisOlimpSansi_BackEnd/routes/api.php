@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\NombreDeHU1\UserPruebaController;
+use App\Http\Controllers\OrdenPagoController;
 use App\Http\Controllers\ResponsableInscripcion\ResponsableInscripcionController;
 
 Route::controller(UserPruebaController::class)->group(function(){
@@ -22,3 +23,9 @@ Route::controller(ResponsableInscripcionController::class)->group(function(){
     Route::delete('/eliminarResponsableInscrip/{id}', [ResponsableInscripcionController::class, 'destroy']);
     
 });
+
+Route::post('/verificar-codigo-generado', [OrdenPagoController::class, 'verificarCodigo']);
+
+Route::post('/procesar-comprobanteOCR', [OrdenPagoController::class, 'procesarComprobante']);
+
+Route::post('/guardar-comprobante', [OrdenPagoController::class, 'guardarComprobante']);
