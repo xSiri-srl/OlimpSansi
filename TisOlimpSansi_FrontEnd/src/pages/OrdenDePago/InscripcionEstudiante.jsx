@@ -17,6 +17,9 @@ export default function FormularioEstudiante() {
   const [nombres, setNombres] = useState("");
   const [ci, setCi] = useState("");
   const [colegio, setColegio] = useState("");
+  const [correo, setCorreo] = useState("");
+  const [errorCorreo, setErrorCorreo] = useState("");
+
   const roles = ["Estudiante", "Padre/Madre", "Profesor"];
 
   const handleNext = () => {
@@ -30,6 +33,15 @@ export default function FormularioEstudiante() {
     const value = e.target.value;
     if (regex.test(value) || value === "") {
       setter(value);
+    }
+  };
+
+  const validarCorreo = (email) => {
+    const regexCorreo = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!regexCorreo.test(email)) {
+      setErrorCorreo("Correo electrónico inválido");
+    } else {
+      setErrorCorreo("");
     }
   };
 
@@ -170,6 +182,11 @@ export default function FormularioEstudiante() {
                 name="correo"
                 className="mt-1 p-2 w-full border rounded-md"
                 placeholder="Correo Electrónico"
+                value={correo}
+                onChange={(e) => {
+                  setCorreo(e.target.value);
+                  validarCorreo(e.target.value);
+                }}
               />
             </div>
 
