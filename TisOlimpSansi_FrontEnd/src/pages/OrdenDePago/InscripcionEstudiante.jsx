@@ -9,11 +9,13 @@ import {
   FaBuilding,
   FaMapMarkedAlt,
 } from "react-icons/fa";
+import axios from "axios";
 
 export default function FormularioEstudiante() {
   const navigate = useNavigate();
   const [selectedRole, setSelectedRole] = useState("");
-  const [apellidos, setApellidos] = useState("");
+  const [apellidoPaterno, setApellidoPaterno] = useState("");
+  const [apellidoMaterno, setApellidoMaterno] = useState("");
   const [nombres, setNombres] = useState("");
   const [ci, setCi] = useState("");
   const [colegio, setColegio] = useState("");
@@ -23,8 +25,42 @@ export default function FormularioEstudiante() {
 
   const roles = ["Estudiante", "Padre/Madre", "Profesor"];
 
-  const handleNext = () => {
-    navigate("/inscripcion/AreasCompetencia");
+  const handleNext = async () => {
+    const newErrors = {};
+    if (!apellidos) newErrors.apellidos = "Campo obligatorio";
+    if (!nombres) newErrors.nombres = "Campo obligatorio";
+    if (!ci) newErrors.ci = "Campo obligatorio";
+    if (!colegio) newErrors.colegio = "Campo obligatorio";
+    if (!correo) newErrors.correo = "Campo obligatorio";
+    else {
+      const regexCorreo = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      if (!regexCorreo.test(correo)) newErrors.correo = "Correo inválido";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        "http://localhost:8000/api/agregarEstudiante",
+        {
+          apellido_pa: apellidoPaterno,
+          apellido_ma: apellidoMaterno,
+          nombre: nombres,
+          ci: ci,
+          correo: correo,
+          fecha_registro: fechaNacimiento,
+          numero_celular: telefono,
+          tipo: selectedRole,
+        }
+      );
+      console.log("Respuesta del servidor:", response.data);
+      navigate("/inscripcion/AreasCompetencia");
+    } catch (error) {
+      console.error("Error al enviar los datos:", error);
+    }
   };
   const handlePrevious = () => {
     navigate("/inscripcion/responsable");
@@ -110,22 +146,48 @@ export default function FormularioEstudiante() {
             Datos Personales
           </h2>
           <form className="space-y-4">
-            <div>
-              <label className="flex items-center gap-2">
-                <FaUserAlt className="text-black" /> Apellidos
-              </label>
-              <input
-                type="text"
-                name="apellido"
-                className="mt-1 p-2 w-full border rounded-md"
-                placeholder="Apellidos"
-                value={apellidos}
-                onChange={handleInputChange(
-                  setApellidos,
-                  /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
-                )}
-                pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+"
-              />
+            <div className="flex gap-4">
+              <div className="w-1/2">
+                <label
+                  htmlFor="apellidoPaterno"
+                  className="flex items-center gap-2"
+                >
+                  <FaUserAlt className="text-black" /> Apellido Paterno
+                </label>
+                <input
+                  type="text"
+                  id="apellidoPaterno"
+                  name="apellidoPaterno"
+                  className="mt-1 p-2 w-full border rounded-md"
+                  placeholder="Apellido Paterno"
+                  value={apellidoPaterno}
+                  onChange={handleInputChange(
+                    setApellidoPaterno,
+                    /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
+                  )}
+                />
+              </div>
+
+              <div className="w-1/2">
+                <label
+                  htmlFor="apellidoMaterno"
+                  className="flex items-center gap-2"
+                >
+                  <FaUserAlt className="text-black" /> Apellido Materno
+                </label>
+                <input
+                  type="text"
+                  id="apellidoMaterno"
+                  name="apellidoMaterno"
+                  className="mt-1 p-2 w-full border rounded-md"
+                  placeholder="Apellido Materno"
+                  value={apellidoMaterno}
+                  onChange={handleInputChange(
+                    setApellidoMaterno,
+                    /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
+                  )}
+                />
+              </div>
             </div>
 
             <div>

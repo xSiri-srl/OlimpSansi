@@ -14,10 +14,10 @@ export default function InscripcionTutorLegal() {
   const [correo, setCorreo] = useState("");
   const [errors, setErrors] = useState({});
   const [errorCorreo, setErrorCorreo] = useState("");
-
   const roles = ["Estudiante", "Padre/Madre", "Profesor"];
+
   const handleNext = async () => {
-    let newErrors = {};
+    const newErrors = {};
     if (!selectedRole) newErrors.selectedRole = "Debe seleccionar un rol";
     if (!apellidoPaterno) newErrors.apellidoPaterno = "Campo obligatorio";
     if (!apellidoMaterno) newErrors.apellidoMaterno = "Campo obligatorio";
@@ -31,31 +31,29 @@ export default function InscripcionTutorLegal() {
       if (!regexCorreo.test(correo)) newErrors.correo = "Correo inválido";
     }
 
-    setErrors(newErrors);
-
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
+
     try {
-      const response = await axios.post("http://localhost:8000/api/...", {
-        apellido_pa: apellidoPaterno,
-        apellido_ma: apellidoMaterno,
-        nombre: nombres,
-        ci: ci,
-        correo: correo,
-        numero_celular: telefono,
-        tipo: selectedRole,
-      });
+      const response = await axios.post(
+        "http://localhost:8000/api/agregarTutorLegal",
+        {
+          apellido_pa: apellidoPaterno,
+          apellido_ma: apellidoMaterno,
+          nombre: nombres,
+          ci: ci,
+          correo: correo,
+          numero_celular: telefono,
+          tipo: selectedRole,
+        }
+      );
       console.log("Respuesta del servidor:", response.data);
       navigate("/inscripcion/estudiante");
     } catch (error) {
-      setErrors({ general: "Hubo un error al enviar los datos." });
+      console.error("Error al enviar los datos:", error);
     }
-  };
-
-  const handlePrevious = () => {
-    navigate("");
   };
 
   const handleInputChange = (setter, regex) => (e) => {
@@ -64,6 +62,7 @@ export default function InscripcionTutorLegal() {
       setter(value);
     }
   };
+
   const validarCorreo = (email) => {
     const regexCorreo = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!regexCorreo.test(email)) {
@@ -196,7 +195,7 @@ export default function InscripcionTutorLegal() {
             }}
           />
         </div>
-        {errorCorreo && <p className="text-red-500 text-sm">{error.Correo}</p>}
+        {errorCorreo && <p className="text-red-500 text-sm">{errorCorreo}</p>}
 
         <div className="flex items-center gap-2">
           <FaPhoneAlt className="text-black" />
@@ -220,7 +219,7 @@ export default function InscripcionTutorLegal() {
           <button
             type="button"
             className="bg-[#4C8EDA] text-white py-2 px-4 rounded-md hover:bg-[#2e4f96]"
-            onClick={handlePrevious}
+            onClick={handleNext}
           >
             Atrás
           </button>
