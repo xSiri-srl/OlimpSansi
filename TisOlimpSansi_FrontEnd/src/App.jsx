@@ -7,6 +7,7 @@ import InscripcionTutorLegal from "./pages/OrdenDePago/InscripcionTutorLegal";
 import SubirComprobante from "./pages/Comprobante/SubirComprobante";
 import AreaCompetencia from "./pages/OrdenDePago/AreasCompetencia";
 import InscripcionTutorAcademico from "./pages/OrdenDePago/IncripcionTutorAcademico";
+import FormaInscripcion from "./pages/OrdenDePago/FormaInscripcion";
 
 export default function App() {
   return (
@@ -15,6 +16,10 @@ export default function App() {
       {/* ORDEN DE PAGO */}
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route
+          path="/inscripcion/forma-inscripcion"
+          element={<FormaInscripcion />}
+        />
         <Route
           path="/inscripcion/responsable"
           element={<InscripcionResponsable />}
