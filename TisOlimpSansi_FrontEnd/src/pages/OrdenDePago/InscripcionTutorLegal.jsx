@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import axios from "axios";
 
-export default function FormularioInscripcion() {
+export default function InscripcionTutorLegal() {
   const navigate = useNavigate();
   const [selectedRole, setSelectedRole] = useState("");
   const [apellidoPaterno, setApellidoPaterno] = useState("");

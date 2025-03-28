@@ -12,7 +12,7 @@ export const navbarLinks = [
 {
     id: 3,
     title: "Orden de Pago",
-    link: "/inscripcion/responsable" // Cambiar en un futuro a seleccionar tipo de inscripción
+    link: "/inscripcion/forma-inscripcion" // Cambiar en un futuro a seleccionar tipo de inscripción
 },
 {
     id: 3,
