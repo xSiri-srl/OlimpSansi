@@ -26,7 +26,9 @@ class EstudianteController extends Controller
         $estudiante->apellido_pa = $request->apellido_pa;
         $estudiante->apellido_ma = $request->apellido_ma;
         $estudiante->ci = $request->ci;
-        $estudiante->fecha_registro = $request->fecha_registro;
+        $estudiante->fecha_nacimiento = $request->fecha_nacimiento;
+        $estudiante->correo = $request->correo;
+        $estudiante->propietario_correo = $request->propietario_correo;
         $estudiante->id_unidad = $request->id_unidad;
         $estudiante->id_grado = $request->id_grado;
         
@@ -56,7 +58,9 @@ class EstudianteController extends Controller
         $estudiante->apellido_pa = $request->apellido_pa;
         $estudiante->apellido_ma = $request->apellido_ma;
         $estudiante->ci = $request->ci;
-        $estudiante->fecha_registro = $request->fecha_registro;
+        $estudiante->fecha_nacimiento = $request->fecha_nacimiento;
+        $estudiante->correo = $request->correo;
+        $estudiante->propietario_correo = $request->propietario_correo;
         $estudiante->id_unidad = $request->id_unidad;
         $estudiante->id_grado = $request->id_grado;
 
