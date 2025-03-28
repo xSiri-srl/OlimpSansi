@@ -22,7 +22,6 @@ export default function FormularioEstudiante() {
   const [correo, setCorreo] = useState("");
   const [errors, setErrors] = useState({});
   const [fechaNacimiento, setFechaNacimiento] = useState("");
-  const [errorCorreo, setErrorCorreo] = useState("");
   const [cursoSeleccionado, setCursoSeleccionado] = useState("");
   const [departamentoSeleccionado, setDepartamentoSeleccionado] = useState("");
   const [provinciaSeleccionada, setProvinciaSeleccionada] = useState("");
