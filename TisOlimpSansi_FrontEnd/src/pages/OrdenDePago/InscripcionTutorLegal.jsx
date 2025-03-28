@@ -111,7 +111,6 @@ export default function InscripcionTutorLegal() {
                 setApellidoPaterno,
                 /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
               )}
-              pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+"
             />
             {errors.apellidoPaterno && (
               <p className="text-red-500 text-sm pt-3">
@@ -135,7 +134,6 @@ export default function InscripcionTutorLegal() {
                 setApellidoMaterno,
                 /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
               )}
-              pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+"
             />
             {errors.apellidoMaterno && (
               <p className="text-red-500 text-sm pt-3">
@@ -195,8 +193,9 @@ export default function InscripcionTutorLegal() {
             }}
           />
         </div>
-        {errorCorreo && <p className="text-red-500 text-sm">{errorCorreo}</p>}
-
+        {errors.correo && (
+          <p className="text-red-500 text-sm">{errors.correo}</p>
+        )}
         <div className="flex items-center gap-2">
           <FaPhoneAlt className="text-black" />
           <label>Telefono/Celular</label>
