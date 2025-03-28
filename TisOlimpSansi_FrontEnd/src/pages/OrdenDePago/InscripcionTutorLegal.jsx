@@ -72,6 +72,10 @@ export default function InscripcionTutorLegal() {
     }
   };
 
+  const handleBack = () => {
+    navigate("/inscripcion/areasCompetencia");
+  };
+
   return (
     <div className="max-w-md mx-auto p-5 bg-white mt-3">
       <h2 className="text-xl font-semibold mb-4 text-center">Tutor Legal</h2>
@@ -218,7 +222,7 @@ export default function InscripcionTutorLegal() {
           <button
             type="button"
             className="bg-[#4C8EDA] text-white py-2 px-4 rounded-md hover:bg-[#2e4f96]"
-            onClick={handleNext}
+            onClick={handleBack}
           >
             Atrás
           </button>

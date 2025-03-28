@@ -40,6 +40,10 @@ export default function FormularioInscripcion() {
     }
   };
 
+  const handleBack = () => {
+    navigate("/inscripcion/forma-inscripcion");
+  };
+
   const handleInputChange = (setter, fieldName, regex) => (e) => {
     const value = e.target.value;
     if (regex.test(value) || value === "") {
@@ -142,6 +146,7 @@ export default function FormularioInscripcion() {
           <button
             type="button"
             className="bg-[#4C8EDA] text-white py-2 px-4 rounded-md hover:bg-[#2e4f96]"
+            onClick={handleBack}
           >
             Atrás
           </button>
