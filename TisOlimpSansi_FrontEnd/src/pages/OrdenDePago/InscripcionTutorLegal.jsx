@@ -1,5 +1,6 @@
 import React, {useState} from "react";
 import { FaUser, FaIdCard, FaEnvelope, FaPhoneAlt } from "react-icons/fa";
+import ModalConfirmacion from "./modales/modalConfirmacion";
 
 export default function InscripcionTutorLegal({
   formData,
@@ -10,22 +11,17 @@ export default function InscripcionTutorLegal({
   const [showModal, setShowModal] = useState(false);
   const [currentAreaIndex, setCurrentAreaIndex] = useState(0);
   const areasSeleccionadas = formData.estudiante?.areasSeleccionadas || [];
-  
-  // Áreas para las que ya se registró profesor
   const areasConProfesor = formData.profesores?.areasRegistradas || [];
 
   const handleNextWithModal = () => {
-    // Si hay áreas seleccionadas sin profesor, mostrar modal
     if (areasSeleccionadas.length > 0) {
       const areasPendientes = areasSeleccionadas.filter(
         area => !areasConProfesor.includes(area)
-      );
-      
+      ); 
       if (areasPendientes.length > 0) {
         setCurrentAreaIndex(0);
         setShowModal(true);
 } else {
-  // Si todas las áreas ya tienen profesor o no hay áreas, continuar
   handleNext();
 }
 } else {
@@ -38,18 +34,12 @@ const areasPendientes = areasSeleccionadas.filter(
 area => !areasConProfesor.includes(area)
 );
 const currentArea = areasPendientes[currentAreaIndex];
-
-// Guardar el área para la que se registrará el profesor
 handleInputChange("profesor", "areaCompetencia", currentArea);
-
-// Actualizar las áreas con profesor registrado
 const nuevasAreasConProfesor = [...(areasConProfesor || []), currentArea];
 handleInputChange("profesores", "areasRegistradas", nuevasAreasConProfesor);
 
 setShowModal(false);
 
-      // Redirigir a la pantalla de inscripción de tutor académico
-    // Esto requerirá una modificación en ProcesoRegistro.jsx para manejar este salto
     handleInputChange("flow", "redirectToProfesor", true);
     handleNext();
   };
@@ -58,8 +48,7 @@ setShowModal(false);
     const areasPendientes = areasSeleccionadas.filter(
       area => !areasConProfesor.includes(area)
     );
-    
-    // Verificar si hay más áreas pendientes
+
     if (currentAreaIndex < areasPendientes.length - 1) {
       setCurrentAreaIndex(currentAreaIndex + 1);
     } else {
@@ -214,35 +203,14 @@ setShowModal(false);
       </div>
       {/* Modal de confirmación */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-            <h3 className="text-lg font-semibold mb-4">Confirmación</h3>
-            <p className="mb-6">
-              ¿Cuenta con un profesor/entrenador para el área de {areasSeleccionadas.filter(
-                area => !areasConProfesor.includes(area)
-              )[currentAreaIndex]}? 
-              <br /><br />
-              Estos datos se considerarán en caso de ser acreedor de un premio académico.
-            </p>
-            <div className="flex justify-end gap-3">
-              <button
-                className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
-                onClick={handleNoProfesor}
-              >
-                No, continuar
-              </button>
-              <button
-                className="px-4 py-2 bg-[#4C8EDA] text-white rounded-md hover:bg-[#2e4f96]"
-                onClick={handleSiProfesor}
-              >
-                Sí, registrar profesor de {areasSeleccionadas.filter(
-                  area => !areasConProfesor.includes(area)
-                )[currentAreaIndex]}
-              </button>
-              </div>
-          </div>
+        <ModalConfirmacion
+          area={areasSeleccionadas.filter(
+            (area) => !areasConProfesor.includes(area)
+          )[currentAreaIndex]}
+          onConfirm={handleSiProfesor}
+          onCancel={handleNoProfesor}
+        />
+      )}
     </div>
-  )}
-</div>
   );
 }

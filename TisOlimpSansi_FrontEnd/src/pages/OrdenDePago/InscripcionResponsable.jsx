@@ -13,7 +13,7 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
   <div>
       <div>
         <h2 className="text-lg font-semibold mb-2 text-gray-500">
-          Tutor Legal
+          Responsable de Inscripción
         </h2>
         <p className="text-sm text-gray-600">
           Estos datos corresponden a la persona que pagará en caja.
