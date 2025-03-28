@@ -22,23 +22,33 @@ export default function FormularioEstudiante() {
   const [correo, setCorreo] = useState("");
   const [errors, setErrors] = useState({});
   const [errorCorreo, setErrorCorreo] = useState("");
+  const [cursoSeleccionado, setCursoSeleccionado] = useState("");
+  const [departamentoSeleccionado, setDepartamentoSeleccionado] = useState("");
+  const [provinciaSeleccionada, setProvinciaSeleccionada] = useState("");
+  const [provincias, setProvincias] = useState([]);
 
   const roles = ["Estudiante", "Padre/Madre", "Profesor"];
 
   const handleNext = async () => {
     const newErrors = {};
-    if (!apellidos) newErrors.apellidos = "Campo obligatorio";
+    if (!selectedRole) newErrors.selectedRole = "Debe seleccionar un rol";
+    if (!apellidoPaterno) newErrors.apellidoPaterno = "Campo obligatorio";
+    if (!apellidoMaterno) newErrors.apellidoMaterno = "Campo obligatorio";
     if (!nombres) newErrors.nombres = "Campo obligatorio";
     if (!ci) newErrors.ci = "Campo obligatorio";
     if (!colegio) newErrors.colegio = "Campo obligatorio";
-    if (!correo) newErrors.correo = "Campo obligatorio";
-    else {
-      const regexCorreo = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-      if (!regexCorreo.test(correo)) newErrors.correo = "Correo inválido";
+    if (!cursoSeleccionado) newErrors.curso = "Debe seleccionar un curso";
+    if (!departamentoSeleccionado)
+      newErrors.departamento = "Debe seleccionar un departamento";
+    if (!provinciaSeleccionada)
+      newErrors.provincia = "Debe seleccionar una provincia";
+    if (!correo) {
+      newErrors.correo = "Campo obligatorio";
+    } else if (!validarCorreo(correo)) {
+      newErrors.correo = "Correo inválido";
     }
 
     if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
       return;
     }
 
@@ -77,8 +87,10 @@ export default function FormularioEstudiante() {
     const regexCorreo = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!regexCorreo.test(email)) {
       setErrorCorreo("Correo electrónico inválido");
+      return false;
     } else {
       setErrorCorreo("");
+      return true;
     }
   };
 
@@ -125,14 +137,12 @@ export default function FormularioEstudiante() {
     "6to de Secundaria",
   ];
 
-  const [departamentoSeleccionado, setDepartamentoSeleccionado] = useState("");
-  const [provincias, setProvincias] = useState([]);
-
   const handleDepartamentoChange = (e) => {
     const departamento = e.target.value;
     setDepartamentoSeleccionado(departamento);
     setProvincias(departamentos[departamento] || []);
   };
+
   return (
     <div className="p-6">
       <h2 className="text-2xl font-semibold text-center w-full mb-6">
@@ -166,6 +176,11 @@ export default function FormularioEstudiante() {
                     /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
                   )}
                 />
+                {errors.apellidoPaterno && (
+                  <p className="text-red-500 text-sm pt-3">
+                    {errors.apellidoPaterno}
+                  </p>
+                )}
               </div>
 
               <div className="w-1/2">
@@ -187,6 +202,11 @@ export default function FormularioEstudiante() {
                     /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
                   )}
                 />
+                {errors.apellidoMaterno && (
+                  <p className="text-red-500 text-sm pt-3">
+                    {errors.apellidoMaterno}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -204,8 +224,10 @@ export default function FormularioEstudiante() {
                   setNombres,
                   /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
                 )}
-                pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+"
               />
+              {errors.nombres && (
+                <p className="text-red-500 text-sm">{errors.nombres}</p>
+              )}
             </div>
 
             <div>
@@ -222,6 +244,7 @@ export default function FormularioEstudiante() {
                 pattern="[0-9]+"
                 maxLength="8"
               />
+              {errors.ci && <p className="text-red-500 text-sm">{errors.ci}</p>}
             </div>
 
             <div>
@@ -251,6 +274,9 @@ export default function FormularioEstudiante() {
                   validarCorreo(e.target.value);
                 }}
               />
+              {errors.correo && (
+                <p className="text-red-500 text-sm">{errors.correo}</p>
+              )}
             </div>
 
             <div>
@@ -272,6 +298,9 @@ export default function FormularioEstudiante() {
                   </label>
                 ))}
               </div>
+              {errors.selectedRole && (
+                <p className="text-red-500 text-sm">{errors.selectedRole}</p>
+              )}
             </div>
           </form>
         </div>
@@ -297,8 +326,10 @@ export default function FormularioEstudiante() {
                   setColegio,
                   /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
                 )}
-                pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+"
               />
+              {errors.colegio && (
+                <span className="text-red-500">{errors.colegio}</span>
+              )}
             </div>
 
             <div>
@@ -308,6 +339,8 @@ export default function FormularioEstudiante() {
               </label>
               <select
                 name="curso"
+                value={cursoSeleccionado}
+                onChange={(e) => setCursoSeleccionado(e.target.value)}
                 className="mt-1 p-2 w-full border
               rounded-md"
               >
@@ -318,6 +351,9 @@ export default function FormularioEstudiante() {
                   </option>
                 ))}
               </select>
+              {errors.curso && (
+                <p className="text-red-500 text-sm">{errors.curso}</p>
+              )}
             </div>
 
             <div>
@@ -338,6 +374,9 @@ export default function FormularioEstudiante() {
                   </option>
                 ))}
               </select>
+              {errors.departamento && (
+                <p className="text-red-500 text-sm">{errors.departamento}</p>
+              )}
             </div>
 
             <div>
@@ -357,6 +396,9 @@ export default function FormularioEstudiante() {
                   </option>
                 ))}
               </select>
+              {errors.provincia && (
+                <p className="text-red-500 text-sm">{errors.provincia}</p>
+              )}
             </div>
           </form>
         </div>
