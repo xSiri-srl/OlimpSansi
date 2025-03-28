@@ -1,6 +1,7 @@
 import { FaUser, FaIdCard, FaEnvelope, FaPhoneAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import axios from "axios";
 
 export default function FormularioInscripcion() {
   const navigate = useNavigate();
@@ -11,14 +12,50 @@ export default function FormularioInscripcion() {
   const [ci, setCi] = useState("");
   const [telefono, setTelefono] = useState("");
   const [correo, setCorreo] = useState("");
+  const [errors, setErrors] = useState({});
   const [errorCorreo, setErrorCorreo] = useState("");
 
   const roles = ["Estudiante", "Padre/Madre", "Profesor"];
-  const handleNext = () => {
-    navigate("/inscripcion/tutorAcademico");
+  const handleNext = async () => {
+    let newErrors = {};
+    if (!selectedRole) newErrors.selectedRole = "Debe seleccionar un rol";
+    if (!apellidoPaterno) newErrors.apellidoPaterno = "Campo obligatorio";
+    if (!apellidoMaterno) newErrors.apellidoMaterno = "Campo obligatorio";
+    if (!nombres) newErrors.nombres = "Campo obligatorio";
+    if (!ci) newErrors.ci = "Campo obligatorio";
+    if (!telefono) newErrors.telefono = "Campo obligatorio";
+    if (!correo) {
+      newErrors.correo = "Campo obligatorio";
+    } else {
+      const regexCorreo = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      if (!regexCorreo.test(correo)) newErrors.correo = "Correo inválido";
+    }
+
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+    try {
+      const response = await axios.post("http://localhost:8000/api/...", {
+        apellido_pa: apellidoPaterno,
+        apellido_ma: apellidoMaterno,
+        nombre: nombres,
+        ci: ci,
+        correo: correo,
+        numero_celular: telefono,
+        tipo: selectedRole,
+      });
+      console.log("Respuesta del servidor:", response.data);
+      navigate("/inscripcion/estudiante");
+    } catch (error) {
+      setErrors({ general: "Hubo un error al enviar los datos." });
+    }
   };
+
   const handlePrevious = () => {
-    navigate("/inscripcion/AreasCompetencia");
+    navigate("");
   };
 
   const handleInputChange = (setter, regex) => (e) => {
@@ -55,6 +92,10 @@ export default function FormularioInscripcion() {
             </label>
           ))}
         </div>
+        {errors.selectedRole && (
+          <p className="text-red-500 text-sm">{errors.selectedRole}</p>
+        )}
+
         <div className="flex gap-4">
           <div className="w-full">
             <div className="flex items-center gap-2">
@@ -73,6 +114,11 @@ export default function FormularioInscripcion() {
               )}
               pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+"
             />
+            {errors.apellidoPaterno && (
+              <p className="text-red-500 text-sm pt-3">
+                {errors.apellidoPaterno}
+              </p>
+            )}
           </div>
 
           <div className="w-full">
@@ -92,6 +138,11 @@ export default function FormularioInscripcion() {
               )}
               pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+"
             />
+            {errors.apellidoMaterno && (
+              <p className="text-red-500 text-sm pt-3">
+                {errors.apellidoMaterno}
+              </p>
+            )}
           </div>
         </div>
 
@@ -108,6 +159,9 @@ export default function FormularioInscripcion() {
           pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+"
           placeholder="Nombres"
         />
+        {errors.nombres && (
+          <p className="text-red-500 text-sm">{errors.nombres}</p>
+        )}
 
         <div className="flex items-center gap-2">
           <FaIdCard className="text-black" />
@@ -123,6 +177,7 @@ export default function FormularioInscripcion() {
           pattern="[0-9]+"
           maxLength="8"
         />
+        {errors.ci && <p className="text-red-500 text-sm">{errors.ci}</p>}
 
         <div>
           <label className="flex items-center gap-2">
@@ -141,6 +196,7 @@ export default function FormularioInscripcion() {
             }}
           />
         </div>
+        {errorCorreo && <p className="text-red-500 text-sm">{error.Correo}</p>}
 
         <div className="flex items-center gap-2">
           <FaPhoneAlt className="text-black" />
@@ -156,6 +212,9 @@ export default function FormularioInscripcion() {
           pattern="[0-9]+"
           maxLength="8"
         />
+        {errors.telefono && (
+          <p className="text-red-500 text-sm">{errors.telefono}</p>
+        )}
 
         <div className="flex justify-end mt-4 gap-2">
           <button

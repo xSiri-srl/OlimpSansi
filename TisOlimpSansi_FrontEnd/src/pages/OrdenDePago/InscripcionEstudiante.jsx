@@ -18,6 +18,7 @@ export default function FormularioEstudiante() {
   const [ci, setCi] = useState("");
   const [colegio, setColegio] = useState("");
   const [correo, setCorreo] = useState("");
+  const [errors, setErrors] = useState({});
   const [errorCorreo, setErrorCorreo] = useState("");
 
   const roles = ["Estudiante", "Padre/Madre", "Profesor"];
