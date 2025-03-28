@@ -1,13 +1,20 @@
 import { useState } from "react";
 import { FaCloudUploadAlt } from "react-icons/fa";
+import axios from 'axios'; 
 
 const SubirComprobante = () => {
-  const [code, setCode] = useState("");
+  const [codigoGenerado, setCodigoGenerado] = useState("");
   const [step, setStep] = useState(1);
   const [selectedFile, setSelectedFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [numeroComprobante, setNumeroComprobante] = useState("");
+  const [comprobantePath, setComprobantePath] = useState("");
 
+  const endpoint = "http://127.0.0.1:8000/api";
+
+  // Manejo del archivo
   const handleFileChange = (event) => {
     const file = event.target.files[0];
   
@@ -46,6 +53,39 @@ const SubirComprobante = () => {
     }
   };
 
+
+  // Verificar código
+  const verificarCodigo = async () => {
+    if (!codigoGenerado.trim()) {
+      setError("Por favor, ingresa el código generado.");
+      return;
+    }
+  
+    setLoading(true);
+    setError(null);
+  
+    try {
+      const response = await axios.post(`${endpoint}/verificar-codigo-generado`, { 
+        codigo_generado: codigoGenerado 
+      });
+  
+      if (response.status === 200) {
+        console.log(response.data.message);
+        setStep(2);  
+      }
+    } catch (err) {
+      console.error("Error al verificar código:", err);
+  
+
+      setError(err.response?.data?.message || "Error al verificar el código.");
+  
+      return;
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+
   return (
     <div className="p-10">
       <div className="max-w-4xl mx-auto bg-gray-200 p-7 shadow-lg rounded-lg">
@@ -75,33 +115,37 @@ const SubirComprobante = () => {
 
         {/* Paso 1 - Ingresar código */}
         {step === 1 && (
-          <div className="grid grid-cols-2 gap-6">
-            <div>
-              <h2 className="text-lg font-semibold mb-2 text-gray-500">
-                Por favor, ingrese el código proporcionado en el formulario de ORDEN DE PAGO.
-              </h2>
-              <input
-                type="text"
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                className="w-full p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Ingrese el código"
-              />
-              <div className="flex justify-center mt-6">
-                <button
-                  onClick={() => setStep(2)}
-                  disabled={!code.trim()}
-                  className={`px-6 py-2 transition duration-300 ease-in-out text-white rounded-md shadow-md ${
-                    code.trim()
-                      ? "bg-blue-500 hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500"
-                      : "bg-gray-400 cursor-not-allowed"
-                  }`}
-                >
-                  Verificar
-                </button>
-              </div>
-            </div>
+     <div className="grid grid-cols-2 gap-6">
+     <div>
+       <h2 className="text-lg font-semibold mb-2 text-gray-500">
+         Por favor, ingrese el código proporcionado en el formulario de ORDEN DE PAGO.
+       </h2>
+       <input
+         type="text"
+         value={codigoGenerado}
+         onChange={(e) => setCodigoGenerado(e.target.value)}
+         className="w-full p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+         placeholder="Ingrese el código"
+       />
+        
+       {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
+       <div className="flex justify-center mt-6">
 
+         <button
+           onClick={async () => {
+             await verificarCodigo(); 
+           }}
+           disabled={loading || !codigoGenerado.trim()} 
+           className={`px-6 py-2 transition duration-300 ease-in-out text-white rounded-md shadow-md ${
+             codigoGenerado.trim() && !loading
+               ? "bg-blue-500 hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500"
+               : "bg-gray-400 cursor-not-allowed"
+           }`}
+         >
+           {loading ? "Verificando..." : "Verificar Código"}
+         </button>
+       </div>  
+     </div>
             <div className="bg-gray-300 p-4 rounded-md">
               <h3 className="text-lg font-semibold mb-2">Ejemplo:</h3>
               <div className="bg-gray-400 p-6 rounded-md flex flex-col items-center justify-center">
