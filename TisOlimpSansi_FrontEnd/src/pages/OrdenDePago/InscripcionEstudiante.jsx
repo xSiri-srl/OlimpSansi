@@ -26,6 +26,7 @@ export default function FormularioEstudiante() {
   const [departamentoSeleccionado, setDepartamentoSeleccionado] = useState("");
   const [provinciaSeleccionada, setProvinciaSeleccionada] = useState("");
   const [provincias, setProvincias] = useState([]);
+  const [errorCorreo, setErrorCorreo] = useState("");
 
   const roles = ["Estudiante", "Padre/Madre", "Profesor"];
 
@@ -64,7 +65,7 @@ export default function FormularioEstudiante() {
           ci: ci,
           correo: correo,
           fecha_registro: fechaNacimiento,
-          tipo: selectedRole,
+          propietario_correo: selectedRole,
         }
       );
 
@@ -91,12 +92,19 @@ export default function FormularioEstudiante() {
       console.log("Respuesta del servidor colegio:", responseColegio.data);
       console.log("Respuesta del servidor grado:", responseGrado.data);
 
-      navigate("/inscripcion/AreasCompetencia");
+      navigate("/inscripcion/areasCompetencia");
     } catch (error) {
-      console.error("Error al enviar los datos:", error);
+      console.error(
+        "Error al enviar los datos:",
+        error.response || error.message
+      );
+      if (error.response) {
+        console.log("Error response data:", error.response.data);
+        console.log("Error response status:", error.response.status);
+      }
     }
   };
-  const handlePrevious = () => {
+  const handleBack = () => {
     navigate("/inscripcion/responsable");
   };
 
@@ -343,27 +351,6 @@ export default function FormularioEstudiante() {
           <form className="space-y-4">
             <div>
               <label className="flex items-center gap-2">
-                <FaSchool className="text-black" />
-                Nombre del Colegio
-              </label>
-              <input
-                type="text"
-                name="colegio"
-                className="mt-1 p-2 w-full border rounded-md"
-                placeholder="Nombre del Colegio"
-                value={colegio}
-                onChange={handleInputChange(
-                  setColegio,
-                  /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
-                )}
-              />
-              {errors.colegio && (
-                <span className="text-red-500">{errors.colegio}</span>
-              )}
-            </div>
-
-            <div>
-              <label className="flex items-center gap-2">
                 <FaBuilding className="text-black" />
                 Curso
               </label>
@@ -383,6 +370,27 @@ export default function FormularioEstudiante() {
               </select>
               {errors.curso && (
                 <p className="text-red-500 text-sm">{errors.curso}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="flex items-center gap-2">
+                <FaSchool className="text-black" />
+                Nombre del Colegio
+              </label>
+              <input
+                type="text"
+                name="colegio"
+                className="mt-1 p-2 w-full border rounded-md"
+                placeholder="Nombre del Colegio"
+                value={colegio}
+                onChange={handleInputChange(
+                  setColegio,
+                  /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
+                )}
+              />
+              {errors.colegio && (
+                <span className="text-red-500">{errors.colegio}</span>
               )}
             </div>
 
@@ -416,6 +424,7 @@ export default function FormularioEstudiante() {
               </label>
               <select
                 name="provincia"
+                onChange={(e) => setProvinciaSeleccionada(e.target.value)}
                 className="mt-1 p-2 w-full border rounded-md"
                 disabled={!departamentoSeleccionado}
               >
@@ -437,7 +446,7 @@ export default function FormularioEstudiante() {
         <button
           type="button"
           className="bg-[#4C8EDA] text-white py-2 px-4 rounded-md hover:bg-[#2e4f96]"
-          onClick={handlePrevious}
+          onClick={handleBack}
         >
           Atrás
         </button>
