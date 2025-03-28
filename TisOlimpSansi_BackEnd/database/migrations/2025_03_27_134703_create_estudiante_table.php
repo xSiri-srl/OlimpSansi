@@ -18,8 +18,8 @@ return new class extends Migration
             $table->string('apellido_ma');
             $table->integer('ci');
             $table->timestamp('fecha_registro')->nullable();
-            $table->integer('id_unidad');
-            $table->integer('id_grado');
+            $table->integer('id_unidad')->nullable();
+            $table->integer('id_grado')->nullable();
             $table->timestamps();
         });
     }
