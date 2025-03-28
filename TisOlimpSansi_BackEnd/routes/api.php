@@ -9,6 +9,8 @@ use App\Http\Controllers\Inscripcion\TutorLegalController;
 use App\Http\Controllers\Inscripcion\InscripcionAreaController; 
 use App\Http\Controllers\Inscripcion\EstudianteController;
 use App\Http\Controllers\Inscripcion\TutorAcademicoController;
+use App\Http\Controllers\Inscripcion\ColegioController;
+use App\Http\Controllers\Inscripcion\GradoController;
 
 Route::controller(UserPruebaController::class)->group(function(){
     Route::post('/agregarEjemplo', [UserPruebaController::class, 'store']);
@@ -66,5 +68,25 @@ Route::controller(EstudianteController::class)->group(function(){
     Route::get('/estudiante/{id}', [EstudianteController::class, 'show']);
     Route::put('/actualizarEstudiante/{id}', [EstudianteController::class, 'update']);
     Route::delete('/eliminarEstudiante/{id}', [EstudianteController::class, 'destroy']);
+    
+});
+
+Route::controller(ColegioController::class)->group(function(){
+
+    Route::get('/colegios', [ColegioController::class, 'index']);
+    Route::post('/agregarColegio', [ColegioController::class, 'store']);
+    Route::get('/colegio/{id}', [ColegioController::class, 'show']);
+    Route::put('/actualizarColegio/{id}', [ColegioController::class, 'update']);
+    Route::delete('/eliminarColegio/{id}', [ColegioController::class, 'destroy']);
+    
+});
+
+Route::controller(GradoController::class)->group(function(){
+
+    Route::get('/grados', [GradoController::class, 'index']);
+    Route::post('/agregarGrado', [GradoController::class, 'store']);
+    Route::get('/grado/{id}', [GradoController::class, 'show']);
+    Route::put('/actualizarGrado/{id}', [GradoController::class, 'update']);
+    Route::delete('/eliminarGrado/{id}', [GradoController::class, 'destroy']);
     
 });
