@@ -11,7 +11,6 @@ Route::controller(UserPruebaController::class)->group(function(){
     
 });
 
-
 //registrarResponsableInscripcion
 Route::controller(ResponsableInscripcionController::class)->group(function(){
 

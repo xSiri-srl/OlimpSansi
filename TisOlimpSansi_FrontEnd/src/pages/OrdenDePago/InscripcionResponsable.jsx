@@ -1,20 +1,18 @@
 import { FaUser, FaIdCard } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import axios from "axios";
 
 export default function FormularioInscripcion() {
   const navigate = useNavigate();
-  const [selectedRole, setSelectedRole] = useState("");
   const [apellidoPaterno, setApellidoPaterno] = useState("");
   const [apellidoMaterno, setApellidoMaterno] = useState("");
   const [nombres, setNombres] = useState("");
   const [ci, setCi] = useState("");
   const [errors, setErrors] = useState({});
-  const roles = ["Estudiante", "Padre/Madre", "Profesor"];
 
-  const handleNext = () => {
+  const handleNext = async () => {
     const newErrors = {};
-    if (!selectedRole) newErrors.selectedRole = "Debe seleccionar un rol.";
     if (!apellidoPaterno) newErrors.apellidoPaterno = "Campo obligatorio.";
     if (!apellidoMaterno) newErrors.apellidoMaterno = "Campo obligatorio.";
     if (!nombres) newErrors.nombres = "Campo obligatorio.";
@@ -22,8 +20,23 @@ export default function FormularioInscripcion() {
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
-    } else {
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        "http://localhost:8000/api/agregarTresponsableInscrip",
+        {
+          apellido_pa: apellidoPaterno,
+          apellido_ma: apellidoMaterno,
+          nombre: nombres,
+          ci: ci,
+        }
+      );
+      //console.log("Respuesta del servidor:", response.data);
       navigate("/inscripcion/estudiante");
+    } catch (error) {
+      setErrors({ general: "Hubo un error al enviar los datos." });
     }
   };
 
@@ -41,28 +54,6 @@ export default function FormularioInscripcion() {
         Responsable de Inscripción
       </h2>
       <form className="space-y-4 mt-8 p-4 shadow-md border rounded-md">
-        <div className="flex flex-row space-x-5 mt-3 p-2">
-          {roles.map((role) => (
-            <label key={role} className="inline-flex items-center">
-              <input
-                type="checkbox"
-                name="roles"
-                value={role}
-                checked={selectedRole === role}
-                onChange={() => {
-                  setSelectedRole(role);
-                  setErrors((prev) => ({ ...prev, selectedRole: "" }));
-                }}
-                className="mr-2"
-              />
-              {role}
-            </label>
-          ))}
-        </div>
-        {errors.selectedRole && (
-          <p className="text-red-500 text-sm">{errors.selectedRole}</p>
-        )}
-
         <div className="flex gap-4">
           <div className="w-full">
             <div className="flex items-center gap-2">
