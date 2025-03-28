@@ -1,81 +1,150 @@
-import { FaUser, FaIdCard } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import React from 'react';
+import ProcesoRegistro from './ProcesoRegistro';
+import { FaUser, FaIdCard } from 'react-icons/fa';
+import InscripcionEstudiante from './InscripcionEstudiante';
+import AreasCompetencia from './AreasCompetencia';
+import InscripcionTutorLegal from './InscripcionTutorLegal';
+import InscripcionTutorAcademico from './IncripcionTutorAcademico';
 
-export default function FormularioInscripcion() {
-  const navigate = useNavigate();
 
-  const handleNext = () => {
-    navigate("/inscripcion/estudiante");
-  };
-  const roles = ["Estudiante", "Padre/Madre", "Profesor"];
+const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
   return (
-    <div className="max-w-md mx-auto p-6 bg-white mt-3">
-      <h2 className="text-xl font-semibold mb-4 text-center">
-        Responsable de Inscripción
-      </h2>
-      <form className="space-y-4 mt-8 p-4 shadow-md border rounded-md">
-        <div className="flex flex-row space-x-5 mt-3">
-          {roles.map((role) => (
-            <label key={role} className="inline-flex items-center">
+<div className="grid grid-cols-2 gap-6">
+  <div>
+      <div>
+        <h2 className="text-lg font-semibold mb-2 text-gray-500">
+          Tutor Legal
+        </h2>
+        <p className="text-sm text-gray-600">
+          Estos datos corresponden a la persona que pagará en caja.
+        </p>
+      </div>
+   
+        <div className='p-19 mt-8 mx-'>
+        <div className="space-y-4">
+          <div className="flex gap-4">
+            <div className="w-full">
+              <div className="flex items-center gap-2">
+                <FaUser className="text-black" />
+                <label>Apellido Paterno</label>
+              </div>
               <input
-                type="checkbox"
-                name="roles"
-                value={role}
-                className="mr-2"
+                type="text"
+                value={formData.responsable?.apellidoPaterno || ""}
+                onChange={(e) =>
+                handleInputChange("responsable", "apellidoPaterno", e.target.value)}
+                className="w-full p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Apellido Paterno"
               />
-              {role}
-            </label>
-          ))}
+            </div>
+            <div className="w-full">
+              <div className="flex items-center gap-2">
+                <FaUser className="text-black" />
+                <label>Apellido Materno</label>
+              </div>
+              <input
+                type="text"
+                value={formData.responsable?.apellidoMaterno || ''}
+                onChange={(e) => 
+                handleInputChange('responsable','apellidoMaterno', e.target.value)}
+                className="w-full p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Apellido Materno"
+              />
+            </div>
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <FaUser className="text-black" />
+              <label>Nombres</label>
+            </div>
+            <input
+              type="text"
+              value={formData.responsable?.nombres || ''}
+              onChange={(e) => 
+              handleInputChange('responsable','nombres', e.target.value)}
+              className="w-full p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Nombres"
+            />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <FaIdCard className="text-black" />
+              <label>Carnet de Identidad</label>
+            </div>
+            <input
+              type="text"
+              value={formData.responsable?.ci || ''}
+              onChange={(e) => 
+              handleInputChange('responsable','ci', e.target.value)}
+              className="w-full p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Número de Carnet de Identidad"
+              maxLength="8"
+            />
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <FaUser className="text-black" />
-          <label>Apellidos</label>
         </div>
-        <input
-          type="text"
-          name="apellidos"
-          className="mt-1 p-2 w-full border rounded-md"
-          placeholder="Apellidos"
-        />
-
-        <div className="flex items-center gap-2">
-          <FaUser className="text-black" />
-          <label>Nombres</label>
-        </div>
-        <input
-          type="text"
-          name="nombre"
-          className="mt-1 p-2 w-full border rounded-md"
-          placeholder="Nombres"
-        />
-
-        <div className="flex items-center gap-2">
-          <FaIdCard className="text-black" />
-          <label>CI</label>
-        </div>
-        <input
-          type="text"
-          name="ci"
-          className="mt-1 p-2 w-full border rounded-md"
-          placeholder="Numero de Carnet de Identidad"
-        />
-
-        <div className="flex justify-end mt-4 gap-2">
+        <div className="flex justify-center mt-6">
           <button
-            type="button"
-            className="bg-[#4C8EDA] text-white py-2 px-4 rounded-md hover:bg-[#2e4f96]"
-          >
-            Atrás
-          </button>
-          <button
-            type="button"
-            className="bg-[#4C8EDA] text-white py-2 px-4 rounded-md hover:bg-[#2e4f96]"
             onClick={handleNext}
+            disabled={!formData.responsable?.nombres || !formData.responsable?.ci}
+            className={`px-6 py-2 transition duration-300 ease-in-out text-white rounded-md shadow-md ${
+              formData.nombres && formData.ci
+                ? "bg-blue-500 hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500"
+                : "bg-gray-400 cursor-not-allowed"
+            }`}
           >
             Siguiente
           </button>
         </div>
-      </form>
+      </div>
+
+
     </div>
   );
-}
+};
+
+
+const Confirmation = ({ navigate }) => {
+  return (
+    <div className="text-center">
+      <h2 className="text-lg font-semibold mb-4">¡Registro Completado!</h2>
+      <p className="text-gray-600">Los datos han sido guardados con éxito</p>
+      <div className="flex justify-center mt-4">
+        <button
+          onClick={() => navigate('/subirComprobante')}
+          className="bg-blue-600 text-white px-6 py-2 rounded-md transition duration-300 ease-in-out hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500 shadow-md"
+        >
+          Aceptar
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const InscripcionResponsable = () => {
+  const steps = [
+    'Responsable de Inscripción',
+    'Competidor', 
+    'Áreas de Competencia',
+    'Tutor Legal',
+    'Profesor o Entrenador',
+    'Confirmación'
+  ];
+
+  return (
+    <ProcesoRegistro 
+      steps={steps} 
+      nextRoute="/subirComprobante"
+      backRoute="/"
+    >
+      <ResponsableForm />
+      <InscripcionEstudiante />
+      <AreasCompetencia />
+      <InscripcionTutorLegal />
+      <InscripcionTutorAcademico />
+      <Confirmation />
+    </ProcesoRegistro>
+  );
+};
+
+export default InscripcionResponsable;

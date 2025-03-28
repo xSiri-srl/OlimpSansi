@@ -7,7 +7,8 @@ use App\Http\Controllers\NombreDeHU1\UserPruebaController;
 use App\Http\Controllers\Inscripcion\ResponsableInscripcionController;
 use App\Http\Controllers\Inscripcion\TutorLegalController; 
 use App\Http\Controllers\Inscripcion\InscripcionAreaController; 
-use App\Http\Controllers\Inscripcion\EstudianteController; 
+use App\Http\Controllers\Inscripcion\EstudianteController;
+use App\Http\Controllers\Inscripcion\TutorAcademicoController;
 
 Route::controller(UserPruebaController::class)->group(function(){
     Route::post('/agregarEjemplo', [UserPruebaController::class, 'store']);
@@ -34,6 +35,15 @@ Route::controller(TutorLegalController::class)->group(function(){
     Route::get('/tutorLegal/{id}', [TutorLegalController::class, 'show']);
     Route::put('/actualizarTutorLegal/{id}', [TutorLegalController::class, 'update']);
     Route::delete('/eliminarTutorLegal/{id}', [TutorLegalController::class, 'destroy']);
+});  
+//registrarTutorAcademico
+Route::controller(TutorAcademicoController::class)->group(function(){
+
+    Route::get('/tutoresAcademicos', [TutorAcademicoController::class, 'index']);
+    Route::post('/agregarTutorAcademico', [TutorAcademicoController::class, 'store']);
+    Route::get('/tutorAcademico/{id}', [TutorAcademicoController::class, 'show']);
+    Route::put('/actualizarTutorAcademico/{id}', [TutorAcademicoController::class, 'update']);
+    Route::delete('/eliminarTutorAcademico/{id}', [TutorAcademicoController::class, 'destroy']);
     
 });
 
