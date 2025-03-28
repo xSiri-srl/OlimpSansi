@@ -14,8 +14,10 @@ class EstudianteModel extends Model
         'apellido_pa',
         'apellido_ma',
         'ci',
-        'fecha_registro',
-        'id_unidad',
+        'fecha_nacimiento',
+        'correo',
+        'propietario_correo',
+        'id_grado',
         'id_grado',
     ];
 }
