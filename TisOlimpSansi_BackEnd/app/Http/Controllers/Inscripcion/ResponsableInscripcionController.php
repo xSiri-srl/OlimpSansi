@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\ResponsableInscripcion;
+namespace App\Http\Controllers\Inscripcion;
 
 use App\Http\Controllers\Controller;
-use App\Models\ResponsableInscripcion\ResponsableInscripcionModel;
+use App\Models\Inscripcion\ResponsableInscripcionModel;
 use Illuminate\Http\Request;
 
 class ResponsableInscripcionController extends Controller

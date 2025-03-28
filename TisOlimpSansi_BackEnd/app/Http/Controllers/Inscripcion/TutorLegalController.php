@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\Controllers\TutorLegal;
+namespace App\Http\Controllers\Inscripcion;
 
-use App\Models\TutorLegal\TutorLegalModel;
+use App\Models\Inscripcion\TutorLegalModel;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
