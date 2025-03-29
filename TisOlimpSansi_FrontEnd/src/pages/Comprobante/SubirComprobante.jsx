@@ -7,6 +7,7 @@ const SubirComprobante = () => {
   const [codigoGenerado, setCodigoGenerado] = useState("");
   const [step, setStep] = useState(1);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [sinModificarFile, setSinModificarFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -37,7 +38,7 @@ const SubirComprobante = () => {
         setPreview(null);
         return;
       }
-  
+      setSinModificarFile(file);
       setSelectedFile(file);
       setError("");
   
@@ -153,7 +154,7 @@ const guardarComprobante = async () => {
   const formData = new FormData();
   formData.append("codigo_generado", codigoGenerado);
   formData.append("numero_comprobante", numeroComprobante);
-  formData.append("comprobante", selectedFile);
+  formData.append("comprobante", sinModificarFile);
 
   // Verificar lo que se está enviando
   for (let [key, value] of formData.entries()) {
