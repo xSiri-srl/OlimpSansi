@@ -9,20 +9,21 @@ import InscripcionTutorAcademico from './IncripcionTutorAcademico';
 
 const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
   return (
-<div className="grid grid-cols-2 gap-6">
-  <div>
-      <div>
-        <h2 className="text-lg font-semibold mb-2 text-gray-500">
-          Responsable de Inscripción
-        </h2>
-        <p className="text-sm text-gray-600">
-          Estos datos corresponden a la persona que pagará en caja.
-        </p>
-      </div>
-   
-        <div className='p-19 mt-8 mx-'>
+    <div className="flex justify-center">
+      <div className="w-full max-w-2xl">
+        {/* Título */}
+        <div className="text-center mb-6">
+          <h2 className="text-lg font-semibold mb-2 text-gray-500">
+            Responsable de Inscripción
+          </h2>
+          <p className="text-sm text-gray-600">
+            Estos datos corresponden a la persona que pagará en caja.
+          </p>
+        </div>
+        
+        {/* Formulario */}
         <div className="space-y-4">
-          <div className="flex gap-4">
+          <div className="flex flex-col md:flex-row gap-4">
             <div className="w-full">
               <div className="flex items-center gap-2">
                 <FaUser className="text-black" />
@@ -82,13 +83,14 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
             />
           </div>
         </div>
-        </div>
-        <div className="flex justify-center mt-6">
+        
+        {/* Botón */}
+        <div className="flex justify-center mt-8">
           <button
             onClick={handleNext}
             disabled={!formData.responsable?.nombres || !formData.responsable?.ci}
             className={`px-6 py-2 transition duration-300 ease-in-out text-white rounded-md shadow-md ${
-              formData.nombres && formData.ci
+              formData.responsable?.nombres && formData.responsable?.ci
                 ? "bg-blue-500 hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500"
                 : "bg-gray-400 cursor-not-allowed"
             }`}
@@ -97,8 +99,6 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
           </button>
         </div>
       </div>
-
-
     </div>
   );
 };

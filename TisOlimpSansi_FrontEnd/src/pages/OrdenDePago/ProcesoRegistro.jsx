@@ -16,7 +16,7 @@ const ProcesoRegistro = ({
       redirectToProfesor: false,
       currentAreaIndex: 0,
       pendingAreas: [],
-      skipProfesor: false       // Agregar esta bandera
+      skipProfesor: false      
     },
     profesores: { areasRegistradas: [] }
   });
@@ -38,9 +38,9 @@ const ProcesoRegistro = ({
   
     // Si estamos en el paso del profesor y hay que continuar
     if (step === 5 && !formData.flow.redirectToProfesor) {
-      // Verificar si hay más áreas pendientes por procesar
+      // Verificar si hay más áreas pendientes
       if (formData.flow.pendingAreas && formData.flow.pendingAreas.length > 0) {
-        // Aún hay áreas por procesar, mostrar el siguiente modal (en InscripcionTutorAcademico)
+        // Aún hay áreas por procesar, mostrar el siguiente modal 
         setFormData(prev => ({
           ...prev,
           flow: {
@@ -49,20 +49,18 @@ const ProcesoRegistro = ({
           }
         }));
       } else {
-        // No hay más áreas pendientes, ir al paso final
-        setStep(6); // Confirmación
+        // No hay más áreas pendientes
+        setStep(6); 
       }
     }
-    // Si necesitamos redirigir al registro de profesor
     else if (formData.flow?.redirectToProfesor) {
-      // Ir al paso del profesor
       setStep(5);
     } 
 // Caso normal: avanzar al siguiente paso
   else if (step < steps.length) {
     // Si estamos en el paso 4 (tutor legal) y skipProfesor es true
     if (step === 4 && formData.flow?.skipProfesor === true) {
-      setStep(6); // Saltar al paso 6 (confirmación)
+      setStep(6); 
     } else {
       setStep(step + 1);
     }
