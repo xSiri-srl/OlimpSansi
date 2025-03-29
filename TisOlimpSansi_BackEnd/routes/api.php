@@ -11,6 +11,7 @@ use App\Http\Controllers\Inscripcion\EstudianteController;
 use App\Http\Controllers\Inscripcion\TutorAcademicoController;
 use App\Http\Controllers\Inscripcion\ColegioController;
 use App\Http\Controllers\Inscripcion\GradoController;
+use App\Http\Controllers\OrdenPagoController;
 
 Route::controller(UserPruebaController::class)->group(function(){
     Route::post('/agregarEjemplo', [UserPruebaController::class, 'store']);
@@ -89,3 +90,8 @@ Route::controller(GradoController::class)->group(function(){
     Route::delete('/eliminarGrado/{id}', [GradoController::class, 'destroy']);
     
 });
+Route::post('/verificar-codigo-generado', [OrdenPagoController::class, 'verificarCodigo']);
+
+Route::post('/procesar-comprobanteOCR', [OrdenPagoController::class, 'procesarComprobante']);
+
+Route::post('/guardar-comprobante', [OrdenPagoController::class, 'guardarComprobante']);
