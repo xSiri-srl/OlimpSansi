@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { FaCloudUploadAlt } from "react-icons/fa";
 import axios from 'axios'; 
+import ImageCropper from "./ImageCropper";
 
 const SubirComprobante = () => {
   const [codigoGenerado, setCodigoGenerado] = useState("");
@@ -11,7 +12,7 @@ const SubirComprobante = () => {
   const [loading, setLoading] = useState(false);
   const [numeroComprobante, setNumeroComprobante] = useState("");
   const [comprobantePath, setComprobantePath] = useState("");
- 
+  const [comprobanteNombre, setcomprobanteNombre] = useState("");
   
 
   const endpoint = "http://127.0.0.1:8000/api";
@@ -63,6 +64,7 @@ const SubirComprobante = () => {
     setError("");
     setLoading(false);
     setNumeroComprobante("");
+    setcomprobanteNombre("");
     setComprobantePath("");
     window.location.href = "/";  
   };
@@ -101,8 +103,8 @@ const SubirComprobante = () => {
  
 // procesar OCR
 const procesarComprobante = async () => {
-  if (!selectedFile) {
-    setError("Por favor, sube el comprobante.");
+  if (!selectedFile?.numero || !selectedFile?.nombre) {
+    setError("Por favor, realiza los recortes para el número y el nombre.");
     return;
   }
 
@@ -110,9 +112,12 @@ const procesarComprobante = async () => {
   setError(null);
 
   const formData = new FormData();
-  formData.append("codigo_generado", codigoGenerado);
-  formData.append("comprobante", selectedFile);
-
+ 
+  
+  // Asegúrate de enviar ambos recortes (número y nombre) como archivos
+  formData.append("comprobante_numero", selectedFile.numero);
+  formData.append("comprobante_nombre", selectedFile.nombre);
+  
   try {
     const response = await axios.post(`${endpoint}/procesar-comprobanteOCR`, formData, {
       headers: { "Content-Type": "multipart/form-data" },
@@ -120,14 +125,9 @@ const procesarComprobante = async () => {
 
     if (response.status === 200) {
       const { numero_comprobante, comprobante_path } = response.data;
-      
-      // Guardar en el estado para usar después
       setNumeroComprobante(numero_comprobante);
       setComprobantePath(comprobante_path);
-      
-      console.log("Número de comprobante:", numero_comprobante);
-      console.log("Ruta de la imagen:", comprobante_path);
-      setStep(4);  
+      setStep(4);
     }
   } catch (err) {
     console.error("Error al procesar el comprobante:", err);
@@ -136,6 +136,7 @@ const procesarComprobante = async () => {
     setLoading(false);
   }
 };
+
 
 // guardar comprobante
 const guardarComprobante = async () => {
@@ -150,7 +151,7 @@ const guardarComprobante = async () => {
   const formData = new FormData();
   formData.append("codigo_generado", codigoGenerado);
   formData.append("numero_comprobante", numeroComprobante);
-  formData.append("comprobante_path", comprobantePath);
+  formData.append("comprobante", selectedFile);
  
   try {
     const response = await axios.post(`${endpoint}/guardar-comprobante`, formData, {
@@ -268,42 +269,76 @@ const guardarComprobante = async () => {
 
         {/* Paso 3 - Vista previa */}
         {step === 3 && (
-          <div>
-          <div className="flex justify-center">
-    <div className="border-2 border-blue-500 p-4 w-64 h-64 flex items-center justify-center bg-gray-100">
-      {preview ? (
-        selectedFile?.type === "application/pdf" ? (
-          <embed src={preview} type="application/pdf" width="100%" height="100%" />
+  <div>
+    {/* Vista previa de la imagen original */}
+    <div className="flex justify-center">
+      <div className="border-2 border-blue-500 p-4 w-64 h-64 flex items-center justify-center bg-gray-100">
+        {preview ? (
+          selectedFile?.type === "application/pdf" ? (
+            <embed src={preview} type="application/pdf" width="100%" height="100%" />
+          ) : (
+            <img src={preview} alt="Comprobante" className="max-w-full max-h-full rounded-lg" />
+          )
         ) : (
-          <img src={preview} alt="Comprobante" className="max-w-full max-h-full rounded-lg" />
-        )
-      ) : (
-        <div className="text-gray-500">Vista previa</div>
-      )}
+          <div className="text-gray-500">Vista previa</div>
+        )}
+      </div>
+      </div>
+    <div className="p-4">
+    <h2 className="text-lg text-center font-semibold mb-2 text-gray-500">
+         Por favor, seleccione el numero del comprobante
+       </h2>
+    {/* Recorte para el Número */}
+    <div className="flex justify-center mt-4">
+      <ImageCropper
+        image={preview}
+        onCrop={(croppedBlob) => {
+          const croppedFile = new File([croppedBlob], `numero_${selectedFile?.name}`, { type: "image/png" });
+          setSelectedFile((prev) => ({ ...prev, numero: croppedFile }));
+        }}
+      />
     </div>
-  </div>
-  <p className="flex justify-center text-sm text-green-600 mt-2">
-    {selectedFile ? selectedFile.name : "No hay archivo seleccionado"}
-  </p>
-  <div className="flex justify-center mt-6 space-x-4">
-    <button
-      onClick={() => setStep(2)}
-      className="bg-gray-500 text-white px-6 py-2 rounded-md transition duration-300 ease-in-out text-white rounded-md hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500 shadow-md"
-    >
-      Atrás
-    </button>
-    <button
-      onClick={procesarComprobante} 
-      disabled={loading || !selectedFile} 
-      className={`px-6 py-2 transition duration-300 ease-in-out text-white rounded-md shadow-md ${
-        selectedFile && !loading
-          ? "bg-blue-500 hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500"
-          : "bg-gray-400 cursor-not-allowed"
-      }`}
-    >
-      {loading ? "Escaneando..." : "Escanear"}
-    </button>
-  </div>
+    <p className="flex justify-center text-sm text-green-600 mt-2">
+      {selectedFile?.numero ? selectedFile.numero.name : "No hay recorte de número"}
+    </p>
+    </div>
+    <h2 className="text-lg text-center font-semibold mb-2 text-gray-500">
+         Por favor, seleccione el Nombre del que pago
+       </h2>
+    {/* Recorte para el Nombre */}
+    <div className="flex justify-center mt-4">
+      <ImageCropper
+        image={preview}
+        onCrop={(croppedBlob) => {
+          const croppedFile = new File([croppedBlob], `nombre_${selectedFile?.name}`, { type: "image/png" });
+          setSelectedFile((prev) => ({ ...prev, nombre: croppedFile }));
+        }}
+      />
+    </div>
+    <p className="flex justify-center text-sm text-green-600 mt-2">
+      {selectedFile?.nombre ? selectedFile.nombre.name : "No hay recorte de nombre"}
+    </p>
+
+    {/* Botones */}
+    <div className="flex justify-center mt-6 space-x-4">
+      <button
+        onClick={() => setStep(2)}
+        className="bg-gray-500 text-white px-6 py-2 rounded-md transition duration-300 ease-in-out hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500 shadow-md"
+      >
+        Atrás
+      </button>
+      <button
+        onClick={procesarComprobante}
+        disabled={loading || !selectedFile?.numero || !selectedFile?.nombre}
+        className={`px-6 py-2 transition duration-300 ease-in-out text-white rounded-md shadow-md ${
+          selectedFile?.numero && selectedFile?.nombre && !loading
+            ? "bg-blue-500 hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500"
+            : "bg-gray-400 cursor-not-allowed"
+        }`}
+      >
+        {loading ? "Escaneando..." : "Escanear"}
+      </button>
+    </div>
   </div>
 )}
 
@@ -332,8 +367,8 @@ const guardarComprobante = async () => {
                   <input
         type="text"
         placeholder="Nombre del responsable"
-        value={numeroComprobante} 
-        onChange={(e) => setNumeroComprobante(e.target.value)} 
+        value={comprobanteNombre} 
+        onChange={(e) => setcomprobanteNombre(e.target.value)} 
         className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
                 </div>
