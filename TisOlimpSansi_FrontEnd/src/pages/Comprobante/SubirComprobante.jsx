@@ -118,14 +118,17 @@ const procesarComprobante = async () => {
   formData.append("comprobante_numero", selectedFile.numero);
   formData.append("comprobante_nombre", selectedFile.nombre);
   
+  console.log(selectedFile.numero);
+  console.log(selectedFile.nombre); 
   try {
     const response = await axios.post(`${endpoint}/procesar-comprobanteOCR`, formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
 
     if (response.status === 200) {
-      const { numero_comprobante, comprobante_path } = response.data;
+      const { numero_comprobante, comprobante_path,nombre_pagador } = response.data;
       setNumeroComprobante(numero_comprobante);
+      setcomprobanteNombre(nombre_pagador);
       setComprobantePath(comprobante_path);
       setStep(4);
     }
@@ -137,10 +140,9 @@ const procesarComprobante = async () => {
   }
 };
 
-
-// guardar comprobante
+//guardar 
 const guardarComprobante = async () => {
-  if (!numeroComprobante || !comprobantePath || !selectedFile || !codigoGenerado) {
+  if (!numeroComprobante || !selectedFile || !codigoGenerado) {
     setError("Faltan datos para guardar.");
     return;
   }
@@ -152,7 +154,12 @@ const guardarComprobante = async () => {
   formData.append("codigo_generado", codigoGenerado);
   formData.append("numero_comprobante", numeroComprobante);
   formData.append("comprobante", selectedFile);
- 
+
+  // Verificar lo que se está enviando
+  for (let [key, value] of formData.entries()) {
+    console.log(`${key}:`, value);
+  }
+
   try {
     const response = await axios.post(`${endpoint}/guardar-comprobante`, formData, {
       headers: { "Content-Type": "multipart/form-data" },
@@ -160,7 +167,7 @@ const guardarComprobante = async () => {
 
     if (response.status === 200) {
       console.log("Comprobante guardado exitosamente:", response.data);
-      setStep(5);  
+      setStep(5);
     }
   } catch (err) {
     console.error("Error al guardar el comprobante:", err);
@@ -283,41 +290,49 @@ const guardarComprobante = async () => {
           <div className="text-gray-500">Vista previa</div>
         )}
       </div>
-      </div>
-    <div className="p-4">
-    <h2 className="text-lg text-center font-semibold mb-2 text-gray-500">
-         Por favor, seleccione el numero del comprobante
-       </h2>
+    </div>
+
     {/* Recorte para el Número */}
-    <div className="flex justify-center mt-4">
-      <ImageCropper
-        image={preview}
-        onCrop={(croppedBlob) => {
-          const croppedFile = new File([croppedBlob], `numero_${selectedFile?.name}`, { type: "image/png" });
-          setSelectedFile((prev) => ({ ...prev, numero: croppedFile }));
-        }}
-      />
+    <div className="p-4">
+      <h2 className="text-lg text-center font-semibold mb-2 text-gray-500">
+        Por favor, seleccione el número del comprobante
+      </h2>
+      <div className="flex justify-center mt-4">
+        <ImageCropper
+          image={preview}
+          onCrop={(croppedFile) => {
+            setSelectedFile((prev) => ({
+              ...prev,
+              numero: croppedFile, // Guardamos el archivo recortado
+            }));
+          }}
+        />
+      </div>
+      <p className="flex justify-center text-sm text-green-600 mt-2">
+        {selectedFile?.numero ? selectedFile.numero.name : "No hay recorte de número"}
+      </p>
     </div>
-    <p className="flex justify-center text-sm text-green-600 mt-2">
-      {selectedFile?.numero ? selectedFile.numero.name : "No hay recorte de número"}
-    </p>
-    </div>
-    <h2 className="text-lg text-center font-semibold mb-2 text-gray-500">
-         Por favor, seleccione el Nombre del que pago
-       </h2>
+
     {/* Recorte para el Nombre */}
-    <div className="flex justify-center mt-4">
-      <ImageCropper
-        image={preview}
-        onCrop={(croppedBlob) => {
-          const croppedFile = new File([croppedBlob], `nombre_${selectedFile?.name}`, { type: "image/png" });
-          setSelectedFile((prev) => ({ ...prev, nombre: croppedFile }));
-        }}
-      />
+    <div className="p-4">
+      <h2 className="text-lg text-center font-semibold mb-2 text-gray-500">
+        Por favor, seleccione el nombre del que pagó
+      </h2>
+      <div className="flex justify-center mt-4">
+        <ImageCropper
+          image={preview}
+          onCrop={(croppedFile) => {
+            setSelectedFile((prev) => ({
+              ...prev,
+              nombre: croppedFile, // Guardamos el archivo recortado
+            }));
+          }}
+        />
+      </div>
+      <p className="flex justify-center text-sm text-green-600 mt-2">
+        {selectedFile?.nombre ? selectedFile.nombre.name : "No hay recorte de nombre"}
+      </p>
     </div>
-    <p className="flex justify-center text-sm text-green-600 mt-2">
-      {selectedFile?.nombre ? selectedFile.nombre.name : "No hay recorte de nombre"}
-    </p>
 
     {/* Botones */}
     <div className="flex justify-center mt-6 space-x-4">
@@ -341,6 +356,7 @@ const guardarComprobante = async () => {
     </div>
   </div>
 )}
+
 
         {/* Paso 4 - Datos escaneados */}
         {step === 4 && (
