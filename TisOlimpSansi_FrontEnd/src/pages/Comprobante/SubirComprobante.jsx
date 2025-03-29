@@ -99,7 +99,7 @@ const SubirComprobante = () => {
   };
  
  
-// 🔹 1️⃣ FUNCIÓN PARA ESCANEAR EL COMPROBANTE (OCR)
+// procesar OCR
 const procesarComprobante = async () => {
   if (!selectedFile) {
     setError("Por favor, sube el comprobante.");
@@ -137,7 +137,7 @@ const procesarComprobante = async () => {
   }
 };
 
-//  GUARDAR EL COMPROBANTE
+// guardar comprobante
 const guardarComprobante = async () => {
   if (!numeroComprobante || !comprobantePath || !selectedFile || !codigoGenerado) {
     setError("Faltan datos para guardar.");
