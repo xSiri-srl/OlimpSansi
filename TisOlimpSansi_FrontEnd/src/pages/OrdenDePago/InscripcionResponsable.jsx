@@ -1,13 +1,57 @@
-import React from 'react';
-import ProcesoRegistro from './ProcesoRegistro';
-import { FaUser, FaIdCard } from 'react-icons/fa';
-import InscripcionEstudiante from './InscripcionEstudiante';
-import AreasCompetencia from './AreasCompetencia';
-import InscripcionTutorLegal from './InscripcionTutorLegal';
-import InscripcionTutorAcademico from './IncripcionTutorAcademico';
+import { FaUser, FaIdCard } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import axios from "axios";
 
+export default function FormularioInscripcion() {
+  const navigate = useNavigate();
+  const [apellidoPaterno, setApellidoPaterno] = useState("");
+  const [apellidoMaterno, setApellidoMaterno] = useState("");
+  const [nombres, setNombres] = useState("");
+  const [ci, setCi] = useState("");
+  const [errors, setErrors] = useState({});
 
-const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
+  const handleNext = async () => {
+    const newErrors = {};
+    if (!apellidoPaterno) newErrors.apellidoPaterno = "Campo obligatorio.";
+    if (!apellidoMaterno) newErrors.apellidoMaterno = "Campo obligatorio.";
+    if (!nombres) newErrors.nombres = "Campo obligatorio.";
+    if (!ci) newErrors.ci = "Campo obligatorio.";
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        "http://localhost:8000/api/agregarTresponsableInscrip",
+        {
+          apellido_pa: apellidoPaterno,
+          apellido_ma: apellidoMaterno,
+          nombre: nombres,
+          ci: ci,
+        }
+      );
+      //console.log("Respuesta del servidor:", response.data);
+      navigate("/inscripcion/estudiante");
+    } catch (error) {
+      setErrors({ general: "Hubo un error al enviar los datos." });
+    }
+  };
+
+  const handleBack = () => {
+    navigate("/inscripcion/forma-inscripcion");
+  };
+
+  const handleInputChange = (setter, fieldName, regex) => (e) => {
+    const value = e.target.value;
+    if (regex.test(value) || value === "") {
+      setter(value);
+      setErrors((prev) => ({ ...prev, [fieldName]: "" }));
+    }
+  };
+
   return (
     <div className="flex justify-center">
       <div className="w-full max-w-2xl">
@@ -87,6 +131,8 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
         {/* Botón */}
         <div className="flex justify-center mt-8">
           <button
+            type="button"
+            className="bg-[#4C8EDA] text-white py-2 px-4 rounded-md hover:bg-[#2e4f96]"
             onClick={handleNext}
             disabled={!formData.responsable?.nombres || !formData.responsable?.ci}
             className={`px-6 py-2 transition duration-300 ease-in-out text-white rounded-md shadow-md ${
