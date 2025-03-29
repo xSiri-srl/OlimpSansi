@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
   FaUserAlt, 
@@ -7,7 +6,7 @@ import {
 export default function FormularioEstudiante() {
   const navigate = useNavigate()
 
-  const handleSeleccion = (tipo) => {
+  const handleSeleccion = () => {
     navigate(`/inscripcion/responsable`)
   }
   return (
