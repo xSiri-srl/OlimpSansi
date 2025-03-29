@@ -66,29 +66,33 @@ class OrdenPagoController extends Controller
 
     public function procesarComprobante(Request $request)
     {
-        
-        
+
         $validated = $request->validate([
-            'comprobante' => 'required|image|mimes:jpg,png,jpeg|max:2048',
-            'codigo_generado' => 'required|string|max:255', // Asegurarse de que el código se pase
+            //'comprobante' => 'required|image|mimes:jpg,png,jpeg|max:2048', 
+            'comprobante_numero' => 'required|image|mimes:jpg,png,jpeg|max:2048', 
+            'comprobante_nombre' => 'required|image|mimes:jpg,png,jpeg|max:2048',
         ]);
-
-        // Subir la imagen
-        $imagen = $request->file('comprobante');
-        $rutaImagen = $imagen->store('comprobantes', 'public'); // Guardar la imagen temporalmente
-
+        // Obtener las imágenes subidas
+        $imagenComprobante = $request->file('comprobante_numero');
+        $imagenNombre = $request->file('comprobante_nombre');
         
-        $numeroComprobante = (new TesseractOCR(storage_path('app/public/' . $rutaImagen)))
-            ->lang('eng') 
-            ->run();
-
-        // Mostrar el número extraído y la imagen para que el usuario lo confirme
+        // Procesar las imágenes con Tesseract OCR (no se almacena en el servidor)
+        $numeroComprobante = (new TesseractOCR($imagenComprobante->getRealPath()))
+        ->lang('spa')  
+        ->run();
+        
+        //return response()->json(['message' => 'llego.'], 200);
+        $nombrePagador = (new TesseractOCR($imagenNombre->getRealPath()))
+        ->lang('spa') 
+        ->run();
+    
+        // Retornar los datos extraídos para su confirmación
         return response()->json([
             'numero_comprobante' => $numeroComprobante,
-            'comprobante_path' => $rutaImagen, // Retornar la ruta de la imagen
-            'codigo_generado' => $validated['codigo_generado'], // Enviar el código para el paso de confirmación
+            'nombre_pagador' => $nombrePagador,
         ]);
     }
+    
 
 
     public function guardarComprobante(Request $request)
@@ -96,23 +100,30 @@ class OrdenPagoController extends Controller
         $validated = $request->validate([
             'numero_comprobante' => 'required|string',
             'codigo_generado' => 'required|string',
-            'comprobante_path' => 'required|string', // La ruta de la imagen
+            'comprobante' => 'required|image|mimes:jpg,png,jpeg|max:2048', 
         ]);
+    
+        // Obtener el archivo de la imagen subido
+        $imagen = $request->file('comprobante');
         
-        
+        // Subir la imagen a una carpeta pública 'comprobantes' y obtener la ruta de almacenamiento
+        $comprobantePath = $imagen->store('comprobantes', 'public'); 
+    
+        // Buscar la orden de pago correspondiente con el código generado
         $ordenPago = OrdenPago::where('codigo_generado', $validated['codigo_generado'])->first();
-        
+    
         if (!$ordenPago) {
             return response()->json(['message' => 'Código no encontrado.'], 404);
         }
-        
+    
         // Actualizar los datos del comprobante
         $ordenPago->numero_comprobante = $validated['numero_comprobante'];
-        $ordenPago->comprobante_url = $validated['comprobante_path'];
+        $ordenPago->comprobante_url = $comprobantePath; 
         $ordenPago->fecha_subida_imagen_comprobante = now(); 
-        //return response()->json(['message' => 'Código generado válido, puedes continuar con la subida de la imagen.'], 200);
+    
         $ordenPago->save(); 
     
+        // Retornar la respuesta indicando éxito
         return response()->json([
             'message' => 'Comprobante guardado exitosamente',
             'ordenPago' => $ordenPago
