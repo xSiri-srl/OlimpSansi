@@ -15,6 +15,8 @@ const SubirComprobante = () => {
   const [comprobantePath, setComprobantePath] = useState("");
   const [comprobanteNombre, setcomprobanteNombre] = useState("");
   
+  const [scanAttempts, setScanAttempts] = useState(0);
+  const [isEditable, setIsEditable] = useState(false);
 
   const endpoint = "http://127.0.0.1:8000/api";
 
@@ -23,9 +25,9 @@ const SubirComprobante = () => {
     const file = event.target.files[0];
   
     if (file) {
-      const validExtensions = ["image/jpeg", "image/png", "application/pdf"];
+      const validExtensions = ["image/jpeg", "image/png"];
       if (!validExtensions.includes(file.type)) {
-        setError("Solo se permiten archivos JPG, PNG o PDF.");
+        setError("Solo se permiten archivos JPG o PNG .");
         setSelectedFile(null);
         setPreview(null);
         return;
@@ -55,6 +57,13 @@ const SubirComprobante = () => {
   
       setStep(3);
     }
+  };
+const handleScanAgain = () => {
+    if (scanAttempts + 1 >= 3) {
+      setIsEditable(true);
+    }
+    setScanAttempts(scanAttempts + 1);
+    setStep(3);
   };
 
   const handleFinalizar = () => {
@@ -361,58 +370,84 @@ const guardarComprobante = async () => {
 
         {/* Paso 4 - Datos escaneados */}
         {step === 4 && (
-          <div className="text-center">
-            <h2 className="text-xl font-semibold mb-4 text-gray-500">Comprobante de pago</h2>
-
-            <div className="bg-gray-100 p-4 rounded-lg flex flex-col items-center shadow-md">
-              <div className="w-full h-20 bg-gray-300 rounded mb-2 flex items-center justify-center">
-                <span className="text-gray-600">Imagen escaneada</span>
-              </div>
-              <div className="w-full flex justify-between bg-white p-4 rounded-lg border">
-                <div>
-                <p className="text-gray-700 text-sm font-medium">Número de comprobante *</p>
-      <input
-        type="text"
-        placeholder="Número de comprobante"
-        value={numeroComprobante} 
-        onChange={(e) => setNumeroComprobante(e.target.value)} 
-        className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
-                </div>
-                <div>
-                  <p className="text-gray-700 text-sm font-medium">Nombre del responsable *</p>
-                  <input
-        type="text"
-        placeholder="Nombre del responsable"
-        value={comprobanteNombre} 
-        onChange={(e) => setcomprobanteNombre(e.target.value)} 
-        className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
-                </div>
-              </div>
-            </div>
-
-            <p className="text-lg font-semibold mt-6">¿Están correctos los datos?</p>
-            <div className="flex justify-center mt-4 space-x-4">
-              <button
-                onClick={() => setStep(3)}
-                className="bg-red-600 text-white px-6 py-2 rounded-md transition duration-300 ease-in-out text-white rounded-md hover:-translate-y-1 hover:scale-110 hover:bg-red-500 shadow-md"
-              >
-                Volver a Escanear
-              </button>
-              <button
-      onClick={guardarComprobante} 
-      disabled={loading || !selectedFile} 
-      className={`px-6 py-2 transition duration-300 ease-in-out text-white rounded-md shadow-md ${
-        selectedFile && !loading
-          ? "bg-blue-500 hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500"
-          : "bg-gray-400 cursor-not-allowed"
-      }`}
-    >
-      {loading ? "Guardando..." : "Finalizar"}
-    </button>
-            </div>
-          </div>
+           <div className="text-center">
+           <h2 className="text-xl font-semibold mb-4 text-gray-600">Comprobante de pago</h2>
+     
+           <div className="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center space-y-4">
+             {/* Vista previa del comprobante */}
+             <div className="border-2 border-blue-500 p-4 w-64 h-64 flex items-center justify-center bg-gray-100 rounded-lg">
+               {preview ? (
+                 selectedFile?.type === "application/pdf" ? (
+                   <embed src={preview} type="application/pdf" width="100%" height="100%" className="rounded-lg" />
+                 ) : (
+                   <img src={preview} alt="Comprobante" className="max-w-full max-h-full rounded-lg" />
+                 )
+               ) : (
+                 <span className="text-gray-500">Vista previa</span>
+               )}
+             </div>
+     
+             {/* Formulario de datos */}
+             <div className="w-full bg-gray-50 p-4 rounded-lg border shadow-sm">
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                 {/* Número de comprobante */}
+                 <div>
+                   <label className="text-gray-700 text-sm font-medium block mb-1">Número de comprobante *</label>
+                   <input
+                     type="text"
+                     placeholder="Ej. 123456"
+                     value={numeroComprobante}
+                     onChange={(e) => setNumeroComprobante(e.target.value)}
+                     disabled={!isEditable}
+                     className={`w-full p-2 border rounded-md focus:outline-none focus:ring-2 ${
+                       isEditable ? "border-gray-300 focus:ring-blue-500" : "bg-gray-200 cursor-not-allowed"
+                     }`}
+                   />
+                 </div>
+     
+                 {/* Nombre del responsable */}
+                 <div>
+                   <label className="text-gray-700 text-sm font-medium block mb-1">Nombre del responsable *</label>
+                   <input
+                     type="text"
+                     placeholder="Ej. Juan Pérez"
+                     value={comprobanteNombre}
+                     onChange={(e) => setcomprobanteNombre(e.target.value)}
+                     disabled={!isEditable}
+                     className={`w-full p-2 border rounded-md focus:outline-none focus:ring-2 ${
+                       isEditable ? "border-gray-300 focus:ring-blue-500" : "bg-gray-200 cursor-not-allowed"
+                     }`}
+                   />
+                 </div>
+               </div>
+             </div>
+           </div>
+     
+           {/* Confirmación */}
+           <p className="text-lg font-semibold mt-6">¿Están correctos los datos?</p>
+           <div className="flex justify-center mt-4 space-x-4">
+             {/* Botón para volver a escanear */}
+             <button
+               onClick={handleScanAgain}
+               className="bg-red-600 text-white px-6 py-2 rounded-md transition duration-300 ease-in-out hover:-translate-y-1 hover:scale-110 hover:bg-red-500 shadow-md"
+             >
+               Volver a Escanear ({scanAttempts}/3)
+             </button>
+     
+             {/* Botón para finalizar */}
+             <button
+               onClick={guardarComprobante}
+               disabled={loading || !selectedFile}
+               className={`px-6 py-2 transition duration-300 ease-in-out text-white rounded-md shadow-md ${
+                 selectedFile && !loading
+                   ? "bg-blue-500 hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500"
+                   : "bg-gray-400 cursor-not-allowed"
+               }`}
+             >
+               {loading ? "Guardando..." : "Finalizar"}
+             </button>
+           </div>
+         </div>
         )}
 
         {/* Paso 5 - Finalización */}
