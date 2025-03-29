@@ -120,7 +120,6 @@ class OrdenPagoController extends Controller
         $ordenPago->numero_comprobante = $validated['numero_comprobante'];
         $ordenPago->comprobante_url = $comprobantePath; 
         $ordenPago->fecha_subida_imagen_comprobante = now(); 
-    
         $ordenPago->save(); 
     
         // Retornar la respuesta indicando éxito
