@@ -11,15 +11,39 @@ const ProcesoRegistro = ({
   const navigate = useNavigate();
   const [step, setStep] = useState(initialStep);
   const [formData, setFormData] = useState({
-    flow: { redirectToProfesor: false }
+    flow: { 
+      redirectToProfesor: false,
+      currentAreaIndex: 0,
+      pendingAreas: []
+    },
+    profesores: { areasRegistradas: [] }
   });
 
   const handleNext = () => {
+    // Si estamos en el paso del profesor y hay que continuar
+    if (step === 5 && !formData.flow.redirectToProfesor) {
+      // Verificar si hay más áreas pendientes por procesar
+      if (formData.flow.pendingAreas && formData.flow.pendingAreas.length > 0) {
+        // Aún hay áreas por procesar, mostrar el siguiente modal (en InscripcionTutorAcademico)
+        setFormData(prev => ({
+          ...prev,
+          flow: {
+            ...prev.flow,
+            showNextAreaModal: true
+          }
+        }));
+      } else {
+        // No hay más áreas pendientes, ir al paso final
+        setStep(6); // Confirmación
+      }
+    }
     // Si necesitamos redirigir al registro de profesor
-    if (formData.flow?.redirectToProfesor) {
-      // Ir al paso del profesor (índice 4 en el array de pasos)
-      setStep(5); // Ajusta este valor según la posición de la pantalla del profesor
-    } else if (step < steps.length) {
+    else if (formData.flow?.redirectToProfesor) {
+      // Ir al paso del profesor
+      setStep(5);
+    } 
+    // Caso normal: avanzar al siguiente paso
+    else if (step < steps.length) {
       setStep(step + 1);
       if (step === steps.length - 1) {
         navigate(nextRoute);

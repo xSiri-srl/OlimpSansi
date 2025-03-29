@@ -15,47 +15,57 @@ export default function InscripcionTutorLegal({
 
   const handleNextWithModal = () => {
     if (areasSeleccionadas.length > 0) {
-      const areasPendientes = areasSeleccionadas.filter(
-        area => !areasConProfesor.includes(area)
-      ); 
-      if (areasPendientes.length > 0) {
-        setCurrentAreaIndex(0);
-        setShowModal(true);
-} else {
-  handleNext();
-}
-} else {
-handleNext();
-}
-};
+      // Inicializar áreas pendientes para profesores
+      handleInputChange("flow", "pendingAreas", [...areasSeleccionadas]);
+      setCurrentAreaIndex(0);
+      setShowModal(true);
+    } else {
+      // Si no hay áreas seleccionadas, continuar
+      handleNext();
+    }
+  };
 
 const handleSiProfesor = () => {
-const areasPendientes = areasSeleccionadas.filter(
-area => !areasConProfesor.includes(area)
-);
-const currentArea = areasPendientes[currentAreaIndex];
-handleInputChange("profesor", "areaCompetencia", currentArea);
-const nuevasAreasConProfesor = [...(areasConProfesor || []), currentArea];
-handleInputChange("profesores", "areasRegistradas", nuevasAreasConProfesor);
-
-setShowModal(false);
-
+  const currentArea = areasSeleccionadas[currentAreaIndex];
+  
+  // Guardar el área para la que se registrará el profesor
+  handleInputChange("profesor", "areaCompetencia", currentArea);
+  
+  // Actualizar las áreas con profesor registrado
+  const nuevasAreasConProfesor = [...(areasConProfesor || []), currentArea];
+  handleInputChange("profesores", "areasRegistradas", nuevasAreasConProfesor);
+  
+  // Guardar el índice actual y áreas pendientes
+  handleInputChange("flow", "currentAreaIndex", currentAreaIndex);
+  
+  // Si hay una segunda área, la dejamos pendiente
+  if (currentAreaIndex < areasSeleccionadas.length - 1) {
+    const areasRestantes = areasSeleccionadas.filter((area, idx) => 
+      idx > currentAreaIndex && !nuevasAreasConProfesor.includes(area)
+    );
+    handleInputChange("flow", "pendingAreas", areasRestantes);
+  } else {
+    handleInputChange("flow", "pendingAreas", []);
+    }
+    
+    setShowModal(false);
+    
+    // Redirigir a la pantalla de profesor
     handleInputChange("flow", "redirectToProfesor", true);
     handleNext();
   };
 
-  const handleNoProfesor = () => {
-    const areasPendientes = areasSeleccionadas.filter(
-      area => !areasConProfesor.includes(area)
-    );
 
-    if (currentAreaIndex < areasPendientes.length - 1) {
-      setCurrentAreaIndex(currentAreaIndex + 1);
-    } else {
-      setShowModal(false);
-      handleNext();
-    }
-  };
+const handleNoProfesor = () => {
+  if (currentAreaIndex < areasSeleccionadas.length - 1) {
+    // Aún hay más áreas, mostrar el siguiente modal
+    setCurrentAreaIndex(currentAreaIndex + 1);
+  } else {
+    // No hay más áreas, ir al siguiente paso
+    setShowModal(false);
+    handleNext();
+  }
+};
   return (
     <div className="grid grid-cols-1 gap-6">
       {/* Título */}
@@ -204,9 +214,7 @@ setShowModal(false);
       {/* Modal de confirmación */}
       {showModal && (
         <ModalConfirmacion
-          area={areasSeleccionadas.filter(
-            (area) => !areasConProfesor.includes(area)
-          )[currentAreaIndex]}
+          area={areasSeleccionadas[currentAreaIndex]}
           onConfirm={handleSiProfesor}
           onCancel={handleNoProfesor}
         />

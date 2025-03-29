@@ -1,5 +1,6 @@
-import React from "react";
+import React, {useState, useEffect } from "react";
 import { FaUser, FaIdCard, FaEnvelope, FaPhoneAlt } from "react-icons/fa";
+import ModalConfirmacion from "./modales/modalConfirmacion";
 
 export default function IncripcionTutorAcademico({
   formData,
@@ -7,14 +8,78 @@ export default function IncripcionTutorAcademico({
   handleNext,
   handleBack,
 }) {
+  const [showModal, setShowModal] = useState(false);
   const areaCompetencia = formData.profesor?.areaCompetencia || "[AREA DE COMPETENCIA]";
+  const areasSeleccionadas = formData.estudiante?.areasSeleccionadas || [];
+  const areasConProfesor = formData.profesores?.areasRegistradas || [];
+  const areasRestantes = formData.flow?.pendingAreas || [];
   
-  // Función para manejar el siguiente paso después de registrar profesor
+  // Efecto para mostrar modal de siguiente área si es necesario
+  useEffect(() => {
+    if (formData.flow?.showNextAreaModal && areasRestantes.length > 0) {
+      setShowModal(true);
+      // Reiniciar el estado del modal
+      handleInputChange("flow", "showNextAreaModal", false);
+    }
+  }, [formData.flow?.showNextAreaModal]);
+
   const handleProfesorNext = () => {
-    // Limpiar datos para el próximo profesor si es necesario
+    // Desactivar la redirección al profesor
     handleInputChange("flow", "redirectToProfesor", false);
+    
+    // Verificar si hay más áreas pendientes
+    if (areasRestantes.length > 0) {
+      // Mostrar modal para la siguiente área
+      setShowModal(true);
+    } else {
+      // No hay más áreas, ir al paso final
+      handleNext();
+    }
+  };
+  const handleSiProfesor = () => {
+    const siguienteArea = areasRestantes[0];
+    
+    // Actualizar el área del profesor
+    handleInputChange("profesor", "areaCompetencia", siguienteArea);
+    
+    // Limpiar los datos del formulario para el nuevo profesor
+    handleInputChange("profesor", "apellidoPaterno", "");
+    handleInputChange("profesor", "apellidoMaterno", "");
+    handleInputChange("profesor", "nombres", "");
+    handleInputChange("profesor", "ci", "");
+    handleInputChange("profesor", "correo", "");
+    
+    // Actualizar áreas registradas
+    const nuevasAreasConProfesor = [...areasConProfesor, siguienteArea];
+    handleInputChange("profesores", "areasRegistradas", nuevasAreasConProfesor);
+    
+    // Actualizar áreas pendientes
+    const nuevasAreasPendientes = areasRestantes.filter(area => area !== siguienteArea);
+    handleInputChange("flow", "pendingAreas", nuevasAreasPendientes);
+    
+    setShowModal(false);
+    
+    // Mantener en la misma pantalla para nuevo profesor
+    handleInputChange("flow", "redirectToProfesor", true);
     handleNext();
   };
+
+  const handleNoProfesor = () => {
+    // Eliminar esta área de las pendientes
+    const nuevasAreasPendientes = areasRestantes.slice(1);
+    handleInputChange("flow", "pendingAreas", nuevasAreasPendientes);
+    
+    setShowModal(false);
+    
+    // Si no hay más áreas pendientes, ir al paso final
+    if (nuevasAreasPendientes.length === 0) {
+      handleNext();
+    } else {
+      // Mostrar el siguiente modal
+      setShowModal(true);
+    }
+  };
+  
   return (
     <div className="grid grid-cols-1 gap-6">
       {/* Título */}
@@ -128,6 +193,14 @@ export default function IncripcionTutorAcademico({
           Siguiente
         </button>
       </div>
+            {/* Modal para siguiente área */}
+            {showModal && (
+        <ModalConfirmacion
+          area={areasRestantes[0]}
+          onConfirm={handleSiProfesor}
+          onCancel={handleNoProfesor}
+        />
+      )}
     </div>
   );
 }
