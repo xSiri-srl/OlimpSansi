@@ -10,10 +10,16 @@ export default function IncripcionTutorAcademico({
 }) {
   const [showModal, setShowModal] = useState(false);
   const areaCompetencia = formData.profesor?.areaCompetencia || "[AREA DE COMPETENCIA]";
-  const areasSeleccionadas = formData.estudiante?.areasSeleccionadas || [];
   const areasConProfesor = formData.profesores?.areasRegistradas || [];
   const areasRestantes = formData.flow?.pendingAreas || [];
-  
+    // Si no hay área de competencia establecida y skipProfesor es true,
+  // avanzar automáticamente al siguiente paso
+  useEffect(() => {
+    if (formData.flow?.skipProfesor === true) {
+      // Avanzar automáticamente al siguiente paso
+      handleNext();
+    }
+  }, []);
   // Efecto para mostrar modal de siguiente área si es necesario
   useEffect(() => {
     if (formData.flow?.showNextAreaModal && areasRestantes.length > 0) {

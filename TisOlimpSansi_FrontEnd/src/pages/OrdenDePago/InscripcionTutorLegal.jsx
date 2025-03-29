@@ -56,16 +56,29 @@ const handleSiProfesor = () => {
   };
 
 
-const handleNoProfesor = () => {
-  if (currentAreaIndex < areasSeleccionadas.length - 1) {
-    // Aún hay más áreas, mostrar el siguiente modal
-    setCurrentAreaIndex(currentAreaIndex + 1);
-  } else {
-    // No hay más áreas, ir al siguiente paso
-    setShowModal(false);
-    handleNext();
-  }
-};
+  const handleNoProfesor = () => {
+    if (currentAreaIndex < areasSeleccionadas.length - 1) {
+      // Aún hay más áreas, mostrar el siguiente modal
+      setCurrentAreaIndex(currentAreaIndex + 1);
+    } else {
+      // No hay más áreas y se ha rechazado registrar profesores para todas
+      setShowModal(false);
+      
+      // Primero limpiamos las áreas pendientes
+      handleInputChange("flow", "pendingAreas", []);
+      
+      // Establecer la bandera para saltar la pantalla de profesor
+      handleInputChange("flow", "skipProfesor", true);
+      
+      // Establecer redirectToProfesor a false para evitar conflictos
+      handleInputChange("flow", "redirectToProfesor", false);
+      
+      console.log("Se ha configurado skipProfesor a true");
+      
+      // Ir al siguiente paso (que deberá saltar a confirmación)
+      handleNext();
+    }
+  };
   return (
     <div className="grid grid-cols-1 gap-6">
       {/* Título */}

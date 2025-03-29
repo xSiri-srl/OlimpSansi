@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const ProcesoRegistro = ({ 
@@ -10,16 +10,32 @@ const ProcesoRegistro = ({
 }) => {
   const navigate = useNavigate();
   const [step, setStep] = useState(initialStep);
+
   const [formData, setFormData] = useState({
     flow: { 
       redirectToProfesor: false,
       currentAreaIndex: 0,
-      pendingAreas: []
+      pendingAreas: [],
+      skipProfesor: false       // Agregar esta bandera
     },
     profesores: { areasRegistradas: [] }
   });
 
+  useEffect(() => {
+    if (formData.flow?.skipProfesor === true && step === 5) {
+      // Saltar al paso de confirmación (paso 6) cuando se decidió no registrar profesores
+      setStep(6);
+    }
+  }, [formData.flow?.skipProfesor, step]);
+
   const handleNext = () => {
+    // Si se indicó que no hay profesores que registrar, saltamos al paso de confirmación
+    if (formData.flow?.skipProfesor === true) {
+      console.log("Saltando al paso de confirmación porque skipProfesor es true");
+      setStep(6); // Ir directamente al paso de confirmación (paso 6)
+      return;
+    }
+  
     // Si estamos en el paso del profesor y hay que continuar
     if (step === 5 && !formData.flow.redirectToProfesor) {
       // Verificar si hay más áreas pendientes por procesar
@@ -42,13 +58,19 @@ const ProcesoRegistro = ({
       // Ir al paso del profesor
       setStep(5);
     } 
-    // Caso normal: avanzar al siguiente paso
-    else if (step < steps.length) {
+// Caso normal: avanzar al siguiente paso
+  else if (step < steps.length) {
+    // Si estamos en el paso 4 (tutor legal) y skipProfesor es true
+    if (step === 4 && formData.flow?.skipProfesor === true) {
+      setStep(6); // Saltar al paso 6 (confirmación)
+    } else {
       setStep(step + 1);
-      if (step === steps.length - 1) {
-        navigate(nextRoute);
-      }
     }
+    
+    if (step === steps.length - 1) {
+      navigate(nextRoute);
+    }
+  }
   };
 
   const handleBack = () => {
