@@ -29,15 +29,15 @@ export default function App() {
           element={<InscripcionEstudiante />}
         />
         <Route 
-          path="/inscripcion/areasCompetencia" 
+          path="/inscripcion/areas-competencia" 
           element={<AreaCompetencia />}
         />
         <Route
-          path="/inscripcion/tutorLegal"
+          path="/inscripcion/tutor-legal"
           element={<InscripcionTutorLegal />}
         />
         <Route
-          path="/inscripcion/tutorAcademico"
+          path="/inscripcion/tutor-academico"
           element={<InscripcionTutorAcademico />}
         />
 
