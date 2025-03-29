@@ -1,5 +1,3 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   FaUserAlt,
   FaEnvelope,
@@ -9,123 +7,13 @@ import {
   FaBuilding,
   FaMapMarkedAlt,
 } from "react-icons/fa";
-import axios from "axios";
 
-export default function FormularioEstudiante() {
-  const navigate = useNavigate();
-  const [selectedRole, setSelectedRole] = useState("");
-  const [apellidoPaterno, setApellidoPaterno] = useState("");
-  const [apellidoMaterno, setApellidoMaterno] = useState("");
-  const [nombres, setNombres] = useState("");
-  const [ci, setCi] = useState("");
-  const [colegio, setColegio] = useState("");
-  const [correo, setCorreo] = useState("");
-  const [errors, setErrors] = useState({});
-  const [fechaNacimiento, setFechaNacimiento] = useState("");
-  const [cursoSeleccionado, setCursoSeleccionado] = useState("");
-  const [departamentoSeleccionado, setDepartamentoSeleccionado] = useState("");
-  const [provinciaSeleccionada, setProvinciaSeleccionada] = useState("");
-  const [provincias, setProvincias] = useState([]);
-  const [errorCorreo, setErrorCorreo] = useState("");
-
-  const roles = ["Estudiante", "Padre/Madre", "Profesor"];
-
-  const handleNext = async () => {
-    const newErrors = {};
-    if (!selectedRole) newErrors.selectedRole = "Debe seleccionar un rol";
-    if (!apellidoPaterno) newErrors.apellidoPaterno = "Campo obligatorio";
-    if (!apellidoMaterno) newErrors.apellidoMaterno = "Campo obligatorio";
-    if (!nombres) newErrors.nombres = "Campo obligatorio";
-    if (!ci) newErrors.ci = "Campo obligatorio";
-    if (!fechaNacimiento) newErrors.fechaNacimiento = "Campo obligatorio";
-    if (!colegio) newErrors.colegio = "Campo obligatorio";
-    if (!cursoSeleccionado) newErrors.curso = "Debe seleccionar un curso";
-    if (!departamentoSeleccionado)
-      newErrors.departamento = "Debe seleccionar un departamento";
-    if (!provinciaSeleccionada)
-      newErrors.provincia = "Debe seleccionar una provincia";
-    if (!correo) {
-      newErrors.correo = "Campo obligatorio";
-    } else if (!validarCorreo(correo)) {
-      newErrors.correo = "Correo inválido";
-    }
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-
-    try {
-      const responseEstudiante = await axios.post(
-        "http://localhost:8000/api/agregarEstudiante",
-        {
-          apellido_pa: apellidoPaterno,
-          apellido_ma: apellidoMaterno,
-          nombre: nombres,
-          ci: ci,
-          correo: correo,
-          fecha_registro: fechaNacimiento,
-          propietario_correo: selectedRole,
-        }
-      );
-
-      const responseColegio = await axios.post(
-        "http://localhost:8000/api/agregarColegio",
-        {
-          nombre_colegio: colegio,
-          departamento: departamentoSeleccionado,
-          provincia: provinciaSeleccionada,
-        }
-      );
-
-      const responseGrado = await axios.post(
-        "http://localhost:8000/api/agregarGrado",
-        {
-          nombre_grado: cursoSeleccionado,
-        }
-      );
-
-      console.log(
-        "Respuesta del servidor estudiante:",
-        responseEstudiante.data
-      );
-      console.log("Respuesta del servidor colegio:", responseColegio.data);
-      console.log("Respuesta del servidor grado:", responseGrado.data);
-
-      navigate("/inscripcion/areasCompetencia");
-    } catch (error) {
-      console.error(
-        "Error al enviar los datos:",
-        error.response || error.message
-      );
-      if (error.response) {
-        console.log("Error response data:", error.response.data);
-        console.log("Error response status:", error.response.status);
-      }
-    }
-  };
-  const handleBack = () => {
-    navigate("/inscripcion/responsable");
-  };
-
-  const handleInputChange = (setter, regex) => (e) => {
-    const value = e.target.value;
-    if (regex.test(value) || value === "") {
-      setter(value);
-    }
-  };
-
-  const validarCorreo = (email) => {
-    const regexCorreo = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!regexCorreo.test(email)) {
-      setErrorCorreo("Correo electrónico inválido");
-      return false;
-    } else {
-      setErrorCorreo("");
-      return true;
-    }
-  };
-
+export default function InscripcionEstudiante({
+  formData,
+  handleInputChange,
+  handleNext,
+  handleBack,
+}) {
   const departamentos = {
     "La Paz": ["Murillo", "Pacajes", "Los Andes", "Larecaja", "Ingavi"],
     Cochabamba: ["Cercado", "Quillacollo", "Chapare", "Arani", "Ayopaya"],
