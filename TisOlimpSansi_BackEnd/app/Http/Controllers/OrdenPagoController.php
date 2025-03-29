@@ -110,7 +110,7 @@ class OrdenPagoController extends Controller
         $ordenPago->numero_comprobante = $validated['numero_comprobante'];
         $ordenPago->comprobante_url = $validated['comprobante_path'];
         $ordenPago->fecha_subida_imagen_comprobante = now(); 
-        //return response()->json(['message' => 'Código generado válido, puedes continuar con la subida de la imagen.'], 200);
+        return response()->json(['message' => 'Se ha guardado correctamente.'], 200);
         $ordenPago->save(); 
     
         return response()->json([
