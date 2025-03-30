@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import {
   FaUserAlt,
   FaEnvelope,
@@ -7,6 +8,7 @@ import {
   FaBuilding,
   FaMapMarkedAlt,
 } from "react-icons/fa";
+import axios from "axios";
 
 export default function InscripcionEstudiante({
   formData,
@@ -14,6 +16,150 @@ export default function InscripcionEstudiante({
   handleNext,
   handleBack,
 }) {
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const validateInput = (value, fieldName, regex) => {
+    if (!value) {
+      setErrors(prev => ({ ...prev, [fieldName]: "Campo obligatorio." }));
+      return false;
+    }
+    
+    if (regex && !regex.test(value)) {
+      setErrors(prev => ({ ...prev, [fieldName]: "Formato inválido." }));
+      return false;
+    }
+    
+    setErrors(prev => ({ ...prev, [fieldName]: "" }));
+    return true;
+  };
+
+  const validateEmail = (email) => {
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return validateInput(email, "correo", emailRegex);
+  };
+
+  const handleSubmitAndNext = async () => {
+    // Validar datos personales
+    const isApellidoPaternoValid = validateInput(
+      formData.estudiante?.apellidoPaterno, 
+      "apellidoPaterno",
+      /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
+    );
+    
+    const isApellidoMaternoValid = validateInput(
+      formData.estudiante?.apellidoMaterno, 
+      "apellidoMaterno",
+      /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
+    );
+    
+    const isNombresValid = validateInput(
+      formData.estudiante?.nombres, 
+      "nombres",
+      /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
+    );
+    
+    const isCIValid = validateInput(
+      formData.estudiante?.ci, 
+      "ci",
+      /^[0-9]*$/
+    );
+    
+    const isFechaNacimientoValid = validateInput(
+      formData.estudiante?.fechaNacimiento, 
+      "fechaNacimiento"
+    );
+    
+    const isCorreoValid = validateEmail(formData.estudiante?.correo);
+    
+    const isCorreoPerteneceValid = validateInput(
+      formData.estudiante?.correoPertenece, 
+      "correoPertenece"
+    );
+    
+    // Validar datos del colegio
+    const isColegioValid = validateInput(
+      formData.estudiante?.colegio, 
+      "colegio", 
+      /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
+    );
+    
+    const isCursoValid = validateInput(
+      formData.estudiante?.curso, 
+      "curso"
+    );
+    
+    const isDepartamentoValid = validateInput(
+      formData.estudiante?.departamentoSeleccionado, 
+      "departamento"
+    );
+    
+    const isProvinciaValid = validateInput(
+      formData.estudiante?.provincia, 
+      "provincia"
+    );
+
+    // Si hay algún campo inválido, no proceder
+    if (!isApellidoPaternoValid || !isApellidoMaternoValid || !isNombresValid || 
+        !isCIValid || !isFechaNacimientoValid || !isCorreoValid || !isCorreoPerteneceValid ||
+        !isColegioValid || !isCursoValid || !isDepartamentoValid || !isProvinciaValid) {
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      // 1. Registrar el estudiante
+      const responseEstudiante = await axios.post(
+        "http://localhost:8000/api/agregarEstudiante",
+        {
+          nombre: formData.estudiante?.nombres,
+          apellido_pa: formData.estudiante?.apellidoPaterno,
+          apellido_ma: formData.estudiante?.apellidoMaterno,
+          ci: formData.estudiante?.ci,
+          fecha_nacimiento: formData.estudiante?.fechaNacimiento,
+          correo: formData.estudiante?.correo,
+          propietario_correo: formData.estudiante?.correoPertenece,
+        }
+      );
+
+      // 2. Registrar el colegio
+      const responseColegio = await axios.post(
+        "http://localhost:8000/api/agregarColegio",
+        {
+          nombre_colegio: formData.estudiante?.colegio,
+          departamento: formData.estudiante?.departamentoSeleccionado,
+          provincia: formData.estudiante?.provincia,
+        }
+      );
+
+      // 3. Registrar el grado
+      const responseGrado = await axios.post(
+        "http://localhost:8000/api/agregarGrado",
+        {
+          nombre_grado: formData.estudiante?.curso,
+        }
+      );
+
+      console.log("Respuesta del servidor estudiante:", responseEstudiante.data);
+      console.log("Respuesta del servidor colegio:", responseColegio.data);
+      console.log("Respuesta del servidor grado:", responseGrado.data);
+
+      // Guardar ID del estudiante para usarlo en otros formularios
+      if (responseEstudiante.data && responseEstudiante.data.status === 200) {
+        handleInputChange("estudiante", "id", responseEstudiante.data.data?.id || null);
+      }
+
+      // Continuar al siguiente paso
+      handleNext();
+    } catch (error) {
+      console.error("Error al enviar los datos:", error.response || error.message);
+      setErrors({ general: "Error al guardar los datos. Inténtelo nuevamente." });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const departamentos = {
     "La Paz": ["Murillo", "Pacajes", "Los Andes", "Larecaja", "Ingavi"],
     Cochabamba: ["Cercado", "Quillacollo", "Chapare", "Arani", "Ayopaya"],
@@ -33,7 +179,7 @@ export default function InscripcionEstudiante({
       "Belisario Boeto",
       "Nor Cinti",
     ],
-    Tarija: ["Cercado", "Gran Chaco", "O’Connor", "Avilés", "Arce"],
+    Tarija: ["Cercado", "Gran Chaco", "O'Connor", "Avilés", "Arce"],
     Beni: ["Cercado", "Moxos", "Vaca Díez", "Marbán", "Yacuma"],
     Pando: [
       "Madre de Dios",
@@ -78,6 +224,9 @@ export default function InscripcionEstudiante({
                 onChange={(e) => 
                 handleInputChange("estudiante","apellidoPaterno", e.target.value)}
               />
+              {errors.apellidoPaterno && (
+                <p className="text-red-500 text-sm mt-1">{errors.apellidoPaterno}</p>
+              )}
             </div>
 
             <div>
@@ -92,6 +241,9 @@ export default function InscripcionEstudiante({
                 onChange={(e) => 
                 handleInputChange("estudiante","apellidoMaterno", e.target.value)}
               />
+              {errors.apellidoMaterno && (
+                <p className="text-red-500 text-sm mt-1">{errors.apellidoMaterno}</p>
+              )}
             </div>
 
             <div>
@@ -107,6 +259,9 @@ export default function InscripcionEstudiante({
                 onChange={(e) => 
                 handleInputChange("estudiante","nombres", e.target.value)}
               />
+              {errors.nombres && (
+                <p className="text-red-500 text-sm mt-1">{errors.nombres}</p>
+              )}
             </div>
 
             <div>
@@ -121,7 +276,11 @@ export default function InscripcionEstudiante({
                 value={formData.estudiante?.ci || ""}
                 onChange={(e) => 
                 handleInputChange("estudiante","ci", e.target.value)}
+                maxLength="8"
               />
+              {errors.ci && (
+                <p className="text-red-500 text-sm mt-1">{errors.ci}</p>
+              )}
             </div>
 
             <div>
@@ -137,6 +296,9 @@ export default function InscripcionEstudiante({
                   handleInputChange("estudiante","fechaNacimiento", e.target.value)
                 }
               />
+              {errors.fechaNacimiento && (
+                <p className="text-red-500 text-sm mt-1">{errors.fechaNacimiento}</p>
+              )}
             </div>
             <div>
               <label className="flex items-center gap-2">
@@ -150,6 +312,9 @@ export default function InscripcionEstudiante({
                 value={formData.estudiante?.correo || ""}
                 onChange={(e) => handleInputChange("estudiante", "correo", e.target.value)}
               />
+              {errors.correo && (
+                <p className="text-red-500 text-sm mt-1">{errors.correo}</p>
+              )}
             </div>
 
             <div>
@@ -173,6 +338,9 @@ export default function InscripcionEstudiante({
                   </label>
                 ))}
               </div>
+              {errors.correoPertenece && (
+                <p className="text-red-500 text-sm mt-1">{errors.correoPertenece}</p>
+              )}
             </div>
           </div>
         </div>
@@ -195,6 +363,9 @@ export default function InscripcionEstudiante({
                 value={formData.estudiante?.colegio || ""}
                 onChange={(e) => handleInputChange("estudiante","colegio", e.target.value)}
               />
+              {errors.colegio && (
+                <p className="text-red-500 text-sm mt-1">{errors.colegio}</p>
+              )}
             </div>
 
             <div>
@@ -214,6 +385,9 @@ export default function InscripcionEstudiante({
                   </option>
                 ))}
               </select>
+              {errors.curso && (
+                <p className="text-red-500 text-sm mt-1">{errors.curso}</p>
+              )}
             </div>
 
             <div>
@@ -236,6 +410,9 @@ export default function InscripcionEstudiante({
                   </option>
                 ))}
               </select>
+              {errors.departamento && (
+                <p className="text-red-500 text-sm mt-1">{errors.departamento}</p>
+              )}
             </div>
 
             <div>
@@ -260,10 +437,20 @@ export default function InscripcionEstudiante({
                   )
                 )}
               </select>
+              {errors.provincia && (
+                <p className="text-red-500 text-sm mt-1">{errors.provincia}</p>
+              )}
             </div>
           </div>
         </div>
       </div>
+
+      {/* Mensaje de error general */}
+      {errors.general && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mt-4 w-full max-w-4xl">
+          {errors.general}
+        </div>
+      )}
 
       {/* Botones de Navegación */}
       <div className="flex justify-center mt-8 gap-4 w-full">
@@ -271,15 +458,17 @@ export default function InscripcionEstudiante({
           type="button"
           className="px-6 py-2 transition duration-300 ease-in-out text-white rounded-md shadow-md bg-gray-500 hover:-translate-y-1 hover:scale-105 hover:bg-gray-600"
           onClick={handleBack}
+          disabled={isSubmitting}
         >
           Atrás
         </button>
         <button
           type="button"
           className="px-6 py-2 transition duration-300 ease-in-out text-white rounded-md shadow-md bg-blue-500 hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500"
-          onClick={handleNext}
+          onClick={handleSubmitAndNext}
+          disabled={isSubmitting}
         >
-          Siguiente
+          {isSubmitting ? "Enviando..." : "Siguiente"}
         </button>
       </div>
     </div>
