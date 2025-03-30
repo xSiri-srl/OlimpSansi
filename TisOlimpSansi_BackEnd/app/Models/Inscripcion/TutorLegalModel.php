@@ -19,11 +19,9 @@ class TutorLegalModel extends Model
         'correo',
         'numero_celular',
         'tipo',
-        'fecha_registro',
-        'fecha_actualizacion',
     ];
 
     public function estudiante(){
-        return $this->hasOne(EstudianteModel::class). 'id_tutor_legal';
+        return $this->hasMany(EstudianteModel::class, 'id_tutor_legal');
     }
 }

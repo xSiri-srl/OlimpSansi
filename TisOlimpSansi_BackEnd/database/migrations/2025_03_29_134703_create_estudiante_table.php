@@ -13,9 +13,10 @@ return new class extends Migration
     {
         Schema::create('estudiante', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_unidad')->constrained('colegio')->onDelete('cascade');
-            $table->foreignId('id_grado')->constrained('grado')->onDelete('cascade');
-            $table->foreignId('id_tutor_legal')->constrained('tutor_legal')->onDelete('cascade');
+            $table->unsignedBigInteger('id_unidad');          
+            $table->unsignedBigInteger('id_grado');  
+            $table->unsignedBigInteger('id_tutor_legal'); 
+            $table->unsignedBigInteger('id_tutor_academico');
             $table->string('nombre');
             $table->string('apellido_pa');
             $table->string('apellido_ma');
@@ -24,6 +25,11 @@ return new class extends Migration
             $table->string('correo')->nullable();
             $table->string('propietario_correo')->nullable();
             $table->timestamps();
+            $table->foreign('id_unidad')->references('id')->on('colegio')->onDelete('cascade');
+            $table->foreign('id_grado')->references('id')->on('grado')->onDelete('cascade');
+            $table->foreign('id_tutor_legal')->references('id')->on('tutor_legal')->onDelete('cascade');
+            $table->foreign('id_tutor_academico')->references('id')->on('tutor_academico')->onDelete('cascade');
+        
         });
     }
 

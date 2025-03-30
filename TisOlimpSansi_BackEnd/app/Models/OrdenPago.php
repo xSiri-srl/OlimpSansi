@@ -19,4 +19,7 @@ class OrdenPago extends Model
         'fecha_emision',
         'fecha_subida_imagen_comprobante',
     ];
+    public function inscripcionArea(){
+        return $this->belongsTo(ColegioModel::class, 'id_inscripcion_area', 'id');
+    }
 }
