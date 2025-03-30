@@ -1,164 +1,264 @@
-import { FaUser, FaIdCard } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
-import { useState } from "react";
-import axios from "axios";
+import React, {useState} from 'react';
+import ProcesoRegistro from './ProcesoRegistro';
+import { FaUser, FaIdCard } from 'react-icons/fa';
+import InscripcionEstudiante from './InscripcionEstudiante';
+import AreasCompetencia from './AreasCompetencia';
+import InscripcionTutorLegal from './InscripcionTutorLegal';
+import InscripcionTutorAcademico from './IncripcionTutorAcademico';
+import axios from 'axios';
 
-export default function FormularioInscripcion() {
-  const navigate = useNavigate();
-  const [apellidoPaterno, setApellidoPaterno] = useState("");
-  const [apellidoMaterno, setApellidoMaterno] = useState("");
-  const [nombres, setNombres] = useState("");
-  const [ci, setCi] = useState("");
+
+const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
   const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleNext = async () => {
-    const newErrors = {};
-    if (!apellidoPaterno) newErrors.apellidoPaterno = "Campo obligatorio.";
-    if (!apellidoMaterno) newErrors.apellidoMaterno = "Campo obligatorio.";
-    if (!nombres) newErrors.nombres = "Campo obligatorio.";
-    if (!ci) newErrors.ci = "Campo obligatorio.";
+  // Función para validar entradas con regex
+  const validateInput = (value, fieldName, regex) => {
+    if (!value) {
+      setErrors(prev => ({ ...prev, [fieldName]: "Campo obligatorio." }));
+      return false;
+    }
+    
+    if (!regex.test(value)) {
+      setErrors(prev => ({ ...prev, [fieldName]: "Formato inválido." }));
+      return false;
+    }
+    
+    setErrors(prev => ({ ...prev, [fieldName]: "" }));
+    return true;
+  };
 
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
+  // Manejador de cambio con validación
+  const handleValidatedChange = (namespace, field, value, regex) => {
+    if (regex.test(value) || value === "") {
+      handleInputChange(namespace, field, value);
+      setErrors(prev => ({ ...prev, [field]: "" }));
+    }
+  };
+
+  // Submit al backend y avanzar al siguiente paso
+  const handleSubmitAndNext = async () => {
+    // Validar todos los campos
+    const isApellidoPaternoValid = validateInput(
+      formData.responsable?.apellidoPaterno, 
+      "apellidoPaterno", 
+      /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
+    );
+    
+    const isApellidoMaternoValid = validateInput(
+      formData.responsable?.apellidoMaterno, 
+      "apellidoMaterno", 
+      /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
+    );
+    
+    const isNombresValid = validateInput(
+      formData.responsable?.nombres, 
+      "nombres", 
+      /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
+    );
+    
+    const isCIValid = validateInput(
+      formData.responsable?.ci, 
+      "ci", 
+      /^[0-9]*$/
+    );
+
+    // Si hay algún error, no proceder
+    if (!isApellidoPaternoValid || !isApellidoMaternoValid || !isNombresValid || !isCIValid) {
       return;
     }
 
+    setIsSubmitting(true);
+
     try {
+      // Enviar datos al backend
       const response = await axios.post(
         "http://localhost:8000/api/agregarTresponsableInscrip",
         {
-          apellido_pa: apellidoPaterno,
-          apellido_ma: apellidoMaterno,
-          nombre: nombres,
-          ci: ci,
+          nombre: formData.responsable?.nombres,
+          apellido_pa: formData.responsable?.apellidoPaterno,
+          apellido_ma: formData.responsable?.apellidoMaterno,
+          ci: formData.responsable?.ci,
+          complemento: formData.responsable?.complemento || ""
         }
       );
-      //console.log("Respuesta del servidor:", response.data);
-      navigate("/inscripcion/estudiante");
+
+      console.log("Respuesta del servidor:", response.data);
+      
+      // Si la respuesta es exitosa, continuar al siguiente paso
+      if (response.data.status === 200) {
+        // Guarda el ID del responsable para usarlo en futuros formularios si es necesario
+        handleInputChange("responsable", "id", response.data.data?.id || null);
+        handleNext();
+      } else {
+        setErrors({ general: "Error al guardar los datos. Intente de nuevo." });
+      }
     } catch (error) {
-      setErrors({ general: "Hubo un error al enviar los datos." });
-    }
-  };
-
-  const handleBack = () => {
-    navigate("/inscripcion/forma-inscripcion");
-  };
-
-  const handleInputChange = (setter, fieldName, regex) => (e) => {
-    const value = e.target.value;
-    if (regex.test(value) || value === "") {
-      setter(value);
-      setErrors((prev) => ({ ...prev, [fieldName]: "" }));
+      console.error("Error al enviar los datos:", error);
+      setErrors({ 
+        general: error.response?.data?.message || "Hubo un error al enviar los datos." 
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="max-w-md mx-auto p-6 bg-white mt-3">
-      <h2 className="text-xl font-semibold mb-4 text-center">
-        Responsable de Inscripción
-      </h2>
-      <form className="space-y-4 mt-8 p-4 shadow-md border rounded-md">
-        <div className="flex gap-4">
-          <div className="w-full">
+    <div className="flex justify-center">
+      <div className="w-full max-w-2xl">
+        {/* Título */}
+        <div className="text-center mb-6">
+          <h2 className="text-lg font-semibold mb-2 text-gray-500">
+            Responsable de Inscripción
+          </h2>
+          <p className="text-sm text-gray-600">
+            Estos datos corresponden a la persona que pagará en caja.
+          </p>
+        </div>
+        
+        {/* Formulario */}
+        <div className="space-y-4">
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="w-full">
+              <div className="flex items-center gap-2">
+                <FaUser className="text-black" />
+                <label>Apellido Paterno</label>
+              </div>
+              <input
+                type="text"
+                value={formData.responsable?.apellidoPaterno || ""}
+                onChange={(e) =>
+                handleValidatedChange("responsable", "apellidoPaterno", e.target.value, /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/)}
+                className="w-full p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Apellido Paterno"
+              />
+              {errors.apellidoPaterno && (
+                <p className="text-red-500 text-sm mt-1">{errors.apellidoPaterno}</p>
+              )}
+            </div>
+            <div className="w-full">
+              <div className="flex items-center gap-2">
+                <FaUser className="text-black" />
+                <label>Apellido Materno</label>
+              </div>
+              <input
+                type="text"
+                value={formData.responsable?.apellidoMaterno || ''}
+                onChange={(e) => 
+                handleValidatedChange('responsable','apellidoMaterno', e.target.value, /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/)}
+                className="w-full p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Apellido Materno"
+              />
+              {errors.apellidoMaterno && (
+                <p className="text-red-500 text-sm mt-1">{errors.apellidoMaterno}</p>
+              )}
+            </div>
+          </div>
+          <div>
             <div className="flex items-center gap-2">
               <FaUser className="text-black" />
-              <label>Apellido Paterno</label>
+              <label>Nombres</label>
             </div>
             <input
               type="text"
-              name="apellidoPaterno"
-              className="mt-1 p-2 w-full border rounded-md"
-              placeholder="Apellido Paterno"
-              value={apellidoPaterno}
-              onChange={handleInputChange(
-                setApellidoPaterno,
-                "apellidoPaterno",
-                /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
-              )}
+              value={formData.responsable?.nombres || ''}
+              onChange={(e) => 
+              handleValidatedChange('responsable','nombres', e.target.value, /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/)}
+              className="w-full p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Nombres"
             />
-            {errors.apellidoPaterno && (
-              <p className="text-red-500 text-sm pt-3">
-                {errors.apellidoPaterno}
-              </p>
+            {errors.nombres && (
+              <p className="text-red-500 text-sm mt-1">{errors.nombres}</p>
             )}
           </div>
-
-          <div className="w-full">
+          <div>
             <div className="flex items-center gap-2">
-              <FaUser className="text-black" />
-              <label>Apellido Materno</label>
+              <FaIdCard className="text-black" />
+              <label>Carnet de Identidad</label>
             </div>
             <input
               type="text"
-              name="apellidoMaterno"
-              className="mt-1 p-2 w-full border rounded-md"
-              placeholder="Apellido Materno"
-              value={apellidoMaterno}
-              onChange={handleInputChange(
-                setApellidoMaterno,
-                "apellidoMaterno",
-                /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
-              )}
+              value={formData.responsable?.ci || ''}
+              onChange={(e) => 
+              handleValidatedChange('responsable','ci', e.target.value, /^[0-9]*$/)}
+              className="w-full p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Número de Carnet de Identidad"
+              maxLength="8"
             />
-            {errors.apellidoMaterno && (
-              <p className="text-red-500 text-sm pt-3">
-                {errors.apellidoMaterno}
-              </p>
+            {errors.ci && (
+              <p className="text-red-500 text-sm mt-1">{errors.ci}</p>
             )}
           </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <FaUser className="text-black" />
-          <label>Nombres</label>
-        </div>
-        <input
-          type="text"
-          name="nombre"
-          className="mt-1 p-2 w-full border rounded-md"
-          placeholder="Nombres"
-          value={nombres}
-          onChange={handleInputChange(
-            setNombres,
-            "nombres",
-            /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
+          
+          {/* Mensaje de error general */}
+          {errors.general && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+              {errors.general}
+            </div>
           )}
-        />
-        {errors.nombres && (
-          <p className="text-red-500 text-sm">{errors.nombres}</p>
-        )}
-
-        <div className="flex items-center gap-2">
-          <FaIdCard className="text-black" />
-          <label>CI</label>
         </div>
-        <input
-          type="text"
-          name="ci"
-          className="mt-1 p-2 w-full border rounded-md"
-          placeholder="Numero de Carnet de Identidad"
-          value={ci}
-          onChange={handleInputChange(setCi, "ci", /^[0-9]*$/)}
-          maxLength="8"
-        />
-        {errors.ci && <p className="text-red-500 text-sm">{errors.ci}</p>}
-
-        <div className="flex justify-end mt-4 gap-2">
+        
+        {/* Botón */}
+        <div className="flex justify-center mt-8">
           <button
-            type="button"
-            className="bg-[#4C8EDA] text-white py-2 px-4 rounded-md hover:bg-[#2e4f96]"
-            onClick={handleBack}
+            onClick={handleSubmitAndNext}
+            disabled={isSubmitting || !formData.responsable?.nombres || !formData.responsable?.ci}
+            className={`px-6 py-2 transition duration-300 ease-in-out text-white rounded-md shadow-md ${
+              formData.responsable?.nombres && formData.responsable?.ci && !isSubmitting
+                ? "bg-blue-500 hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500"
+                : "bg-gray-400 cursor-not-allowed"
+            }`}
           >
-            Atrás
-          </button>
-          <button
-            type="button"
-            className="bg-[#4C8EDA] text-white py-2 px-4 rounded-md hover:bg-[#2e4f96]"
-            onClick={handleNext}
-          >
-            Siguiente
+            {isSubmitting ? "Enviando..." : "Siguiente"}
           </button>
         </div>
-      </form>
+      </div>
     </div>
   );
-}
+};
+
+
+const Confirmation = ({ navigate }) => {
+  return (
+    <div className="text-center">
+      <h2 className="text-lg font-semibold mb-4">¡Registro Completado!</h2>
+      <p className="text-gray-600">Los datos han sido guardados con éxito</p>
+      <div className="flex justify-center mt-4">
+        <button
+          onClick={() => navigate('/subirComprobante')}
+          className="bg-blue-600 text-white px-6 py-2 rounded-md transition duration-300 ease-in-out hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500 shadow-md"
+        >
+          Aceptar
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const InscripcionResponsable = () => {
+  const steps = [
+    'Responsable de Inscripción',
+    'Competidor', 
+    'Áreas de Competencia',
+    'Tutor Legal',
+    'Profesor',
+    'Confirmación'
+  ];
+
+  return (
+    <ProcesoRegistro 
+      steps={steps} 
+      nextRoute="/subirComprobante"
+      backRoute="/"
+    >
+      <ResponsableForm />
+      <InscripcionEstudiante />
+      <AreasCompetencia />
+      <InscripcionTutorLegal />
+      <InscripcionTutorAcademico />
+      <Confirmation />
+    </ProcesoRegistro>
+  );
+};
+
+export default InscripcionResponsable;
