@@ -182,51 +182,27 @@ const guardarComprobante = async () => {
     <div className="p-10">
       <div className="max-w-4xl mx-auto bg-gray-200 p-7 shadow-lg rounded-lg">
         {/* Progreso */}
-        <div className="relative mb-8">
-          {/* Barra de progreso horizontal */}
-          <div className="hidden sm:block absolute top-4 left-0 right-0 h-0.5 bg-gray-300">
-            <div 
-              className="h-full bg-blue-500 transition-all duration-300"
-              style={{ width: `${((step - 1) / 5) * 100}%` }}
-            ></div>
-          </div>
-          
-          {/* Contenedor scrollable para dispositivos pequeños */}
-          <div className="overflow-x-auto">
-            <div className="flex items-center justify-between min-w-max sm:min-w-0 sm:w-full px-2">
-              {["Ingresar código", "Subir comprobante", "Vista previa", "Datos escaneados", "Finalizar"].map(
-                (stepLabel, index) => (
-                  <div key={index} className="flex flex-col items-center relative px-2 sm:px-0">
-                    {/* Círculo numerado */}
-                    <div
-                      className={`w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-full border-2 transition-all
-                        ${index + 1 < step 
-                          ? "bg-blue-500 text-white border-blue-500" // Paso completado
-                          : index + 1 === step
-                            ? "bg-blue-600 text-white border-blue-600" // Paso actual
-                            : "bg-white border-gray-400 text-gray-400"} // Paso pendiente
-                      `}
-                    >
-                      {index + 1}
-                    </div>
-                    
-                    {/* Etiqueta del paso */}
-                    <span
-                      className={`text-xs mt-2 text-center w-16 sm:w-20 md:w-24 transition-all
-                        ${index + 1 < step 
-                          ? "text-blue-500" // Paso completado
-                          : index + 1 === step
-                            ? "text-blue-600 font-medium" // Paso actual 
-                            : "text-gray-400"} // Paso pendiente
-                      `}
-                    >
-                      {stepLabel}
-                    </span>
-                  </div>
-                )
-              )}
-            </div>
-          </div>
+        <div className="flex items-center justify-between mb-6">
+          {["Ingresar código", "Subir comprobante", "Escanear", "Ver datos escaneados", "Finalizar"].map(
+            (stepLabel, index) => (
+              <div key={index} className="flex flex-col items-center">
+                <div
+                  className={`w-8 h-8 flex items-center justify-center rounded-full border-2 ${
+                    index + 1 === step
+                      ? "bg-blue-600 text-white border-blue-600"
+                      : "border-gray-400 text-gray-400"
+                  }`}
+                >
+                  {index + 1}
+                </div>
+                <span
+                  className={`text-xss mt-2 ${index + 1 === step ? "text-blue-600" : "text-gray-400"}`}
+                >
+                  {stepLabel}
+                </span>
+              </div>
+            )
+          )}
         </div>
 
         {/* Paso 1 - Ingresar código */}
