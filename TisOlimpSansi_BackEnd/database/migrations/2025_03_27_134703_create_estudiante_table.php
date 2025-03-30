@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('estudiante', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('id_unidad')->constrained('colegio')->onDelete('cascade');
+            $table->foreignId('id_grado')->constrained('grado')->onDelete('cascade');
+            $table->foreignId('id_tutor_legal')->constrained('tutor_legal')->onDelete('cascade');
             $table->string('nombre');
             $table->string('apellido_pa');
             $table->string('apellido_ma');
@@ -20,8 +23,6 @@ return new class extends Migration
             $table->timestamp('fecha_nacimiento')->nullable();
             $table->string('correo')->nullable();
             $table->string('propietario_correo')->nullable();
-            $table->integer('id_unidad')->nullable();
-            $table->integer('id_grado')->nullable();
             $table->timestamps();
         });
     }

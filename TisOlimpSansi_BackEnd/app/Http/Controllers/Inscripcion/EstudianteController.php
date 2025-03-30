@@ -21,7 +21,9 @@ class EstudianteController extends Controller
     public function store(Request $request)
     {
         $estudiante = new EstudianteModel();
-        
+
+        $estudiante->id_unidad = $request->id_unidad;
+        $estudiante->id_grado = $request->id_grado;
         $estudiante->nombre = $request->nombre;
         $estudiante->apellido_pa = $request->apellido_pa;
         $estudiante->apellido_ma = $request->apellido_ma;
@@ -29,8 +31,6 @@ class EstudianteController extends Controller
         $estudiante->fecha_nacimiento = $request->fecha_nacimiento;
         $estudiante->correo = $request->correo;
         $estudiante->propietario_correo = $request->propietario_correo;
-        $estudiante->id_unidad = $request->id_unidad;
-        $estudiante->id_grado = $request->id_grado;
         
         $estudiante->save();
   
@@ -54,6 +54,8 @@ class EstudianteController extends Controller
     {
         $estudiante = EstudianteModel::findOrFail($id);
 
+        $estudiante->id_unidad = $request->id_unidad;
+        $estudiante->id_grado = $request->id_grado;
         $estudiante->nombre = $request->nombre;
         $estudiante->apellido_pa = $request->apellido_pa;
         $estudiante->apellido_ma = $request->apellido_ma;
@@ -61,8 +63,6 @@ class EstudianteController extends Controller
         $estudiante->fecha_nacimiento = $request->fecha_nacimiento;
         $estudiante->correo = $request->correo;
         $estudiante->propietario_correo = $request->propietario_correo;
-        $estudiante->id_unidad = $request->id_unidad;
-        $estudiante->id_grado = $request->id_grado;
 
         $estudiante->save();
 
