@@ -18,8 +18,6 @@ return new class extends Migration
             $table->string('apellido_ma');
             $table->integer('ci');
             $table->string('complemento')->nullable();
-            $table->timestamp('fecha_registro')->nullable();
-            $table->timestamp('fecha_actualizacion')->nullable();
             $table->timestamps();
         });
     }

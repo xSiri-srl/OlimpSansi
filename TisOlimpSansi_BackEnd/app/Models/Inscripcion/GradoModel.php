@@ -15,6 +15,6 @@ class GradoModel extends Model
     ];
 
     public function estudiante(){
-        return $this->hasOne(EstudianteModel::class). 'id_grado';
+        return $this->hasOne(EstudianteModel::class, 'id_grado');
     }
 }

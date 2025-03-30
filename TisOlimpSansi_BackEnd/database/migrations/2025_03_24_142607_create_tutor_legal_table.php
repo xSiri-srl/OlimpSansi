@@ -21,8 +21,6 @@ return new class extends Migration
             $table->string('correo')->unique();
             $table->integer('numero_celular');
             $table->string('tipo');
-            $table->timestamp('fecha_registro')->nullable();
-            $table->timestamp('fecha_actualizacion')->nullable();
             $table->timestamps();
         });
     }
