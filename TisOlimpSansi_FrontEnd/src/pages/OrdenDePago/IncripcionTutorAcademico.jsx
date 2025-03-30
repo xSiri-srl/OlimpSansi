@@ -1,5 +1,6 @@
-import React from "react";
+import React, {useState, useEffect } from "react";
 import { FaUser, FaIdCard, FaEnvelope, FaPhoneAlt } from "react-icons/fa";
+import ModalConfirmacion from "./modales/modalConfirmacion";
 
 export default function IncripcionTutorAcademico({
   formData,
@@ -7,19 +8,87 @@ export default function IncripcionTutorAcademico({
   handleNext,
   handleBack,
 }) {
+  const [showModal, setShowModal] = useState(false);
+  const areaCompetencia = formData.profesor?.areaCompetencia || "[AREA DE COMPETENCIA]";
+  const areasConProfesor = formData.profesores?.areasRegistradas || [];
+  const areasRestantes = formData.flow?.pendingAreas || [];
+    // Si no hay área de competencia establecida y skipProfesor es true,
+  // avanzar automáticamente al siguiente paso
+  useEffect(() => {
+    if (formData.flow?.skipProfesor === true) {
+      handleNext();
+    }
+  }, []);
+  // mostrar modal del siguiente área
+  useEffect(() => {
+    if (formData.flow?.showNextAreaModal && areasRestantes.length > 0) {
+      setShowModal(true);
+      handleInputChange("flow", "showNextAreaModal", false);
+    }
+  }, [formData.flow?.showNextAreaModal]);
+
+  const handleProfesorNext = () => {
+    handleInputChange("flow", "redirectToProfesor", false);
+    if (areasRestantes.length > 0) {
+      setShowModal(true);
+    } else {
+      // No hay más áreas, ir al paso final
+      handleNext();
+    }
+  };
+  const handleSiProfesor = () => {
+    const siguienteArea = areasRestantes[0];
+    
+    // Actualizar el área del profesor
+    handleInputChange("profesor", "areaCompetencia", siguienteArea);
+    
+    // Limpiar los datos del formulario para el nuevo profesor
+    handleInputChange("profesor", "apellidoPaterno", "");
+    handleInputChange("profesor", "apellidoMaterno", "");
+    handleInputChange("profesor", "nombres", "");
+    handleInputChange("profesor", "ci", "");
+    handleInputChange("profesor", "correo", "");
+
+    const nuevasAreasConProfesor = [...areasConProfesor, siguienteArea];
+    handleInputChange("profesores", "areasRegistradas", nuevasAreasConProfesor);
+    
+    const nuevasAreasPendientes = areasRestantes.filter(area => area !== siguienteArea);
+    handleInputChange("flow", "pendingAreas", nuevasAreasPendientes);
+    
+    setShowModal(false);
+
+    handleInputChange("flow", "redirectToProfesor", true);
+    handleNext();
+  };
+
+  const handleNoProfesor = () => {
+    const nuevasAreasPendientes = areasRestantes.slice(1);
+    handleInputChange("flow", "pendingAreas", nuevasAreasPendientes);
+    
+    setShowModal(false);
+    // Si no hay más áreas pendientes, ir al paso final
+    if (nuevasAreasPendientes.length === 0) {
+      handleNext();
+    } else {
+      // Mostrar el siguiente modal
+      setShowModal(true);
+    }
+  };
+  
   return (
-    <div className="grid grid-cols-1 gap-6">
+  <div className="flex flex-col items-center">
+    <div className="w-full max-w-2xl">
       {/* Título */}
-      <div>
+      <div className="text-center mb-6">
         <h2 className="text-lg font-semibold mb-2 text-gray-500">
-          Profesor o Entrenador
+          Profesor de {areaCompetencia}
         </h2>
         <p className="text-sm text-gray-600">
           Por favor, completa los datos del tutor académico.
         </p>
       </div>
 
-      {/* Formulario de Datos del Tutor Académico */}
+      {/* Datos del profesor */}
       <div className="space-y-4">
         <div className="flex gap-4">
           <div className="w-full">
@@ -115,11 +184,20 @@ export default function IncripcionTutorAcademico({
         <button
           type="button"
           className="bg-[#4C8EDA] text-white py-2 px-4 rounded-md hover:bg-[#2e4f96]"
-          onClick={handleNext}
+          onClick={handleProfesorNext}
         >
           Siguiente
         </button>
       </div>
+            {/* Modal para siguiente área */}
+            {showModal && (
+        <ModalConfirmacion
+          area={areasRestantes[0]}
+          onConfirm={handleSiProfesor}
+          onCancel={handleNoProfesor}
+        />
+      )}
     </div>
+  </div>
   );
 }
