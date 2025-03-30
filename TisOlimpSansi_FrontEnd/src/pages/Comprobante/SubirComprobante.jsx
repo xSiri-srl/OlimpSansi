@@ -20,7 +20,7 @@ const SubirComprobante = () => {
 
   const endpoint = "http://127.0.0.1:8000/api";
 
-  // Manejo del archivo
+  // Manejo del archiv
   const handleFileChange = (event) => {
     const file = event.target.files[0];
   
