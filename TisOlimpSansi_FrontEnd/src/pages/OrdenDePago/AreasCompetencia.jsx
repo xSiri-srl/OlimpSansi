@@ -1,4 +1,5 @@
 import { FaCheck } from "react-icons/fa";
+import { useFormData } from "./form-data-context";
 
 const primeraFila = [
   { nombre: "Matemáticas", imgSrc: "/images/mate.jpg" },
@@ -19,6 +20,7 @@ export default function AreasCompetencia({
   handleNext,
   handleBack,
 }) {
+  const { globalData, setGlobalData } = useFormData();
   const seleccionadas = formData.estudiante?.areasSeleccionadas || [];
   const categoriasSeleccionadas = formData.estudiante?.categoriasSeleccionadas || {};
   const cursoEstudiante = formData.estudiante?.curso || "";
@@ -81,8 +83,7 @@ export default function AreasCompetencia({
     } else {
       if (seleccionadas.length < 2) {
         nuevasSeleccionadas = [...seleccionadas, nombre];
-        
-        // Si es Informática o Robótica, inicializar la categoría como vacía
+      
         if (nombre === "Informática" || nombre === "Robótica") {
           const categorias = obtenerCategorias(nombre);
           if (categorias && categorias.length > 0) {
@@ -158,6 +159,62 @@ export default function AreasCompetencia({
     );
   };
 
+  const handleSubmitAndNext = () => {
+    if (!validarFormulario()) {
+      return;
+    }
+  
+    try {
+
+      const areasCompetencia = seleccionadas.map(area => {
+        if (area === "Informática" || area === "Robótica") {
+          const categoriaCompleta = categoriasSeleccionadas[area] || "";
+          const nombreCategoria = categoriaCompleta.match(/\"([^\"]+)\"/)?.[1] || "";
+          
+          return {
+            nombre_area: area,
+            categoria: nombreCategoria  
+          };
+        } else {
+          return {
+            nombre_area: area
+          };
+        }
+      });
+  
+      const updatedData = {
+        ...globalData,
+        areas_competencia: areasCompetencia
+      };
+  
+      setGlobalData(updatedData);
+
+      console.log("Datos de áreas actualizados en JSON:", updatedData);
+      console.log("Áreas seleccionadas:", seleccionadas);
+      console.log("Categorías extraídas:", areasCompetencia);
+
+      handleInputChange("estudiante", "areasComplete", true);
+  
+      handleNext();
+    } catch (error) {
+      console.error("Error al procesar los datos de áreas:", error);
+    }
+  };
+
+  function validarFormulario() {
+    if (seleccionadas.length === 0) return false;
+    for (const area of seleccionadas) {
+      if ((area === "Informática" || area === "Robótica")) {
+        const categorias = obtenerCategorias(area);
+        if (categorias && categorias.length > 0 && !categoriasSeleccionadas[area]) {
+          return false;
+        }
+      }
+    }
+    
+    return true;
+  }
+
   return (
     <div className="grid grid-cols-1 gap-6">
       {/* Título */}
@@ -217,7 +274,8 @@ export default function AreasCompetencia({
             ${validarFormulario() ? 
               "bg-blue-500 hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500" : 
               "bg-gray-400 cursor-not-allowed"}`}
-          onClick={validarFormulario() ? handleNext : null}
+          onClick={handleSubmitAndNext}
+          disabled={!validarFormulario()}
         >
           Siguiente
         </button>
@@ -225,17 +283,4 @@ export default function AreasCompetencia({
     </div>
   );
 
-  function validarFormulario() {
-    if (seleccionadas.length === 0) return false;
-    for (const area of seleccionadas) {
-      if ((area === "Informática" || area === "Robótica")) {
-        const categorias = obtenerCategorias(area);
-        if (categorias && categorias.length > 0 && !categoriasSeleccionadas[area]) {
-          return false;
-        }
-      }
-    }
-    
-    return true;
-  }
 }
