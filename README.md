@@ -19,7 +19,7 @@ npm run dev
 ## 
 Iniciar BackEnd
 
-1. Redirigirse a la carpeta TisOlimSansi_FrontEND
+1. Redirigirse a la carpeta TisOlimSansi_BackEND
 ```sh
 cd TisOlimpSansi_BackEnd
 ```
@@ -31,8 +31,12 @@ composer install
 ```sh
 php artisan key:generate
 ```
-4. Generar el archivo .env
+4. Copiar y pegar el archivo .env
    
+⭐ por si te sale el error de sessions
+```sh
+php artisan session:table
+```
 5. Crear la estructura de la base de datos
 ```sh
 php artisan migrate
