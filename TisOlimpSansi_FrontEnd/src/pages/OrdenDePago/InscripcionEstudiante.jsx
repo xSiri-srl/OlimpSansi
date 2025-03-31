@@ -161,7 +161,7 @@ export default function InscripcionEstudiante({ formData, handleInputChange, han
                 className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 placeholder="Apellido Paterno"
                 value={formData.estudiante?.apellidoPaterno || ""}
-                onChange={(e) => handleInputChange("estudiante", "apellidoPaterno", e.target.value)}
+                onChange={(e) => handleInputChange("estudiante", "apellidoPaterno", e.target.value.toUpperCase())}
               />
               {errors.apellidoPaterno && <p className="text-red-500 text-sm mt-1">{errors.apellidoPaterno}</p>}
             </div>
@@ -175,7 +175,7 @@ export default function InscripcionEstudiante({ formData, handleInputChange, han
                 className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 placeholder="Apellido Materno"
                 value={formData.estudiante?.apellidoMaterno || ""}
-                onChange={(e) => handleInputChange("estudiante", "apellidoMaterno", e.target.value)}
+                onChange={(e) => handleInputChange("estudiante", "apellidoMaterno", e.target.value.toUpperCase())}
               />
               {errors.apellidoMaterno && <p className="text-red-500 text-sm mt-1">{errors.apellidoMaterno}</p>}
             </div>
@@ -190,7 +190,7 @@ export default function InscripcionEstudiante({ formData, handleInputChange, han
                 className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 placeholder="Nombres"
                 value={formData.estudiante?.nombres || ""}
-                onChange={(e) => handleInputChange("estudiante", "nombres", e.target.value)}
+                onChange={(e) => handleInputChange("estudiante", "nombres", e.target.value.toUpperCase())}
               />
               {errors.nombres && <p className="text-red-500 text-sm mt-1">{errors.nombres}</p>}
             </div>
@@ -275,7 +275,7 @@ export default function InscripcionEstudiante({ formData, handleInputChange, han
                 className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 placeholder="Nombre del Colegio"
                 value={formData.estudiante?.colegio || ""}
-                onChange={(e) => handleInputChange("estudiante", "colegio", e.target.value)}
+                onChange={(e) => handleInputChange("estudiante", "colegio", e.target.value.toUpperCase())}
               />
               {errors.colegio && <p className="text-red-500 text-sm mt-1">{errors.colegio}</p>}
             </div>

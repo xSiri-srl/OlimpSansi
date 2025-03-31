@@ -255,7 +255,7 @@ export default function IncripcionTutorAcademico({
                 placeholder="Apellido Paterno"
                 value={formData.profesor?.apellidoPaterno || ""}
                 onChange={(e) =>
-                  handleInputChange("profesor","apellidoPaterno", e.target.value)
+                  handleInputChange("profesor","apellidoPaterno", e.target.value.toUpperCase())
                 }
               />
               {errors.apellidoPaterno && (
@@ -274,7 +274,7 @@ export default function IncripcionTutorAcademico({
                 placeholder="Apellido Materno"
                 value={formData.profesor?.apellidoMaterno || ""}
                 onChange={(e) =>
-                  handleInputChange("profesor","apellidoMaterno", e.target.value)
+                  handleInputChange("profesor","apellidoMaterno", e.target.value.toUpperCase())
                 }
               />
               {errors.apellidoMaterno && (
@@ -294,7 +294,7 @@ export default function IncripcionTutorAcademico({
               placeholder="Nombres"
               value={formData.profesor?.nombres || ""}
               onChange={(e) => 
-                handleInputChange("profesor","nombres", e.target.value)
+                handleInputChange("profesor","nombres", e.target.value.toUpperCase())
               }
             />
             {errors.nombres && (

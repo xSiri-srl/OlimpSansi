@@ -115,7 +115,7 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
                 type="text"
                 value={formData.responsable?.apellidoPaterno || ""}
                 onChange={(e) =>
-                  handleValidatedChange("responsable", "apellidoPaterno", e.target.value, /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/)
+                  handleValidatedChange("responsable", "apellidoPaterno", e.target.value.toUpperCase(), /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/)
                 }
                 className="w-full p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Apellido Paterno"
@@ -131,7 +131,7 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
                 type="text"
                 value={formData.responsable?.apellidoMaterno || ""}
                 onChange={(e) =>
-                  handleValidatedChange("responsable", "apellidoMaterno", e.target.value, /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/)
+                  handleValidatedChange("responsable", "apellidoMaterno", e.target.value.toUpperCase(), /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/)
                 }
                 className="w-full p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Apellido Materno"
@@ -148,7 +148,7 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
               type="text"
               value={formData.responsable?.nombres || ""}
               onChange={(e) =>
-                handleValidatedChange("responsable", "nombres", e.target.value, /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/)
+                handleValidatedChange("responsable", "nombres", e.target.value.toUpperCase(), /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/)
               }
               className="w-full p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Nombres"
