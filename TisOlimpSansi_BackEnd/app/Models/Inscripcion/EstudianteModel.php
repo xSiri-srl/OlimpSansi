@@ -40,4 +40,14 @@ class EstudianteModel extends Model
     public function tutorAcademico(){
         return $this->belongsTo(TutorAcademicoModel::class, 'id_tutor_academico', 'id');
     }
+
+    public static function registrarDesdeRequest($data, $colegio_id)
+{
+    return self::create([
+        'nombre' => $data['nombre'],
+        'ci' => $data['ci'],
+        'grado_id' => $data['grado_id'],
+        'colegio_id' => $colegio_id,
+    ]);
+}
 }

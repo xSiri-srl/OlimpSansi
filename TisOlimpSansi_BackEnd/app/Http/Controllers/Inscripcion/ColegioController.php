@@ -70,4 +70,6 @@ class ColegioController extends Controller
             'message' => 'Colegio eliminado exitosamente',
         ]);
     }
+
+    
 }

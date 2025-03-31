@@ -21,4 +21,14 @@ class ResponsableInscripcionModel extends Model
     public function inscripcion(){
         return $this->hasMany(InscripcionModel::class, 'id_responsable', 'id');
     }
+
+    public static function registrarDesdeRequest($data)
+{
+    return self::create([
+        'nombre' => $data['nombre'],
+        'ci' => $data['ci'],
+        'telefono' => $data['telefono'],
+        'direccion' => $data['direccion'],
+    ]);
+}
 }
