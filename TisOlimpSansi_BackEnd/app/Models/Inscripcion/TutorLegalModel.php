@@ -24,4 +24,13 @@ class TutorLegalModel extends Model
     public function estudiante(){
         return $this->hasMany(EstudianteModel::class, 'id_tutor_legal');
     }
+
+    public static function registrarDesdeRequest($data)
+{
+    return self::create([
+        'nombre' => $data['nombre'],
+        'ci' => $data['ci'],
+        'parentesco' => $data['parentesco'],
+    ]);
+}
 }

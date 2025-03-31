@@ -19,4 +19,13 @@ class ColegioModel extends Model
     public function estudiante(){
         return $this->hasOne(EstudianteModel::class). 'id_unidad';
     }
+
+    public static function registrarDesdeRequest($data)
+{
+    return self::create([
+        'nombre_colegio' => $data['nombre_colegio'],
+        'departamento' => $data['departamento'],
+        'provincia' => $data['provincia'],
+    ]);
+}
 }

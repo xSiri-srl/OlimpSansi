@@ -11,6 +11,7 @@ use App\Http\Controllers\Inscripcion\EstudianteController;
 use App\Http\Controllers\Inscripcion\TutorAcademicoController;
 use App\Http\Controllers\Inscripcion\ColegioController;
 use App\Http\Controllers\Inscripcion\GradoController;
+use App\Http\Controllers\InscripcionController;
 use App\Http\Controllers\OrdenPagoController;
 
 Route::controller(UserPruebaController::class)->group(function(){
@@ -95,3 +96,7 @@ Route::post('/verificar-codigo-generado', [OrdenPagoController::class, 'verifica
 Route::post('/procesar-comprobanteOCR', [OrdenPagoController::class, 'procesarComprobante']);
 
 Route::post('/guardar-comprobante', [OrdenPagoController::class, 'guardarComprobante']);
+
+
+Route::post('/inscribir', [InscripcionController::class, 'registrar']);
+
