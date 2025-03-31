@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import { FaUser, FaIdCard, FaEnvelope, FaPhoneAlt } from "react-icons/fa";
 import ModalConfirmacion from "./modales/modalConfirmacion";
-import axios from "axios";
+import { useFormData } from "./form-data-context";
 
 export default function InscripcionTutorLegal({
   formData,
@@ -13,6 +13,7 @@ export default function InscripcionTutorLegal({
   const [currentAreaIndex, setCurrentAreaIndex] = useState(0);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { globalData, setGlobalData } = useFormData();
   
   const areasSeleccionadas = formData.estudiante?.areasSeleccionadas || [];
   const areasConProfesor = formData.profesores?.areasRegistradas || [];
@@ -82,42 +83,35 @@ export default function InscripcionTutorLegal({
     setIsSubmitting(true);
 
     try {
-      const response = await axios.post(
-        "http://localhost:8000/api/agregarTutorLegal",
-        {
+      const updatedData = {
+        ...globalData,
+        tutor_legal: {
           nombre: formData.legal?.nombres,
           apellido_pa: formData.legal?.apellidoPaterno,
           apellido_ma: formData.legal?.apellidoMaterno,
           ci: formData.legal?.ci,
-          complemento: "",
           correo: formData.legal?.correo,
           numero_celular: formData.legal?.telefono,
           tipo: formData.legal?.correoPertenece,
-          fecha_registro: new Date().toISOString().split('T')[0]
         }
-      );
+      };
 
-      console.log("Respuesta del servidor:", response.data);
+      setGlobalData(updatedData);
 
-      if (response.data.status === 200) {
-        if (response.data.data?.id) {
-          handleInputChange("legal", "id", response.data.data.id);
-        }
-        
-        if (areasSeleccionadas.length > 0) {
-          handleInputChange("flow", "pendingAreas", [...areasSeleccionadas]);
-          setCurrentAreaIndex(0);
-          setShowModal(true);
-        } else {
-          handleNext();
-        }
+      console.log("Datos del tutor legal actualizados en JSON:", updatedData);
+      
+      handleInputChange("legal", "isComplete", true);
+      if (areasSeleccionadas.length > 0) {
+        handleInputChange("flow", "pendingAreas", [...areasSeleccionadas]);
+        setCurrentAreaIndex(0);
+        setShowModal(true);
       } else {
-        setErrors({ general: "Error al guardar los datos. Intente nuevamente." });
+        handleNext();
       }
     } catch (error) {
-      console.error("Error al enviar los datos:", error);
-      setErrors({ 
-        general: error.response?.data?.message || "Error al comunicarse con el servidor." 
+      console.error("Error al procesar los datos:", error);
+      setErrors({
+        general: "Hubo un error al procesar los datos."
       });
     } finally {
       setIsSubmitting(false);
@@ -150,9 +144,32 @@ export default function InscripcionTutorLegal({
   };
 
   const handleNoProfesor = () => {
+    // Obtener el área actual
+    const currentArea = areasSeleccionadas[currentAreaIndex];
+    const estudiante = globalData.estudiante || {};
+    const tutorEstudiante = {
+      nombre_area: currentArea,
+      tutor: {
+        nombre: estudiante.nombre,
+        apellido_pa: estudiante.apellido_pa,
+        apellido_ma: estudiante.apellido_ma,
+        ci: estudiante.ci,
+        correo: estudiante.correo
+      }
+    };
+    const tutoresExistentes = globalData.tutores_academicos || [];
+    const updatedData = {
+      ...globalData,
+      tutores_academicos: [...tutoresExistentes, tutorEstudiante]
+    };
+    setGlobalData(updatedData);
+    console.log("Usando datos del estudiante como tutor para", currentArea, ":", updatedData);
+
     if (currentAreaIndex < areasSeleccionadas.length - 1) {
+      // Avanzar al siguiente área
       setCurrentAreaIndex(currentAreaIndex + 1);
     } else {
+      // No hay más áreas, terminar el proceso
       setShowModal(false);
       handleInputChange("flow", "pendingAreas", []);
       handleInputChange("flow", "skipProfesor", true);
