@@ -109,36 +109,49 @@ export default function IncripcionTutorAcademico({
     setIsSubmitting(true);
 
     try {
+      // Verificar si este tutor ya ha sido registrado para prevenir duplicidad
       const tutoresExistentes = globalData.tutores_academicos || [];
-      const nuevoTutor = {
-        nombre_area: areaCompetencia,
-        tutor: {
-          nombre: formData.profesor?.nombres,
-          apellido_pa: formData.profesor?.apellidoPaterno,
-          apellido_ma: formData.profesor?.apellidoMaterno,
-          ci: formData.profesor?.ci,
-          correo: formData.profesor?.correo
-        }
-      };
-
-      const tutoresActualizados = [...tutoresExistentes, nuevoTutor];
-      
-      const updatedData = {
-        ...globalData,
-        tutores_academicos: tutoresActualizados
-      };
-
-      setGlobalData(updatedData);
-      console.log("Tutor académico añadido para", areaCompetencia, ":", updatedData);
+      const tutorYaExiste = tutoresExistentes.some(
+        t => t.nombre_area === areaCompetencia && 
+             t.tutor.ci === formData.profesor?.ci
+      );
+  
+      // Solo agregar el tutor si no existe ya
+      if (!tutorYaExiste) {
+        const nuevoTutor = {
+          nombre_area: areaCompetencia,
+          tutor: {
+            nombre: formData.profesor?.nombres,
+            apellido_pa: formData.profesor?.apellidoPaterno,
+            apellido_ma: formData.profesor?.apellidoMaterno,
+            ci: formData.profesor?.ci,
+            correo: formData.profesor?.correo
+          }
+        };
+  
+        const tutoresActualizados = [...tutoresExistentes, nuevoTutor];
+        
+        const updatedData = {
+          ...globalData,
+          tutores_academicos: tutoresActualizados
+        };
+  
+        setGlobalData(updatedData);
+        console.log("Tutor académico añadido para", areaCompetencia, ":", updatedData);
+      } else {
+        console.log("Tutor ya registrado, evitando duplicidad:", areaCompetencia);
+      }
       
       handleInputChange("profesor", "isComplete", true);
-      
       handleInputChange("flow", "redirectToProfesor", false);
       
-      if (areasRestantes.length > 0) {
-        setShowModal(true);
-      } else {
+      // Si no hay más áreas pendientes, pasar directamente al paso final
+      // sin mostrar el modal
+      if (areasRestantes.length === 0) {
         handleNext();
+      } else {
+        // Mostrar el modal solo si hay más áreas pendientes
+        setShowModal(true);
       }
     } catch (error) {
       console.error("Error al procesar los datos del tutor académico:", error);
