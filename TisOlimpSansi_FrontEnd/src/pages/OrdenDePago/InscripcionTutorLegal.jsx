@@ -144,9 +144,32 @@ export default function InscripcionTutorLegal({
   };
 
   const handleNoProfesor = () => {
+    // Obtener el área actual
+    const currentArea = areasSeleccionadas[currentAreaIndex];
+    const estudiante = globalData.estudiante || {};
+    const tutorEstudiante = {
+      nombre_area: currentArea,
+      tutor: {
+        nombre: estudiante.nombre,
+        apellido_pa: estudiante.apellido_pa,
+        apellido_ma: estudiante.apellido_ma,
+        ci: estudiante.ci,
+        correo: estudiante.correo
+      }
+    };
+    const tutoresExistentes = globalData.tutores_academicos || [];
+    const updatedData = {
+      ...globalData,
+      tutores_academicos: [...tutoresExistentes, tutorEstudiante]
+    };
+    setGlobalData(updatedData);
+    console.log("Usando datos del estudiante como tutor para", currentArea, ":", updatedData);
+
     if (currentAreaIndex < areasSeleccionadas.length - 1) {
+      // Avanzar al siguiente área
       setCurrentAreaIndex(currentAreaIndex + 1);
     } else {
+      // No hay más áreas, terminar el proceso
       setShowModal(false);
       handleInputChange("flow", "pendingAreas", []);
       handleInputChange("flow", "skipProfesor", true);
