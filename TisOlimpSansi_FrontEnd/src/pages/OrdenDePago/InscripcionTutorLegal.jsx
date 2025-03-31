@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import { FaUser, FaIdCard, FaEnvelope, FaPhoneAlt } from "react-icons/fa";
 import ModalConfirmacion from "./modales/modalConfirmacion";
-import axios from "axios";
+import { useFormData } from "./form-data-context";
 
 export default function InscripcionTutorLegal({
   formData,
@@ -13,6 +13,7 @@ export default function InscripcionTutorLegal({
   const [currentAreaIndex, setCurrentAreaIndex] = useState(0);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { globalData, setGlobalData } = useFormData();
   
   const areasSeleccionadas = formData.estudiante?.areasSeleccionadas || [];
   const areasConProfesor = formData.profesores?.areasRegistradas || [];
@@ -82,42 +83,35 @@ export default function InscripcionTutorLegal({
     setIsSubmitting(true);
 
     try {
-      const response = await axios.post(
-        "http://localhost:8000/api/agregarTutorLegal",
-        {
+      const updatedData = {
+        ...globalData,
+        tutor_legal: {
           nombre: formData.legal?.nombres,
           apellido_pa: formData.legal?.apellidoPaterno,
           apellido_ma: formData.legal?.apellidoMaterno,
           ci: formData.legal?.ci,
-          complemento: "",
           correo: formData.legal?.correo,
           numero_celular: formData.legal?.telefono,
           tipo: formData.legal?.correoPertenece,
-          fecha_registro: new Date().toISOString().split('T')[0]
         }
-      );
+      };
 
-      console.log("Respuesta del servidor:", response.data);
+      setGlobalData(updatedData);
 
-      if (response.data.status === 200) {
-        if (response.data.data?.id) {
-          handleInputChange("legal", "id", response.data.data.id);
-        }
-        
-        if (areasSeleccionadas.length > 0) {
-          handleInputChange("flow", "pendingAreas", [...areasSeleccionadas]);
-          setCurrentAreaIndex(0);
-          setShowModal(true);
-        } else {
-          handleNext();
-        }
+      console.log("Datos del tutor legal actualizados en JSON:", updatedData);
+      
+      handleInputChange("legal", "isComplete", true);
+      if (areasSeleccionadas.length > 0) {
+        handleInputChange("flow", "pendingAreas", [...areasSeleccionadas]);
+        setCurrentAreaIndex(0);
+        setShowModal(true);
       } else {
-        setErrors({ general: "Error al guardar los datos. Intente nuevamente." });
+        handleNext();
       }
     } catch (error) {
-      console.error("Error al enviar los datos:", error);
-      setErrors({ 
-        general: error.response?.data?.message || "Error al comunicarse con el servidor." 
+      console.error("Error al procesar los datos:", error);
+      setErrors({
+        general: "Hubo un error al procesar los datos."
       });
     } finally {
       setIsSubmitting(false);
