@@ -37,9 +37,6 @@ class EstudianteModel extends Model
     public function tutorLegal(){
         return $this->belongsTo(TutorLegalModel::class, 'id_tutor_legal', 'id');
     }
-    public function tutorAcademico(){
-        return $this->belongsTo(TutorAcademicoModel::class, 'id_tutor_academico', 'id');
-    }
 
     public static function registrarDesdeRequest($data, $colegio_id)
 {
