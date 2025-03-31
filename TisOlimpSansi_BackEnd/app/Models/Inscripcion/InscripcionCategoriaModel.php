@@ -15,6 +15,7 @@ class InscripcionCategoriaModel extends Model
     protected $fillable = [
         'id_inscripcion',
         'id_categoria',
+        'id_tutor_academico',
     ];
 
     public function inscripcion(){
@@ -24,6 +25,6 @@ class InscripcionCategoriaModel extends Model
         return $this->belongsTo(CategoriaModel::class, 'id_categoria', 'id');
     }
     public function tutorAcademico(){
-        return $this->belongsTo(TutorAcademicoModel::class, 'id_tutor_academico');
+        return $this->belongsTo(TutorAcademicoModel::class, 'id_tutor_academico', 'id');
     }
 }
