@@ -6,12 +6,16 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\NombreDeHU1\UserPruebaController;
 use App\Http\Controllers\Inscripcion\ResponsableInscripcionController;
 use App\Http\Controllers\Inscripcion\TutorLegalController; 
-use App\Http\Controllers\Inscripcion\InscripcionAreaController; 
+use App\Http\Controllers\Inscripcion\InscripcionCategoriaController; 
 use App\Http\Controllers\Inscripcion\EstudianteController;
 use App\Http\Controllers\Inscripcion\TutorAcademicoController;
 use App\Http\Controllers\Inscripcion\ColegioController;
 use App\Http\Controllers\Inscripcion\GradoController;
 use App\Http\Controllers\InscripcionController;
+
+use App\Http\Controllers\Inscripcion\AreaController;
+use App\Http\Controllers\Inscripcion\CategoriaController;
+
 use App\Http\Controllers\OrdenPagoController;
 
 Route::controller(UserPruebaController::class)->group(function(){
@@ -51,13 +55,31 @@ Route::controller(TutorAcademicoController::class)->group(function(){
 });
 
 //SeleccionarAreasCompetencia
-Route::controller(InscripcionAreaController::class)->group(function(){
+Route::controller(InscripcionCategoriaController::class)->group(function(){
 
-    Route::get('/todasInscripciones', [InscripcionAreaController::class, 'index']);
-    Route::post('/agregarInscripcionArea', [InscripcionAreaController::class, 'store']);
-    Route::get('/inscripcionArea/{id}', [InscripcionAreaController::class, 'show']);
-    Route::put('/actualizarInscripcionArea/{id}', [InscripcionAreaController::class, 'update']);
-    Route::delete('/eliminarInscripcionArea/{id}', [InscripcionAreaController::class, 'destroy']);
+    Route::get('/todasInscripciones', [InscripcionCategoriaController::class, 'index']);
+    Route::post('/agregarInscripcionCategoria', [InscripcionCategoriaController::class, 'store']);
+    Route::get('/inscripcionCategoria/{id}', [InscripcionCategoriaController::class, 'show']);
+    Route::put('/actualizarInscripcionCategoria/{id}', [InscripcionCategoriaController::class, 'update']);
+    Route::delete('/eliminarInscripcionCategoria/{id}', [InscripcionCategoriaController::class, 'destroy']);
+    
+});
+Route::controller(CategoriaController::class)->group(function(){
+
+    Route::get('/categorias', [CategoriaController::class, 'index']);
+    Route::post('/agregarCategoria', [CategoriaController::class, 'store']);
+    Route::get('/categoria/{id}', [CategoriaController::class, 'show']);
+    Route::put('/actualizarCategoria/{id}', [CategoriaController::class, 'update']);
+    Route::delete('/eliminarCategoria/{id}', [CategoriaController::class, 'destroy']);
+    
+});
+Route::controller(AreaController::class)->group(function(){
+
+    Route::get('/areas', [AreaController::class, 'index']);
+    Route::post('/agregarArea', [AreaController::class, 'store']);
+    Route::get('/area/{id}', [AreaController::class, 'show']);
+    Route::put('/actualizarArea/{id}', [AreaController::class, 'update']);
+    Route::delete('/eliminarArea/{id}', [AreaController::class, 'destroy']);
     
 });
 

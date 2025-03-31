@@ -8,20 +8,17 @@ use App\Models\Inscripcion\EstudianteModel;
 use App\Models\OrdenPago;
 use App\Models\Inscripcion\InscripcionAreaModel;
 use App\Models\Inscripcion\ResponsableInscripcionModel;
+use App\Models\Inscripcion\AreaModel;
 
 class InscripcionModel extends Model
 {
     use HasFactory;
     protected $table = 'inscripcion';
     protected $fillable = [
-        'id_inscripcion_area',
         'id_responsable',
         'id_estudiante',
         'id_orden_pago',
     ]; 
-    public function inscripcionArea(){
-        return $this->belongsTo(InscripcionAreaModel::class, 'id_inscripcion_area');
-    }
     public function responsable(){
         return $this->belongsTo(ResponsableInscripcionModel::class, 'id_responsable');
     }
@@ -30,5 +27,8 @@ class InscripcionModel extends Model
     }
     public function ordenPago(){
         return $this->belongsTo(OrdenPago::class, 'id_orden_pago');
+    }
+    public function inscripcionCategoria(){
+        return $this->belongsToMany(AreaModel::class, 'inscripcion_area', 'id_inscripcion', 'id_categoria');
     }
 }

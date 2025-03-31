@@ -11,13 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tutor_academico', function (Blueprint $table) {
+        Schema::create('area', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre');
-            $table->string('apellido_pa');
-            $table->string('apellido_ma');
-            $table->integer('ci');
-            $table->string('correo')->unique();
+            $table->string('nombre_area');
             $table->timestamps();
         });
     }
@@ -27,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tutor_academico');
+        Schema::dropIfExists('area');
     }
 };
