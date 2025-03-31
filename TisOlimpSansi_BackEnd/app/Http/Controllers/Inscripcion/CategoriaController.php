@@ -1,8 +1,6 @@
 <?php
 
 namespace App\Http\Controllers\Inscripcion;
-
-
 use App\Http\Controllers\Controller;
 use App\Models\Inscripcion\CategoriaModel;
 use Illuminate\Http\Request;
