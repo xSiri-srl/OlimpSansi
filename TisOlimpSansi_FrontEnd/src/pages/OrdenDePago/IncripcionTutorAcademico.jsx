@@ -13,13 +13,35 @@ export default function IncripcionTutorAcademico({
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { globalData, setGlobalData } = useFormData();
+  const [editingIndex, setEditingIndex] = useState(-1);
+  const [tutoresToShow, setTutoresToShow] = useState([]);
 
   const areaCompetencia = formData.profesor?.areaCompetencia || "[AREA DE COMPETENCIA]";
   const areasConProfesor = formData.profesores?.areasRegistradas || [];
   const areasRestantes = formData.flow?.pendingAreas || [];
 
-  // Si no hay área de competencia establecida y skipProfesor es true,
-  // avanzar automáticamente al siguiente paso
+  useEffect(() => {
+    if (formData.flow?.editingTutores && globalData.tutores_academicos) {
+      console.log("Iniciando modo edición. Tutores existentes:", globalData.tutores_academicos.length);
+      
+      // Importante: Limpiar areasRestantes para evitar duplicados
+      handleInputChange("flow", "pendingAreas", []);
+      
+      // Si hay tutores para mostrar, inicializar con el primero
+      if (globalData.tutores_academicos.length > 0) {
+        setEditingIndex(0);
+        const primerTutor = globalData.tutores_academicos[0];
+        
+        // Cargar los datos del primer tutor en el formulario
+        handleInputChange("profesor", "areaCompetencia", primerTutor.nombre_area);
+        handleInputChange("profesor", "apellidoPaterno", primerTutor.tutor?.apellido_pa || "");
+        handleInputChange("profesor", "apellidoMaterno", primerTutor.tutor?.apellido_ma || "");
+        handleInputChange("profesor", "nombres", primerTutor.tutor?.nombre || "");
+        handleInputChange("profesor", "ci", primerTutor.tutor?.ci || "");
+        handleInputChange("profesor", "correo", primerTutor.tutor?.correo || "");
+      }
+    }
+  }, [formData.flow?.editingTutores]);
   useEffect(() => {
     if (formData.flow?.skipProfesor === true) {
       // Si no se eligieron tutores académicos, usar los datos del estudiante
@@ -109,6 +131,50 @@ export default function IncripcionTutorAcademico({
     setIsSubmitting(true);
 
     try {
+      if (formData.flow?.editingTutores && editingIndex >= 0) {
+        const tutoresActualizados = [...globalData.tutores_academicos];
+        
+        // Actualizar el tutor en la posición actual
+        tutoresActualizados[editingIndex] = {
+          nombre_area: formData.profesor?.areaCompetencia,
+          tutor: {
+            nombre: formData.profesor?.nombres,
+            apellido_pa: formData.profesor?.apellidoPaterno,
+            apellido_ma: formData.profesor?.apellidoMaterno,
+            ci: formData.profesor?.ci,
+            correo: formData.profesor?.correo
+          }
+        };
+        
+        const updatedData = {
+          ...globalData,
+          tutores_academicos: tutoresActualizados
+        };
+        
+        setGlobalData(updatedData);
+        console.log("Tutor académico actualizado:", updatedData);
+        
+        // Verificar si hay más tutores para editar
+        if (editingIndex < tutoresActualizados.length - 1) {
+          // Pasar al siguiente tutor
+          const siguienteTutor = tutoresActualizados[editingIndex + 1];
+          setEditingIndex(editingIndex + 1);
+          
+          // Cargar los datos del siguiente tutor
+          handleInputChange("profesor", "areaCompetencia", siguienteTutor.nombre_area);
+          handleInputChange("profesor", "apellidoPaterno", siguienteTutor.tutor?.apellido_pa || "");
+          handleInputChange("profesor", "apellidoMaterno", siguienteTutor.tutor?.apellido_ma || "");
+          handleInputChange("profesor", "nombres", siguienteTutor.tutor?.nombre || "");
+          handleInputChange("profesor", "ci", siguienteTutor.tutor?.ci || "");
+          handleInputChange("profesor", "correo", siguienteTutor.tutor?.correo || "");
+          
+          return; // No avanzar al siguiente paso todavía
+        } else {
+          // Si ya no hay más tutores, ir al paso de confirmación
+          handleNextToConfirmation();
+        }
+
+      }else{
       // Verificar si este tutor ya ha sido registrado para prevenir duplicidad
       const tutoresExistentes = globalData.tutores_academicos || [];
       const tutorYaExiste = tutoresExistentes.some(
@@ -154,6 +220,7 @@ export default function IncripcionTutorAcademico({
       } else {
         // Mostrar el modal solo si hay más áreas pendientes
         setShowModal(true);
+      }
       }
     } catch (error) {
       console.error("Error al procesar los datos del tutor académico:", error);
@@ -227,6 +294,27 @@ export default function IncripcionTutorAcademico({
       setShowModal(true);
     }
   };
+  const handleNextToConfirmation = () => {
+    // Desactivar el modo de edición y limpiar estado relacionado con tutores antes de ir a confirmación
+    handleInputChange("flow", "editingTutores", false);
+    handleInputChange("flow", "pendingAreas", []);
+    handleInputChange("flow", "redirectToProfesor", false);
+    handleInputChange("flow", "skipProfesor", false);
+    
+    // Resetear campos del profesor para el siguiente uso
+    handleInputChange("profesor", "apellidoPaterno", "");
+    handleInputChange("profesor", "apellidoMaterno", "");
+    handleInputChange("profesor", "nombres", "");
+    handleInputChange("profesor", "ci", "");
+    handleInputChange("profesor", "correo", "");
+    
+    // Resetear el índice de edición
+    setEditingIndex(-1);
+    
+    // Avanzar al siguiente paso
+    handleNext();
+  };
+  
   
   return (
     <div className="flex flex-col items-center">
@@ -365,7 +453,9 @@ export default function IncripcionTutorAcademico({
             onClick={handleProfesorNext}
             disabled={isSubmitting}
           >
-            {isSubmitting ? "Procesando..." : "Siguiente"}
+            {isSubmitting ? "Procesando..." : formData.flow?.editingTutores ? 
+              (editingIndex < (globalData.tutores_academicos?.length - 1) ? "Siguiente Profesor" : "Guardar y Continuar") : 
+              "Siguiente"}
           </button>
         </div>
         

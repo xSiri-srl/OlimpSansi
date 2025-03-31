@@ -1,5 +1,3 @@
-"use client"
-
 import { useState } from "react"
 import axios from "axios"
 import ProcesoRegistro from "./ProcesoRegistro"
@@ -8,6 +6,7 @@ import InscripcionEstudiante from "./inscripcionEstudiante"
 import AreasCompetencia from "./AreasCompetencia"
 import InscripcionTutorLegal from "./InscripcionTutorLegal"
 import InscripcionTutorAcademico from "./IncripcionTutorAcademico"
+import Confirmation from "./Confirmation"
 import { FormDataContext, useFormData } from "./form-data-context"
 
 const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
@@ -204,78 +203,6 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
   )
 }
 
-const Confirmation = ({ navigate }) => {
-  const { globalData } = useFormData()
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submitStatus, setSubmitStatus] = useState({ success: null, message: "" })
-
-  const handleSubmit = async () => {
-    setIsSubmitting(true)
-    setSubmitStatus({ success: null, message: "" })
-
-    try {
-      // Enviar los datos al backend
-      const response = await axios.post("http://localhost:8000/api/inscribir", globalData)
-
-      console.log("Respuesta del servidor:", response.data)
-
-      setSubmitStatus({
-        success: true,
-        message: "Inscripción registrada correctamente.",
-      })
-
-      // Navegar a la siguiente página después de un breve retraso
-      setTimeout(() => {
-        navigate("/subirComprobante")
-      }, 1500)
-    } catch (error) {
-      console.error("Error al enviar los datos:", error)
-
-      setSubmitStatus({
-        success: false,
-        message: error.response?.data?.error || "Error al enviar los datos. Intente nuevamente.",
-      })
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
-  return (
-    <div className="text-center">
-      <h2 className="text-lg font-semibold mb-4">¡Registro Completado!</h2>
-      <p className="text-gray-600">Revise los datos antes de confirmar</p>
-
-      {/* Mostrar el JSON completo */}
-      <div className="mt-4 p-4 bg-gray-100 rounded-md text-left max-w-lg mx-auto">
-        <p className="font-semibold mb-2">Datos registrados:</p>
-        <pre className="text-xs overflow-auto bg-gray-800 text-green-400 p-4 rounded">
-          {JSON.stringify(globalData, null, 2)}
-        </pre>
-      </div>
-
-      {/* Mensaje de estado */}
-      {submitStatus.success !== null && (
-        <div
-          className={`mt-4 p-3 rounded-md ${submitStatus.success ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}
-        >
-          {submitStatus.message}
-        </div>
-      )}
-
-      <div className="flex justify-center mt-4 gap-4">
-        <button
-          onClick={handleSubmit}
-          disabled={isSubmitting}
-          className={`bg-blue-600 text-white px-6 py-2 rounded-md transition duration-300 ease-in-out hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500 shadow-md ${
-            isSubmitting ? "opacity-70 cursor-not-allowed" : ""
-          }`}
-        >
-          {isSubmitting ? "Enviando..." : "Aceptar"}
-        </button>
-      </div>
-    </div>
-  )
-}
 
 const InscripcionResponsable = () => {
   const [globalData, setGlobalData] = useState({})
@@ -303,4 +230,3 @@ const InscripcionResponsable = () => {
 }
 
 export default InscripcionResponsable
-
