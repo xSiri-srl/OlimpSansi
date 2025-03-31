@@ -17,6 +17,6 @@ class ColegioModel extends Model
     ];
 
     public function estudiante(){
-        return $this->hasOne(EstudianteModel::class). 'id_unidad';
+        return $this->hasOne(EstudianteModel::class, 'id_unidad');
     }
 }
