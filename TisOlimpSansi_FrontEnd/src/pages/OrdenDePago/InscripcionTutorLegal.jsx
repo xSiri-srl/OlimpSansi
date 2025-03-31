@@ -230,7 +230,7 @@ export default function InscripcionTutorLegal({
                 placeholder="Apellido Paterno"
                 value={formData.legal?.apellidoPaterno || ""}
                 onChange={(e) =>
-                handleInputChange("legal","apellidoPaterno", e.target.value)
+                handleInputChange("legal","apellidoPaterno", e.target.value.toUpperCase())
                 }
               />
               {errors.apellidoPaterno && (
@@ -249,7 +249,7 @@ export default function InscripcionTutorLegal({
                 placeholder="Apellido Materno"
                 value={formData.legal?.apellidoMaterno || ""}
                 onChange={(e) =>
-                handleInputChange("legal","apellidoMaterno", e.target.value)
+                handleInputChange("legal","apellidoMaterno", e.target.value.toUpperCase())
                 }
               />
               {errors.apellidoMaterno && (
@@ -269,7 +269,7 @@ export default function InscripcionTutorLegal({
               placeholder="Nombres"
               value={formData.legal?.nombres || ""}
               onChange={(e) => 
-                handleInputChange("legal","nombres", e.target.value)}
+                handleInputChange("legal","nombres", e.target.value.toUpperCase())}
             />
             {errors.nombres && (
               <p className="text-red-500 text-sm mt-1">{errors.nombres}</p>

@@ -1,12 +1,12 @@
-"use client"
-
 import { useState } from "react"
+import axios from "axios"
 import ProcesoRegistro from "./ProcesoRegistro"
 import { FaUser, FaIdCard } from "react-icons/fa"
 import InscripcionEstudiante from "./inscripcionEstudiante"
 import AreasCompetencia from "./AreasCompetencia"
 import InscripcionTutorLegal from "./InscripcionTutorLegal"
 import InscripcionTutorAcademico from "./IncripcionTutorAcademico"
+import Confirmation from "./Confirmation"
 import { FormDataContext, useFormData } from "./form-data-context"
 
 const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
@@ -114,7 +114,7 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
                 type="text"
                 value={formData.responsable?.apellidoPaterno || ""}
                 onChange={(e) =>
-                  handleValidatedChange("responsable", "apellidoPaterno", e.target.value, /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/)
+                  handleValidatedChange("responsable", "apellidoPaterno", e.target.value.toUpperCase(), /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/)
                 }
                 className="w-full p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Apellido Paterno"
@@ -130,7 +130,7 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
                 type="text"
                 value={formData.responsable?.apellidoMaterno || ""}
                 onChange={(e) =>
-                  handleValidatedChange("responsable", "apellidoMaterno", e.target.value, /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/)
+                  handleValidatedChange("responsable", "apellidoMaterno", e.target.value.toUpperCase(), /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/)
                 }
                 className="w-full p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Apellido Materno"
@@ -147,7 +147,7 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
               type="text"
               value={formData.responsable?.nombres || ""}
               onChange={(e) =>
-                handleValidatedChange("responsable", "nombres", e.target.value, /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/)
+                handleValidatedChange("responsable", "nombres", e.target.value.toUpperCase(), /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/)
               }
               className="w-full p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Nombres"
@@ -203,33 +203,6 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
   )
 }
 
-const Confirmation = ({ navigate }) => {
-  const { globalData } = useFormData()
-
-  return (
-    <div className="text-center">
-      <h2 className="text-lg font-semibold mb-4">¡Registro Completado!</h2>
-      <p className="text-gray-600">Los datos han sido guardados con éxito</p>
-
-      {/* Mostrar el JSON completo */}
-      <div className="mt-4 p-4 bg-gray-100 rounded-md text-left max-w-lg mx-auto">
-        <p className="font-semibold mb-2">Datos registrados:</p>
-        <pre className="text-xs overflow-auto bg-gray-800 text-green-400 p-4 rounded">
-          {JSON.stringify(globalData, null, 2)}
-        </pre>
-      </div>
-
-      <div className="flex justify-center mt-4">
-        <button
-          onClick={() => navigate("/subirComprobante")}
-          className="bg-blue-600 text-white px-6 py-2 rounded-md transition duration-300 ease-in-out hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500 shadow-md"
-        >
-          Aceptar
-        </button>
-      </div>
-    </div>
-  )
-}
 
 const InscripcionResponsable = () => {
   const [globalData, setGlobalData] = useState({})
@@ -257,4 +230,3 @@ const InscripcionResponsable = () => {
 }
 
 export default InscripcionResponsable
-
