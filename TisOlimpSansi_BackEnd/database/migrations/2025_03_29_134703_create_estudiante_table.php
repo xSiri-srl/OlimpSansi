@@ -16,7 +16,6 @@ return new class extends Migration
             $table->unsignedBigInteger('id_unidad');          
             $table->unsignedBigInteger('id_grado');  
             $table->unsignedBigInteger('id_tutor_legal'); 
-            $table->unsignedBigInteger('id_tutor_academico');
             $table->string('nombre');
             $table->string('apellido_pa');
             $table->string('apellido_ma');
@@ -28,7 +27,6 @@ return new class extends Migration
             $table->foreign('id_unidad')->references('id')->on('colegio')->onDelete('cascade');
             $table->foreign('id_grado')->references('id')->on('grado')->onDelete('cascade');
             $table->foreign('id_tutor_legal')->references('id')->on('tutor_legal')->onDelete('cascade');
-            $table->foreign('id_tutor_academico')->references('id')->on('tutor_academico')->onDelete('cascade');
         
         });
     }

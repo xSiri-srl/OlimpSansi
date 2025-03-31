@@ -15,6 +15,8 @@ class InscripcionAreaModel extends Model
     protected $fillable = [
         'id_inscripcion',
         'id_categoria',
+        'id_tutor_academico',
+        
     ];
 
     public function inscripcion(){
