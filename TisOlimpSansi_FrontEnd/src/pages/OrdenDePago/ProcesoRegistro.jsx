@@ -72,8 +72,25 @@ const ProcesoRegistro = ({
   };
 
   const handleBack = () => {
+    console.log("handleBack called, current step:", step);
+    
     if (step > 1) {
-      setStep(step - 1);
+      if (step === 6) {
+        setFormData(prev => ({
+          ...prev,
+          flow: {
+            ...prev.flow,
+            editingTutores: true,
+            skipProfesor: false,  
+            redirectToProfesor: false,
+            pendingAreas: [], 
+            showNextAreaModal: false // Asegurarse de que no aparezca el modal
+          }
+        }));
+        setStep(5);
+      } else {
+        setStep(step - 1);
+      }
     } else {
       navigate(backRoute);
     }
