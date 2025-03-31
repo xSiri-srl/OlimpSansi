@@ -11,7 +11,7 @@ use App\Models\Inscripcion\TutorAcademicoModel;
 class InscripcionCategoriaModel extends Model
 {
     use HasFactory;
-    protected $table = 'inscripcion_area';
+    protected $table = 'inscripcion_categoria';
     protected $fillable = [
         'id_inscripcion',
         'id_categoria',
