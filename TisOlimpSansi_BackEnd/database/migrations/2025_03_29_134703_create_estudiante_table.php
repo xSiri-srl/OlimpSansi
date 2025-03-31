@@ -26,8 +26,7 @@ return new class extends Migration
             $table->timestamps();
             $table->foreign('id_unidad')->references('id')->on('colegio')->onDelete('cascade');
             $table->foreign('id_grado')->references('id')->on('grado')->onDelete('cascade');
-            $table->foreign('id_tutor_legal')->references('id')->on('tutor_legal')->onDelete('cascade');
-        
+            $table->foreign('id_tutor_legal')->references('id')->on('tutor_legal')->onDelete('cascade');        
         });
     }
 

@@ -16,7 +16,7 @@ class TutorAcademicoModel extends Model
         'apellido_pa',
         'apellido_ma',
         'ci',
-        'complemento',
+        'correo',
     ];
     public function inscripcion(){
         return $this->hasMany(InscripcionCategoriaModel::class, 'id_tutor_academico');
@@ -27,6 +27,7 @@ class TutorAcademicoModel extends Model
         'nombre' => $data['nombre'],
         'ci' => $data['ci'],
         'materia' => $data['materia'],
+        'correo' => $data['correo'],
     ]);
 }
 }

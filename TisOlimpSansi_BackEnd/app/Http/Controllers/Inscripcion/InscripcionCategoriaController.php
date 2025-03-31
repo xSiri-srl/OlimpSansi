@@ -26,6 +26,7 @@ class InscripcionCategoriaController extends Controller
         
         $inscripcionArea->id_inscripcion = $request->id_inscripcion;
         $inscripcionArea->id_categoria = $request->id_categoria;
+        $inscripcionArea->id_tutor_academico = $request->id_tutor_academico;
         
         $inscripcionArea->save();
   
@@ -51,6 +52,7 @@ class InscripcionCategoriaController extends Controller
 
         $inscripcionArea->id_inscripcion = $request->id_inscripcion;
         $inscripcionArea->id_categoria = $request->id_categoria;
+        $inscripcionArea->id_tutor_academico = $request->id_tutor_academico;
 
         $inscripcionArea->save();
 
