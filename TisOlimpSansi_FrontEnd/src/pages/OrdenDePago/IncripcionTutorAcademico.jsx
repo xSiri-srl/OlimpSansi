@@ -143,12 +143,14 @@ export default function IncripcionTutorAcademico({
       }
       
       handleInputChange("profesor", "isComplete", true);
+      
+      // Marcamos explícitamente que no queremos redirigir de nuevo al formulario de profesor
       handleInputChange("flow", "redirectToProfesor", false);
       
-      // Si no hay más áreas pendientes, pasar directamente al paso final
-      // sin mostrar el modal
+      // Si estamos en el último área, marcar skipProfesor como true para ir directo al paso final
       if (areasRestantes.length === 0) {
-        handleNext();
+        handleInputChange("flow", "skipProfesor", true);
+        handleNext(); // Avanzar al siguiente paso directamente
       } else {
         // Mostrar el modal solo si hay más áreas pendientes
         setShowModal(true);
