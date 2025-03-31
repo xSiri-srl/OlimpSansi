@@ -4,7 +4,7 @@ namespace App\Models\Inscripcion;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Models\Inscripcion\EstudianteModel;
+use App\Models\Inscripcion\InscripcionModel;
 
 
 class TutorAcademicoModel extends Model
@@ -18,8 +18,8 @@ class TutorAcademicoModel extends Model
         'ci',
         'complemento',
     ];
-    public function estudiante(){
-        return $this->hasMany(EstudianteModel::class, 'id_tutor_academico');
+    public function inscripcion(){
+        return $this->hasMany(InscripcionModel::class, 'id_tutor_academico');
     }
     public static function registrarDesdeRequest($data)
 {
