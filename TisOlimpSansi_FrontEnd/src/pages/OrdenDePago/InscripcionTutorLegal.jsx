@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 import { FaUser, FaIdCard, FaEnvelope, FaPhoneAlt } from "react-icons/fa";
-import ModalConfirmacion from "./modales/modalConfirmacion";
+import ModalConfirmacion from "./modales/ModalConfirmacion";
 import { useFormData } from "./form-data-context";
 
 export default function InscripcionTutorLegal({
