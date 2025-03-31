@@ -243,7 +243,7 @@ const guardarComprobante = async () => {
                : "bg-gray-400 cursor-not-allowed"
            }`}
          >
-           {loading ? "Verificando..." : "Verificar Código"}
+           {loading ? "Verificando..." : "Verificar código"}
          </button>
        </div>  
      </div>
@@ -261,7 +261,7 @@ const guardarComprobante = async () => {
         {step === 2 && (
           <div className="grid grid-cols-2 gap-6">
             <div className="flex flex-col items-center">
-              <h2 className="text-lg font-semibold mb-2 text-gray-500">Sube tu comprobante</h2>
+              <h2 className="text-lg font-semibold mb-2 text-gray-500">Sube tu comprobante de pago</h2>
               <label className="border-2 border-dashed border-gray-400 p-6 w-full flex flex-col items-center rounded-lg cursor-pointer hover:bg-gray-200">
                 <input type="file" className="hidden" onChange={handleFileChange} />
                 <div className="flex flex-col items-center">
@@ -269,7 +269,6 @@ const guardarComprobante = async () => {
                     <FaCloudUploadAlt size={60} />
                   </span>
                   <p className="text-sm text-gray-500 mt-2">Seleccionar imagen</p>
-                  <p className="text-xs text-gray-400">o arrastra y suelta la imagen aquí</p>
                 </div>
               </label>
               {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
@@ -288,8 +287,13 @@ const guardarComprobante = async () => {
         {step === 3 && (
   <div>
     {/* Vista previa de la imagen original */}
+    <h2 className="text-lg text-center font-semibold mb-2 text-gray-500">
+       Vista previa del comprobante de pago
+      </h2>
     <div className="flex justify-center">
-      <div className="border-2 border-blue-500 p-4 w-64 h-64 flex items-center justify-center bg-gray-100">
+   
+      <div className="border-2 border-blue-500 p-4 w-80 h-80 flex items-center justify-center bg-gray-100">
+        
         {preview ? (
           selectedFile?.type === "application/pdf" ? (
             <embed src={preview} type="application/pdf" width="100%" height="100%" />
@@ -302,47 +306,49 @@ const guardarComprobante = async () => {
       </div>
     </div>
 
-    {/* Recorte para el Número */}
-    <div className="p-4">
-      <h2 className="text-lg text-center font-semibold mb-2 text-gray-500">
-        Por favor, seleccione el número del comprobante
-      </h2>
-      <div className="flex justify-center mt-4">
-        <ImageCropper
-          image={preview}
-          onCrop={(croppedFile) => {
-            setSelectedFile((prev) => ({
-              ...prev,
-              numero: croppedFile, // Guardamos el archivo recortado
-            }));
-          }}
-        />
-      </div>
-      <p className="flex justify-center text-sm text-green-600 mt-2">
-        {selectedFile?.numero ? selectedFile.numero.name : "No hay recorte de número"}
-      </p>
+    <div className="flex justify-center gap-4 p-4 flex-col md:flex-row">
+  {/* Recorte para el Número */}
+  <div className="md:w-1/2 p-4 border rounded-lg shadow-md flex-shrink-0">
+    <h2 className="text-lg text-center font-semibold mb-2 text-gray-500">
+      Por favor, seleccione el número del comprobante
+    </h2>
+    <div className="flex justify-center mt-4">
+      <ImageCropper
+        image={preview}
+        onCrop={(croppedFile) => {
+          setSelectedFile((prev) => ({
+            ...prev,
+            numero: croppedFile, // Guardamos el archivo recortado
+          }));
+        }}
+      />
     </div>
+    <p className="flex justify-center text-sm text-green-600 mt-2">
+      {selectedFile?.numero ? selectedFile.numero.name : "No hay recorte de número"}
+    </p>
+  </div>
 
-    {/* Recorte para el Nombre */}
-    <div className="p-4">
-      <h2 className="text-lg text-center font-semibold mb-2 text-gray-500">
-        Por favor, seleccione el nombre del que pagó
-      </h2>
-      <div className="flex justify-center mt-4">
-        <ImageCropper
-          image={preview}
-          onCrop={(croppedFile) => {
-            setSelectedFile((prev) => ({
-              ...prev,
-              nombre: croppedFile, // Guardamos el archivo recortado
-            }));
-          }}
-        />
-      </div>
-      <p className="flex justify-center text-sm text-green-600 mt-2">
-        {selectedFile?.nombre ? selectedFile.nombre.name : "No hay recorte de nombre"}
-      </p>
+  {/* Recorte para el Nombre */}
+  <div className="md:w-1/2 p-4 border rounded-lg shadow-md flex-shrink-0">
+    <h2 className="text-lg text-center font-semibold mb-2 text-gray-500">
+      Por favor, seleccione el nombre del representante
+    </h2>
+    <div className="flex justify-center mt-4">
+      <ImageCropper
+        image={preview}
+        onCrop={(croppedFile) => {
+          setSelectedFile((prev) => ({
+            ...prev,
+            nombre: croppedFile, // Guardamos el archivo recortado
+          }));
+        }}
+      />
     </div>
+    <p className="flex justify-center text-sm text-green-600 mt-2">
+      {selectedFile?.nombre ? selectedFile.nombre.name : "No hay recorte de nombre"}
+    </p>
+  </div>
+</div>
 
     {/* Botones */}
     <div className="flex justify-center mt-6 space-x-4">
@@ -431,7 +437,7 @@ const guardarComprobante = async () => {
                onClick={handleScanAgain}
                className="bg-red-600 text-white px-6 py-2 rounded-md transition duration-300 ease-in-out hover:-translate-y-1 hover:scale-110 hover:bg-red-500 shadow-md"
              >
-               Volver a Escanear ({scanAttempts}/3)
+               Volver a escanear ({scanAttempts}/3)
              </button>
      
              {/* Botón para finalizar */}
