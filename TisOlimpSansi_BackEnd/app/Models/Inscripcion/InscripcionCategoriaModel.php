@@ -8,7 +8,7 @@ use App\Models\Inscripcion\InscripcionModel;
 use App\Models\Inscripcion\CategoriaModel;
 use App\Models\Inscripcion\TutorAcademicoModel;
 
-class InscripcionCategoriaModelInscripcionCategoriaModel extends Model
+class InscripcionCategoriaModel extends Model
 {
     use HasFactory;
     protected $table = 'inscripcion_area';
