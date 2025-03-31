@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Inscripcion;
 
 use App\Http\Controllers\Controller;
-use App\Models\Inscripcion\InscripcionAreaModel;
+use App\Models\Inscripcion\InscripcionCategoriaModel;
 use Illuminate\Http\Request;
 
 class InscripcionAreaController extends Controller
@@ -24,7 +24,6 @@ class InscripcionAreaController extends Controller
         $inscripcionArea = new InscripcionAreaModel();
         
         $inscripcionArea->id_inscripcion = $request->id_inscripcion;
-        $inscripcionArea->id_area = $request->id_area;
         $inscripcionArea->id_categoria = $request->id_categoria;
         
         $inscripcionArea->save();
@@ -50,7 +49,6 @@ class InscripcionAreaController extends Controller
         $inscripcionArea = InscripcionAreaModel::findOrFail($id);
 
         $inscripcionArea->id_inscripcion = $request->id_inscripcion;
-        $inscripcionArea->id_area = $request->id_area;
         $inscripcionArea->id_categoria = $request->id_categoria;
 
         $inscripcionArea->save();

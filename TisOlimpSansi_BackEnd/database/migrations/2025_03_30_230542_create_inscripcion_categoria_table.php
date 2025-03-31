@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('inscripcion_area', function (Blueprint $table) {
+        Schema::create('inscripcion_categoria', function (Blueprint $table) {
             $table->id();
-            $table->integer('id_inscripcion');
-            $table->integer('id_area');
-            $table->integer('id_categoria');
+            $table->foreignId('id_inscripcion')->constrained('inscripcion')->onDelete('cascade');
+            $table->foreignId('id_categoria')->constrained('categoria')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -25,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('inscripcion_area');
+        Schema::dropIfExists('inscripcion_categoria');
     }
 };
