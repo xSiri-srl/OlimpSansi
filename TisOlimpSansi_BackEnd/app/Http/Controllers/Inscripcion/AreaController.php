@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Inscripcion;
 
-
 use App\Http\Controllers\Controller;
 use App\Models\Inscripcion\AreaModel;
 use Illuminate\Http\Request;
