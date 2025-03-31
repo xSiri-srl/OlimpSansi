@@ -17,16 +17,16 @@ export default function FormularioEstudiante() {
         <div className="flex justify-center gap-16">
           
           <div className="flex flex-col items-center cursor-pointer" onClick={() => handleSeleccion("individual")}>
-            <div className="bg-gray-200 p-8 rounded-lg mb-4 w-32 h-32 flex items-center justify-center">
-              <FaUserAlt size={70} className="text-black" />
+            <div className="bg-gray-200 p-8 rounded-lg mb-4 w-100 h-100 flex items-center justify-center">
+              <FaUserAlt size={140} className="text-black" />
             </div>
             <span className="text-2xl font-medium">Individual</span>
           </div>
 
           
-          <div className="flex flex-col items-center cursor-pointer" /*onClick={() => handleSeleccion("lista")}*/>
-            <div className="bg-gray-200 p-8 rounded-lg mb-4 w-32 h-32 flex items-center justify-center">
-              <FaUsers size={70} className="text-black" />
+          <div className="flex flex-col items-center opacity-50 pointer-events-none" /*onClick={() => handleSeleccion("lista")}*/>
+            <div className="bg-gray-200 p-8 rounded-lg mb-4 w-100 h-100 flex items-center justify-center">
+              <FaUsers size={140} className="text-black" />
             </div>
             <span className="text-2xl font-medium">Con Lista</span>
           </div>
