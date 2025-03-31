@@ -175,13 +175,7 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">{errors.general}</div>
           )}
 
-          {/* Mostrar JSON actual (opcional, para depuración) */}
-          {globalData && Object.keys(globalData).length > 0 && (
-            <div className="mt-4 p-3 bg-gray-100 rounded-md">
-              <p className="font-semibold">Datos actuales:</p>
-              <pre className="text-xs overflow-auto">{JSON.stringify(globalData, null, 2)}</pre>
-            </div>
-          )}
+
         </div>
 
         {/* Botón */}
