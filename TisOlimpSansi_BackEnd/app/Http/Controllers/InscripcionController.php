@@ -132,11 +132,12 @@ class InscripcionController extends Controller
                     // Aquí puedes guardar si deseas una relación tutor ↔ categoría
                     // Ejemplo: guardar en `categoria_tutor_academico` si lo necesitas
                 }
-    
+                DB::commit();
                 // Guardar inscripción-categoría
                 InscripcionCategoriaModel::create([
                     'id_inscripcion' => $inscripcion->id,
-                    'id_categoria' => $categoria->id
+                    'id_categoria' => $categoria->id,
+                    'id_tutor_academico' => $tutor->id,
                 ]);
             }
     
