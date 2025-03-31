@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Inscripcion\EstudianteModel;
 use App\Models\OrdenPago;
 use App\Models\Inscripcion\InscripcionAreaModel;
+use App\Models\Inscripcion\TutorAcademicoModel;
 use App\Models\Inscripcion\ResponsableInscripcionModel;
 use App\Models\Inscripcion\AreaModel;
 
@@ -21,6 +22,9 @@ class InscripcionModel extends Model
     ]; 
     public function responsable(){
         return $this->belongsTo(ResponsableInscripcionModel::class, 'id_responsable');
+    }
+    public function tutorAcademico(){
+        return $this->belongsTo(TutorAcademicoModel::class, 'id_tutor_academico');
     }
     public function estudiante(){
         return $this->belongsTo(EstudianteModel::class, 'id_estudiante');
