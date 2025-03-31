@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Inscripcion\ColegioModel;
 use App\Models\Inscripcion\GradoModel;
 use App\Models\Inscripcion\TutorLegalModel;
-use App\Models\Inscripcion\TutorAcademicoModel;
+
 
 
 class EstudianteModel extends Model
@@ -18,7 +18,6 @@ class EstudianteModel extends Model
         'id_unidad',
         'id_grado',
         'id_tutor_legal',
-        'id_tutor_academico',
         'nombre',
         'apellido_pa',
         'apellido_ma',
