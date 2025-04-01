@@ -1,75 +1,85 @@
 import React from 'react';
-import { FaDownload, FaPrint, FaMapMarkerAlt, FaCopy } from 'react-icons/fa';
+import { useLocation } from 'react-router-dom';
+import { FaDownload, FaPrint, FaMapMarkerAlt, FaCopy, FaYoutube } from 'react-icons/fa';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+
+// Fix para los iconos de Leaflet
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
+  iconUrl: require('leaflet/dist/images/marker-icon.png'),
+  shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
+});
 
 const OrdenPago = () => {
-  const codigoOrden = "TSOL-2024-0055"; // Hardcodeado temporal
+  const { state } = useLocation();
+  const ordenPago = state?.ordenPago || {};
+  
+  // Coordenadas del OSM
+  const ubicacionCaja = [-17.3934698, -66.1448631];
   
   const handleCopyCode = () => {
-    navigator.clipboard.writeText(codigoOrden);
+    navigator.clipboard.writeText(ordenPago.codigo);
     alert('Código copiado al portapapeles');
   };
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-md">
-      {/* Alerta importante */}
-      <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
-        <p className="font-bold">¡INSCRIPCIÓN NO TERMINÓ!</p>
-        <p>Complete el proceso subiendo su comprobante después de pagar</p>
-      </div>
+      {/* ... Secciones anteriores ... */}
 
-      {/* Sección de descarga */}
-      <div className="mb-8 text-center">
-        <h2 className="text-2xl font-bold mb-4">Orden de Pago Generada</h2>
-        <button className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg flex items-center justify-center mx-auto mb-4">
-          <FaDownload className="mr-2" />
-          Descargar Orden de Pago
-        </button>
-        <p className="text-sm text-gray-600">Si no se descargó automáticamente, use el botón anterior</p>
-      </div>
-
-      {/* Instrucciones */}
+      {/* Sección de ubicación mejorada */}
       <div className="bg-yellow-50 p-4 rounded-lg mb-6">
         <div className="flex items-start mb-4">
-          <FaPrint className="text-2xl mr-3 text-yellow-600" />
-          <div>
-            <h3 className="font-bold mb-1">IMPRIMA LA ORDEN DE PAGO</h3>
-            <p className="text-sm">Para realizar el pago en Caja Facultativa</p>
-            <p className="text-xs text-gray-600 mt-1">El pago debe ser realizado por el responsable de inscripción</p>
+          <FaYoutube className="text-2xl mr-3 text-red-600" />
+          <div className="flex-1">
+            <h3 className="font-bold mb-2">Video Tutorial</h3>
+            <div className="aspect-w-16 aspect-h-9">
+              <iframe 
+                src="https://www.youtube.com/embed/MqsQI2Di2xY" 
+                title="Tutorial de ubicación"
+                allowFullScreen
+                className="w-full h-48 rounded-lg shadow-sm"
+              />
+            </div>
           </div>
         </div>
 
-        <div className="flex items-start mb-4">
+        <div className="flex items-start">
           <FaMapMarkerAlt className="text-2xl mr-3 text-blue-600" />
-          <div>
-            <h3 className="font-bold mb-1">UBICACIÓN PARA PAGO</h3>
-            <button className="text-blue-600 hover:text-blue-800 text-sm flex items-center">
-              Ver tutorial de cómo llegar
-              <span className="ml-1">→</span>
-            </button>
+          <div className="flex-1">
+            <h3 className="font-bold mb-2">Ubicación Exacta</h3>
+            <div className="h-64 rounded-lg overflow-hidden shadow-sm">
+              <MapContainer 
+                center={ubicacionCaja} 
+                zoom={17} 
+                scrollWheelZoom={false}
+                className="h-full w-full"
+              >
+                <TileLayer
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+                <Marker position={ubicacionCaja}>
+                  <Popup>
+                    <div className="text-sm">
+                      <strong>Caja FCyT</strong><br/>
+                      Universidad Mayor de San Simón<br/>
+                      Nivel 1
+                    </div>
+                  </Popup>
+                </Marker>
+              </MapContainer>
+            </div>
+            <p className="text-sm mt-2 text-gray-600">
+              Av. Oquendo S/N, Cochabamba, Bolivia
+            </p>
           </div>
         </div>
       </div>
 
-      {/* Código de orden */}
-      <div className="border-2 border-dashed border-gray-300 p-4 rounded-lg text-center">
-        <h4 className="text-sm font-semibold mb-2">GUARDE ESTE CÓDIGO DE ORDEN</h4>
-        <div className="flex items-center justify-center space-x-2">
-          <span className="bg-gray-100 px-4 py-2 rounded-md font-mono">{codigoOrden}</span>
-          <button 
-            onClick={handleCopyCode}
-            className="p-2 hover:bg-gray-100 rounded-lg"
-            title="Copiar código"
-          >
-            <FaCopy className="text-gray-600" />
-          </button>
-        </div>
-        <p className="text-sm text-gray-600 mt-2">Necesitará este código para subir su comprobante de pago</p>
-      </div>
-
-      {/* Nota final */}
-      <p className="text-center text-sm text-gray-500 mt-6">
-        Después de realizar el pago, vuelva a esta plataforma para subir su comprobante
-      </p>
+      {/* ... Resto del componente ... */}
     </div>
   );
 };
