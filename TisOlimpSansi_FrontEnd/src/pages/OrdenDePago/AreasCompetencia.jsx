@@ -203,11 +203,18 @@ export default function AreasCompetencia({
 
   function validarFormulario() {
     if (seleccionadas.length === 0) return false;
+  
     for (const area of seleccionadas) {
       if ((area === "Informática" || area === "Robótica")) {
         const categorias = obtenerCategorias(area);
-        if (categorias && categorias.length > 0 && !categoriasSeleccionadas[area]) {
-          return false;
+        
+        // Verificar si hay categorías disponibles
+        if (categorias && categorias.length > 0) {
+          // Si la categoría no está seleccionada o es "Categoría no disponible para este curso"
+          if (!categoriasSeleccionadas[area] || 
+              categoriasSeleccionadas[area].includes("Categoría no disponible para este curso")) {
+            return false;
+          }
         }
       }
     }
