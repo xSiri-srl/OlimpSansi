@@ -8,6 +8,7 @@ import SubirComprobante from "./pages/Comprobante/SubirComprobante";
 import AreaCompetencia from "./pages/OrdenDePago/AreasCompetencia";
 import InscripcionTutorAcademico from "./pages/OrdenDePago/IncripcionTutorAcademico";
 import FormaInscripcion from "./pages/OrdenDePago/FormaInscripcion";
+import OrdenPago from "./pages/OrdenDePago/OrdenDePago";
 
 export default function App() {
   return (
@@ -40,7 +41,11 @@ export default function App() {
           path="/inscripcion/tutor-academico"
           element={<InscripcionTutorAcademico />}
         />
-
+        {/* ORDEN DE PAGO GENERADA */}
+        <Route
+          path="/ordenDePago"
+          element={<OrdenPago />}
+        />
       {/* COMPROBANTE */}
         <Route 
           path="/SubirComprobante" 
