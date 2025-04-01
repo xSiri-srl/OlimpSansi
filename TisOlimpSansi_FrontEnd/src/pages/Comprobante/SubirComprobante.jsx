@@ -12,7 +12,7 @@ const SubirComprobante = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [numeroComprobante, setNumeroComprobante] = useState("");
-  const [comprobantePath, setComprobantePath] = useState("");
+  const [setComprobantePath] = useState("");
   const [comprobanteNombre, setcomprobanteNombre] = useState("");
   
   const [scanAttempts, setScanAttempts] = useState(0);
@@ -219,7 +219,7 @@ const guardarComprobante = async () => {
      <div className="grid grid-cols-2 gap-6">
      <div>
        <h2 className="text-lg font-semibold mb-2 text-gray-500">
-         Por favor, ingrese el código proporcionado en el formulario de ORDEN DE PAGO.
+         Por favor, ingrese el código de orden de pago proporcionado en el formulario de REGISTRAR COMPETIDOR.
        </h2>
        <input
          type="text"
