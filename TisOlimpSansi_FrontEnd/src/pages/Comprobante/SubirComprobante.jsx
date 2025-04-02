@@ -219,7 +219,7 @@ const guardarComprobante = async () => {
      <div className="grid grid-cols-2 gap-6">
      <div>
        <h2 className="text-lg font-semibold mb-2 text-gray-500">
-         Por favor, ingrese el código proporcionado en el formulario de ORDEN DE PAGO.
+         Por favor, ingrese el código de orden de pago proporcionado en el formulario de REGISTRAR COMPETIDOR.
        </h2>
        <input
          type="text"
@@ -331,7 +331,7 @@ const guardarComprobante = async () => {
   {/* Recorte para el Nombre */}
   <div className="md:w-1/2 p-4 border rounded-lg shadow-md flex-shrink-0">
     <h2 className="text-lg text-center font-semibold mb-2 text-gray-500">
-      Por favor, seleccione el nombre del representante
+      Por favor, seleccione el nombre del responsable de inscripción
     </h2>
     <div className="flex justify-center mt-4">
       <ImageCropper

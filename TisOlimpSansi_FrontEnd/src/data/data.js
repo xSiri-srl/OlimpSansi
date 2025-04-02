@@ -5,13 +5,8 @@ export const navbarLinks = [
     link: "/"
 },
 {
-    id: 2,
-    title: "Administradores",
-    link: "#"
-},
-{
     id: 3,
-    title: "Orden de Pago",
+    title: "Registrar Competidor",
     link: "/inscripcion/forma-inscripcion" // Cambiar en un futuro a seleccionar tipo de inscripción
 },
 {
@@ -21,7 +16,7 @@ export const navbarLinks = [
 },
 {
     id: 3,
-    title: "Comprobante",
+    title: "Subir Comprobante",
     link: "/subirComprobante"
 },
 ]
