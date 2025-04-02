@@ -47,6 +47,7 @@ class OrdenPagoController extends Controller
         //
     }
 
+
     public function verificarCodigo(Request $request)
     {
         // Validar que el código generado no esté vacío
@@ -59,6 +60,12 @@ class OrdenPagoController extends Controller
 
         if (!$ordenPago) {
             return response()->json(['message' => 'Código generado no encontrado. No se puede proceder.'], 404);
+        }
+
+        if (!is_null($ordenPago->numero_comprobante)) {
+            return response()->json([
+                'message' => 'Este comprobante ya fue registrado previamente. No puede continuar.'
+            ], 400);
         }
 
         return response()->json(['message' => 'Código generado válido, puedes continuar con la subida de la imagen.'], 200);
@@ -128,4 +135,5 @@ class OrdenPagoController extends Controller
             'ordenPago' => $ordenPago
         ]);
     }
+
 }
