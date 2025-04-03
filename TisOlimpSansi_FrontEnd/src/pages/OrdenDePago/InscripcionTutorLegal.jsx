@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import { FaUser, FaIdCard, FaEnvelope, FaPhoneAlt } from "react-icons/fa";
 import ModalConfirmacion from "./modales/modalConfirmacion";
 import { useFormData } from "./form-data-context";
@@ -14,22 +14,22 @@ export default function InscripcionTutorLegal({
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { globalData, setGlobalData } = useFormData();
-  
+
   const areasSeleccionadas = formData.estudiante?.areasSeleccionadas || [];
   const areasConProfesor = formData.profesores?.areasRegistradas || [];
 
   const validateInput = (value, fieldName, regex) => {
     if (!value) {
-      setErrors(prev => ({ ...prev, [fieldName]: "Campo obligatorio." }));
+      setErrors((prev) => ({ ...prev, [fieldName]: "Campo obligatorio." }));
       return false;
     }
-    
+
     if (regex && !regex.test(value)) {
-      setErrors(prev => ({ ...prev, [fieldName]: "Formato inválido." }));
+      setErrors((prev) => ({ ...prev, [fieldName]: "Formato inválido." }));
       return false;
     }
-    
-    setErrors(prev => ({ ...prev, [fieldName]: "" }));
+
+    setErrors((prev) => ({ ...prev, [fieldName]: "" }));
     return true;
   };
   const validateEmail = (email) => {
@@ -38,45 +38,47 @@ export default function InscripcionTutorLegal({
   };
 
   const handleSubmitAndNext = async () => {
-
     const isRolValid = validateInput(
-      formData.legal?.correoPertenece, 
+      formData.legal?.correoPertenece,
       "correoPertenece"
     );
-    
+
     const isApellidoPaternoValid = validateInput(
-      formData.legal?.apellidoPaterno, 
-      "apellidoPaterno", 
+      formData.legal?.apellidoPaterno,
+      "apellidoPaterno",
       /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
     );
-    
+
     const isApellidoMaternoValid = validateInput(
-      formData.legal?.apellidoMaterno, 
-      "apellidoMaterno", 
+      formData.legal?.apellidoMaterno,
+      "apellidoMaterno",
       /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
     );
-    
+
     const isNombresValid = validateInput(
-      formData.legal?.nombres, 
-      "nombres", 
+      formData.legal?.nombres,
+      "nombres",
       /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
     );
-    
-    const isCIValid = validateInput(
-      formData.legal?.ci, 
-      "ci", 
-      /^[0-9]*$/
-    );
-    
+
+    const isCIValid = validateInput(formData.legal?.ci, "ci", /^[0-9]*$/);
+
     const isTelefonoValid = validateInput(
-      formData.legal?.telefono, 
-      "telefono", 
+      formData.legal?.telefono,
+      "telefono",
       /^[0-9]*$/
     );
-    
+
     const isCorreoValid = validateEmail(formData.legal?.correo);
-    if (!isRolValid || !isApellidoPaternoValid || !isApellidoMaternoValid || 
-        !isNombresValid || !isCIValid || !isTelefonoValid || !isCorreoValid) {
+    if (
+      !isRolValid ||
+      !isApellidoPaternoValid ||
+      !isApellidoMaternoValid ||
+      !isNombresValid ||
+      !isCIValid ||
+      !isTelefonoValid ||
+      !isCorreoValid
+    ) {
       return;
     }
 
@@ -93,13 +95,13 @@ export default function InscripcionTutorLegal({
           correo: formData.legal?.correo,
           numero_celular: formData.legal?.telefono,
           tipo: formData.legal?.correoPertenece,
-        }
+        },
       };
 
       setGlobalData(updatedData);
 
       console.log("Datos del tutor legal actualizados en JSON:", updatedData);
-      
+
       handleInputChange("legal", "isComplete", true);
       if (areasSeleccionadas.length > 0) {
         handleInputChange("flow", "pendingAreas", [...areasSeleccionadas]);
@@ -111,32 +113,41 @@ export default function InscripcionTutorLegal({
     } catch (error) {
       console.error("Error al procesar los datos:", error);
       setErrors({
-        general: "Hubo un error al procesar los datos."
+        general: "Hubo un error al procesar los datos.",
       });
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const handleValidatedChange = (namespace, field, value, regex) => {
+    if (value.startsWith(" ")) return;
+    if (regex.test(value) || value === "") {
+      handleInputChange(namespace, field, value);
+      setErrors((prev) => ({ ...prev, [field]: "" }));
+    }
+  };
+
   const handleSiProfesor = () => {
     const currentArea = areasSeleccionadas[currentAreaIndex];
-   
+
     handleInputChange("profesor", "areaCompetencia", currentArea);
-    
+
     const nuevasAreasConProfesor = [...(areasConProfesor || []), currentArea];
     handleInputChange("profesores", "areasRegistradas", nuevasAreasConProfesor);
-    
+
     handleInputChange("flow", "currentAreaIndex", currentAreaIndex);
-    
+
     if (currentAreaIndex < areasSeleccionadas.length - 1) {
-      const areasRestantes = areasSeleccionadas.filter((area, idx) => 
-        idx > currentAreaIndex && !nuevasAreasConProfesor.includes(area)
+      const areasRestantes = areasSeleccionadas.filter(
+        (area, idx) =>
+          idx > currentAreaIndex && !nuevasAreasConProfesor.includes(area)
       );
       handleInputChange("flow", "pendingAreas", areasRestantes);
     } else {
       handleInputChange("flow", "pendingAreas", []);
     }
-      
+
     setShowModal(false);
     // Redirigir a la pantalla de profesor
     handleInputChange("flow", "redirectToProfesor", true);
@@ -154,16 +165,21 @@ export default function InscripcionTutorLegal({
         apellido_pa: estudiante.apellido_pa,
         apellido_ma: estudiante.apellido_ma,
         ci: estudiante.ci,
-        correo: estudiante.correo
-      }
+        correo: estudiante.correo,
+      },
     };
     const tutoresExistentes = globalData.tutores_academicos || [];
     const updatedData = {
       ...globalData,
-      tutores_academicos: [...tutoresExistentes, tutorEstudiante]
+      tutores_academicos: [...tutoresExistentes, tutorEstudiante],
     };
     setGlobalData(updatedData);
-    console.log("Usando datos del estudiante como tutor para", currentArea, ":", updatedData);
+    console.log(
+      "Usando datos del estudiante como tutor para",
+      currentArea,
+      ":",
+      updatedData
+    );
 
     if (currentAreaIndex < areasSeleccionadas.length - 1) {
       // Avanzar al siguiente área
@@ -177,7 +193,7 @@ export default function InscripcionTutorLegal({
       handleNext();
     }
   };
-  
+
   return (
     <div className="flex flex-col items-center">
       <div className="w-full max-w-2xl">
@@ -212,7 +228,9 @@ export default function InscripcionTutorLegal({
             ))}
           </div>
           {errors.correoPertenece && (
-            <p className="text-red-500 text-sm text-center mt-2">{errors.correoPertenece}</p>
+            <p className="text-red-500 text-sm text-center mt-2">
+              {errors.correoPertenece}
+            </p>
           )}
         </div>
 
@@ -230,11 +248,18 @@ export default function InscripcionTutorLegal({
                 placeholder="Apellido Paterno"
                 value={formData.legal?.apellidoPaterno || ""}
                 onChange={(e) =>
-                handleInputChange("legal","apellidoPaterno", e.target.value.toUpperCase())
+                  handleValidatedChange(
+                    "legal",
+                    "apellidoPaterno",
+                    e.target.value.toUpperCase(),
+                    /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
+                  )
                 }
               />
               {errors.apellidoPaterno && (
-                <p className="text-red-500 text-sm mt-1">{errors.apellidoPaterno}</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.apellidoPaterno}
+                </p>
               )}
             </div>
 
@@ -249,11 +274,18 @@ export default function InscripcionTutorLegal({
                 placeholder="Apellido Materno"
                 value={formData.legal?.apellidoMaterno || ""}
                 onChange={(e) =>
-                handleInputChange("legal","apellidoMaterno", e.target.value.toUpperCase())
+                  handleValidatedChange(
+                    "legal",
+                    "apellidoMaterno",
+                    e.target.value.toUpperCase(),
+                    /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
+                  )
                 }
               />
               {errors.apellidoMaterno && (
-                <p className="text-red-500 text-sm mt-1">{errors.apellidoMaterno}</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.apellidoMaterno}
+                </p>
               )}
             </div>
           </div>
@@ -268,8 +300,14 @@ export default function InscripcionTutorLegal({
               className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
               placeholder="Nombres"
               value={formData.legal?.nombres || ""}
-              onChange={(e) => 
-                handleInputChange("legal","nombres", e.target.value.toUpperCase())}
+              onChange={(e) =>
+                handleValidatedChange(
+                  "legal",
+                  "nombres",
+                  e.target.value.toUpperCase(),
+                  /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
+                )
+              }
             />
             {errors.nombres && (
               <p className="text-red-500 text-sm mt-1">{errors.nombres}</p>
@@ -278,7 +316,7 @@ export default function InscripcionTutorLegal({
 
           <div>
             <label className="flex items-center gap-2">
-              <FaIdCard className="text-black" /> CI
+              <FaIdCard className="text-black" /> Carnet de Identidad
             </label>
             <input
               type="text"
@@ -286,8 +324,9 @@ export default function InscripcionTutorLegal({
               className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
               placeholder="Número de Carnet de Identidad"
               value={formData.legal?.ci || ""}
-              onChange={(e) => 
-              handleInputChange("legal","ci", e.target.value)}
+              onChange={(e) =>
+                handleValidatedChange("legal", "ci", e.target.value, /^[0-9]*$/)
+              }
               maxLength="8"
             />
             {errors.ci && (
@@ -305,7 +344,9 @@ export default function InscripcionTutorLegal({
               className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
               placeholder="Correo Electrónico"
               value={formData.legal?.correo || ""}
-              onChange={(e) => handleInputChange("legal","correo", e.target.value)}
+              onChange={(e) =>
+                handleInputChange("legal", "correo", e.target.value)
+              }
             />
             {errors.correo && (
               <p className="text-red-500 text-sm mt-1">{errors.correo}</p>
@@ -322,7 +363,14 @@ export default function InscripcionTutorLegal({
               className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
               placeholder="Número de Teléfono/Celular"
               value={formData.legal?.telefono || ""}
-              onChange={(e) => handleInputChange("legal","telefono", e.target.value)}
+              onChange={(e) =>
+                handleValidatedChange(
+                  "legal",
+                  "telefono",
+                  e.target.value,
+                  /^[0-9]*$/
+                )
+              }
               maxLength="8"
             />
             {errors.telefono && (
@@ -350,15 +398,35 @@ export default function InscripcionTutorLegal({
           </button>
           <button
             type="button"
-            className="px-6 py-2 transition duration-300 ease-in-out text-white rounded-md shadow-md bg-blue-500 hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500"
             onClick={handleSubmitAndNext}
-            disabled={isSubmitting}
+            disabled={
+              isSubmitting ||
+              !formData.legal?.apellidoPaterno ||
+              !formData.legal?.apellidoMaterno ||
+              !formData.legal?.nombres ||
+              !formData.legal?.ci ||
+              !formData.legal?.correo ||
+              !formData.legal?.telefono ||
+              !formData.legal?.correoPertenece
+            }
+            className={`px-6 py-2 transition duration-300 ease-in-out text-white rounded-md shadow-md ${
+              formData.legal?.nombres &&
+              formData.legal?.apellidoPaterno &&
+              formData.legal?.apellidoMaterno &&
+              formData.legal?.ci &&
+              formData.legal?.correo &&
+              formData.legal?.telefono &&
+              formData.legal?.correoPertenece &&
+              !isSubmitting
+                ? "bg-blue-500 hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500"
+                : "bg-gray-400 cursor-not-allowed"
+            }`}
           >
             {isSubmitting ? "Enviando..." : "Siguiente"}
           </button>
         </div>
       </div>
-      
+
       {/* Modal de confirmación */}
       {showModal && (
         <ModalConfirmacion
