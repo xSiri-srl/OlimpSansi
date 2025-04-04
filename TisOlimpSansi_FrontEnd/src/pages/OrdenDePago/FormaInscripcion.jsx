@@ -9,6 +9,10 @@ export default function FormularioEstudiante() {
   const handleSeleccion = () => {
     navigate(`/inscripcion/responsable`)
   }
+
+  const handleSeleccionLista = () => {
+    navigate(`/InscripcionLista/tutorial`)
+  }
   return (
     <div className="p-6">
       <div className="flex-grow flex flex-col items-center justify-center p-6">
@@ -23,14 +27,14 @@ export default function FormularioEstudiante() {
             <span className="text-2xl font-medium">Individual</span>
           </div>
 
-          {/*
-          <div className="flex flex-col items-center opacity-50 pointer-events-none" onClick={() => handleSeleccion("lista")}>
+          {
+          <div className="flex flex-col items-center cursor-pointer" onClick={() => handleSeleccionLista("lista")}>
             <div className="bg-gray-200 p-8 rounded-lg mb-4 w-100 h-100 flex items-center justify-center">
               <FaUsers size={140} className="text-black" />
             </div>
             <span className="text-2xl font-medium">Con Lista</span>
           </div>
-          */}
+          }
         </div>
       </div>
     </div>
