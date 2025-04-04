@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import RegistroResponsable from './RegistroResponsable';
 import SubirArchivo from './SubirArchivo';
+import ListaCompetidores from './ListaCompetidores';
 
 const RegistroPorLista = () => {
   const [step, setStep] = useState(1);
@@ -42,6 +43,7 @@ const RegistroPorLista = () => {
       {/* Contenido de cada paso */}
       {step === 1 && <RegistroResponsable setStep={setStep} />}
       {step === 2 && <SubirArchivo setStep={setStep} />}
+      {step === 3 && <ListaCompetidores setStep={setStep} />}
     </div>
     </div>
   );
