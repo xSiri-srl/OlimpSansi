@@ -13,7 +13,8 @@ const RegistroPorLista = () => {
   ];
 
   return (
-    <div className="max-w-4xl mx-auto bg-gray-200 p-7 shadow-lg rounded-lg">
+    <div className="p-10">
+    <div className="max-w-4xl mx-auto bg-gray-200 p-9 shadow-lg rounded-lg">
       {/* Progreso */}
       <div className="flex items-center justify-between mb-6">
         {pasos.map((stepLabel, index) => (
@@ -41,6 +42,7 @@ const RegistroPorLista = () => {
       {/* Contenido de cada paso */}
       {step === 1 && <RegistroResponsable setStep={setStep} />}
       {step === 2 && <SubirArchivo setStep={setStep} />}
+    </div>
     </div>
   );
 };
