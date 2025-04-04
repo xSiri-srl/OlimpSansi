@@ -9,6 +9,8 @@ import AreaCompetencia from "./pages/OrdenDePago/AreasCompetencia";
 import InscripcionTutorAcademico from "./pages/OrdenDePago/IncripcionTutorAcademico";
 import FormaInscripcion from "./pages/OrdenDePago/FormaInscripcion";
 import Tutorial from "./pages/InscripcionLista/Tutorial";
+import RegistroPorLista from "./pages/InscripcionLista/RegistroPorLista";
+import SubirArchivo from "./pages/InscripcionLista/SubirArchivo";
 
 export default function App() {
   return (
@@ -51,8 +53,16 @@ export default function App() {
         {/*Inscripcion Listas*/}
 
         <Route 
-          path="/tutorial" 
+          path="/InscripcionLista/tutorial" 
           element={<Tutorial />}
+        />
+         <Route 
+          path="/InscripcionLista/registroLista" 
+          element={<RegistroPorLista />}
+        />
+          <Route 
+          path="/InscripcionLista/subirArchivo" 
+          element={<SubirArchivo />}
         />
 
       </Routes>

@@ -1,8 +1,16 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { FaExclamationTriangle } from "react-icons/fa";
 
 const Tutorial = () => {
+
+  const navigate = useNavigate()
+
+  const handleSeleccion = () => {
+    navigate(`/InscripcionLista/registroLista`)
+  }
   return (
+
     <div className="flex justify-center items-center bg-gray-100">
       <div className="flex flex-col lg:flex-row bg-white p-5 shadow-2xl rounded-lg max-w-8xl w-full">
         
@@ -17,11 +25,14 @@ const Tutorial = () => {
           <button className="mt-4 bg-green-500 text-white py-3 px-4 rounded-lg transition duration-300 ease-in-out text-white rounded-md hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500 shadow-md">
                 Descargar plantilla
             </button>
-            <button className="mt-4 bg-blue-500 text-white py-3 px-4 rounded-lg transition duration-300 ease-in-out text-white rounded-md hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500 shadow-md">
+            <button className="mt-4 bg-blue-500 text-white py-3 px-4 rounded-lg transition duration-300 ease-in-out text-white rounded-md hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500 shadow-md"
+            onClick={() => handleSeleccion("IniciarInscripcion")}
+            >
                 Iniciar inscripción
             </button>
           </div>
         </div>
+
 
       
         <div className="lg:w-3/5 px-8 lg:px-14 mt-8 lg:mt-0">
