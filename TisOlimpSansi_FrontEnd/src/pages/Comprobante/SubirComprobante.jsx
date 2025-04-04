@@ -12,7 +12,7 @@ const SubirComprobante = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [numeroComprobante, setNumeroComprobante] = useState("");
-  const [setComprobantePath] = useState("");
+  const [comprobantePath, setComprobantePath] = useState("");
   const [comprobanteNombre, setcomprobanteNombre] = useState("");
   
   const [scanAttempts, setScanAttempts] = useState(0);

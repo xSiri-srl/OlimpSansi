@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('apellido_pa');
             $table->string('apellido_ma');
             $table->integer('ci');
-            $table->string('correo')->unique();
+            $table->string('correo');
             $table->timestamps();
         });
     }
