@@ -204,9 +204,31 @@ const Confirmation = ({ navigate, handleBack }) => {
               ))}
             </div>
           )}
-        </div>
-  
-        {/* Mensaje de estado */}
+
+          {/* Sección de Desglose de Costos por Área */}
+          <div className="mb-6 border-b pb-4">
+            <h3 className="text-lg font-semibold text-blue-600">Importe</h3>
+            <div className="mt-2">
+              {globalData.areas_competencia?.map((area, index) => (
+                <div key={index} className="flex justify-between py-1 border-b border-gray-100">
+                  <p className="font-medium">{area.nombre_area}</p>
+                  <p className="font-medium">20 Bs.</p>
+                </div>
+              ))}
+              <div className="flex justify-between py-2 mt-2 font-bold text-blue-700">
+                <p>Total</p>
+                <p>{`${20 * (globalData.areas_competencia?.length || 0)} Bs.`}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="mb-6">
+            <p className="text-sm text-gray-500">Recuerde que el pago debe ser realizado por el responsable de inscripción</p>
+          </div>
+
+          </div>
+
+          {/* Mensaje de estado */}
         {submitStatus.success !== null && (
           <div
             className={`mt-4 p-3 rounded-md ${submitStatus.success ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}
@@ -231,7 +253,7 @@ const Confirmation = ({ navigate, handleBack }) => {
               isSubmitting ? "opacity-70 cursor-not-allowed" : ""
             }`}
           >
-            {isSubmitting ? "Enviando..." : "Confirmar Inscripción"}
+            {isSubmitting ? "Emitiendo..." : "Emitir Orden de Pago"}
           </button>
         </div>
       </div>

@@ -57,7 +57,7 @@ const OrdenPago = () => {
     <div className="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-md">
       {/* Alerta importante */}
       <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
-        <p className="font-bold">¡INSCRIPCIÓN NO TERMINÓ!</p>
+        <p className="font-bold">¡SU INSCRIPCIÓN NO TERMINÓ!</p>
         <p>Complete el proceso subiendo su comprobante después de pagar</p>
       </div>
 
