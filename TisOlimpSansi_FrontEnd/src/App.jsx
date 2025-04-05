@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/Inicio/Inicio";
 import Navbar from "./components/Navbar";
 import InscripcionResponsable from "./pages/OrdenDePago/InscripcionResponsable";
-import InscripcionEstudiante from "./pages/OrdenDePago/inscripcionEstudiante";
+import InscripcionEstudiante from "./pages/OrdenDePago/InscripcionEstudiante";
 import InscripcionTutorLegal from "./pages/OrdenDePago/InscripcionTutorLegal";
 import SubirComprobante from "./pages/Comprobante/SubirComprobante";
 import AreaCompetencia from "./pages/OrdenDePago/AreasCompetencia";
@@ -53,20 +53,20 @@ export default function App() {
         {/*Inscripcion Listas*/}
 
         <Route 
-          path="/InscripcionLista/tutorial" 
+          path="/inscripcion-lista/tutorial" 
           element={<Tutorial />}
         />
          <Route 
-          path="/InscripcionLista/registroLista" 
+          path="/inscripcion-lista/registro-lista" 
           element={<RegistroPorLista />}
         />
           <Route 
-          path="/InscripcionLista/subirArchivo" 
+          path="/inscripcion-lista/subir-archivo" 
           element={<SubirArchivo />}
         />
 
           <Route 
-          path="/InscripcionLista/listaCompetidores" 
+          path="/inscripcion-lista/lista-competidores" 
           element={<ListaCompetidores />}
         />
 

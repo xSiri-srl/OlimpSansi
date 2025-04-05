@@ -11,7 +11,7 @@ export default function FormularioEstudiante() {
   }
 
   const handleSeleccionLista = () => {
-    navigate(`/InscripcionLista/tutorial`)
+    navigate(`/inscripcion-lista/tutorial`)
   }
   return (
     <div className="p-6">
