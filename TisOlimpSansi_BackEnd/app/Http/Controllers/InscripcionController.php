@@ -93,12 +93,25 @@ class InscripcionController extends Controller
                 'id_tutor_legal' => $tutorLegal->id,
             ]);
             
-            // 6. Crear orden de pago (si aplica)
+            // 6. Crear orden de pago
+            // Obtener el año actual
+            $year = date('Y');
+            
+            // Calcular el monto total (20 Bs por cada área)
+            $totalAreas = count($request->areas_competencia);
+            $montoTotal = $totalAreas * 20;
+            
+            // Crear la orden de pago con un código temporal
             $ordenPago = OrdenPago::create([
-                'codigo_generado' => strtoupper(uniqid('PAGO')),
-                'monto_total' => 0,
+                'codigo_generado' => 'TEMP', // Código temporal
+                'monto_total' => $montoTotal,
                 'fecha_emision' => now(),
             ]);
+            
+            // Actualizar el código generado con el formato TSOL-YYYY-XXXX
+            $codigoGenerado = sprintf('TSOL-%s-%04d', $year, $ordenPago->id);
+            $ordenPago->codigo_generado = $codigoGenerado;
+            $ordenPago->save();
             
             // 7. Crear inscripción
             $inscripcion = InscripcionModel::create([
@@ -142,7 +155,10 @@ class InscripcionController extends Controller
             }
     
             DB::commit();
-            return response()->json(['message' => 'Inscripción registrada correctamente.'], 201);
+            return response()->json([
+                'message' => 'Inscripción registrada correctamente.',
+                'codigo_generado' => $ordenPago->codigo_generado
+            ], 201);
 
     
         } catch (\Exception $e) {
