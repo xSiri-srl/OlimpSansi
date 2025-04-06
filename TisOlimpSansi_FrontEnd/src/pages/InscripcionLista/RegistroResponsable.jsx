@@ -4,7 +4,9 @@ import { useState } from "react"
 import { FaUser, FaIdCard } from "react-icons/fa"
 import { useFormData } from "./form-context"
 
+
 function RegistroResponsable({ setStep }) {
+
   const [formData, setFormData] = useState({
     responsable: {
       apellidoPaterno: "",
