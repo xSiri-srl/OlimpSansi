@@ -11,6 +11,7 @@ import FormaInscripcion from "./pages/OrdenDePago/FormaInscripcion";
 import Tutorial from "./pages/InscripcionLista/Tutorial";
 import RegistroPorLista from "./pages/InscripcionLista/RegistroPorLista";
 import SubirArchivo from "./pages/InscripcionLista/SubirArchivo";
+import PasosInscripcion from "./pages/InscripcionLista/PasosInscripcion";
 
 export default function App() {
   return (
@@ -53,17 +54,18 @@ export default function App() {
         {/*Inscripcion Listas*/}
 
         <Route 
-          path="/InscripcionLista/tutorial" 
+          path="/inscripcionLista/tutorial" 
           element={<Tutorial />}
         />
          <Route 
-          path="/InscripcionLista/registroLista" 
+          path="/inscripcionLista/registroLista" 
           element={<RegistroPorLista />}
         />
           <Route 
-          path="/InscripcionLista/subirArchivo" 
-          element={<SubirArchivo />}
+          path="/inscripcionLista/pasos-inscripcion" 
+          element={<PasosInscripcion/>}
         />
+       
 
       </Routes>
     </>
