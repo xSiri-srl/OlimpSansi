@@ -7,7 +7,7 @@ const Tutorial = () => {
   const navigate = useNavigate()
 
   const handleSeleccion = () => {
-    navigate(`inscripcion-lista/registro-lista`)
+    navigate(`/inscripcion-lista/registro-lista`)
   }
   return (
 

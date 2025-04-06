@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { FaUser, FaCalculator, FaFlask, FaRobot, FaAtom, FaFileAlt, FaTimes, FaChevronLeft, FaChevronRight, FaExclamationCircle } from 'react-icons/fa';
+import { useFormData } from './form-context';
 
 const ListaCompetidores = ({ setStep }) => {
   const [selectedStudent, setSelectedStudent] = useState(null);
@@ -8,53 +9,11 @@ const ListaCompetidores = ({ setStep }) => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [filter, setFilter] = useState('todos'); // 'todos', 'errores'
   const [searchTerm, setSearchTerm] = useState('');
+  
+  // Get students from context
+  const { estudiantes } = useFormData();
 
-  // Datos de ejemplo para los estudiantes
-  const estudiantes = [
-    {
-      id: 1,
-      nombres: "JUAN CARLOS",
-      apellidoPaterno: "MAMANI",
-      apellidoMaterno: "QUISPE",
-      areas: ["Matemáticas", "Física"],
-      error: false,
-    },
-    {
-      id: 2,
-      nombres: "MARIA ELENA",
-      apellidoPaterno: "MORALES",
-      apellidoMaterno: "VARGAS",
-      areas: ["Química", "Biología"],
-      error: true,
-      mensajeError: "Falta información del tutor académico"
-    },
-    {
-      id: 3,
-      nombres: "PEDRO LUIS",
-      apellidoPaterno: "CONDORI",
-      apellidoMaterno: "CHOQUE",
-      areas: ["Informática", "Robótica"],
-      error: false,
-    },
-    {
-      id: 4,
-      nombres: "ANA CECILIA",
-      apellidoPaterno: "GONZALES",
-      apellidoMaterno: "RODRIGUEZ",
-      areas: ["Astronomía y Astrofísica"],
-      error: true,
-      mensajeError: "Categoría no compatible con el curso seleccionado"
-    },
-    {
-      id: 5,
-      nombres: "DIEGO ARMANDO",
-      apellidoPaterno: "FLORES",
-      apellidoMaterno: "PEREZ",
-      areas: ["Matemáticas", "Química"],
-      error: false,
-    }
-  ];
-
+  // Map area names to icons
   const areaIcons = {
     "Matemáticas": <FaCalculator className="text-blue-600" />,
     "Física": <FaAtom className="text-purple-600" />,
@@ -65,8 +24,35 @@ const ListaCompetidores = ({ setStep }) => {
     "Astronomía y Astrofísica": <FaAtom className="text-indigo-600" />
   };
 
+  // Process students to match the expected format
+  const processedEstudiantes = estudiantes.map((est, index) => {
+    // Check if student has all required data
+    const hasError = !est.estudiante?.nombre || 
+                     !est.estudiante?.apellido_pa || 
+                     !est.areas_competencia || 
+                     est.areas_competencia.length === 0;
+    
+    // Get areas from the student data
+    const areas = est.areas_competencia ? 
+      est.areas_competencia.map(area => area.nombre_area).filter(area => area) : 
+      [];
+    
+    return {
+      id: index + 1,
+      nombres: est.estudiante?.nombre || "",
+      apellidoPaterno: est.estudiante?.apellido_pa || "",
+      apellidoMaterno: est.estudiante?.apellido_ma || "",
+      ci: est.estudiante?.ci || "",
+      areas: areas,
+      error: hasError,
+      mensajeError: hasError ? "Faltan datos obligatorios del estudiante" : "",
+      // Include the original data for reference
+      originalData: est
+    };
+  });
+
   // Filtrar estudiantes
-  const filteredEstudiantes = estudiantes.filter(estudiante => {
+  const filteredEstudiantes = processedEstudiantes.filter(estudiante => {
     const matchesSearch = 
       estudiante.nombres.includes(searchTerm.toUpperCase()) ||
       estudiante.apellidoPaterno.includes(searchTerm.toUpperCase()) ||
@@ -95,7 +81,7 @@ const ListaCompetidores = ({ setStep }) => {
   };
 
   const handleSiguiente = () => {
-    const hayErrores = estudiantes.some(est => est.error);
+    const hayErrores = processedEstudiantes.some(est => est.error);
     
     if (hayErrores) {
       alert("Hay estudiantes con errores. Por favor, corríjalos antes de continuar.");
@@ -110,8 +96,7 @@ const ListaCompetidores = ({ setStep }) => {
     }
   };
 
-
-  const totalErrors = estudiantes.filter(e => e.error).length;
+  const totalErrors = processedEstudiantes.filter(e => e.error).length;
 
   return (
     <div className="p-4">
@@ -123,7 +108,7 @@ const ListaCompetidores = ({ setStep }) => {
       <div className="bg-white p-3 rounded-lg shadow-md mb-4 flex flex-wrap justify-between items-center">
         <div className="flex items-center">
           <span className="font-medium mr-2">Total competidores:</span>
-          <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-md">{estudiantes.length}</span>
+          <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-md">{processedEstudiantes.length}</span>
           
           <span className="font-medium mx-2">Con errores:</span>
           <span className="bg-red-100 text-red-800 px-2 py-1 rounded-md">{totalErrors}</span>
@@ -209,7 +194,7 @@ const ListaCompetidores = ({ setStep }) => {
                     <div className="flex flex-wrap">
                       {estudiante.areas.map((area, idx) => (
                         <span key={idx} className="inline-flex items-center px-2 py-0.5 mr-1 mb-1 rounded-full text-xs bg-gray-100">
-                          {areaIcons[area]}
+                          {areaIcons[area] || <FaAtom className="text-gray-600" />}
                           <span className="ml-1 truncate max-w-[80px]">{area}</span>
                         </span>
                       ))}
@@ -323,11 +308,29 @@ const ListaCompetidores = ({ setStep }) => {
             </div>
 
             <div className="mb-4">
+              <p className="text-sm text-gray-500">CI:</p>
+              <p className="font-medium">{selectedStudent.ci || "No disponible"}</p>
+            </div>
+
+            <div className="mb-4">
+              <p className="text-sm text-gray-500">Colegio:</p>
+              <p className="font-medium">
+                {selectedStudent.originalData?.colegio?.nombre_colegio || "No disponible"}
+              </p>
+              <p className="text-sm text-gray-500">
+                {selectedStudent.originalData?.colegio?.departamento}, {selectedStudent.originalData?.colegio?.provincia}
+              </p>
+              <p className="text-sm text-gray-500">
+                Curso: {selectedStudent.originalData?.colegio?.curso || "No disponible"}
+              </p>
+            </div>
+
+            <div className="mb-4">
               <p className="text-sm text-gray-500">Áreas de competencia:</p>
               <div className="flex flex-wrap mt-1">
                 {selectedStudent.areas.map((area, idx) => (
                   <div key={idx} className="flex items-center bg-gray-100 rounded-full px-3 py-1 text-sm mr-2 mb-2">
-                    {areaIcons[area]}
+                    {areaIcons[area] || <FaAtom className="text-gray-600" />}
                     <span className="ml-1">{area}</span>
                   </div>
                 ))}
