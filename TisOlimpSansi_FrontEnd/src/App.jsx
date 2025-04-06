@@ -13,6 +13,8 @@ import RegistroPorLista from "./pages/InscripcionLista/RegistroPorLista";
 import SubirArchivo from "./pages/InscripcionLista/SubirArchivo";
 import ListaCompetidores from "./pages/InscripcionLista/ListaCompetidores";
 import { FormProvider } from "./pages/InscripcionLista/form-context"
+import PasosInscripcion from "./pages/InscripcionLista/PasosInscripcion";
+
 export default function App() {
   return (
     <>
@@ -66,6 +68,7 @@ export default function App() {
           path="/inscripcion-lista/subir-archivo" 
           element={<SubirArchivo />}
         />
+       
 
           <Route 
           path="/inscripcion-lista/lista-competidores" 

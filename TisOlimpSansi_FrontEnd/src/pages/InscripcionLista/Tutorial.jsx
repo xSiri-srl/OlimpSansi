@@ -7,7 +7,11 @@ const Tutorial = () => {
   const navigate = useNavigate()
 
   const handleSeleccion = () => {
+<<<<<<< HEAD
     navigate(`/inscripcion-lista/registro-lista`)
+=======
+    navigate(`/inscripcionLista/registroLista`)
+>>>>>>> 6671e3bd19f240329dc309b91ada8d58524ab5ca
   }
   return (
 
