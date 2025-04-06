@@ -305,12 +305,7 @@ function SubirArchivo({ setStep }) {
         </div>
       </label>
 
-      {previewData && (
-        <div className="mt-6 w-full max-w-md">
-          <h3 className="text-lg font-medium text-gray-700">Vista previa de los datos</h3>
-          <pre className="bg-gray-100 text-xs p-4 rounded-md overflow-x-auto">{JSON.stringify(previewData, null, 2)}</pre>
-        </div>
-      )}
+      
 
       {error && (
         <p className="text-red-600 text-sm mt-2">{error}</p>
