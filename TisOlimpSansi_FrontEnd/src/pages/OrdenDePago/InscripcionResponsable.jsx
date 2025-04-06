@@ -2,7 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import ProcesoRegistro from "./ProcesoRegistro";
 import { FaUser, FaIdCard } from "react-icons/fa";
-import InscripcionEstudiante from "./inscripcionEstudiante";
+import InscripcionEstudiante from "./InscripcionEstudiante";
 import AreasCompetencia from "./AreasCompetencia";
 import InscripcionTutorLegal from "./InscripcionTutorLegal";
 import InscripcionTutorAcademico from "./IncripcionTutorAcademico";
