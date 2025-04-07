@@ -11,7 +11,7 @@ function SubirArchivo({ setStep }) {
   const [loading, setLoading] = useState(false)
   const [previewData, setPreviewData] = useState(null)
   const { globalData, setGlobalData, setEstudiantes } = useFormData()
-
+  const [uploadProgress, setUploadProgress] = useState(0)
   const getFirstNonEmptyInRange = (row, startCol, endCol) => {
     for (let i = startCol; i <= endCol; i++) {
       if (row[i] && row[i].toString().trim() !== "") {
@@ -278,15 +278,33 @@ function SubirArchivo({ setStep }) {
 
   const handleSiguiente = async () => {
     if (selectedFile) {
-      const success = await processExcelFile(selectedFile)
-      if (success) {
-        setStep(3) // Avanzar al siguiente paso
-      }
+      setLoading(true)
+      setUploadProgress(0)
+  
+      // barra subiendo
+      const duration = 2000 // 3 segundos
+      const steps = 100
+      const intervalTime = duration / steps
+      let progress = 0
+  
+      const interval = setInterval(() => {
+        progress += 1
+        setUploadProgress(progress)
+        if (progress >= 100) {
+          clearInterval(interval)
+          processExcelFile(selectedFile).then((success) => {
+            if (success) {
+              setStep(3)
+            }
+            setLoading(false)
+          })
+        }
+      }, intervalTime)
     } else {
       setError("Por favor, selecciona un archivo Excel válido")
     }
   }
-
+  
   return (
     <div className="flex flex-col items-center">
       <h2 className="text-lg font-semibold mb-2 text-gray-500">Sube tu lista en formato Excel</h2>
@@ -294,13 +312,13 @@ function SubirArchivo({ setStep }) {
         El archivo debe contener la información de los estudiantes que deseas registrar.
       </p>
 
-      <label className="border-2 border-dashed border-gray-400 p-6 w-full max-w-md flex flex-col items-center rounded-lg cursor-pointer hover:bg-gray-200">
+      <label className="border-2 border-dashed border-gray-500 p-6 w-full max-w-md flex flex-col items-center rounded-lg cursor-pointer hover:bg-blue-200">
         <input type="file" className="hidden" onChange={handleFileChange} accept=".xlsx,.xls" />
         <div className="flex flex-col items-center">
           <span className="text-green-600 text-4xl">
             <FaFileExcel size={60} />
           </span>
-          <p className="text-sm text-gray-500 mt-2">Seleccionar archivo Excel</p>
+          <p className="text-sm text-blue-500 mt-2">Seleccionar archivo Excel</p>
           <p className="text-xs text-gray-400 mt-1">*.xlsx o *.xls</p>
         </div>
       </label>
@@ -311,13 +329,27 @@ function SubirArchivo({ setStep }) {
         <p className="text-red-600 text-sm mt-2">{error}</p>
       )}
 
-      <button
-        onClick={handleSiguiente}
-        className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg disabled:bg-gray-400"
-        disabled={loading}
-      >
-        {loading ? "Cargando..." : "Siguiente"}
-      </button>
+<button
+  onClick={handleSiguiente}
+  className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg disabled:bg-gray-400"
+  disabled={loading}
+>
+  {loading ? "Subiendo..." : "Siguiente"}
+</button>
+{loading && (
+  <div className="w-full max-w-md mt-4">
+    <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+      <div
+        className="bg-blue-600 h-full transition-all duration-75"
+        style={{ width: `${uploadProgress}%` }}
+      ></div>
+    </div>
+    <p className="text-sm text-blue-600 mt-2 text-center">
+      Subiendo archivo... {uploadProgress}%
+    </p>
+  </div>
+)}
+
     </div>
   )
 }
