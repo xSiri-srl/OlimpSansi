@@ -19,14 +19,13 @@ L.Icon.Default.mergeOptions({
 });
 
 const OrdenPago = () => {
-  const { state } = useLocation();
-  const ordenPago = state?.ordenPago || {
-    codigo: 'TSOL-2024-0055', // Datos de prueba
-    nombreEstudiante: 'María Pérez González',
-    monto: 150,
-    fechaLimite: '2024-05-30'
+  const location = useLocation();
+  const { codigo } = location.state || {};
+  
+  const ordenPago = {
+    codigo: codigo || 'CODE-NOT-FOUND'
   };
-
+  
   const ubicacionCaja = [-17.3934698, -66.1448631];
 
   const handleCopyCode = () => {
