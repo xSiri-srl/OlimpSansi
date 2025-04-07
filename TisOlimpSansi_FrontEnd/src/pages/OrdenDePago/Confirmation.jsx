@@ -23,24 +23,26 @@ const Confirmation = ({ navigate, handleBack }) => {
       try {
         // Enviar los datos al backend
         const response = await axios.post("http://localhost:8000/api/inscribir", globalData)
-  
+
         console.log("Respuesta del servidor:", response.data)
-  
+        
+        // Extraer el código generado de la respuesta
+        const codigoGenerado = response.data.codigo_generado;
+
         setSubmitStatus({
           success: true,
           message: "Inscripción registrada correctamente.",
         })
-  
-        // Navegar a la siguiente página después de un breve retraso
+
+        // Navegar a la siguiente página después de un breve retraso, enviando el código generado
         setTimeout(() => {
-          navigate("/subirComprobante")
+          navigate("/ordenDePago", { state: { codigoGenerado } })
         }, 1500)
       } catch (error) {
-        console.error("Error al enviar los datos:", error)
-  
+        console.error("Error al registrar los datos:", error)
         setSubmitStatus({
           success: false,
-          message: error.response?.data?.error || "Error al enviar los datos. Intente nuevamente.",
+          message: error.response?.data?.error || "Error al registrar los datos. Intente nuevamente.",
         })
       } finally {
         setIsSubmitting(false)
