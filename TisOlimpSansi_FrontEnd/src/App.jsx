@@ -13,11 +13,14 @@ import Tutorial from "./pages/InscripcionLista/Tutorial";
 import RegistroPorLista from "./pages/InscripcionLista/RegistroPorLista";
 import SubirArchivo from "./pages/InscripcionLista/SubirArchivo";
 import ListaCompetidores from "./pages/InscripcionLista/ListaCompetidores";
+import { FormProvider } from "./pages/InscripcionLista/form-context"
+import PasosInscripcion from "./pages/InscripcionLista/PasosInscripcion";
 
 export default function App() {
   return (
     <>
-      <Navbar />
+    <FormProvider>
+    <Navbar />
       {/* ORDEN DE PAGO */}
       <Routes>
         <Route path="/" element={<Home />} />
@@ -59,24 +62,27 @@ export default function App() {
         {/*Inscripcion Listas*/}
 
         <Route 
-          path="/InscripcionLista/tutorial" 
+          path="/inscripcion-lista/tutorial" 
           element={<Tutorial />}
         />
          <Route 
-          path="/InscripcionLista/registroLista" 
+          path="/inscripcion-lista/registro-lista" 
           element={<RegistroPorLista />}
         />
           <Route 
-          path="/InscripcionLista/subirArchivo" 
+          path="/inscripcion-lista/subir-archivo" 
           element={<SubirArchivo />}
         />
+       
 
           <Route 
-          path="/InscripcionLista/listaCompetidores" 
+          path="/inscripcion-lista/lista-competidores" 
           element={<ListaCompetidores />}
         />
 
       </Routes>
+    </FormProvider>
+      
     </>
   );
 }
