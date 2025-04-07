@@ -113,6 +113,9 @@ Route::controller(GradoController::class)->group(function(){
     Route::delete('/eliminarGrado/{id}', [GradoController::class, 'destroy']);
     
 });
+
+Route::get('/orden_pago', [OrdenPagoController::class, 'obtenerOrdenPago']);
+
 Route::post('/verificar-codigo-generado', [OrdenPagoController::class, 'verificarCodigo']);
 
 Route::post('/procesar-comprobanteOCR', [OrdenPagoController::class, 'procesarComprobante']);

@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\OrdenPago;
+use App\Models\Inscripcion\InscripcionModel;
 use Illuminate\Http\Request;
 use thiagoalessio\TesseractOCR\TesseractOCR;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class OrdenPagoController extends Controller
 {
@@ -47,6 +49,27 @@ class OrdenPagoController extends Controller
         //
     }
 
+    public function descargarOrdenPago(Request $request)
+    {
+        // Validar que el ID de la orden de pago esté presente
+        $validated = $request->validate([
+            'codigo_generado' => 'required|string|max:255',
+        ]);
+
+        // Obtener la orden de pago
+        $ordenPago = OrdenPago::where('codigo_generado', $validated['codigo_generado'])->first();
+
+        // Obtener la inscripción asociada por el ID de la orden de pago
+        $inscripcion = InscripcionModel::where('id_orden_pago', $ordenPago->id)->first();
+
+        // Generar el PDF utilizando DomPDF
+        $pdf = Pdf::loadView('pdf.orden_pago', [
+            'ordenPago' => $ordenPago,
+            'inscripcion' => $inscripcion,
+        ]);
+        // Retornar el PDF como respuesta
+        return $pdf->download('orden_pago.pdf');
+    }
 
     public function verificarCodigo(Request $request)
     {
