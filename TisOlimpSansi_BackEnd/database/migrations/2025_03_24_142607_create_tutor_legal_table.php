@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('apellido_ma');
             $table->integer('ci');
             $table->string('complemento')->nullable();
-            $table->string('correo')->unique();
+            $table->string('correo');
             $table->integer('numero_celular');
             $table->string('tipo');
             $table->timestamps();

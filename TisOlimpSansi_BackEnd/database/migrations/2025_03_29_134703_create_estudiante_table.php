@@ -20,9 +20,9 @@ return new class extends Migration
             $table->string('apellido_pa');
             $table->string('apellido_ma');
             $table->integer('ci');
-            $table->timestamp('fecha_nacimiento')->nullable();
-            $table->string('correo')->nullable();
-            $table->string('propietario_correo')->nullable();
+            $table->timestamp('fecha_nacimiento');
+            $table->string('correo');
+            $table->string('propietario_correo');
             $table->timestamps();
             $table->foreign('id_unidad')->references('id')->on('colegio')->onDelete('cascade');
             $table->foreign('id_grado')->references('id')->on('grado')->onDelete('cascade');
