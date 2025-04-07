@@ -48,142 +48,182 @@ const Confirmation = ({ navigate, handleBack }) => {
         setIsSubmitting(false)
       }
     }
-  
-    return (
-      <div className="text-center">
-        <h2 className="text-xl font-semibold mb-4">Resumen de Inscripción</h2>
-        <p className="text-gray-600 mb-6">Por favor, revise la información antes de confirmar</p>
-  
-        {/* Resumen formateado de la información */}
-        <div className="mt-4 bg-white rounded-lg shadow-md p-6 text-left max-w-3xl mx-auto">
-          {/* Sección del responsable de inscripción */}
-          <div className="mb-6 border-b pb-4">
-            <h3 className="text-lg font-semibold text-blue-600">Responsable de Inscripción</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
-              <div>
-                <p className="text-sm text-gray-500">Nombre Completo</p>
-                <p className="font-medium">
-                  {`${globalData.responsable_inscripcion?.nombre || ""} 
+  };
+
+  return (
+    <div className="text-center">
+      <h2 className="text-xl font-semibold mb-4">Resumen de Inscripción</h2>
+      <p className="text-gray-600 mb-6">
+        Por favor, revise la información antes de confirmar
+      </p>
+
+      {/* Resumen formateado de la información */}
+      <div className="mt-4 bg-white rounded-lg shadow-md p-6 text-left max-w-3xl mx-auto">
+        {/* Sección del responsable de inscripción */}
+        <div className="mb-6 border-b pb-4">
+          <h3 className="text-lg font-semibold text-blue-600">
+            Responsable de Inscripción
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+            <div>
+              <p className="text-sm text-gray-500">Nombre Completo</p>
+              <p className="font-medium">
+                {`${globalData.responsable_inscripcion?.nombre || ""} 
                   ${globalData.responsable_inscripcion?.apellido_pa || ""} 
                   ${globalData.responsable_inscripcion?.apellido_ma || ""}`}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Carnet de Identidad</p>
-                <p className="font-medium">{globalData.responsable_inscripcion?.ci || ""}</p>
-              </div>
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Carnet de Identidad</p>
+              <p className="font-medium">
+                {globalData.responsable_inscripcion?.ci || ""}
+              </p>
             </div>
           </div>
-  
-          {/* Sección del estudiante */}
-          <div className="mb-6 border-b pb-4">
-            <h3 className="text-lg font-semibold text-blue-600">Datos del Estudiante</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
-              <div>
-                <p className="text-sm text-gray-500">Nombre Completo</p>
-                <p className="font-medium">
-                  {`${globalData.estudiante?.nombre || ""} 
+        </div>
+
+        {/* Sección del estudiante */}
+        <div className="mb-6 border-b pb-4">
+          <h3 className="text-lg font-semibold text-blue-600">
+            Datos del Estudiante
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+            <div>
+              <p className="text-sm text-gray-500">Nombre Completo</p>
+              <p className="font-medium">
+                {`${globalData.estudiante?.nombre || ""} 
                   ${globalData.estudiante?.apellido_pa || ""} 
                   ${globalData.estudiante?.apellido_ma || ""}`}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Carnet de Identidad</p>
-                <p className="font-medium">{globalData.estudiante?.ci || ""}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Fecha de Nacimiento</p>
-                <p className="font-medium">{globalData.estudiante?.fecha_nacimiento || ""}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Correo Electrónico</p>
-                <p className="font-medium">{globalData.estudiante?.correo || ""}</p>
-              </div>
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Carnet de Identidad</p>
+              <p className="font-medium">{globalData.estudiante?.ci || ""}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Fecha de Nacimiento</p>
+              <p className="font-medium">
+                {globalData.estudiante?.fecha_nacimiento || ""}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Correo Electrónico</p>
+              <p className="font-medium">
+                {globalData.estudiante?.correo || ""}
+              </p>
             </div>
           </div>
-  
-          {/* Sección del colegio */}
-          <div className="mb-6 border-b pb-4">
-            <h3 className="text-lg font-semibold text-blue-600">Datos del Colegio</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
-              <div>
-                <p className="text-sm text-gray-500">Nombre del Colegio</p>
-                <p className="font-medium">{globalData.colegio?.nombre_colegio || ""}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Curso</p>
-                <p className="font-medium">{globalData.colegio?.curso || ""}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Departamento</p>
-                <p className="font-medium">{globalData.colegio?.departamento || ""}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Provincia</p>
-                <p className="font-medium">{globalData.colegio?.provincia || ""}</p>
-              </div>
+        </div>
+
+        {/* Sección del colegio */}
+        <div className="mb-6 border-b pb-4">
+          <h3 className="text-lg font-semibold text-blue-600">
+            Datos del Colegio
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+            <div>
+              <p className="text-sm text-gray-500">Nombre del Colegio</p>
+              <p className="font-medium">
+                {globalData.colegio?.nombre_colegio || ""}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Curso</p>
+              <p className="font-medium">{globalData.colegio?.curso || ""}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Departamento</p>
+              <p className="font-medium">
+                {globalData.colegio?.departamento || ""}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Provincia</p>
+              <p className="font-medium">
+                {globalData.colegio?.provincia || ""}
+              </p>
             </div>
           </div>
-  
-{/* Sección de áreas de competencia */}
-<div className="mb-6 border-b pb-4">
-  <h3 className="text-lg font-semibold text-blue-600">Áreas de Competencia</h3>
-  <div className="mt-2">
-    {globalData.areas_competencia?.map((area, index) => (
-      <div key={index} className="bg-gray-100 rounded px-3 py-2 mb-2">
-        <p className="font-medium">{area.nombre_area || ""}</p>
-        {/* Mostrar categoría solo para Robótica e Informática */}
-        {(area.nombre_area?.includes("Robótica") || area.nombre_area?.includes("Informática")) && area.categoria && (
-          <div className="mt-1">
-            <span className="text-sm text-gray-500">Categoría: </span>
-            <span className="text-sm font-medium bg-blue-100 text-blue-800 px-2 py-0.5 rounded">
-              {area.categoria}
-            </span>
+        </div>
+
+        {/* Sección de áreas de competencia */}
+        <div className="mb-6 border-b pb-4">
+          <h3 className="text-lg font-semibold text-blue-600">
+            Áreas de Competencia
+          </h3>
+          <div className="mt-2">
+            {globalData.areas_competencia?.map((area, index) => (
+              <div key={index} className="bg-gray-100 rounded px-3 py-2 mb-2">
+                <p className="font-medium">{area.nombre_area || ""}</p>
+                {/* Mostrar categoría solo para Robótica e Informática */}
+                {(area.nombre_area?.includes("Robótica") ||
+                  area.nombre_area?.includes("Informática")) &&
+                  area.categoria && (
+                    <div className="mt-1">
+                      <span className="text-sm text-gray-500">Categoría: </span>
+                      <span className="text-sm font-medium bg-blue-100 text-blue-800 px-2 py-0.5 rounded">
+                        {area.categoria}
+                      </span>
+                    </div>
+                  )}
+              </div>
+            )) || (
+              <p className="text-gray-500">
+                No se seleccionaron áreas de competencia
+              </p>
+            )}
           </div>
-        )}
-      </div>
-    )) || <p className="text-gray-500">No se seleccionaron áreas de competencia</p>}
-  </div>
-</div>
-  
-          {/* Sección del tutor legal */}
-          <div className="mb-6 border-b pb-4">
-            <h3 className="text-lg font-semibold text-blue-600">Tutor Legal</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
-              <div>
-                <p className="text-sm text-gray-500">Nombre Completo</p>
-                <p className="font-medium">
-                  {`${globalData.tutor_legal?.nombre || ""} 
+        </div>
+
+        {/* Sección del tutor legal */}
+        <div className="mb-6 border-b pb-4">
+          <h3 className="text-lg font-semibold text-blue-600">Tutor Legal</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+            <div>
+              <p className="text-sm text-gray-500">Nombre Completo</p>
+              <p className="font-medium">
+                {`${globalData.tutor_legal?.nombre || ""} 
                   ${globalData.tutor_legal?.apellido_pa || ""} 
                   ${globalData.tutor_legal?.apellido_ma || ""}`}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Carnet de Identidad</p>
-                <p className="font-medium">{globalData.tutor_legal?.ci || ""}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Correo Electrónico</p>
-                <p className="font-medium">{globalData.tutor_legal?.correo || ""}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Teléfono</p>
-                <p className="font-medium">{globalData.tutor_legal?.numero_celular || ""}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Tipo</p>
-                <p className="font-medium">{globalData.tutor_legal?.tipo || ""}</p>
-              </div>
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Carnet de Identidad</p>
+              <p className="font-medium">{globalData.tutor_legal?.ci || ""}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Correo Electrónico</p>
+              <p className="font-medium">
+                {globalData.tutor_legal?.correo || ""}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Teléfono</p>
+              <p className="font-medium">
+                {globalData.tutor_legal?.numero_celular || ""}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Tipo</p>
+              <p className="font-medium">
+                {globalData.tutor_legal?.tipo || ""}
+              </p>
             </div>
           </div>
-  
-          {/* Sección de tutores académicos */}
-          {globalData.tutores_academicos && globalData.tutores_academicos.length > 0 && (
+        </div>
+
+        {/* Sección de tutores académicos */}
+        {globalData.tutores_academicos &&
+          globalData.tutores_academicos.length > 0 && (
             <div className="mb-6">
-              <h3 className="text-lg font-semibold text-blue-600">Tutores Académicos</h3>
+              <h3 className="text-lg font-semibold text-blue-600">
+                Tutores Académicos
+              </h3>
               {globalData.tutores_academicos.map((tutor, index) => (
                 <div key={index} className="bg-gray-100 rounded p-3 mb-2">
-                  <p className="font-medium text-gray-700">{tutor.nombre_area}</p>
+                  <p className="font-medium text-gray-700">
+                    {tutor.nombre_area}
+                  </p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
                     <div>
                       <p className="text-sm text-gray-500">Nombre Completo</p>
@@ -259,7 +299,8 @@ const Confirmation = ({ navigate, handleBack }) => {
           </button>
         </div>
       </div>
-    )
-  }
+    </div>
+  );
+};
 
-  export default Confirmation;
+export default Confirmation;

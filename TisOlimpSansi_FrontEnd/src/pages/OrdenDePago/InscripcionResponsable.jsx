@@ -1,68 +1,90 @@
-import { useState } from "react"
-import axios from "axios"
-import ProcesoRegistro from "./ProcesoRegistro"
-import { FaUser, FaIdCard } from "react-icons/fa"
-import InscripcionEstudiante from "./InscripcionEstudiante"
-import AreasCompetencia from "./AreasCompetencia"
-import InscripcionTutorLegal from "./InscripcionTutorLegal"
-import InscripcionTutorAcademico from "./IncripcionTutorAcademico"
-import Confirmation from "./Confirmation"
-import { FormDataContext, useFormData } from "./form-data-context"
+import { useState } from "react";
+import axios from "axios";
+import ProcesoRegistro from "./ProcesoRegistro";
+import { FaUser, FaIdCard } from "react-icons/fa";
+import InscripcionEstudiante from "./InscripcionEstudiante";
+import AreasCompetencia from "./AreasCompetencia";
+import InscripcionTutorLegal from "./InscripcionTutorLegal";
+import InscripcionTutorAcademico from "./IncripcionTutorAcademico";
+import Confirmation from "./Confirmation";
+import { FormDataContext, useFormData } from "./form-data-context";
 
 const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
-  const [errors, setErrors] = useState({})
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const { globalData, setGlobalData } = useFormData()
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { globalData, setGlobalData } = useFormData();
 
   // Función para validar entradas con regex
-  const validateInput = (value, fieldName, regex) => {
-    if (!value) {
-      setErrors((prev) => ({ ...prev, [fieldName]: "Campo obligatorio." }))
-      return false
+  const validateInput = (value, fieldName, regex, minWords = 1) => {
+    if (!value || !value.trim() === "") {
+      setErrors((prev) => ({
+        ...prev,
+        [fieldName]: "Este campo no puede estar vacío.",
+      }));
+      return false;
     }
 
     if (!regex.test(value)) {
-      setErrors((prev) => ({ ...prev, [fieldName]: "Formato inválido." }))
-      return false
+      setErrors((prev) => ({ ...prev, [fieldName]: "Formato inválido." }));
+      return false;
     }
 
-    setErrors((prev) => ({ ...prev, [fieldName]: "" }))
-    return true
-  }
+    if (value.trim().split(/\s+/).length < minWords) {
+      setErrors((prev) => ({
+        ...prev,
+        [fieldName]: `Debe contener al menos ${minWords} palabra(s).`,
+      }));
+      return false;
+    }
+
+    setErrors((prev) => ({ ...prev, [fieldName]: "" }));
+    return true;
+  };
 
   // Manejador de cambio con validación
   const handleValidatedChange = (namespace, field, value, regex) => {
+    if (value.startsWith(" ")) return;
     if (regex.test(value) || value === "") {
-      handleInputChange(namespace, field, value)
-      setErrors((prev) => ({ ...prev, [field]: "" }))
+      handleInputChange(namespace, field, value);
+      setErrors((prev) => ({ ...prev, [field]: "" }));
     }
-  }
+  };
 
-  // Submit y guardar en JSON
   const handleSubmitAndNext = () => {
-    // Validar todos los campos
     const isApellidoPaternoValid = validateInput(
       formData.responsable?.apellidoPaterno,
       "apellidoPaterno",
-      /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/,
-    )
+      /^[A-Za-zÁÉÍÓÚáéíóúÑñ]+(\s[A-Za-zÁÉÍÓÚáéíóúÑñ]+)*$/,
+      1
+    );
 
     const isApellidoMaternoValid = validateInput(
       formData.responsable?.apellidoMaterno,
       "apellidoMaterno",
-      /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/,
-    )
+      /^[A-Za-zÁÉÍÓÚáéíóúÑñ]+(\s[A-Za-zÁÉÍÓÚáéíóúÑñ]+)*$/,
+      1
+    );
 
-    const isNombresValid = validateInput(formData.responsable?.nombres, "nombres", /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/)
+    const isNombresValid = validateInput(
+      formData.responsable?.nombres,
+      "nombres",
+      /^[A-Za-zÁÉÍÓÚáéíóúÑñ]+(\s[A-Za-zÁÉÍÓÚáéíóúÑñ]+)*$/,
+      1
+    );
 
-    const isCIValid = validateInput(formData.responsable?.ci, "ci", /^[0-9]*$/)
+    const isCIValid = validateInput(formData.responsable?.ci, "ci", /^[0-9]*$/);
 
     // Si hay algún error, no proceder
-    if (!isApellidoPaternoValid || !isApellidoMaternoValid || !isNombresValid || !isCIValid) {
-      return
+    if (
+      !isApellidoPaternoValid ||
+      !isApellidoMaternoValid ||
+      !isNombresValid ||
+      !isCIValid
+    ) {
+      return;
     }
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
 
     try {
       // Actualizar el objeto global con los datos del responsable
@@ -74,32 +96,36 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
           apellido_ma: formData.responsable?.apellidoMaterno,
           ci: formData.responsable?.ci,
         },
-      }
+      };
 
       // Guardar en el contexto global
-      setGlobalData(updatedData)
+      setGlobalData(updatedData);
 
-      console.log("Datos guardados en JSON:", updatedData)
+      console.log("Datos guardados en JSON:", updatedData);
 
       // Continuar al siguiente paso
-      handleNext()
+      handleNext();
     } catch (error) {
-      console.error("Error al procesar los datos:", error)
+      console.error("Error al procesar los datos:", error);
       setErrors({
         general: "Hubo un error al procesar los datos.",
-      })
+      });
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <div className="flex justify-center">
       <div className="w-full max-w-2xl">
         {/* Título */}
         <div className="text-center mb-6">
-          <h2 className="text-lg font-semibold mb-2 text-gray-500">Responsable de Inscripción</h2>
-          <p className="text-sm text-gray-600">Estos datos corresponden a la persona que pagará en caja.</p>
+          <h2 className="text-lg font-semibold mb-2 text-gray-500">
+            Responsable de Inscripción
+          </h2>
+          <p className="text-sm text-gray-600">
+            Estos datos corresponden a la persona que pagará en caja.
+          </p>
         </div>
 
         {/* Formulario */}
@@ -114,12 +140,21 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
                 type="text"
                 value={formData.responsable?.apellidoPaterno || ""}
                 onChange={(e) =>
-                  handleValidatedChange("responsable", "apellidoPaterno", e.target.value.toUpperCase(), /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/)
+                  handleValidatedChange(
+                    "responsable",
+                    "apellidoPaterno",
+                    e.target.value.toUpperCase(),
+                    /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
+                  )
                 }
                 className="w-full p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Apellido Paterno"
               />
-              {errors.apellidoPaterno && <p className="text-red-500 text-sm mt-1">{errors.apellidoPaterno}</p>}
+              {errors.apellidoPaterno && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.apellidoPaterno}
+                </p>
+              )}
             </div>
             <div className="w-full">
               <div className="flex items-center gap-2">
@@ -130,12 +165,21 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
                 type="text"
                 value={formData.responsable?.apellidoMaterno || ""}
                 onChange={(e) =>
-                  handleValidatedChange("responsable", "apellidoMaterno", e.target.value.toUpperCase(), /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/)
+                  handleValidatedChange(
+                    "responsable",
+                    "apellidoMaterno",
+                    e.target.value.toUpperCase(),
+                    /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
+                  )
                 }
                 className="w-full p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Apellido Materno"
               />
-              {errors.apellidoMaterno && <p className="text-red-500 text-sm mt-1">{errors.apellidoMaterno}</p>}
+              {errors.apellidoMaterno && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.apellidoMaterno}
+                </p>
+              )}
             </div>
           </div>
           <div>
@@ -147,12 +191,19 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
               type="text"
               value={formData.responsable?.nombres || ""}
               onChange={(e) =>
-                handleValidatedChange("responsable", "nombres", e.target.value.toUpperCase(), /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/)
+                handleValidatedChange(
+                  "responsable",
+                  "nombres",
+                  e.target.value.toUpperCase(),
+                  /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
+                )
               }
               className="w-full p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Nombres"
             />
-            {errors.nombres && <p className="text-red-500 text-sm mt-1">{errors.nombres}</p>}
+            {errors.nombres && (
+              <p className="text-red-500 text-sm mt-1">{errors.nombres}</p>
+            )}
           </div>
           <div>
             <div className="flex items-center gap-2">
@@ -162,29 +213,44 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
             <input
               type="text"
               value={formData.responsable?.ci || ""}
-              onChange={(e) => handleValidatedChange("responsable", "ci", e.target.value, /^[0-9]*$/)}
+              onChange={(e) =>
+                handleValidatedChange(
+                  "responsable",
+                  "ci",
+                  e.target.value,
+                  /^[0-9]*$/
+                )
+              }
               className="w-full p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Número de Carnet de Identidad"
               maxLength="8"
             />
-            {errors.ci && <p className="text-red-500 text-sm mt-1">{errors.ci}</p>}
+            {errors.ci && (
+              <p className="text-red-500 text-sm mt-1">{errors.ci}</p>
+            )}
           </div>
 
           {/* Mensaje de error general */}
           {errors.general && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">{errors.general}</div>
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+              {errors.general}
+            </div>
           )}
-
-
         </div>
 
         {/* Botón */}
         <div className="flex justify-center mt-8">
           <button
             onClick={handleSubmitAndNext}
-            disabled={isSubmitting || !formData.responsable?.nombres || !formData.responsable?.ci}
+            disabled={
+              isSubmitting ||
+              !formData.responsable?.nombres ||
+              !formData.responsable?.ci
+            }
             className={`px-6 py-2 transition duration-300 ease-in-out text-white rounded-md shadow-md ${
-              formData.responsable?.nombres && formData.responsable?.ci && !isSubmitting
+              formData.responsable?.nombres &&
+              formData.responsable?.ci &&
+              !isSubmitting
                 ? "bg-blue-500 hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500"
                 : "bg-gray-400 cursor-not-allowed"
             }`}
@@ -194,12 +260,11 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
         </div>
       </div>
     </div>
-  )
-}
-
+  );
+};
 
 const InscripcionResponsable = () => {
-  const [globalData, setGlobalData] = useState({})
+  const [globalData, setGlobalData] = useState({});
   const steps = [
     "Responsable de Inscripción",
     "Competidor",
@@ -207,11 +272,15 @@ const InscripcionResponsable = () => {
     "Tutor Legal",
     "Profesor",
     "Confirmación",
-  ]
+  ];
 
   return (
     <FormDataContext.Provider value={{ globalData, setGlobalData }}>
-      <ProcesoRegistro steps={steps} nextRoute="/subirComprobante" backRoute="/">
+      <ProcesoRegistro
+        steps={steps}
+        nextRoute="/subirComprobante"
+        backRoute="/"
+      >
         <ResponsableForm />
         <InscripcionEstudiante />
         <AreasCompetencia />
@@ -220,7 +289,7 @@ const InscripcionResponsable = () => {
         <Confirmation />
       </ProcesoRegistro>
     </FormDataContext.Provider>
-  )
-}
+  );
+};
 
-export default InscripcionResponsable
+export default InscripcionResponsable;
