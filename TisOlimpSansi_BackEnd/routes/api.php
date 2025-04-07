@@ -121,4 +121,5 @@ Route::post('/guardar-comprobante', [OrdenPagoController::class, 'guardarComprob
 
 
 Route::post('/inscribir', [InscripcionController::class, 'registrar']);
+Route::post('/inscribir-lista', [InscripcionController::class, 'registrarLista']);
 
