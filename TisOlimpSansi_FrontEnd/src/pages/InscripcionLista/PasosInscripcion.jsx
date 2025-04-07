@@ -1,6 +1,11 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 const PasosInscripcion = () => {
+  const navigate = useNavigate();
+  const handleConfirmar = () => {
+    navigate("/");
+  };
   return (
     <div className="flex flex-col items-center p-4">
       <h1 className="text-red-700 font-bold text-2xl mb-4 text-center">
@@ -103,7 +108,17 @@ const PasosInscripcion = () => {
             />
             </div>
           </div>
+         
         </div>
+      
+      </div>
+      <div className="flex justify-center mt-8">
+        <button
+          onClick={handleConfirmar}
+          className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
+        >
+          Confirmar
+        </button>
       </div>
     </div>
   );
