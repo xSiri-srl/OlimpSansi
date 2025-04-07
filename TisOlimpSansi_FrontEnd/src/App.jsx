@@ -8,10 +8,12 @@ import SubirComprobante from "./pages/Comprobante/SubirComprobante";
 import AreaCompetencia from "./pages/OrdenDePago/AreasCompetencia";
 import InscripcionTutorAcademico from "./pages/OrdenDePago/IncripcionTutorAcademico";
 import FormaInscripcion from "./pages/OrdenDePago/FormaInscripcion";
+import OrdenPago from "./pages/OrdenDePago/OrdenDePago";
 import Tutorial from "./pages/InscripcionLista/Tutorial";
 import RegistroPorLista from "./pages/InscripcionLista/RegistroPorLista";
 import SubirArchivo from "./pages/InscripcionLista/SubirArchivo";
 import ListaCompetidores from "./pages/InscripcionLista/ListaCompetidores";
+
 export default function App() {
   return (
     <>
@@ -43,7 +45,11 @@ export default function App() {
           path="/inscripcion/tutor-academico"
           element={<InscripcionTutorAcademico />}
         />
-
+        {/* ORDEN DE PAGO GENERADA */}
+        <Route
+          path="/ordenDePago"
+          element={<OrdenPago />}
+        />
       {/* COMPROBANTE */}
         <Route 
           path="/SubirComprobante" 

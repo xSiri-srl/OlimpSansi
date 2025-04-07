@@ -3,6 +3,7 @@ export default {
   content: [
     "./index.html", 
     "./src/**/*.{js,jsx,ts,tsx}",
+    ".node_modules/leaflet/dist/leafllet.css",
   ],
   theme: {
     extend: {

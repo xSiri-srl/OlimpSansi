@@ -3,62 +3,50 @@ import axios from "axios";
 import { useFormData } from "./form-data-context";
 
 const Confirmation = ({ navigate, handleBack }) => {
-  const { globalData } = useFormData();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [hasSubmitted, setHasSubmitted] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState({
-    success: null,
-    message: "",
-  });
+    const { globalData } = useFormData()
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    const [submitStatus, setSubmitStatus] = useState({ success: null, message: "" })
+  
+    useEffect(() => {
+        console.log("Confirmation mounted, handleBack is:", typeof handleBack);
+    }, [handleBack]);
+    
+    const handleGoBack = (e) => {
+        e.preventDefault();
+        console.log("Confirmation: Atrás button clicked");
+        handleBack();
+      };
+    const handleSubmit = async () => {
+      setIsSubmitting(true)
+      setSubmitStatus({ success: null, message: "" })
+  
+      try {
+        // Enviar los datos al backend
+        const response = await axios.post("http://localhost:8000/api/inscribir", globalData)
 
-  useEffect(() => {
-    console.log("Confirmation mounted, handleBack is:", typeof handleBack);
-  }, [handleBack]);
+        console.log("Respuesta del servidor:", response.data)
+        
+        // Extraer el código generado de la respuesta
+        const codigoGenerado = response.data.codigo_generado;
 
-  const handleGoBack = (e) => {
-    e.preventDefault();
-    console.log("Confirmation: Atrás button clicked");
-    handleBack();
-  };
-  const handleSubmit = async () => {
-    if (hasSubmitted) {
-      navigate("/subirComprobante");
-      return;
-    }
+        setSubmitStatus({
+          success: true,
+          message: "Inscripción registrada correctamente.",
+        })
 
-    setIsSubmitting(true);
-    setSubmitStatus({ success: null, message: "" });
-
-    try {
-      // Enviar los datos al backend
-      const response = await axios.post(
-        "http://localhost:8000/api/inscribir",
-        globalData
-      );
-
-      console.log("Respuesta del servidor:", response.data);
-
-      setSubmitStatus({
-        success: true,
-        message: "Inscripción registrada correctamente.",
-      });
-
-      setHasSubmitted(true);
-
-      setTimeout(() => {
-        navigate("/subirComprobante");
-      }, 1500);
-    } catch (error) {
-      console.error("Error al enviar los datos:", error);
-
-      setSubmitStatus({
-        success: false,
-        message:
-          error.response?.data?.error ||
-          "Error al enviar los datos. Intente nuevamente.",
-      });
-    } finally {
-      setIsSubmitting(false);
+        // Navegar a la siguiente página después de un breve retraso, enviando el código generado
+        setTimeout(() => {
+          navigate("/ordenDePago", { state: { codigoGenerado } })
+        }, 1500)
+      } catch (error) {
+        console.error("Error al registrar los datos:", error)
+        setSubmitStatus({
+          success: false,
+          message: error.response?.data?.error || "Error al registrar los datos. Intente nuevamente.",
+        })
+      } finally {
+        setIsSubmitting(false)
+      }
     }
   };
 
@@ -258,39 +246,58 @@ const Confirmation = ({ navigate, handleBack }) => {
               ))}
             </div>
           )}
-      </div>
 
-      {/* Mensaje de estado */}
-      {submitStatus.success !== null && (
-        <div
-          className={`mt-4 p-3 rounded-md ${
-            submitStatus.success
-              ? "bg-green-100 text-green-700"
-              : "bg-red-100 text-red-700"
-          }`}
-        >
-          {submitStatus.message}
+          {/* Sección de Desglose de Costos por Área */}
+          <div className="mb-6 border-b pb-4">
+            <h3 className="text-lg font-semibold text-blue-600">Importe</h3>
+            <div className="mt-2">
+              {globalData.areas_competencia?.map((area, index) => (
+                <div key={index} className="flex justify-between py-1 border-b border-gray-100">
+                  <p className="font-medium">{area.nombre_area}</p>
+                  <p className="font-medium">20 Bs.</p>
+                </div>
+              ))}
+              <div className="flex justify-between py-2 mt-2 font-bold text-blue-700">
+                <p>Total</p>
+                <p>{`${20 * (globalData.areas_competencia?.length || 0)} Bs.`}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="mb-6">
+            <p className="text-sm text-gray-500">Recuerde que el pago debe ser realizado por el responsable de inscripción</p>
+          </div>
+
+          </div>
+
+          {/* Mensaje de estado */}
+        {submitStatus.success !== null && (
+          <div
+            className={`mt-4 p-3 rounded-md ${submitStatus.success ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}
+          >
+            {submitStatus.message}
+          </div>
+        )}
+  
+        {/* Botones de navegación */}
+        <div className="flex justify-center mt-6 gap-4">
+          <button
+            onClick={handleGoBack}
+            disabled={isSubmitting}
+            className="bg-gray-500 text-white px-6 py-2 rounded-md transition duration-300 ease-in-out hover:bg-gray-600 shadow-md"
+          >
+            Atrás
+          </button>
+          <button
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+            className={`bg-blue-600 text-white px-6 py-2 rounded-md transition duration-300 ease-in-out hover:bg-indigo-500 shadow-md ${
+              isSubmitting ? "opacity-70 cursor-not-allowed" : ""
+            }`}
+          >
+            {isSubmitting ? "Emitiendo..." : "Emitir Orden de Pago"}
+          </button>
         </div>
-      )}
-
-      {/* Botones de navegación */}
-      <div className="flex justify-center mt-6 gap-4">
-        <button
-          onClick={handleGoBack}
-          disabled={isSubmitting}
-          className="bg-gray-500 text-white px-6 py-2 rounded-md transition duration-300 ease-in-out hover:bg-gray-600 shadow-md"
-        >
-          Atrás
-        </button>
-        <button
-          onClick={handleSubmit}
-          disabled={isSubmitting}
-          className={`bg-blue-600 text-white px-6 py-2 rounded-md transition duration-300 ease-in-out hover:bg-indigo-500 shadow-md ${
-            isSubmitting ? "opacity-70 cursor-not-allowed" : ""
-          }`}
-        >
-          {isSubmitting ? "Enviando..." : "Confirmar Inscripción"}
-        </button>
       </div>
     </div>
   );
