@@ -61,29 +61,13 @@ function SubirArchivo({ setStep }) {
         setLoading(false)
         return false
       }
-      console.log("Responsable que se usará en el estudiante:", globalData.responsable_inscripcion)
 
-      // Obtener el responsable
-      const responsable = globalData.responsable_inscripcion || {
-        nombre: "",
-        apellido_pa: "",
-        apellido_ma: "",
-        ci: "",
-      }
-      console.log("Responsable de inscripción:", responsable)
+      setEstudiantes(data.inscripciones)
 
-      // Agregar el responsable de inscripción a cada estudiante
-      const dataWithResponsable = data.map((estudiante) => ({
-        ...estudiante,
-        responsable_inscripcion: responsable,
-      }))
-
-      setEstudiantes(dataWithResponsable)
-
-      // Actualizar el globalData con los estudiantes
       setGlobalData({
         ...globalData,
-        estudiantes: dataWithResponsable,
+        estudiantes: data.inscripciones,
+        responsable_inscripcion: data.responsable_inscripcion,
       })
 
       setLoading(false)
@@ -138,7 +122,6 @@ function SubirArchivo({ setStep }) {
       provincia: getFirstNonEmptyInRange(rawData[2], 1, 1),
     }
 
-    console.log("Datos del colegio:", colegio)
 
     // Encontrar las filas con datos de estudiantes (a partir de la fila 7)
     const estudiantes = []
@@ -206,12 +189,6 @@ function SubirArchivo({ setStep }) {
         }
 
         const estudianteCompleto = {
-          responsable_inscripcion: globalData.responsable_inscripcion || {
-            nombre: "",
-            apellido_pa: "",
-            apellido_ma: "",
-            ci: "",
-          },
           estudiante,
           colegio: {
             nombre_colegio: colegio.nombre_colegio,
@@ -238,8 +215,15 @@ function SubirArchivo({ setStep }) {
       }
     }
 
-    console.log("Estudiantes procesados:", estudiantes)
-    return estudiantes
+    return {
+      responsable_inscripcion: globalData.responsable_inscripcion || {
+        nombre: "",
+        apellido_pa: "",
+        apellido_ma: "",
+        ci: "",
+      },
+      inscripciones: estudiantes,
+    }
   }
 
   // Función para formatear fechas
