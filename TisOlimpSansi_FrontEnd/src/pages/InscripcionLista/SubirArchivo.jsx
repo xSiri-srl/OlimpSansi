@@ -36,7 +36,7 @@ function SubirArchivo({ setStep }) {
     } else {
       setSelectedFile(null)
       setPreviewData(null)
-      setError("Solo se permiten archivos Excel (.xlsx o .xls)")
+      setError("Archivo no permitido. Solo se aceptan archivos Excel")
     }
   }
 
