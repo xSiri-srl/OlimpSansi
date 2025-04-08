@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { FaTimes, FaUser, FaIdCard, FaEnvelope, FaCalendarAlt, FaSchool, FaBuilding, FaMapMarkedAlt, FaPhone } from "react-icons/fa";
+import { FaUser, FaIdCard, FaEnvelope, FaCalendarAlt, FaSchool, FaBuilding, FaMapMarkedAlt, FaPhone, FaTimes } from "react-icons/fa";
 
-// Constantes para evitar errores ortográficos
 const SECCIONES = {
   TODOS: "todos",
   INVALIDOS: "invalidos"
@@ -47,9 +46,9 @@ const obtenerCategorias = (area, curso) => {
     return [];
   }
   
-  const esPrimaria = curso.includes("Primaria");
-  const esSecundaria = curso.includes("Secundaria");
-  const numero = parseInt(curso.match(/\d+/)?.[0] || "0");
+  const esPrimaria = curso?.includes("Primaria");
+  const esSecundaria = curso?.includes("Secundaria");
+  const numero = parseInt(curso?.match(/\d+/)?.[0] || "0");
   
   // Para Informática
   if (area === "Informática") {
@@ -92,13 +91,97 @@ const EditarEstudianteModal = ({ estudiante, onClose, onSave }) => {
   const [estudianteData, setEstudianteData] = useState(null);
   const [errores, setErrores] = useState({});
   
-  // Inicializa los datos del estudiante cuando se abre el modal
+  // Inicializa los datos del estudiante cuando se abre el modal - AQUÍ ESTÁ EL ERROR
   useEffect(() => {
     if (estudiante?.originalData) {
-      setEstudianteData({...estudiante.originalData});
+      console.log("Datos originales recibidos:", estudiante.originalData);
+      
+      // Crear una copia profunda de los datos originales
+      const normalizedData = JSON.parse(JSON.stringify(estudiante.originalData));
+      
+      // Función auxiliar para normalizar texto para comparación
+      const normalizeForComparison = (text) => {
+        return text
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, ""); // Eliminar acentos
+      };
+      
+      // Normalizar áreas de competencia para que coincidan con las opciones del desplegable
+      if (normalizedData.areas_competencia) {
+        normalizedData.areas_competencia = normalizedData.areas_competencia.map(area => {
+          if (area.nombre_area) {
+            // Buscar coincidencia en el array de áreas utilizando normalización
+            const matchedArea = areas.find(a => 
+              normalizeForComparison(a) === normalizeForComparison(area.nombre_area)
+            );
+            if (matchedArea) {
+              area.nombre_area = matchedArea;
+            }
+          }
+          return area;
+        });
+      }
+      
+      // Normalizar formato del curso
+      if (normalizedData.colegio?.curso) {
+        const cursoOriginal = normalizedData.colegio.curso;
+        // Buscar una coincidencia aproximada en el array de cursos
+        const cursoNormalizado = cursos.find(c => {
+          const simplifiedCurso = normalizeForComparison(cursoOriginal).replace(/\s+de\s+/i, " ");
+          const simplifiedOption = normalizeForComparison(c).replace(/\s+de\s+/i, " ");
+          return simplifiedCurso.includes(simplifiedOption) || simplifiedOption.includes(simplifiedCurso);
+        });
+        
+        if (cursoNormalizado) {
+          normalizedData.colegio.curso = cursoNormalizado;
+        }
+      }
+      
+      // Normalizar departamento y provincia
+      if (normalizedData.colegio?.departamento) {
+        const deptoOriginal = normalizedData.colegio.departamento;
+        const deptoNormalizado = Object.keys(departamentos).find(d => 
+          normalizeForComparison(d) === normalizeForComparison(deptoOriginal)
+        );
+        
+        if (deptoNormalizado) {
+          normalizedData.colegio.departamento = deptoNormalizado;
+          
+          // También normalizar la provincia si se encontró el departamento
+          if (normalizedData.colegio?.provincia) {
+            const provinciaOriginal = normalizedData.colegio.provincia;
+            const provinciaNormalizada = departamentos[deptoNormalizado].find(p => 
+              normalizeForComparison(p) === normalizeForComparison(provinciaOriginal)
+            );
+            
+            if (provinciaNormalizada) {
+              normalizedData.colegio.provincia = provinciaNormalizada;
+            }
+          }
+        }
+      }
+      
+      // También normalizar nombres de áreas en tutores académicos
+      if (normalizedData.tutores_academicos) {
+        normalizedData.tutores_academicos = normalizedData.tutores_academicos.map(tutor => {
+          if (tutor.nombre_area) {
+            const matchedArea = areas.find(a => 
+              normalizeForComparison(a) === normalizeForComparison(tutor.nombre_area)
+            );
+            if (matchedArea) {
+              tutor.nombre_area = matchedArea;
+            }
+          }
+          return tutor;
+        });
+      }
+      
+      console.log("Datos normalizados:", normalizedData);
+      setEstudianteData(normalizedData);
     }
   }, [estudiante]);
-
+  // Si no hay datos, no renderizar nada
   if (!estudianteData) return null;
 
   // Función para actualizar cualquier campo del estudiante
@@ -134,9 +217,19 @@ const EditarEstudianteModal = ({ estudiante, onClose, onSave }) => {
         
         if (field === 'nombre_area') {
           // Al cambiar el área, actualizar también el área del tutor académico
-          if (newData.tutores_academicos && newData.tutores_academicos[index]) {
+          if (!newData.tutores_academicos) {
+            newData.tutores_academicos = [];
+          }
+          
+          if (!newData.tutores_academicos[index]) {
+            newData.tutores_academicos[index] = {
+              nombre_area: value,
+              tutor: { nombre: "", apellido_pa: "", apellido_ma: "", ci: "", correo: "" }
+            };
+          } else {
             newData.tutores_academicos[index].nombre_area = value;
           }
+          
           newData.areas_competencia[index].nombre_area = value;
           // Resetear la categoría si cambia el área
           newData.areas_competencia[index].categoria = '';
@@ -145,6 +238,7 @@ const EditarEstudianteModal = ({ estudiante, onClose, onSave }) => {
         }
       }
       
+      console.log("Datos actualizados:", newData);
       return newData;
     });
   };
@@ -211,6 +305,15 @@ const EditarEstudianteModal = ({ estudiante, onClose, onSave }) => {
     if (seccionActiva === SECCIONES.TODOS) return true;
     return tieneError(campo);
   };
+
+  // Obtener las áreas actuales y sus categorías
+  const areasActuales = estudianteData.areas_competencia || [];
+  
+  // Depuración
+  console.log("Curso actual:", estudianteData.colegio?.curso);
+  console.log("Departamento actual:", estudianteData.colegio?.departamento);
+  console.log("Provincia actual:", estudianteData.colegio?.provincia);
+  console.log("Áreas actuales:", areasActuales);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto">
@@ -440,7 +543,7 @@ const EditarEstudianteModal = ({ estudiante, onClose, onSave }) => {
                   <div className="flex gap-2">
                     <select
                       className={`mt-1 p-2 w-full border rounded-md ${tieneError('areas') ? 'border-red-500' : ''}`}
-                      value={estudianteData.areas_competencia?.[0]?.nombre_area || ''}
+                      value={areasActuales[0]?.nombre_area || ''}
                       onChange={(e) => handleChange('area_0', 'nombre_area', e.target.value)}
                     >
                       <option value="">Seleccione un área</option>
@@ -452,19 +555,19 @@ const EditarEstudianteModal = ({ estudiante, onClose, onSave }) => {
                   {tieneError('areas') && <p className="text-red-500 text-xs mt-1">{errores.areas}</p>}
                 </div>
                 
-                {(estudianteData.areas_competencia?.[0]?.nombre_area === "Informática" || 
-                 estudianteData.areas_competencia?.[0]?.nombre_area === "Robótica") && (
+                {(areasActuales[0]?.nombre_area === "Informática" || 
+                 areasActuales[0]?.nombre_area === "Robótica") && (
                   <div>
                     <label className="text-sm font-medium text-gray-700">
-                      Categoría para {estudianteData.areas_competencia[0].nombre_area} *
+                      Categoría para {areasActuales[0].nombre_area} *
                     </label>
                     <select
                       className={`mt-1 p-2 w-full border rounded-md ${tieneError('categoria_0') ? 'border-red-500' : ''}`}
-                      value={estudianteData.areas_competencia[0].categoria || ''}
+                      value={areasActuales[0].categoria || ''}
                       onChange={(e) => handleChange('area_0', 'categoria', e.target.value)}
                     >
                       <option value="">Seleccione una categoría</option>
-                      {obtenerCategorias(estudianteData.areas_competencia[0].nombre_area, estudianteData.colegio?.curso || '').map((cat) => (
+                      {obtenerCategorias(areasActuales[0].nombre_area, estudianteData.colegio?.curso || '').map((cat) => (
                         <option key={cat} value={cat}>{cat}</option>
                       ))}
                     </select>
@@ -479,7 +582,7 @@ const EditarEstudianteModal = ({ estudiante, onClose, onSave }) => {
                   </label>
                   <select
                     className="mt-1 p-2 w-full border rounded-md"
-                    value={estudianteData.areas_competencia?.[1]?.nombre_area || ''}
+                    value={areasActuales[1]?.nombre_area || ''}
                     onChange={(e) => handleChange('area_1', 'nombre_area', e.target.value)}
                   >
                     <option value="">Seleccione un área (opcional)</option>
@@ -489,19 +592,19 @@ const EditarEstudianteModal = ({ estudiante, onClose, onSave }) => {
                   </select>
                 </div>
                 
-                {(estudianteData.areas_competencia?.[1]?.nombre_area === "Informática" || 
-                 estudianteData.areas_competencia?.[1]?.nombre_area === "Robótica") && (
+                {(areasActuales[1]?.nombre_area === "Informática" || 
+                 areasActuales[1]?.nombre_area === "Robótica") && (
                   <div>
                     <label className="text-sm font-medium text-gray-700">
-                      Categoría para {estudianteData.areas_competencia[1].nombre_area} *
+                      Categoría para {areasActuales[1].nombre_area} *
                     </label>
                     <select
                       className={`mt-1 p-2 w-full border rounded-md ${tieneError('categoria_1') ? 'border-red-500' : ''}`}
-                      value={estudianteData.areas_competencia[1].categoria || ''}
+                      value={areasActuales[1].categoria || ''}
                       onChange={(e) => handleChange('area_1', 'categoria', e.target.value)}
                     >
                       <option value="">Seleccione una categoría</option>
-                      {obtenerCategorias(estudianteData.areas_competencia[1].nombre_area, estudianteData.colegio?.curso || '').map((cat) => (
+                      {obtenerCategorias(areasActuales[1].nombre_area, estudianteData.colegio?.curso || '').map((cat) => (
                         <option key={cat} value={cat}>{cat}</option>
                       ))}
                     </select>
@@ -610,10 +713,10 @@ const EditarEstudianteModal = ({ estudiante, onClose, onSave }) => {
             </div>
             
             {/* Tutores académicos (solo mostrar si hay áreas seleccionadas) */}
-            {estudianteData.areas_competencia?.length > 0 && estudianteData.areas_competencia[0]?.nombre_area && (
+            {areasActuales.length > 0 && areasActuales[0]?.nombre_area && (
               <>
                 <h4 className="font-medium text-blue-700 border-b pb-1 mt-6">
-                  TUTOR ACADÉMICO PARA {estudianteData.areas_competencia[0].nombre_area}
+                  TUTOR ACADÉMICO PARA {areasActuales[0].nombre_area}
                 </h4>
                 
                 <div className="grid grid-cols-2 gap-3">
@@ -682,10 +785,10 @@ const EditarEstudianteModal = ({ estudiante, onClose, onSave }) => {
             )}
             
             {/* Segundo tutor académico (solo si hay segunda área) */}
-            {estudianteData.areas_competencia?.length > 1 && estudianteData.areas_competencia[1]?.nombre_area && (
+            {areasActuales.length > 1 && areasActuales[1]?.nombre_area && (
               <>
                 <h4 className="font-medium text-blue-700 border-b pb-1 mt-6">
-                  TUTOR ACADÉMICO PARA {estudianteData.areas_competencia[1].nombre_area}
+                  TUTOR ACADÉMICO PARA {areasActuales[1].nombre_area}
                 </h4>
                 
                 <div className="grid grid-cols-2 gap-3">
