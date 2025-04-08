@@ -48,10 +48,16 @@ const ListaCompetidores = ({ setStep }) => {
   const processedEstudiantes = estudiantes.map((est, index) => {
     // Check if student has all required data
     const hasError =
-      !est.estudiante?.nombre ||
-      !est.estudiante?.apellido_pa ||
-      !est.areas_competencia ||
-      est.areas_competencia.length === 0
+    !est.estudiante?.nombre ||
+    !est.estudiante?.apellido_pa ||
+    !est.areas_competencia ||
+    est.areas_competencia.length === 0 ||
+    est.areas_competencia.some(area => {
+      if (!area.nombre_area) return false;
+      // Normalizar el nombre del área para comparación insensible a mayúsculas/acentos
+      const normalizedArea = area.nombre_area.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      return (normalizedArea === "informatica" || normalizedArea === "robotica") && !area.categoria;
+    })
 
     // Get areas from the student data
     const areas = est.areas_competencia
@@ -66,8 +72,14 @@ const ListaCompetidores = ({ setStep }) => {
       ci: est.estudiante?.ci || "",
       areas: areas,
       error: hasError,
-      mensajeError: hasError ? "Faltan datos obligatorios del estudiante" : "",
-      // Include the original data for reference
+      mensajeError: hasError ? 
+      (est.areas_competencia && est.areas_competencia.some(area => {
+        const normalizedArea = area.nombre_area?.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        return (normalizedArea === "informatica" || normalizedArea === "robotica") && !area.categoria;
+      })
+      ? "Falta seleccionar categoría para Informática o Robótica" 
+      : "Faltan datos obligatorios del estudiante") 
+      : "",
       originalData: est,
     }
   })
