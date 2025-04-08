@@ -178,6 +178,18 @@ const EditarEstudianteModal = ({ estudiante, onClose, onSave }) => {
       }
       
       console.log("Datos normalizados:", normalizedData);
+          // Validar categorías faltantes al cargar
+    const erroresIniciales = {};
+    normalizedData.areas_competencia?.forEach((area, index) => {
+      if ((area.nombre_area === "Informática" || area.nombre_area === "Robótica") && !area.categoria) {
+        erroresIniciales[`categoria_${index}`] = `Debe seleccionar una categoría para ${area.nombre_area}`;
+      }
+    });
+    
+    // Establecer errores encontrados
+    if (Object.keys(erroresIniciales).length > 0) {
+      setErrores(erroresIniciales);
+    }
       setEstudianteData(normalizedData);
     }
   }, [estudiante]);
