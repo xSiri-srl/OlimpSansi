@@ -15,6 +15,7 @@ import {
 } from "react-icons/fa"
 import { useFormData } from "./form-context"
 import axios from "axios"
+import EditarEstudianteModal from "./EditarEstudianteModal" // Importar el componente de edición
 
 const ListaCompetidores = ({ setStep }) => {
   const { globalData } = useFormData()
@@ -22,14 +23,14 @@ const ListaCompetidores = ({ setStep }) => {
   const responsableInscripcion = globalData.responsable_inscripcion
 
   const [selectedStudent, setSelectedStudent] = useState(null)
-  const [showModal, setShowModal] = useState(false)
+  const [showEditModal, setShowEditModal] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(10)
   const [filter, setFilter] = useState("todos") // 'todos', 'errores'
   const [searchTerm, setSearchTerm] = useState("")
 
   // Get students from context
-  const { estudiantes } = useFormData()
+  const { estudiantes, setEstudiantes }= useFormData()
   const endpoint = "http://localhost:8000/api"
 
   // Map area names to icons
@@ -47,10 +48,16 @@ const ListaCompetidores = ({ setStep }) => {
   const processedEstudiantes = estudiantes.map((est, index) => {
     // Check if student has all required data
     const hasError =
-      !est.estudiante?.nombre ||
-      !est.estudiante?.apellido_pa ||
-      !est.areas_competencia ||
-      est.areas_competencia.length === 0
+    !est.estudiante?.nombre ||
+    !est.estudiante?.apellido_pa ||
+    !est.areas_competencia ||
+    est.areas_competencia.length === 0 ||
+    est.areas_competencia.some(area => {
+      if (!area.nombre_area) return false;
+      // Normalizar el nombre del área para comparación insensible a mayúsculas/acentos
+      const normalizedArea = area.nombre_area.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      return (normalizedArea === "informatica" || normalizedArea === "robotica") && !area.categoria;
+    })
 
     // Get areas from the student data
     const areas = est.areas_competencia
@@ -65,8 +72,14 @@ const ListaCompetidores = ({ setStep }) => {
       ci: est.estudiante?.ci || "",
       areas: areas,
       error: hasError,
-      mensajeError: hasError ? "Faltan datos obligatorios del estudiante" : "",
-      // Include the original data for reference
+      mensajeError: hasError ? 
+      (est.areas_competencia && est.areas_competencia.some(area => {
+        const normalizedArea = area.nombre_area?.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        return (normalizedArea === "informatica" || normalizedArea === "robotica") && !area.categoria;
+      })
+      ? "Falta seleccionar categoría para Informática o Robótica" 
+      : "Faltan datos obligatorios del estudiante") 
+      : "",
       originalData: est,
     }
   })
@@ -90,15 +103,35 @@ const ListaCompetidores = ({ setStep }) => {
   const currentItems = filteredEstudiantes.slice(indexOfFirstItem, indexOfLastItem)
   const totalPages = Math.ceil(filteredEstudiantes.length / itemsPerPage)
 
+  // Modificado para mostrar directamente el modal de edición
   const handleStudentClick = (estudiante) => {
     setSelectedStudent(estudiante)
-    setShowModal(true)
+    setShowEditModal(true)
   }
 
-  const handleCloseModal = () => {
-    setShowModal(false)
+  const handleCloseEditModal = () => {
+    setShowEditModal(false)
     setSelectedStudent(null)
   }
+
+  const handleSaveEdit = (updatedData) => {
+    // Actualizar el estudiante en el array de estudiantes
+    const updatedEstudiantes = estudiantes.map((est, index) => {
+      if (index === selectedStudent.id - 1) {
+        return updatedData;
+      }
+      return est;
+    });
+    
+    // Actualizar el estado global
+    setEstudiantes(updatedEstudiantes);
+    
+    // Cerrar el modal de edición
+    setShowEditModal(false);
+    setSelectedStudent(null);
+    
+    console.log("Datos actualizados:", updatedData);
+  };
 
   const handleSiguiente = async () => {
     const hayErrores = processedEstudiantes.some((est) => est.error)
@@ -342,74 +375,16 @@ const ListaCompetidores = ({ setStep }) => {
         </button>
       </div>
 
-      {/* Modal de información del estudiante */}
-      {showModal && selectedStudent && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-xl">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-semibold">Información del Competidor</h3>
-              <button onClick={handleCloseModal} className="text-gray-500 hover:text-gray-700">
-                <FaTimes />
-              </button>
-            </div>
-
-            <div className="mb-4">
-              <p className="text-sm text-gray-500">Nombre completo:</p>
-              <p className="font-medium">
-                {selectedStudent.apellidoPaterno} {selectedStudent.apellidoMaterno}, {selectedStudent.nombres}
-              </p>
-            </div>
-
-            <div className="mb-4">
-              <p className="text-sm text-gray-500">CI:</p>
-              <p className="font-medium">{selectedStudent.ci || "No disponible"}</p>
-            </div>
-
-            <div className="mb-4">
-              <p className="text-sm text-gray-500">Colegio:</p>
-              <p className="font-medium">{selectedStudent.originalData?.colegio?.nombre_colegio || "No disponible"}</p>
-              <p className="text-sm text-gray-500">
-                {selectedStudent.originalData?.colegio?.departamento},{" "}
-                {selectedStudent.originalData?.colegio?.provincia}
-              </p>
-              <p className="text-sm text-gray-500">
-                Curso: {selectedStudent.originalData?.colegio?.curso || "No disponible"}
-              </p>
-            </div>
-
-            <div className="mb-4">
-              <p className="text-sm text-gray-500">Áreas de competencia:</p>
-              <div className="flex flex-wrap mt-1">
-                {selectedStudent.areas.map((area, idx) => (
-                  <div key={idx} className="flex items-center bg-gray-100 rounded-full px-3 py-1 text-sm mr-2 mb-2">
-                    {areaIcons[area] || <FaAtom className="text-gray-600" />}
-                    <span className="ml-1">{area}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {selectedStudent.error && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-md mb-4">
-                <p className="text-red-600 font-medium">Error detectado:</p>
-                <p className="text-red-500">{selectedStudent.mensajeError}</p>
-              </div>
-            )}
-
-            <div className="text-center">
-              <p className="text-gray-500 text-sm mb-4">
-                Para editar información o corregir errores, presione el botón editar.
-              </p>
-              <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
-                Editar
-              </button>
-            </div>
-          </div>
-        </div>
+      {/* Modal de edición del estudiante (ahora mostrado directamente) */}
+      {showEditModal && selectedStudent && (
+        <EditarEstudianteModal
+          estudiante={selectedStudent}
+          onClose={handleCloseEditModal}
+          onSave={handleSaveEdit}
+        />
       )}
     </div>
   )
 }
 
 export default ListaCompetidores
-
