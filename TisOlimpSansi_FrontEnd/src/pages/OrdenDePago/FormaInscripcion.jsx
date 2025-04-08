@@ -1,41 +1,59 @@
 import { useNavigate } from "react-router-dom";
-import { 
-  FaUserAlt, 
-  FaUsers } from "react-icons/fa"
+import { FaUserAlt, FaUsers } from "react-icons/fa";
+import { motion } from "framer-motion";
 
 export default function FormularioEstudiante() {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const handleSeleccion = () => {
-    navigate(`/inscripcion/responsable`)
-  }
+    navigate(`/inscripcion/responsable`);
+  };
 
   const handleSeleccionLista = () => {
-    navigate(`/inscripcion-lista/tutorial`)
-  }
+    navigate(`/inscripcion-lista/tutorial`);
+  };
+
   return (
-    <div className="p-6">
-      <div className="flex-grow flex flex-col items-center justify-center p-6">
-        <h1 className="text-3xl font-bold text-center mb-10">Seleccione su forma de inscripción</h1>
+    <div className="flex flex-col items-center justify-center from-indigo-100 to-purple-200 p-6">
+      <motion.h1
+        initial={{ opacity: 0, y: -50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+        className="text-4xl font-bold text-gray-700 text-center mb-10"
+      >
+        Seleccione su forma de inscripción
+      </motion.h1>
 
-        <div className="flex justify-center gap-16">
-          
-          <div className="flex flex-col items-center cursor-pointer" onClick={() => handleSeleccion("individual")}>
-            <div className="bg-gray-200 p-8 rounded-lg mb-4 w-100 h-100 flex items-center justify-center">
-              <FaUserAlt size={140} className="text-black" />
-            </div>
-            <span className="text-2xl font-medium">Individual</span>
+      <div className="flex flex-wrap justify-center gap-16">
+        {/* Opción Individual */}
+        <motion.div
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+          className="flex flex-col items-center cursor-pointer group"
+          onClick={handleSeleccion}
+        >
+          <div className="bg-gradient-to-r shadow-lg rounded-xl p-8 w-56 h-56 flex items-center justify-center transition-all group-hover:bg-indigo-200">
+            <FaUserAlt size={100} className="text-indigo-600 group-hover:text-indigo-800 transition-all" />
           </div>
+          <span className="mt-4 text-2xl font-semibold text-gray-600 group-hover:text-indigo-700">
+            Individual
+          </span>
+        </motion.div>
 
-          {
-          <div className="flex flex-col items-center cursor-pointer" onClick={() => handleSeleccionLista("lista")}>
-            <div className="bg-gray-200 p-8 rounded-lg mb-4 w-100 h-100 flex items-center justify-center">
-              <FaUsers size={140} className="text-black" />
-            </div>
-            <span className="text-2xl font-medium">Con Lista</span>
+        {/* Opción Lista */}
+        <motion.div
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+          className="flex flex-col items-center cursor-pointer group"
+          onClick={handleSeleccionLista}
+        >
+          <div className="bg-gradient-to-r shadow-lg rounded-xl p-8 w-56 h-56 flex items-center justify-center transition-all group-hover:bg-purple-200">
+            <FaUsers size={100} className="text-purple-600 group-hover:text-purple-800 transition-all" />
           </div>
-          }
-        </div>
+          <span className="mt-4 text-2xl font-semibold text-gray-600 group-hover:text-purple-700">
+            Por lista
+          </span>
+        </motion.div>
       </div>
     </div>
   );
