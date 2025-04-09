@@ -15,16 +15,9 @@ export default function FormularioEstudiante() {
 
   return (
     <div className="flex flex-col items-center justify-center from-indigo-100 to-purple-200 p-6">
-      <motion.h1
-        initial={{ opacity: 0, y: -50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        className="text-4xl font-bold text-gray-700 text-center mb-10"
-      >
-        Seleccione su forma de inscripción
-      </motion.h1>
+    <p className="font-mono text-4xl">Seleccione su forma de inscripción</p>
 
-      <div className="flex flex-wrap justify-center gap-16">
+      <div className="flex flex-wrap justify-center mt-8 gap-16">
         {/* Opción Individual */}
         <motion.div
           whileHover={{ scale: 1.1 }}
@@ -35,7 +28,7 @@ export default function FormularioEstudiante() {
           <div className="bg-gradient-to-r shadow-lg rounded-xl p-8 w-56 h-56 flex items-center justify-center transition-all group-hover:bg-indigo-200">
             <FaUserAlt size={100} className="text-indigo-600 group-hover:text-indigo-800 transition-all" />
           </div>
-          <span className="mt-4 text-2xl font-semibold text-gray-600 group-hover:text-indigo-700">
+          <span className=" font-mono mt-4 text-2xl font-semibold text-gray-600 group-hover:text-indigo-700">
             Individual
           </span>
         </motion.div>
@@ -50,7 +43,7 @@ export default function FormularioEstudiante() {
           <div className="bg-gradient-to-r shadow-lg rounded-xl p-8 w-56 h-56 flex items-center justify-center transition-all group-hover:bg-purple-200">
             <FaUsers size={100} className="text-purple-600 group-hover:text-purple-800 transition-all" />
           </div>
-          <span className="mt-4 text-2xl font-semibold text-gray-600 group-hover:text-purple-700">
+          <span className="font-mono mt-4 text-2xl font-semibold text-gray-600 group-hover:text-purple-700">
             Por lista
           </span>
         </motion.div>

@@ -8,7 +8,7 @@ const PasosInscripcion = () => {
   };
   return (
     <div className="flex flex-col items-center p-4">
-      <h1 className="text-red-700 font-bold text-2xl mb-4 text-center">
+      <h1 className="text-red-700 font-bold text-3xl mb-4 text-center">
         ¡SU INSCRIPCIÓN AUN NO TERMINÓ!
       </h1>
 
