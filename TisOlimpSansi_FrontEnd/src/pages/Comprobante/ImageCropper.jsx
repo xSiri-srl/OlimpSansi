@@ -14,25 +14,16 @@ const ImageCropper = ({ image, onCrop }) => {
 
   const handleCrop = () => {
     const cropper = cropperRef.current?.cropper;
-    if (!cropper) {
-      console.error("Cropper no está disponible.");
-      return;
-    }
+    if (!cropper) return;
 
-    const croppedCanvas = cropper.getCroppedCanvas();
-    if (!croppedCanvas) {
-      console.error("No se pudo obtener el canvas recortado.");
-      return;
-    }
+    const canvas = cropper.getCroppedCanvas();
+    if (!canvas) return;
 
-    croppedCanvas.toBlob((blob) => {
-      if (!blob) {
-        console.error("El blob resultante es undefined.");
-        return;
-      }
-
-      const file = new File([blob], `cropped-image-${Date.now()}.png`, { type: "image/png" });
-      console.log("Archivo recortado creado:", file);
+    canvas.toBlob((blob) => {
+      if (!blob) return;
+      const file = new File([blob], `cropped-image-${Date.now()}.png`, {
+        type: "image/png",
+      });
       onCrop(file);
     }, "image/png");
   };
@@ -42,13 +33,20 @@ const ImageCropper = ({ image, onCrop }) => {
       {image ? (
         <Cropper
           src={image}
-          style={{ height: 300, width: "100%" }}
+          style={{ height: 500, width: "100%", backgroundColor: "#fff" }}
           guides={true}
           ref={cropperRef}
           cropBoxResizable={true}
           viewMode={1}
           dragMode="move"
           aspectRatio={NaN}
+          background={false}
+          zoom={(e) => {
+            if (e.detail.ratio > 1.5) {
+              e.preventDefault();
+              cropperRef.current.cropper.zoomTo(1.5);
+            }
+          }}
         />
       ) : (
         <p className="text-center text-gray-500">Cargando imagen...</p>
