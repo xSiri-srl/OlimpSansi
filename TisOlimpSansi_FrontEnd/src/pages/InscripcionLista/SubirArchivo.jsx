@@ -141,12 +141,7 @@
               defval: "",
             })
             console.log("Datos crudos del Excel (rawData):", rawData)
-            const erroresValidacion = validarCabecerasExcel(rawData);
-            if (erroresValidacion) {
-              console.log("Errores encontrados:", erroresValidacion);
-              setError(erroresValidacion.join("\n"));
-              return;
-            }
+            
             // Procesar el formato específico del Excel
             const processedData = processSpecificExcelFormat(rawData, globalData)
 
