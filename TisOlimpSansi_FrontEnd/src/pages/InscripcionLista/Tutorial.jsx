@@ -12,10 +12,14 @@ const Tutorial = () => {
   return (
 
     <div className="flex justify-center items-center bg-gray-100">
+      
       <div className="flex flex-col lg:flex-row bg-white p-5 shadow-2xl rounded-lg max-w-8xl w-full">
         
-       
+  
         <div className="lg:w-4/7 bg-gray-200 p-6 rounded-lg shadow-md flex flex-col items-center">
+        <p className="text-red-600 font-bold text-2xl lg:text-3xl mb-6">
+            EJEMPLO DE LLENADO
+          </p>
           <div className="border-4 p-2 border-gray-300 rounded-lg w-full">
             <img src="/images/excel.png" alt="Ejemplo Excel" className="w-full h-auto" />
           </div>
