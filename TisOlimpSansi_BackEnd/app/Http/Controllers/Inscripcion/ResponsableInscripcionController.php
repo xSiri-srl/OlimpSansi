@@ -76,4 +76,25 @@ class ResponsableInscripcionController extends Controller
             'message' => '  Responsable de inscripcion eliminado exitosamente',
         ]);
     }
+
+    public function buscarResponsable($ci)
+    {
+        $responsable = ResponsableInscripcionModel::where('ci', $ci)->first();
+    
+        if ($responsable) {
+            $data = [
+                'status' => 200,
+                'found' => true,
+                'responsable' => $responsable,
+            ];
+        }else{
+            $data = [
+                'status' => 200,
+                'found' => false,
+                'message' => 'No se encontró un responsable de inscripción con ese CI.',
+            ];
+        }
+    
+        return response()->json($data);
+    }
 }
