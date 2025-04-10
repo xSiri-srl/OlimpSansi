@@ -15,7 +15,7 @@ const SubirComprobante = () => {
   const [comprobantePath, setComprobantePath] = useState("");
   const [comprobanteNombre, setcomprobanteNombre] = useState("");
 
-  const [scanAttempts, setScanAttempts] = useState(0);
+
   const [isEditable, setIsEditable] = useState(false);
 
   const endpoint = "http://127.0.0.1:8000/api";
@@ -61,10 +61,6 @@ const SubirComprobante = () => {
     }
   };
   const handleScanAgain = () => {
-    if (scanAttempts + 1 >= 3) {
-      setIsEditable(true);
-    }
-    setScanAttempts(scanAttempts + 1);
     setStep(3);
   };
 
@@ -520,8 +516,11 @@ const SubirComprobante = () => {
             </div>
 
             {/* Confirmación */}
-            <p className="text-lg font-semibold mt-6">
-              ¿Están correctos los datos?
+            <p className="text-3xl font-bold mt-6">
+              Verifique que sus datos esten correctos
+            </p>
+            <p className="text-2xl  font-semibold mt-6">
+             ¿Los datos que ingresó son correctos?
             </p>
             <div className="flex justify-center mt-4 space-x-4">
               {/* Botón para volver a escanear */}
@@ -529,7 +528,7 @@ const SubirComprobante = () => {
                 onClick={handleScanAgain}
                 className="bg-red-600 text-white px-6 py-2 rounded-md transition duration-300 ease-in-out hover:-translate-y-1 hover:scale-110 hover:bg-red-500 shadow-md"
               >
-                Volver a escanear ({scanAttempts}/3)
+                Volver a escanear 
               </button>
 
               {/* Botón para finalizar */}
