@@ -8,6 +8,9 @@ use Illuminate\Http\Request;
 use thiagoalessio\TesseractOCR\TesseractOCR;
 use Barryvdh\DomPDF\Facade\Pdf;
 
+use Illuminate\Support\Facades\Log;
+
+use thiagoalessio\TesseractOCR\UnsuccessfulCommandException;
 class OrdenPagoController extends Controller
 {
     /**
@@ -96,33 +99,50 @@ class OrdenPagoController extends Controller
 
     public function procesarComprobante(Request $request)
     {
-
         $validated = $request->validate([
-            //'comprobante' => 'required|image|mimes:jpg,png,jpeg|max:2048', 
-            'comprobante_numero' => 'required|image|mimes:jpg,png,jpeg|max:2048', 
-            'comprobante_nombre' => 'required|image|mimes:jpg,png,jpeg|max:2048',
+            'comprobante_numero' => 'required|image|mimes:jpg,png,jpeg|max:5120',
+            'comprobante_nombre' => 'required|image|mimes:jpg,png,jpeg|max:5120',
         ]);
-        // Obtener las imágenes subidas
+    
+        // Obtener imágenes
         $imagenComprobante = $request->file('comprobante_numero');
         $imagenNombre = $request->file('comprobante_nombre');
-        
-        // Procesar las imágenes con Tesseract OCR (no se almacena en el servidor)
-        $numeroComprobante = (new TesseractOCR($imagenComprobante->getRealPath()))
-        ->lang('spa')  
-        ->run();
-        
-        //return response()->json(['message' => 'llego.'], 200);
-        $nombrePagador = (new TesseractOCR($imagenNombre->getRealPath()))
-        ->lang('spa') 
-        ->run();
     
-        // Retornar los datos extraídos para su confirmación
+        // Guardar imágenes para depuración (solo si falla)
+        $debugDir = storage_path('app/public/debug_ocr');
+        if (!file_exists($debugDir)) {
+            mkdir($debugDir, 0755, true);
+        }
+    
+        $rutaComprobante = $imagenComprobante->getRealPath();
+        $rutaNombre = $imagenNombre->getRealPath();
+    
+        $numeroComprobante = '';
+        $nombrePagador = '';
+    
+        try {
+            $numeroComprobante = (new TesseractOCR($rutaComprobante))
+                ->lang('spa')
+                ->run();
+        } catch (UnsuccessfulCommandException $e) {
+            $imagenComprobante->move($debugDir, 'comprobante_error.jpg');
+            Log::error('OCR falló para comprobante_numero: ' . $e->getMessage());
+        }
+    
+        try {
+            $nombrePagador = (new TesseractOCR($rutaNombre))
+                ->lang('spa')
+                ->run();
+        } catch (UnsuccessfulCommandException $e) {
+            $imagenNombre->move($debugDir, 'nombre_error.jpg');
+            Log::error('OCR falló para comprobante_nombre: ' . $e->getMessage());
+        }
+    
         return response()->json([
-            'numero_comprobante' => $numeroComprobante,
-            'nombre_pagador' => $nombrePagador,
+            'numero_comprobante' => $numeroComprobante ?: 'No se pudo extraer',
+            'nombre_pagador' => $nombrePagador ?: 'No se pudo extraer',
         ]);
     }
-    
 
 
     public function guardarComprobante(Request $request)
@@ -130,7 +150,7 @@ class OrdenPagoController extends Controller
         $validated = $request->validate([
             'numero_comprobante' => 'required|string',
             'codigo_generado' => 'required|string',
-            'comprobante' => 'required|image|mimes:jpg,png,jpeg|max:2048', 
+            'comprobante' => 'required|image|mimes:jpg,png,jpeg|max:5120', 
         ]);
     
         // Obtener el archivo de la imagen subido

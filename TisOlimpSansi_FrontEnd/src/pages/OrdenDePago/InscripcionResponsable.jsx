@@ -74,7 +74,6 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
 
     const isCIValid = validateInput(formData.responsable?.ci, "ci", /^[0-9]*$/);
 
-    // Si hay algún error, no proceder
     if (
       !isApellidoPaternoValid ||
       !isApellidoMaternoValid ||

@@ -1,15 +1,20 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 const PasosInscripcion = () => {
+  const navigate = useNavigate();
+  const handleConfirmar = () => {
+    navigate("/SubirComprobante");
+  };
   return (
     <div className="flex flex-col items-center p-4">
-      <h1 className="text-red-700 font-bold text-2xl mb-4 text-center">
+      <h1 className="text-red-700 font-bold text-3xl mb-4 text-center">
         ¡SU INSCRIPCIÓN AUN NO TERMINÓ!
       </h1>
 
       <div className="flex flex-col md:flex-row gap-4">
         {/* Paso 1 y 2 */}
-        <div className="bg-slate-200 p-4 rounded w-full md:w-1/2">
+        <div className="bg-slate-300 p-4 rounded w-full md:w-1/2">
           <div className="mb-4">
             <span className="bg-blue-500 text-white px-2 py-1 rounded-full mr-2">1</span>
             Descargue la siguiente orden de pago:
@@ -39,7 +44,7 @@ const PasosInscripcion = () => {
         </div>
 
         {/* Paso 3 y 4 */}
-        <div className="bg-slate-200 p-4 rounded w-full md:w-1/2">
+        <div className="bg-slate-300 p-4 rounded w-full md:w-1/2">
         <div className="mb-4">
   <span className="bg-blue-500 text-white px-2 py-1 rounded-full mr-2">3</span>
   Con la orden de pago impresa, diríjase a las cajas facultativas
@@ -103,7 +108,17 @@ const PasosInscripcion = () => {
             />
             </div>
           </div>
+         
         </div>
+      
+      </div>
+      <div className="flex justify-center mt-8">
+        <button
+          onClick={handleConfirmar}
+          className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
+        >
+          Confirmar
+        </button>
       </div>
     </div>
   );

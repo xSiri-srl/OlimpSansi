@@ -15,7 +15,7 @@ const SubirComprobante = () => {
   const [comprobantePath, setComprobantePath] = useState("");
   const [comprobanteNombre, setcomprobanteNombre] = useState("");
 
-  const [scanAttempts, setScanAttempts] = useState(0);
+
   const [isEditable, setIsEditable] = useState(false);
 
   const endpoint = "http://127.0.0.1:8000/api";
@@ -25,17 +25,19 @@ const SubirComprobante = () => {
     const file = event.target.files[0];
 
     if (file) {
-      const validExtensions = ["image/jpeg", "image/png"];
+      const validExtensions = ["image/jpg", "image/png","image/jpeg"];
       if (!validExtensions.includes(file.type)) {
-        setError("Solo se permiten archivos JPG o PNG .");
+        setError("Solo se permiten archivos JPG, PNG y JPEG.");
         setSelectedFile(null);
         setPreview(null);
         return;
       }
 
-      const maxSize = 5 * 1024 * 1024;
+      const maxSize = 3 * 1024 * 1024;
+      console.log(maxSize);
+      console.log(file.size);
       if (file.size > maxSize) {
-        setError("El archivo es demasiado grande. El límite es 5MB.");
+        setError("El archivo es demasiado grande. El límite es 3MB.");
         setSelectedFile(null);
         setPreview(null);
         return;
@@ -59,10 +61,6 @@ const SubirComprobante = () => {
     }
   };
   const handleScanAgain = () => {
-    if (scanAttempts + 1 >= 3) {
-      setIsEditable(true);
-    }
-    setScanAttempts(scanAttempts + 1);
     setStep(3);
   };
 
@@ -128,8 +126,7 @@ const SubirComprobante = () => {
     formData.append("comprobante_numero", selectedFile.numero);
     formData.append("comprobante_nombre", selectedFile.nombre);
 
-    console.log(selectedFile.numero);
-    console.log(selectedFile.nombre);
+
     try {
       const response = await axios.post(
         `${endpoint}/procesar-comprobanteOCR`,
@@ -149,7 +146,8 @@ const SubirComprobante = () => {
       }
     } catch (err) {
       console.error("Error al procesar el comprobante:", err);
-      setError(err.response?.data?.message || "Error al procesar.");
+      setError("Hubo un error, intente subir la imagen de nuevo.");
+      
     } finally {
       setLoading(false);
     }
@@ -317,106 +315,130 @@ const SubirComprobante = () => {
 
         {/* Paso 3 - Vista previa */}
         {step === 3 && (
+  <div>
+    {/* Vista previa de la imagen original */}
+    <div className="flex justify-center">
+      <div className="border-2 border-blue-500 p-4 w-64 h-64 flex items-center justify-center bg-gray-100">
+        {preview ? (
+          selectedFile?.type === "application/pdf" ? (
+            <embed src={preview} type="application/pdf" width="100%" height="100%" />
+          ) : (
+            <img src={preview} alt="Comprobante" className="max-w-full max-h-full rounded-lg" />
+          )
+        ) : (
+          <div className="text-gray-500">Vista previa</div>
+        )}
+      </div>
+    </div>
+
+    {/* Recorte para el Número */}
+    <div className="p-4">
+      <h2 className="text-lg text-center font-semibold mb-2 text-gray-500">
+        Por favor, seleccione el número del comprobante
+      </h2>
+      <div className="flex justify-center mt-4">
+        <ImageCropper
+          image={preview}
+          onCrop={(croppedFile) => {
+            const previewUrl = URL.createObjectURL(croppedFile);
+            if (selectedFile?.numeroPreview) {
+              URL.revokeObjectURL(selectedFile.numeroPreview);
+            }
+            setSelectedFile((prev) => ({
+              ...prev,
+              numero: croppedFile,
+              numeroPreview: previewUrl,
+            }));
+          }}
+        />
+      </div>
+      <p className="flex justify-center text-sm text-green-600 mt-2">
+        {selectedFile?.numero ? selectedFile.numero.name : "No hay recorte de número"}
+      </p>
+    </div>
+
+    {/* Recorte para el Nombre */}
+    <div className="p-4">
+      <h2 className="text-lg text-center font-semibold mb-2 text-gray-500">
+        Por favor, seleccione el nombre del que pagó
+      </h2>
+      <div className="flex justify-center mt-4">
+        <ImageCropper
+          image={preview}
+          onCrop={(croppedFile) => {
+            const previewUrl = URL.createObjectURL(croppedFile);
+            if (selectedFile?.nombrePreview) {
+              URL.revokeObjectURL(selectedFile.nombrePreview);
+            }
+            setSelectedFile((prev) => ({
+              ...prev,
+              nombre: croppedFile,
+              nombrePreview: previewUrl,
+            }));
+          }}
+        />
+      </div>
+      <p className="flex justify-center text-sm text-green-600 mt-2">
+        {selectedFile?.nombre ? selectedFile.nombre.name : "No hay recorte de nombre"}
+      </p>
+    </div>
+
+    {/* Vista previa de los recortes */}
+    <div className="mt-8">
+      <h2 className="text-center text-lg font-semibold text-gray-600 mb-4">Vista previa del recorte</h2>
+      <div className="flex justify-center gap-6">
+        {selectedFile?.numeroPreview && (
           <div>
-            {/* Vista previa de la imagen original */}
-            <h2 className="text-lg text-center font-semibold mb-2 text-gray-500">
-              Vista previa del comprobante de pago
-            </h2>
-            <div className="flex justify-center">
-              <div className="border-2 border-blue-500 p-4 w-80 h-80 flex items-center justify-center bg-gray-100">
-                {preview ? (
-                  selectedFile?.type === "application/pdf" ? (
-                    <embed
-                      src={preview}
-                      type="application/pdf"
-                      width="100%"
-                      height="100%"
-                    />
-                  ) : (
-                    <img
-                      src={preview}
-                      alt="Comprobante"
-                      className="max-w-full max-h-full rounded-lg"
-                    />
-                  )
-                ) : (
-                  <div className="text-gray-500">Vista previa</div>
-                )}
-              </div>
-            </div>
-
-            <div className="flex justify-center gap-4 p-4 flex-col md:flex-row">
-              {/* Recorte para el Número */}
-              <div className="md:w-1/2 p-4 border rounded-lg shadow-md flex-shrink-0">
-                <h2 className="text-lg text-center font-semibold mb-2 text-gray-500">
-                  Por favor, seleccione el número del comprobante
-                </h2>
-                <div className="flex justify-center mt-4">
-                  <ImageCropper
-                    image={preview}
-                    onCrop={(croppedFile) => {
-                      setSelectedFile((prev) => ({
-                        ...prev,
-                        numero: croppedFile, // Guardamos el archivo recortado
-                      }));
-                    }}
-                  />
-                </div>
-                <p className="flex justify-center text-sm text-green-600 mt-2">
-                  {selectedFile?.numero
-                    ? selectedFile.numero.name
-                    : "No hay recorte de número"}
-                </p>
-              </div>
-
-              {/* Recorte para el Nombre */}
-              <div className="md:w-1/2 p-4 border rounded-lg shadow-md flex-shrink-0">
-                <h2 className="text-lg text-center font-semibold mb-2 text-gray-500">
-                  Por favor, seleccione el nombre del responsable de inscripción
-                </h2>
-                <div className="flex justify-center mt-4">
-                  <ImageCropper
-                    image={preview}
-                    onCrop={(croppedFile) => {
-                      setSelectedFile((prev) => ({
-                        ...prev,
-                        nombre: croppedFile, // Guardamos el archivo recortado
-                      }));
-                    }}
-                  />
-                </div>
-                <p className="flex justify-center text-sm text-green-600 mt-2">
-                  {selectedFile?.nombre
-                    ? selectedFile.nombre.name
-                    : "No hay recorte de nombre"}
-                </p>
-              </div>
-            </div>
-
-            {/* Botones */}
-            <div className="flex justify-center mt-6 space-x-4">
-              <button
-                onClick={() => setStep(2)}
-                className="bg-gray-500 text-white px-6 py-2 rounded-md transition duration-300 ease-in-out hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500 shadow-md"
-              >
-                Atrás
-              </button>
-              <button
-                onClick={procesarComprobante}
-                disabled={
-                  loading || !selectedFile?.numero || !selectedFile?.nombre
-                }
-                className={`px-6 py-2 transition duration-300 ease-in-out text-white rounded-md shadow-md ${
-                  selectedFile?.numero && selectedFile?.nombre && !loading
-                    ? "bg-blue-500 hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500"
-                    : "bg-gray-400 cursor-not-allowed"
-                }`}
-              >
-                {loading ? "Escaneando..." : "Escanear"}
-              </button>
-            </div>
+            <p className="text-center text-sm mb-1 text-gray-500">Número</p>
+            <img
+              src={selectedFile.numeroPreview}
+              alt="Número Recortado"
+              className="max-w-xs max-h-64 border rounded shadow"
+            />
           </div>
         )}
+        {selectedFile?.nombrePreview && (
+          <div>
+            <p className="text-center text-sm mb-1 text-gray-500">Nombre</p>
+            <img
+              src={selectedFile.nombrePreview}
+              alt="Nombre Recortado"
+              className="max-w-xs max-h-64 border rounded shadow"
+            />
+          </div>
+        )}
+      </div>
+    </div>
+
+    {/* Botones */}
+    <div className="flex justify-center mt-6 space-x-4">
+      <button
+        onClick={() => setStep(2)}
+        className="bg-gray-500 text-white px-6 py-2 rounded-md transition duration-300 ease-in-out hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500 shadow-md"
+      >
+        Atrás
+      </button>
+      <button
+        onClick={procesarComprobante}
+        disabled={loading || !selectedFile?.numero || !selectedFile?.nombre}
+        className={`px-6 py-2 transition duration-300 ease-in-out text-white rounded-md shadow-md ${
+          selectedFile?.numero && selectedFile?.nombre && !loading
+            ? "bg-blue-500 hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500"
+            : "bg-gray-400 cursor-not-allowed"
+        }`}
+      >
+        {loading ? "Escaneando..." : "Escanear"}
+      </button>
+
+    </div>
+    {error && (
+  <div className="text-red-500 text-center mt-4">
+    {error}
+  </div>
+)}
+  </div>
+)}
+
 
         {/* Paso 4 - Datos escaneados */}
         {step === 4 && (
@@ -494,8 +516,11 @@ const SubirComprobante = () => {
             </div>
 
             {/* Confirmación */}
-            <p className="text-lg font-semibold mt-6">
-              ¿Están correctos los datos?
+            <p className="text-3xl font-bold mt-6">
+              Verifique que sus datos esten correctos
+            </p>
+            <p className="text-2xl  font-semibold mt-6">
+             ¿Los datos que ingresó son correctos?
             </p>
             <div className="flex justify-center mt-4 space-x-4">
               {/* Botón para volver a escanear */}
@@ -503,7 +528,7 @@ const SubirComprobante = () => {
                 onClick={handleScanAgain}
                 className="bg-red-600 text-white px-6 py-2 rounded-md transition duration-300 ease-in-out hover:-translate-y-1 hover:scale-110 hover:bg-red-500 shadow-md"
               >
-                Volver a escanear ({scanAttempts}/3)
+                Volver a escanear 
               </button>
 
               {/* Botón para finalizar */}

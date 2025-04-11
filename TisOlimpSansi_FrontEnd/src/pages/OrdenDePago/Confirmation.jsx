@@ -29,6 +29,7 @@ const Confirmation = ({ navigate, handleBack }) => {
 
       // Extraer el código generado de la respuesta
       const codigoGenerado = response.data.codigo_generado;
+      console.log("Código generado:", codigoGenerado);
 
       setSubmitStatus({
         success: true,
