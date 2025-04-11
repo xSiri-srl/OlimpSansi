@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import RegistroResponsable from './RegistroResponsable';
 import SubirArchivo from './SubirArchivo';
 import ListaCompetidores from './ListaCompetidores';
+import PasosInscripcion from './PasosInscripcion';
 
 const RegistroPorLista = () => {
   const [step, setStep] = useState(1);
@@ -44,6 +45,7 @@ const RegistroPorLista = () => {
       {step === 1 && <RegistroResponsable setStep={setStep} />}
       {step === 2 && <SubirArchivo setStep={setStep} />}
       {step === 3 && <ListaCompetidores setStep={setStep} />}
+      {step === 4 && <PasosInscripcion setStep={setStep} />}
     </div>
     </div>
   );

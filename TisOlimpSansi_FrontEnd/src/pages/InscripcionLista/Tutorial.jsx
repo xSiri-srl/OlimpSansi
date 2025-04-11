@@ -22,9 +22,13 @@ const Tutorial = () => {
 
           
           <div className="flex flex-col sm:flex-row gap-4 mt-5 ">
-          <button className="mt-4 bg-green-500 text-white py-3 px-4 rounded-lg transition duration-300 ease-in-out text-white rounded-md hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500 shadow-md">
+          <a
+                href="/images/plantilla/plantilla_inscripcion.xlsx"
+                download
+                className="mt-4 bg-green-500 text-white py-3 px-4 rounded-lg transition duration-300 ease-in-out hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500 shadow-md text-center"
+              >
                 Descargar plantilla
-            </button>
+              </a>
             <button className="mt-4 bg-blue-500 text-white py-3 px-4 rounded-lg transition duration-300 ease-in-out text-white rounded-md hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500 shadow-md"
             onClick={() => handleSeleccion("IniciarInscripcion")}
             >
