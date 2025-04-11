@@ -54,14 +54,14 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
     const isApellidoPaternoValid = validateInput(
       formData.responsable?.apellidoPaterno,
       "apellidoPaterno",
-      /^[A-Za-zÁÉÍÓÚáéíóúÑñ]+(\s[A-Za-zÁÉÍÓÚáéíóúÑñ]+)*$/,
+      /^[A-Za-zÁÉÍÓÚáéíóúÑñ]+([A-Za-zÁÉÍÓÚáéíóúÑñ]+)*$/,
       1
     );
 
     const isApellidoMaternoValid = validateInput(
       formData.responsable?.apellidoMaterno,
       "apellidoMaterno",
-      /^[A-Za-zÁÉÍÓÚáéíóúÑñ]+(\s[A-Za-zÁÉÍÓÚáéíóúÑñ]+)*$/,
+      /^[A-Za-zÁÉÍÓÚáéíóúÑñ]+([A-Za-zÁÉÍÓÚáéíóúÑñ]+)*$/,
       1
     );
 
@@ -144,7 +144,7 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
                     "responsable",
                     "apellidoPaterno",
                     e.target.value.toUpperCase(),
-                    /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
+                    /^[A-Za-zÁÉÍÓÚáéíóúÑñ]*$/
                   )
                 }
                 maxLength="15"
@@ -170,7 +170,7 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
                     "responsable",
                     "apellidoMaterno",
                     e.target.value.toUpperCase(),
-                    /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
+                    /^[A-Za-zÁÉÍÓÚáéíóúÑñ]*$/
                   )
                 }
                 maxLength="15"
@@ -252,7 +252,8 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
               formData.responsable?.ci.length < 7 ||
               formData.responsable?.nombres.length < 2 ||
               formData.responsable?.apellidoMaterno.length < 2 ||
-              formData.responsable?.apellidoPaterno.length < 2
+              formData.responsable?.apellidoPaterno.length < 2 ||
+              formData.responsable?.nombres.split(" ").length > 2
             }
             className={`px-6 py-2 transition duration-300 ease-in-out text-white rounded-md shadow-md ${
               formData.responsable?.nombres &&
@@ -261,6 +262,7 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
               formData.responsable?.nombres.length >= 2 &&
               formData.responsable?.apellidoMaterno.length >= 2 &&
               formData.responsable?.apellidoPaterno.length >= 2 &&
+              formData.responsable?.nombres.split(" ").length <= 2 &&
               !isSubmitting
                 ? "bg-blue-500 hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500"
                 : "bg-gray-400 cursor-not-allowed"

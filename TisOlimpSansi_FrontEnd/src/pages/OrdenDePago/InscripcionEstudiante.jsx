@@ -223,7 +223,7 @@ export default function InscripcionEstudiante({
                     "estudiante",
                     "apellidoPaterno",
                     e.target.value.toUpperCase(),
-                    /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
+                    /^[A-Za-zÁÉÍÓÚáéíóúÑñ]*$/
                   )
                 }
                 maxLength="15"
@@ -249,7 +249,7 @@ export default function InscripcionEstudiante({
                     "estudiante",
                     "apellidoMaterno",
                     e.target.value.toUpperCase(),
-                    /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
+                    /^[A-Za-zÁÉÍÓÚáéíóúÑñ]*$/
                   )
                 }
                 maxLength="15"
@@ -538,7 +538,8 @@ export default function InscripcionEstudiante({
             formData.estudiante?.nombres.length < 2 ||
             formData.estudiante?.apellidoMaterno.length < 2 ||
             formData.estudiante?.apellidoPaterno.length < 2 ||
-            formData.estudiante?.colegio.length < 2
+            formData.estudiante?.colegio.length < 2 ||
+            formData.estudiante?.nombres.split(" ").length > 2
           }
           className={`px-6 py-2 transition duration-300 ease-in-out text-white rounded-md shadow-md ${
             formData.estudiante?.nombres &&
@@ -557,6 +558,7 @@ export default function InscripcionEstudiante({
             formData.estudiante?.apellidoMaterno.length >= 2 &&
             formData.estudiante?.apellidoPaterno.length >= 2 &&
             formData.estudiante?.colegio.length >= 2 &&
+            formData.estudiante?.nombres.split(" ").length <= 2 &&
             !isSubmitting
               ? "bg-blue-500 hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500"
               : "bg-gray-400 cursor-not-allowed"
