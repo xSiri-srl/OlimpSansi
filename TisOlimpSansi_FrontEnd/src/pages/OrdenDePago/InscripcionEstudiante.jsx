@@ -204,183 +204,193 @@ export default function InscripcionEstudiante({
     <div className="flex flex-col items-center">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl">
         {/* Columna 1: Datos Personales */}
-        <div className="flex flex-col items-center">
-          <h2 className="text-lg font-semibold mb-4 text-gray-500 self-center">
-            Datos Personales
-          </h2>
-          <div className="space-y-4 w-full max-w-md">
-            <div>
-              <label className="flex items-center gap-2">
-                <FaUserAlt className="text-black" /> Apellido Paterno
-              </label>
-              <input
-                type="text"
-                className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                placeholder="Apellido Paterno"
-                value={formData.estudiante?.apellidoPaterno || ""}
-                onChange={(e) =>
-                  handleValidatedChange(
-                    "estudiante",
-                    "apellidoPaterno",
-                    e.target.value.toUpperCase(),
-                    /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
-                  )
-                }
-              />
-              {errors.apellidoPaterno && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.apellidoPaterno}
-                </p>
-              )}
-            </div>
+          <div className="flex flex-col items-center">
+            <h2 className="text-lg font-semibold mb-4 text-gray-500 self-center">
+              Datos Personales
+            </h2>
+            <div className="space-y-4 w-full max-w-md">
+              <div>
+                <label className="flex items-center gap-2">
+            <FaUserAlt className="text-black" /> Apellido Paterno
+                </label>
+                <input
+            type="text"
+            className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            placeholder="Apellido Paterno"
+            value={formData.estudiante?.apellidoPaterno || ""}
+            onChange={(e) =>
+              handleValidatedChange(
+                "estudiante",
+                "apellidoPaterno",
+                e.target.value.toUpperCase(),
+                /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
+              )
+            }
+                />
+                {errors.apellidoPaterno && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.apellidoPaterno}
+            </p>
+                )}
+              </div>
 
-            <div>
-              <label className="flex items-center gap-2">
-                <FaUserAlt className="text-black" /> Apellido Materno
-              </label>
-              <input
-                type="text"
-                className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                placeholder="Apellido Materno"
-                value={formData.estudiante?.apellidoMaterno || ""}
-                onChange={(e) =>
-                  handleValidatedChange(
-                    "estudiante",
-                    "apellidoMaterno",
-                    e.target.value.toUpperCase(),
-                    /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
-                  )
-                }
-              />
-              {errors.apellidoMaterno && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.apellidoMaterno}
-                </p>
-              )}
-            </div>
+              <div>
+                <label className="flex items-center gap-2">
+            <FaUserAlt className="text-black" /> Apellido Materno
+                </label>
+                <input
+            type="text"
+            className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            placeholder="Apellido Materno"
+            value={formData.estudiante?.apellidoMaterno || ""}
+            onChange={(e) =>
+              handleValidatedChange(
+                "estudiante",
+                "apellidoMaterno",
+                e.target.value.toUpperCase(),
+                /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
+              )
+            }
+                />
+                {errors.apellidoMaterno && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.apellidoMaterno}
+            </p>
+                )}
+              </div>
 
-            <div>
-              <label className="flex items-center gap-2">
-                <FaUserAlt className="text-black" /> Nombres
-              </label>
-              <input
-                type="text"
-                name="nombre"
-                className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                placeholder="Nombres"
-                value={formData.estudiante?.nombres || ""}
-                onChange={(e) =>
-                  handleValidatedChange(
-                    "estudiante",
-                    "nombres",
-                    e.target.value.toUpperCase(),
-                    /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
-                  )
-                }
-              />
-              {errors.nombres && (
-                <p className="text-red-500 text-sm mt-1">{errors.nombres}</p>
-              )}
-            </div>
+              <div>
+                <label className="flex items-center gap-2">
+            <FaUserAlt className="text-black" /> Nombres
+                </label>
+                <input
+            type="text"
+            name="nombre"
+            className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            placeholder="Nombres"
+            value={formData.estudiante?.nombres || ""}
+            onChange={(e) =>
+              handleValidatedChange(
+                "estudiante",
+                "nombres",
+                e.target.value.toUpperCase(),
+                /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
+              )
+            }
+                />
+                {errors.nombres && (
+            <p className="text-red-500 text-sm mt-1">{errors.nombres}</p>
+                )}
+              </div>
 
-            <div>
-              <label className="flex items-center gap-2">
-                <FaIdCard className="text-black" /> Carnet de Identidad
-              </label>
-              <input
-                type="text"
-                name="ci"
-                className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                placeholder="Número de Carnet de Identidad"
-                value={formData.estudiante?.ci || ""}
-                onChange={(e) =>
-                  handleValidatedChange(
-                    "estudiante",
-                    "ci",
-                    e.target.value,
-                    /^[0-9]*$/
-                  )
-                }
-                maxLength="8"
-              />
-              {errors.ci && (
-                <p className="text-red-500 text-sm mt-1">{errors.ci}</p>
-              )}
-            </div>
+              <div>
+                <label className="flex items-center gap-2">
+            <FaIdCard className="text-black" /> Carnet de Identidad
+                </label>
+                <input
+            type="text"
+            name="ci"
+            className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            placeholder="Número de Carnet de Identidad"
+            value={formData.estudiante?.ci || ""}
+            onChange={(e) =>
+              handleValidatedChange(
+                "estudiante",
+                "ci",
+                e.target.value,
+                /^[0-9]*$/
+              )
+            }
+            maxLength="8"
+                />
+                {errors.ci && (
+            <p className="text-red-500 text-sm mt-1">{errors.ci}</p>
+                )}
+              </div>
 
-            <div>
-              <label className="flex items-center gap-2">
-                <FaCalendarAlt className="text-black" /> Fecha de Nacimiento
-              </label>
-              <input
-                type="date"
-                name="fechaNacimiento"
-                className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                value={formData.estudiante?.fechaNacimiento || ""}
-                onChange={(e) =>
-                  handleInputChange(
-                    "estudiante",
-                    "fechaNacimiento",
-                    e.target.value
-                  )
-                }
-              />
-              {errors.fechaNacimiento && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.fechaNacimiento}
-                </p>
-              )}
-            </div>
+              <div>
+                <label className="flex items-center gap-2">
+            <FaCalendarAlt className="text-black" /> Fecha de Nacimiento
+                </label>
+                <input
+            type="date"
+            name="fechaNacimiento"
+            className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            value={formData.estudiante?.fechaNacimiento || ""}
+            min={(() => {
+              const d = new Date();
+              d.setFullYear(d.getFullYear() - 20);
+              return d.toISOString().split('T')[0];
+            })()}
+            max={(() => {
+              const d = new Date();
+              d.setFullYear(d.getFullYear() - 3);
+              return d.toISOString().split('T')[0];
+            })()}
+            onChange={(e) =>
+              handleInputChange(
+                "estudiante",
+                "fechaNacimiento",
+                e.target.value
+              )
+            }
+                />
+                {errors.fechaNacimiento && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.fechaNacimiento}
+            </p>
+                )}
+              </div>
             <div>
               <label className="flex items-center gap-2">
                 <FaEnvelope className="text-black" /> Correo Electrónico
               </label>
-              <input
-                type="email"
-                name="correo"
-                className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                placeholder="Correo Electrónico"
-                value={formData.estudiante?.correo || ""}
-                onChange={(e) =>
-                  handleInputChange("estudiante", "correo", e.target.value)
-                }
-              />
-              {errors.correo && (
-                <p className="text-red-500 text-sm mt-1">{errors.correo}</p>
-              )}
-            </div>
-
-            <div>
-              <p className="text-sm text-gray-600 mt-2">
-                El correo electrónico pertenece a:
-              </p>
-              <div className="flex flex-row space-x-5 mt-2">
-                {["Estudiante", "Padre/Madre", "Profesor"].map((rol) => (
-                  <label key={rol} className="inline-flex items-center">
-                    <input
-                      type="radio"
-                      name="correoPertenece"
-                      value={rol}
-                      checked={formData.estudiante?.correoPertenece === rol}
-                      onChange={() =>
-                        handleInputChange("estudiante", "correoPertenece", rol)
-                      }
-                      className="mr-2"
-                    />
-                    {rol}
-                  </label>
-                ))}
+                <input
+            type="email"
+            name="correo"
+            className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            placeholder="Correo Electrónico"
+            value={formData.estudiante?.correo || ""}
+            onChange={(e) =>
+              handleInputChange("estudiante", "correo", e.target.value)
+            }
+                />
+                {errors.correo && (
+            <p className="text-red-500 text-sm mt-1">{errors.correo}</p>
+                )}
               </div>
-              {errors.correoPertenece && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.correoPertenece}
+
+              <div>
+                <p className="text-sm text-gray-600 mt-2">
+            El correo electrónico pertenece a:
                 </p>
-              )}
+                <div className="flex flex-row space-x-5 mt-2">
+            {["Estudiante", "Padre/Madre", "Profesor"].map((rol) => (
+              <label key={rol} className="inline-flex items-center">
+                <input
+                  type="radio"
+                  name="correoPertenece"
+                  value={rol}
+                  checked={formData.estudiante?.correoPertenece === rol}
+                  onChange={() =>
+              handleInputChange("estudiante", "correoPertenece", rol)
+                  }
+                  className="mr-2"
+                />
+                {rol}
+              </label>
+            ))}
+                </div>
+                {errors.correoPertenece && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.correoPertenece}
+            </p>
+                )}
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Columna 2: Datos del Colegio */}
+          {/* Columna 2: Datos del Colegio */}
         <div className="flex flex-col items-center bg-gray-300 p-6 rounded-md">
           <h3 className="text-lg font-semibold mb-4 text-gray-700 self-center">
             Datos del Colegio
