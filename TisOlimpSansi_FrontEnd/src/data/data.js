@@ -5,7 +5,7 @@ export const navbarLinks = [
     link: "/"
 },
 {
-    id: 3,
+    id: 2,
     title: "Registrar Competidor",
     link: "/inscripcion/forma-inscripcion" // Cambiar en un futuro a seleccionar tipo de inscripción
 },

@@ -19,31 +19,27 @@ L.Icon.Default.mergeOptions({
 });
 
 const OrdenPago = () => {
-  const location = useLocation();
-  const { codigo } = location.state || {};
-  
-  const ordenPago = {
-    codigo: codigo || 'CODE-NOT-FOUND'
-  };
+  const { state } = useLocation();
+  const codigo = state?.codigo; // Obtener el código de la ubicación
   
   const ubicacionCaja = [-17.3934698, -66.1448631];
 
   const handleCopyCode = () => {
-    navigator.clipboard.writeText(ordenPago.codigo);
+    navigator.clipboard.writeText(codigo);
     alert('Código copiado al portapapeles');
   };
 
   const handleDownload = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:8000/api/orden-pago/${ordenPago.codigo}`,
+        `http://localhost:8000/api/orden-pago/${codigo}`,
         { responseType: 'blob' }
       );
       
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `orden-pago-${ordenPago.codigo}.pdf`);
+      link.setAttribute('download', `orden-pago-${codigo}.pdf`);
       document.body.appendChild(link);
       link.click();
     } catch (error) {
@@ -145,7 +141,7 @@ const OrdenPago = () => {
       <div className="border-2 border-dashed border-gray-300 p-4 rounded-lg text-center">
         <h4 className="text-sm font-semibold mb-2">GUARDE ESTE CÓDIGO DE ORDEN</h4>
         <div className="flex items-center justify-center space-x-2">
-          <span className="bg-gray-100 px-4 py-2 rounded-md font-mono">{ordenPago.codigo}</span>
+          <span className="bg-gray-100 px-4 py-2 rounded-md font-mono">{codigo}</span>
           <button 
             onClick={handleCopyCode}
             className="p-2 hover:bg-gray-100 rounded-lg"
