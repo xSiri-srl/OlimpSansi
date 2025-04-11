@@ -11,6 +11,7 @@ import {
   FaMapMarkedAlt,
 } from "react-icons/fa";
 import { useFormData } from "./form-data-context";
+import { validateBirthDate } from "../../utils/dateValidation";
 
 export default function InscripcionEstudiante({
   formData,
@@ -101,12 +102,19 @@ export default function InscripcionEstudiante({
       "provincia"
     );
 
+    const fecha = formData.estudiante?.fechaNacimiento || "";
+    const { valid: isFechaValida, error: fechaError } = validateBirthDate(fecha);
+    if (!isFechaValida) {
+      setErrors((prev) => ({ ...prev, fechaNacimiento: fechaError }));
+    }
+
     if (
       !isApellidoPaternoValid ||
       !isApellidoMaternoValid ||
       !isNombresValid ||
       !isCIValid ||
       !isFechaNacimientoValid ||
+      !isFechaValida ||
       !isCorreoValid ||
       !isCorreoPerteneceValid ||
       !isColegioValid ||
