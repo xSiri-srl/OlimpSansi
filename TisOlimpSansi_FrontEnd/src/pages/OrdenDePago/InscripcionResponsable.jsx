@@ -147,6 +147,7 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
                     /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
                   )
                 }
+                maxLength="15"
                 className="w-full p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Apellido Paterno"
               />
@@ -172,6 +173,7 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
                     /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
                   )
                 }
+                maxLength="15"
                 className="w-full p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Apellido Materno"
               />
@@ -198,6 +200,7 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
                   /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
                 )
               }
+              maxLength="30"
               className="w-full p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Nombres"
             />
@@ -245,11 +248,19 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
             disabled={
               isSubmitting ||
               !formData.responsable?.nombres ||
-              !formData.responsable?.ci
+              !formData.responsable?.ci ||
+              formData.responsable?.ci.length < 7 ||
+              formData.responsable?.nombres.length < 2 ||
+              formData.responsable?.apellidoMaterno.length < 2 ||
+              formData.responsable?.apellidoPaterno.length < 2
             }
             className={`px-6 py-2 transition duration-300 ease-in-out text-white rounded-md shadow-md ${
               formData.responsable?.nombres &&
               formData.responsable?.ci &&
+              formData.responsable?.ci.length >= 7 &&
+              formData.responsable?.nombres.length >= 2 &&
+              formData.responsable?.apellidoMaterno.length >= 2 &&
+              formData.responsable?.apellidoPaterno.length >= 2 &&
               !isSubmitting
                 ? "bg-blue-500 hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500"
                 : "bg-gray-400 cursor-not-allowed"

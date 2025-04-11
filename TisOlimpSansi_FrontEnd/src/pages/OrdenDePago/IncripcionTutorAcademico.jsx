@@ -419,6 +419,7 @@ export default function IncripcionTutorAcademico({
                     /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
                   )
                 }
+                maxLength="15"
               />
               {errors.apellidoPaterno && (
                 <p className="text-red-500 text-sm mt-1">
@@ -445,6 +446,7 @@ export default function IncripcionTutorAcademico({
                     /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
                   )
                 }
+                maxLength="15"
               />
               {errors.apellidoMaterno && (
                 <p className="text-red-500 text-sm mt-1">
@@ -472,6 +474,7 @@ export default function IncripcionTutorAcademico({
                   /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
                 )
               }
+              maxLength="30"
             />
             {errors.nombres && (
               <p className="text-red-500 text-sm mt-1">{errors.nombres}</p>
@@ -549,7 +552,11 @@ export default function IncripcionTutorAcademico({
               !formData.profesor?.apellidoMaterno ||
               !formData.profesor?.nombres ||
               !formData.profesor?.ci ||
-              !formData.profesor?.correo
+              !formData.profesor?.correo ||
+              formData.profesor?.ci.length < 7 ||
+              formData.profesor?.nombres.length < 2 ||
+              formData.profesor?.apellidoMaterno.length < 2 ||
+              formData.profesor?.apellidoPaterno.length < 2
             }
             className={`px-6 py-2 transition duration-300 ease-in-out text-white rounded-md shadow-md ${
               formData.profesor?.apellidoPaterno &&
@@ -557,6 +564,10 @@ export default function IncripcionTutorAcademico({
               formData.profesor?.nombres &&
               formData.profesor?.ci &&
               formData.profesor?.correo &&
+              formData.profesor?.ci.length >= 7 &&
+              formData.profesor?.nombres.length >= 2 &&
+              formData.profesor?.apellidoMaterno.length >= 2 &&
+              formData.profesor?.apellidoPaterno.length >= 2 &&
               !isSubmitting
                 ? "bg-blue-500 hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500"
                 : "bg-gray-400 cursor-not-allowed"
