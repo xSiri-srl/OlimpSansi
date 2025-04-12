@@ -15,7 +15,9 @@ export default function FormularioEstudiante() {
 
   return (
     <div className="flex flex-col items-center justify-center from-indigo-100 to-purple-200 p-6">
-    <p className="font-mono text-4xl">Seleccione su forma de inscripción</p>
+      <h1 className="text-sky-950 font-bold text-4xl mb-4 text-center">
+        SELECCIONE SU FOMA DE INSCRIPCIÓN
+      </h1>
 
       <div className="flex flex-wrap justify-center mt-8 gap-16">
         {/* Opción Individual */}

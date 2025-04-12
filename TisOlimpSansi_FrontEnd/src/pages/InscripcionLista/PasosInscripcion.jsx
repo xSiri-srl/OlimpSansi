@@ -8,15 +8,15 @@ const PasosInscripcion = () => {
   };
   return (
     <div className="flex flex-col items-center p-4">
-      <h1 className="text-red-700 font-bold text-3xl mb-4 text-center">
+      <h1 className="text-red-700 font-bold text-4xl mb-4 text-center">
         ¡SU INSCRIPCIÓN AUN NO TERMINÓ!
       </h1>
 
       <div className="flex flex-col md:flex-row gap-4">
         {/* Paso 1 y 2 */}
-        <div className="bg-slate-300 p-4 rounded w-full md:w-1/2">
-          <div className="mb-4">
-            <span className="bg-blue-500 text-white px-2 py-1 rounded-full mr-2">1</span>
+        <div className="bg-white p-4 rounded w-full md:w-1/2">
+          <div className="mb-4 font-bold">
+            <span className="bg-blue-500 font-bold text-white px-2 py-1 rounded-full mr-2">1</span>
             Descargue la siguiente orden de pago:
           </div>
 
@@ -33,9 +33,9 @@ const PasosInscripcion = () => {
             </div>
           </div>
 
-          <div className="mt-4">
-            <span className="bg-blue-500 text-white px-2 py-1 rounded-full mr-2">2</span>
-            Recuerda este código, mas adelante se te pedirá para seguir con su inscripción:
+          <div className="mt-4 font-bold">
+            <span className="bg-blue-500 font-bold text-white px-2 py-1 rounded-full mr-2">2</span>
+            RECUERDA ESTE CODIGO, mas adelante se te pedirá para seguir con su inscripción:
 
             <div className="border-2 border-green-500 text-center mt-2 p-2">
               ZCZXCZC
@@ -44,9 +44,9 @@ const PasosInscripcion = () => {
         </div>
 
         {/* Paso 3 y 4 */}
-        <div className="bg-slate-300 p-4 rounded w-full md:w-1/2">
-        <div className="mb-4">
-  <span className="bg-blue-500 text-white px-2 py-1 rounded-full mr-2">3</span>
+        <div className="bg-white p-4 rounded w-full md:w-1/2">
+        <div className="mb-4 font-bold">
+  <span className="bg-blue-500 font-bold text-white px-2 py-1 rounded-full mr-2">3</span>
   Con la orden de pago impresa, diríjase a las cajas facultativas
 </div>
 
@@ -94,8 +94,8 @@ const PasosInscripcion = () => {
     Ver ubicación
   </a>
 </div>
-          <div className="mt-10">
-            <span className="bg-blue-500 text-white px-2 py-1 rounded-full mr-2">4</span>
+          <div className="mt-10 font-bold">
+            <span className="bg-blue-500 font-bold text-white px-2 py-1 rounded-full mr-2">4</span>
             Cuando ya haya pagado, redirígete a la pestaña "Subir comprobante"
           </div>
 
