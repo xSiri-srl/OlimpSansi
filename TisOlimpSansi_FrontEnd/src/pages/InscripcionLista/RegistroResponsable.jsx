@@ -32,7 +32,7 @@ function RegistroResponsable({ setStep }) {
   }
 
   // Función para validar entradas con regex
-  const validateInput = (value, fieldName, regex, minWords = 1) => {
+  const validateInput = (value, fieldName, regex, minWords = 1, minLength = 0) => {
     if (!value || value.trim() === "") {
       setErrors((prev) => ({
         ...prev,
@@ -40,12 +40,20 @@ function RegistroResponsable({ setStep }) {
       }))
       return false
     }
-
+  
     if (!regex.test(value)) {
       setErrors((prev) => ({ ...prev, [fieldName]: "Formato inválido." }))
       return false
     }
-
+  
+    if (minLength > 0 && value.length < minLength) {
+      setErrors((prev) => ({
+        ...prev,
+        [fieldName]: `Debe tener al menos ${minLength} dígitos.`,
+      }))
+      return false
+    }
+  
     if (value.trim().split(/\s+/).length < minWords) {
       setErrors((prev) => ({
         ...prev,
@@ -53,7 +61,7 @@ function RegistroResponsable({ setStep }) {
       }))
       return false
     }
-
+  
     setErrors((prev) => ({ ...prev, [fieldName]: "" }))
     return true
   }
@@ -93,7 +101,13 @@ function RegistroResponsable({ setStep }) {
       1,
     )
 
-    const isCIValid = validateInput(formData.responsable?.ci, "ci", /^[0-9]*$/)
+    const isCIValid = validateInput(
+      formData.responsable?.ci,
+      "ci",
+      /^[0-9]*$/,
+      1,
+      7 
+    )
 
     // Si hay algún error, no proceder
     if (!isApellidoPaternoValid || !isApellidoMaternoValid || !isNombresValid || !isCIValid) {
