@@ -1,20 +1,61 @@
-import { useState } from "react";
+import { useState,useEffect, useReducer } from "react";
 import { FaCloudUploadAlt } from "react-icons/fa";
 import axios from "axios";
 import ImageCropper from "./ImageCropper";
 
+
 const SubirComprobante = () => {
-  const [codigoGenerado, setCodigoGenerado] = useState("");
-  const [step, setStep] = useState(1);
-  const [selectedFile, setSelectedFile] = useState(null);
+
   const [sinModificarFile, setSinModificarFile] = useState(null);
-  const [preview, setPreview] = useState(null);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
   const [numeroComprobante, setNumeroComprobante] = useState("");
   const [comprobantePath, setComprobantePath] = useState("");
   const [comprobanteNombre, setcomprobanteNombre] = useState("");
   const [fechaComprobante, setfechaComprobante] = useState("");
+
+  const storedCodigoGenerado = localStorage.getItem("codigoGenerado");
+
+
+  const [codigoGenerado, setCodigoGenerado] = useState(storedCodigoGenerado || "");
+  // Guardar el codigoGenerado en localStorage 
+  useEffect(() => {
+    if (codigoGenerado) {
+      localStorage.setItem("codigoGenerado", codigoGenerado);
+    }
+  }, [codigoGenerado]);
+
+  const storedStep = parseInt(localStorage.getItem('step') || '1'); // Paso predeterminado es 1
+  const storedSelectedFile = JSON.parse(localStorage.getItem('selectedFile') || '{}');
+
+  const [step, setStep] = useState(storedStep);
+  const [selectedFile, setSelectedFile] = useState(storedSelectedFile);
+  const [preview, setPreview] = useState(null); // Aquí cargamos la vista previa de la imagen
+  const [loading, setLoading] = useState(false);
+
+  // Guardar el paso y los recortes cada vez que cambien
+  useEffect(() => {
+    localStorage.setItem('step', step);
+    localStorage.setItem('selectedFile', JSON.stringify(selectedFile));
+  }, [step, selectedFile]);
+
+
+  useEffect(() => {
+    const storedNumero = localStorage.getItem('numeroComprobante');
+    const storedNombre = localStorage.getItem('comprobanteNombre');
+    const storedFecha = localStorage.getItem('fechaComprobante');
+  
+    if (storedNumero) setNumeroComprobante(storedNumero);
+    if (storedNombre) setcomprobanteNombre(storedNombre);
+    if (storedFecha) setfechaComprobante(storedFecha);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('numeroComprobante', numeroComprobante);
+    localStorage.setItem('comprobanteNombre', comprobanteNombre);
+    localStorage.setItem('fechaComprobante', fechaComprobante);
+  }, [numeroComprobante, comprobanteNombre, fechaComprobante]);
+  
+
 
   const endpoint = "http://127.0.0.1:8000/api";
 
@@ -230,52 +271,51 @@ const SubirComprobante = () => {
             </div>
           ))}
         </div>
-
         {/* Paso 1 - Ingresar código */}
-        {step === 1 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-gray-300 p-4 rounded-md">
-              <h3 className="text-lg font-semibold mb-2">Ejemplo:</h3>
-              <div className="bg-gray-400 p-6 rounded-md flex flex-col items-center justify-center">
-                <div className="bg-gray-200 w-full h-16 mb-4"></div>
-                <div className="bg-red-500 text-white px-2 py-1 rounded-md">
-                  4481451
-                </div>
-              </div>
-            </div>
-            <div>
-              <h2 className="text-lg font-semibold mb-2 text-gray-500">
-                Por favor, ingrese el código de orden de pago proporcionado en
-                el formulario de REGISTRAR COMPETIDOR.
-              </h2>
-              <input
-                type="text"
-                value={codigoGenerado}
-                onChange={(e) => setCodigoGenerado(e.target.value)}
-                className="w-full p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Ingrese el código"
-              />
-
-              {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
-              <div className="flex justify-center mt-6">
-                <button
-                  onClick={async () => {
-                    await verificarCodigo();
-                  }}
-                  disabled={loading || !codigoGenerado.trim()}
-                  className={`px-6 py-2 transition duration-300 ease-in-out text-white rounded-md shadow-md ${
-                    codigoGenerado.trim() && !loading
-                      ? "bg-blue-500 hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500"
-                      : "bg-gray-400 cursor-not-allowed"
-                  }`}
-                >
-                  {loading ? "Verificando..." : "Verificar código"}
-                </button>
+      {step === 1 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-gray-300 p-4 rounded-md">
+            <h3 className="text-lg font-semibold mb-2">Ejemplo:</h3>
+            <div className="bg-gray-400 p-6 rounded-md flex flex-col items-center justify-center">
+              <div className="bg-gray-200 w-full h-16 mb-4"></div>
+              <div className="bg-red-500 text-white px-2 py-1 rounded-md">
+                4481451
               </div>
             </div>
           </div>
-        )}
+          <div>
+            <h2 className="text-lg font-semibold mb-2 text-gray-500">
+              Por favor, ingrese el código de orden de pago proporcionado en
+              el formulario de REGISTRAR COMPETIDOR.
+            </h2>
+            <input
+              type="text"
+              value={codigoGenerado}
+              onChange={(e) => setCodigoGenerado(e.target.value)}
+              className="w-full p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Ingrese el código"
+            />
 
+            {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
+            <div className="flex justify-center mt-6">
+              <button
+                onClick={async () => {
+                  await verificarCodigo();
+                }}
+                disabled={loading || !codigoGenerado.trim()}
+                className={`px-6 py-2 transition duration-300 ease-in-out text-white rounded-md shadow-md ${
+                  codigoGenerado.trim() && !loading
+                    ? "bg-blue-500 hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500"
+                    : "bg-gray-400 cursor-not-allowed"
+                }`}
+              >
+                {loading ? "Verificando..." : "Verificar código"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    
         {/* Paso 2 - Subir comprobante */}
         {step === 2 && (
           <div className="grid grid-cols-2 gap-6">
@@ -314,168 +354,159 @@ const SubirComprobante = () => {
           </div>
         )}
 
-        {/* Paso 3 - Vista previa */}
-        {step === 3 && (
-  <div>
-    {/* Vista previa de la imagen original */}
-    <div className="flex justify-center">
-      <div className="border-2 border-blue-500 p-4 w-64 h-64 flex items-center justify-center bg-gray-100">
-        {preview ? (
-          selectedFile?.type === "application/pdf" ? (
-            <embed src={preview} type="application/pdf" width="100%" height="100%" />
-          ) : (
-            <img src={preview} alt="Comprobante" className="max-w-full max-h-full rounded-lg" />
-          )
-        ) : (
-          <div className="text-gray-500">Vista previa</div>
-        )}
-      </div>
-    </div>
-
-    {/* Recorte para el Número */}
-    <div className="p-4">
-      <h2 className="text-lg text-center font-semibold mb-2 text-gray-500">
-        Por favor, seleccione el NÚMERO DEL COMPROBANTE
-      </h2>
-      <div className="flex justify-center mt-4">
-        <ImageCropper
-          image={preview}
-          onCrop={(croppedFile) => {
-            const previewUrl = URL.createObjectURL(croppedFile);
-            if (selectedFile?.numeroPreview) {
-              URL.revokeObjectURL(selectedFile.numeroPreview);
-            }
-            setSelectedFile((prev) => ({
-              ...prev,
-              numero: croppedFile,
-              numeroPreview: previewUrl,
-            }));
-          }}
-        />
-      </div>
-      <p className="flex justify-center text-sm text-green-600 mt-2">
-        {selectedFile?.numero ? selectedFile.numero.name : "No hay recorte de número"}
-      </p>
-    </div>
-
-    {/* Recorte para el Nombre */}
-    <div className="p-4">
-      <h2 className="text-lg text-center font-semibold mb-2 text-gray-500">
-        Por favor, seleccione el NOMBRE 
-      </h2>
-      <div className="flex justify-center mt-4">
-        <ImageCropper
-          image={preview}
-          onCrop={(croppedFile) => {
-            const previewUrl = URL.createObjectURL(croppedFile);
-            if (selectedFile?.nombrePreview) {
-              URL.revokeObjectURL(selectedFile.nombrePreview);
-            }
-            setSelectedFile((prev) => ({
-              ...prev,
-              nombre: croppedFile,
-              nombrePreview: previewUrl,
-            }));
-          }}
-        />
-      </div>
-      <p className="flex justify-center text-sm text-green-600 mt-2">
-        {selectedFile?.nombre ? selectedFile.nombre.name : "No hay recorte de nombre"}
-      </p>
-    </div>
-
-     {/* Recorte para la fecha */}
-     <div className="p-4">
-      <h2 className="text-lg text-center font-semibold mb-2 text-gray-500">
-        Por favor, seleccione la FECHA
-      </h2>
-      <div className="flex justify-center mt-4">
-        <ImageCropper
-          image={preview}
-          onCrop={(croppedFile) => {
-            const previewUrl = URL.createObjectURL(croppedFile);
-            if (selectedFile?.fechaPreview) {
-              URL.revokeObjectURL(selectedFile.fechaPreview);
-            }
-            setSelectedFile((prev) => ({
-              ...prev,
-              fecha: croppedFile,
-              fechaPreview: previewUrl,
-            }));
-          }}
-        />
-      </div>
-      <p className="flex justify-center text-sm text-green-600 mt-2">
-        {selectedFile?.fecha ? selectedFile.fecha.name : "No hay recorte de fecha"}
-      </p>
-    </div>
-
-    {/* Vista previa de los recortes */}
-    <div className="mt-8">
-      <h2 className="text-center text-lg font-semibold text-gray-600 mb-4">Vista previa del recorte</h2>
-      <div className="flex justify-center gap-6">
-        {selectedFile?.numeroPreview && (
-          <div>
-            <p className="text-center text-sm mb-1 text-gray-500">Número</p>
-            <img
-              src={selectedFile.numeroPreview}
-              alt="Número Recortado"
-              className="max-w-xs max-h-64 border rounded shadow"
-            />
+         {/* Paso 3 - Vista previa */}
+      {step === 3 && (
+        <div>
+          {/* Vista previa de la imagen original */}
+          <div className="flex justify-center">
+            <div className="border-2 border-blue-500 p-4 w-64 h-64 flex items-center justify-center bg-gray-100">
+              {preview ? (
+                <img src={preview} alt="Comprobante" className="max-w-full max-h-full rounded-lg" />
+              ) : (
+                <div className="text-gray-500">Vista previa</div>
+              )}
+            </div>
           </div>
-        )}
-        {selectedFile?.nombrePreview && (
-          <div>
-            <p className="text-center text-sm mb-1 text-gray-500">Nombre</p>
-            <img
-              src={selectedFile.nombrePreview}
-              alt="Nombre Recortado"
-              className="max-w-xs max-h-64 border rounded shadow"
-            />
+
+          {/* Recorte para el Número */}
+          <div className="p-4">
+            <h2 className="text-lg text-center font-semibold mb-2 text-gray-500">
+              Por favor, seleccione el NÚMERO DEL COMPROBANTE
+            </h2>
+            <div className="flex justify-center mt-4">
+              <ImageCropper
+                image={preview}
+                onCrop={(croppedFile) => {
+                  const previewUrl = URL.createObjectURL(croppedFile);
+                  if (selectedFile?.numeroPreview) {
+                    URL.revokeObjectURL(selectedFile.numeroPreview);
+                  }
+                  setSelectedFile((prev) => ({
+                    ...prev,
+                    numero: croppedFile,
+                    numeroPreview: previewUrl,
+                  }));
+                }}
+              />
+            </div>
+            <p className="flex justify-center text-sm text-green-600 mt-2">
+              {selectedFile?.numero ? selectedFile.numero.name : "No hay recorte de número"}
+            </p>
           </div>
-        )}
-        {selectedFile?.fechaPreview && (
-          <div>
-            <p className="text-center text-sm mb-1 text-gray-500">Fecha</p>
-            <img
-              src={selectedFile.fechaPreview}
-              alt="Fecha Recortado"
-              className="max-w-xs max-h-64 border rounded shadow"
-            />
+
+          {/* Recorte para el Nombre */}
+          <div className="p-4">
+            <h2 className="text-lg text-center font-semibold mb-2 text-gray-500">
+              Por favor, seleccione el NOMBRE
+            </h2>
+            <div className="flex justify-center mt-4">
+              <ImageCropper
+                image={preview}
+                onCrop={(croppedFile) => {
+                  const previewUrl = URL.createObjectURL(croppedFile);
+                  if (selectedFile?.nombrePreview) {
+                    URL.revokeObjectURL(selectedFile.nombrePreview);
+                  }
+                  setSelectedFile((prev) => ({
+                    ...prev,
+                    nombre: croppedFile,
+                    nombrePreview: previewUrl,
+                  }));
+                }}
+              />
+            </div>
+            <p className="flex justify-center text-sm text-green-600 mt-2">
+              {selectedFile?.nombre ? selectedFile.nombre.name : "No hay recorte de nombre"}
+            </p>
           </div>
-        )}
-      </div>
-    </div>
 
-    {/* Botones */}
-    <div className="flex justify-center mt-6 space-x-4">
-      <button
-        onClick={() => setStep(2)}
-        className="bg-gray-500 text-white px-6 py-2 rounded-md transition duration-300 ease-in-out hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500 shadow-md"
-      >
-        Atrás
-      </button>
-      <button
-        onClick={procesarComprobante}
-        disabled={loading || !selectedFile?.numero || !selectedFile?.nombre || !selectedFile?.fecha}
-        className={`px-6 py-2 transition duration-300 ease-in-out text-white rounded-md shadow-md ${
-          selectedFile?.numero && selectedFile?.nombre && selectedFile?.fecha && !loading
-            ? "bg-blue-500 hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500"
-            : "bg-gray-400 cursor-not-allowed"
-        }`}
-      >
-        {loading ? "Escaneando..." : "Escanear"}
-      </button>
+          {/* Recorte para la fecha */}
+          <div className="p-4">
+            <h2 className="text-lg text-center font-semibold mb-2 text-gray-500">
+              Por favor, seleccione la FECHA
+            </h2>
+            <div className="flex justify-center mt-4">
+              <ImageCropper
+                image={preview}
+                onCrop={(croppedFile) => {
+                  const previewUrl = URL.createObjectURL(croppedFile);
+                  if (selectedFile?.fechaPreview) {
+                    URL.revokeObjectURL(selectedFile.fechaPreview);
+                  }
+                  setSelectedFile((prev) => ({
+                    ...prev,
+                    fecha: croppedFile,
+                    fechaPreview: previewUrl,
+                  }));
+                }}
+              />
+            </div>
+            <p className="flex justify-center text-sm text-green-600 mt-2">
+              {selectedFile?.fecha ? selectedFile.fecha.name : "No hay recorte de fecha"}
+            </p>
+          </div>
 
-    </div>
-    {error && (
-  <div className="text-red-500 text-center mt-4">
-    {error}
-  </div>
-)}
-  </div>
-)}
+          {/* Vista previa de los recortes */}
+          <div className="mt-8">
+            <h2 className="text-center text-lg font-semibold text-gray-600 mb-4">Vista previa del recorte</h2>
+            <div className="flex justify-center gap-6">
+              {selectedFile?.numeroPreview && (
+                <div>
+                  <p className="text-center text-sm mb-1 text-gray-500">Número</p>
+                  <img
+                    src={selectedFile.numeroPreview}
+                    alt="Número Recortado"
+                    className="max-w-xs max-h-64 border rounded shadow"
+                  />
+                </div>
+              )}
+              {selectedFile?.nombrePreview && (
+                <div>
+                  <p className="text-center text-sm mb-1 text-gray-500">Nombre</p>
+                  <img
+                    src={selectedFile.nombrePreview}
+                    alt="Nombre Recortado"
+                    className="max-w-xs max-h-64 border rounded shadow"
+                  />
+                </div>
+              )}
+              {selectedFile?.fechaPreview && (
+                <div>
+                  <p className="text-center text-sm mb-1 text-gray-500">Fecha</p>
+                  <img
+                    src={selectedFile.fechaPreview}
+                    alt="Fecha Recortado"
+                    className="max-w-xs max-h-64 border rounded shadow"
+                  />
+                </div>
+              )}
+            </div>
+          </div>
 
+          {/* Botones */}
+          <div className="flex justify-center mt-6 space-x-4">
+            <button
+              onClick={() => setStep(2)}
+              className="bg-gray-500 text-white px-6 py-2 rounded-md transition duration-300 ease-in-out hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500 shadow-md"
+            >
+              Atrás
+            </button>
+            <button
+              onClick={procesarComprobante}
+              disabled={loading || !selectedFile?.numero || !selectedFile?.nombre || !selectedFile?.fecha}
+              className={`px-6 py-2 transition duration-300 ease-in-out text-white rounded-md shadow-md ${
+                selectedFile?.numero && selectedFile?.nombre && selectedFile?.fecha && !loading
+                  ? "bg-blue-500 hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500"
+                  : "bg-gray-400 cursor-not-allowed"
+              }`}
+            >
+              {loading ? "Escaneando..." : "Escanear"}
+            </button>
+          </div>
+
+          {error && <div className="text-red-500 text-center mt-4">{error}</div>}
+        </div>
+      )}
 
         {/* Paso 4 - Datos escaneados */}
         {step === 4 && (
