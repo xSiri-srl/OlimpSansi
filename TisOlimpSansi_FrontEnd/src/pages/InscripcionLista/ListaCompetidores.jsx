@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
   FaUser,
   FaCalculator,
@@ -16,13 +16,14 @@ import {
 import { useFormData } from "./form-context"
 import axios from "axios"
 import ErrorModal from "./Modales/RegistrosInvalidosModal"
+import DemasiadosErroresModal from "./Modales/DemasiadosErroresModal";
 import ExitoModal from "./Modales/ExitoModal";
 import EditarEstudianteModal from "./Modales/EditarEstudianteModal"
 const ListaCompetidores = ({ setStep }) => {
   const { globalData } = useFormData()
 
   const responsableInscripcion = globalData.responsable_inscripcion
-
+  const [showTooManyErrorsModal, setShowTooManyErrorsModal] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null)
   const [showEditModal, setShowEditModal] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
@@ -108,6 +109,19 @@ const ListaCompetidores = ({ setStep }) => {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage
   const currentItems = filteredEstudiantes.slice(indexOfFirstItem, indexOfLastItem)
   const totalPages = Math.ceil(filteredEstudiantes.length / itemsPerPage)
+
+  // Validar si hay más de 10 competidores con errores
+  useEffect(() => {
+    const errorsCount = processedEstudiantes.filter(est => est.error).length;
+    if (errorsCount > 10) {
+      setShowTooManyErrorsModal(true);
+    }
+  }, []);
+  const handleTooManyErrorsClose = () => {
+    setShowTooManyErrorsModal(false);
+    // Redirigir a la pantalla de subir archivo
+    setStep(2);
+  };
 
   // Modificado para mostrar directamente el modal de edición
   const handleStudentClick = (estudiante) => {
@@ -442,6 +456,9 @@ const ListaCompetidores = ({ setStep }) => {
           mensaje={errorMessage} 
           onClose={() => setShowErrorModal(false)} 
         />
+      )}
+      {showTooManyErrorsModal && (
+        <DemasiadosErroresModal onClose={handleTooManyErrorsClose} />
       )}
     </div>
   )
