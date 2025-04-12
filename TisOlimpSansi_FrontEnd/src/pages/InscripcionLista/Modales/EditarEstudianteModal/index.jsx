@@ -1,12 +1,12 @@
 import React from "react";
 import { FaTimes } from "react-icons/fa";
 import { SECCIONES } from "./constants";
-import { useEstudianteForm } from "./../hooks/useEstudianteForm"
-import DatosCompetidor from "./../components/DatosCompetidor";
-import DatosColegio from "./../components/DatosColegio";
-import AreasCompetencia from "./../components/AreasCompetencia";
-import TutorLegal from "./../components/TutorLegal";
-import TutorAcademico from "./../components/TutorAcademico";
+import { useEstudianteForm } from "./hooks/useEstudianteForm"
+import DatosCompetidor from "./components/DatosCompetidor";
+import DatosColegio from "./components/DatosColegio";
+import AreasCompetencia from "./components/AreasCompetencia";
+import TutorLegal from "./components/TutorLegal";
+import TutorAcademico from "./components/TutorAcademico";
 
 const EditarEstudianteModal = ({ estudiante, onClose, onSave }) => {
   const {
