@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { SECCIONES } from './../EditarEstudianteModal/constants'
-import { normalizarDatosEstudiante } from './../EditarEstudianteModal/utils';
+import { SECCIONES } from '../constants'
+import { normalizarDatosEstudiante } from '../utils';
 
 export const useEstudianteForm = (estudiante) => {
   const [seccionActiva, setSeccionActiva] = useState(SECCIONES.TODOS);
