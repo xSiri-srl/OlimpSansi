@@ -15,8 +15,9 @@ import {
 } from "react-icons/fa"
 import { useFormData } from "./form-context"
 import axios from "axios"
-import EditarEstudianteModal from "./EditarEstudianteModal" // Importar el componente de edición
-
+import ErrorModal from "./Modales/RegistrosInvalidosModal"
+import ExitoModal from "./Modales/ExitoModal";
+import EditarEstudianteModal from "./Modales/EditarEstudianteModal"
 const ListaCompetidores = ({ setStep }) => {
   const { globalData } = useFormData()
 
@@ -28,6 +29,11 @@ const ListaCompetidores = ({ setStep }) => {
   const [itemsPerPage, setItemsPerPage] = useState(10)
   const [filter, setFilter] = useState("todos") // 'todos', 'errores'
   const [searchTerm, setSearchTerm] = useState("")
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [showProgressBar, setShowProgressBar] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   // Get students from context
   const { estudiantes, setEstudiantes }= useFormData()
@@ -137,13 +143,15 @@ const ListaCompetidores = ({ setStep }) => {
     const hayErrores = processedEstudiantes.some((est) => est.error)
 
     if (hayErrores) {
-      alert("Hay estudiantes con errores. Por favor, corríjalos antes de continuar.")
-      return
+      setErrorMessage("Hay estudiantes con errores. Por favor, corríjalos antes de continuar.");
+      setShowErrorModal(true);
+      return;
     }
 
     if (!responsableInscripcion) {
-      alert("Responsable de inscripción no encontrado.")
-      return
+      setErrorMessage("Responsable de inscripción no encontrado.");
+      setShowErrorModal(true);
+      return;
     }
 
     // Estructura el JSON que se enviará
@@ -153,23 +161,48 @@ const ListaCompetidores = ({ setStep }) => {
     }
 
     console.log("Enviando datos:", datosAEnviar) 
+        // Iniciar barra de progreso
+        setShowProgressBar(true);
+        setUploadProgress(0);
+        const progressInterval = setInterval(() => {
+          setUploadProgress(prev => {
+            const newValue = prev + 2;
+            if (newValue >= 90) {
+              clearInterval(progressInterval);
+              return 90; // Mantenemos en 90% hasta que termine la petición
+            }
+            return newValue;
+          });
+        }, 100);
 
     // Enviar los datos al servidor
     try {
       const response = await axios.post(`${endpoint}/inscribir-lista`, datosAEnviar)
 
       if (response.status === 201) {
-        alert("Lista enviada exitosamente.")
-        setStep(4) // Avanzar al siguiente paso
+        // Completar la barra de progreso
+        setUploadProgress(100);
+        clearInterval(progressInterval);
+        
+        // Mostrar modal de éxito en lugar de alerta
+        setShowSuccessModal(true);
       } else {
         throw new Error(`Error en la respuesta: ${response.status}`)
       }
     } catch (error) {
-      console.error("Error al enviar la lista:", error)
-      alert(`Hubo un error al enviar la lista: ${error.message}. Intenta nuevamente.`)
+      console.error("Error al enviar la lista:", error);
+      clearInterval(progressInterval);
+      setShowProgressBar(false);
+      setErrorMessage(`Hubo un error al enviar la lista: ${error.message}. Intenta nuevamente.`);
+      setShowErrorModal(true);
     }
   }
 
+  const handleSuccessModalClose = () => {
+    setShowSuccessModal(false);
+    setShowProgressBar(false);
+    setStep(4); // Avanzar al siguiente paso
+  };
   const paginate = (pageNumber) => {
     if (pageNumber > 0 && pageNumber <= totalPages) {
       setCurrentPage(pageNumber)
@@ -375,12 +408,39 @@ const ListaCompetidores = ({ setStep }) => {
         </button>
       </div>
 
-      {/* Modal de edición del estudiante (ahora mostrado directamente) */}
       {showEditModal && selectedStudent && (
         <EditarEstudianteModal
           estudiante={selectedStudent}
           onClose={handleCloseEditModal}
           onSave={handleSaveEdit}
+        />
+      )}
+      {showProgressBar && (
+        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-40">
+          <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
+            <h3 className="text-lg font-semibold mb-4 text-center">Registrando competidores...</h3>
+            <div className="w-full bg-gray-200 rounded-full h-4 mb-2">
+              <div 
+                className="bg-blue-600 h-full rounded-full transition-all duration-150"
+                style={{ width: `${uploadProgress}%` }}
+              ></div>
+            </div>
+            <p className="text-center text-sm text-gray-600">
+              {uploadProgress < 100 ? 'Enviando datos al servidor...' : 'Completado'}
+            </p>
+          </div>
+        </div>
+      )}
+      {showSuccessModal && (
+        <ExitoModal 
+          mensaje="La lista de competidores ha sido registrada exitosamente."
+          onClose={handleSuccessModalClose}
+        />
+      )}
+      {showErrorModal && (
+        <ErrorModal 
+          mensaje={errorMessage} 
+          onClose={() => setShowErrorModal(false)} 
         />
       )}
     </div>
