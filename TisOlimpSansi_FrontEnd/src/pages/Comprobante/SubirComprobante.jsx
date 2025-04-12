@@ -14,9 +14,7 @@ const SubirComprobante = () => {
   const [numeroComprobante, setNumeroComprobante] = useState("");
   const [comprobantePath, setComprobantePath] = useState("");
   const [comprobanteNombre, setcomprobanteNombre] = useState("");
-
-
-  const [isEditable, setIsEditable] = useState(false);
+  const [fechaComprobante, setfechaComprobante] = useState("");
 
   const endpoint = "http://127.0.0.1:8000/api";
 
@@ -73,6 +71,7 @@ const SubirComprobante = () => {
     setLoading(false);
     setNumeroComprobante("");
     setcomprobanteNombre("");
+    setfechaComprobante("");
     setComprobantePath("");
     window.location.href = "/";
   };
@@ -112,8 +111,8 @@ const SubirComprobante = () => {
 
   // procesar OCR
   const procesarComprobante = async () => {
-    if (!selectedFile?.numero || !selectedFile?.nombre) {
-      setError("Por favor, realiza los recortes para el número y el nombre.");
+    if (!selectedFile?.numero || !selectedFile?.nombre || !selectedFile?.fecha ) {
+      setError("Por favor, realiza los recortes para el número, el nombre y la fecha.");
       return;
     }
 
@@ -122,9 +121,10 @@ const SubirComprobante = () => {
 
     const formData = new FormData();
 
-    // Asegúrate de enviar ambos recortes (número y nombre) como archivos
+    // Asegúrate de enviar ambos recortes (número,nombre y fecha) como archivos
     formData.append("comprobante_numero", selectedFile.numero);
     formData.append("comprobante_nombre", selectedFile.nombre);
+    formData.append("fecha_comprobante", selectedFile.fecha);
 
 
     try {
@@ -137,10 +137,11 @@ const SubirComprobante = () => {
       );
 
       if (response.status === 200) {
-        const { numero_comprobante, comprobante_path, nombre_pagador } =
+        const { numero_comprobante, comprobante_path, nombre_pagador,fecha_comprobante } =
           response.data;
         setNumeroComprobante(numero_comprobante);
         setcomprobanteNombre(nombre_pagador);
+        setfechaComprobante(fecha_comprobante);
         setComprobantePath(comprobante_path);
         setStep(4);
       }
@@ -334,7 +335,7 @@ const SubirComprobante = () => {
     {/* Recorte para el Número */}
     <div className="p-4">
       <h2 className="text-lg text-center font-semibold mb-2 text-gray-500">
-        Por favor, seleccione el número del comprobante
+        Por favor, seleccione el NÚMERO DEL COMPROBANTE
       </h2>
       <div className="flex justify-center mt-4">
         <ImageCropper
@@ -360,7 +361,7 @@ const SubirComprobante = () => {
     {/* Recorte para el Nombre */}
     <div className="p-4">
       <h2 className="text-lg text-center font-semibold mb-2 text-gray-500">
-        Por favor, seleccione el nombre del que pagó
+        Por favor, seleccione el NOMBRE 
       </h2>
       <div className="flex justify-center mt-4">
         <ImageCropper
@@ -380,6 +381,32 @@ const SubirComprobante = () => {
       </div>
       <p className="flex justify-center text-sm text-green-600 mt-2">
         {selectedFile?.nombre ? selectedFile.nombre.name : "No hay recorte de nombre"}
+      </p>
+    </div>
+
+     {/* Recorte para la fecha */}
+     <div className="p-4">
+      <h2 className="text-lg text-center font-semibold mb-2 text-gray-500">
+        Por favor, seleccione la FECHA
+      </h2>
+      <div className="flex justify-center mt-4">
+        <ImageCropper
+          image={preview}
+          onCrop={(croppedFile) => {
+            const previewUrl = URL.createObjectURL(croppedFile);
+            if (selectedFile?.fechaPreview) {
+              URL.revokeObjectURL(selectedFile.fechaPreview);
+            }
+            setSelectedFile((prev) => ({
+              ...prev,
+              fecha: croppedFile,
+              fechaPreview: previewUrl,
+            }));
+          }}
+        />
+      </div>
+      <p className="flex justify-center text-sm text-green-600 mt-2">
+        {selectedFile?.fecha ? selectedFile.fecha.name : "No hay recorte de fecha"}
       </p>
     </div>
 
@@ -407,6 +434,16 @@ const SubirComprobante = () => {
             />
           </div>
         )}
+        {selectedFile?.fechaPreview && (
+          <div>
+            <p className="text-center text-sm mb-1 text-gray-500">Fecha</p>
+            <img
+              src={selectedFile.fechaPreview}
+              alt="Fecha Recortado"
+              className="max-w-xs max-h-64 border rounded shadow"
+            />
+          </div>
+        )}
       </div>
     </div>
 
@@ -420,9 +457,9 @@ const SubirComprobante = () => {
       </button>
       <button
         onClick={procesarComprobante}
-        disabled={loading || !selectedFile?.numero || !selectedFile?.nombre}
+        disabled={loading || !selectedFile?.numero || !selectedFile?.nombre || !selectedFile?.fecha}
         className={`px-6 py-2 transition duration-300 ease-in-out text-white rounded-md shadow-md ${
-          selectedFile?.numero && selectedFile?.nombre && !loading
+          selectedFile?.numero && selectedFile?.nombre && selectedFile?.fecha && !loading
             ? "bg-blue-500 hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500"
             : "bg-gray-400 cursor-not-allowed"
         }`}
@@ -476,7 +513,7 @@ const SubirComprobante = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Número de comprobante */}
                   <div>
-                    <label className="text-gray-700 text-sm font-medium block mb-1">
+                    <label className="text-gray-700 text-sm font-medium mb-1">
                       Número de comprobante *
                     </label>
                     <input
@@ -484,18 +521,14 @@ const SubirComprobante = () => {
                       placeholder="Ej. 123456"
                       value={numeroComprobante}
                       onChange={(e) => setNumeroComprobante(e.target.value)}
-                      disabled={!isEditable}
-                      className={`w-full p-2 border rounded-md focus:outline-none focus:ring-2 ${
-                        isEditable
-                          ? "border-gray-300 focus:ring-blue-500"
-                          : "bg-gray-200 cursor-not-allowed"
-                      }`}
+                      className={`w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 `}
                     />
+                    
                   </div>
 
                   {/* Nombre del responsable */}
                   <div>
-                    <label className="text-gray-700 text-sm font-medium block mb-1">
+                    <label className="text-gray-700 text-sm font-medium mb-1">
                       Nombre del responsable *
                     </label>
                     <input
@@ -503,13 +536,22 @@ const SubirComprobante = () => {
                       placeholder="Ej. Juan Pérez"
                       value={comprobanteNombre}
                       onChange={(e) => setcomprobanteNombre(e.target.value)}
-                      disabled={!isEditable}
-                      className={`w-full p-2 border rounded-md focus:outline-none focus:ring-2 ${
-                        isEditable
-                          ? "border-gray-300 focus:ring-blue-500"
-                          : "bg-gray-200 cursor-not-allowed"
-                      }`}
+                     
+                      className={`w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 `}
                     />
+                  </div>
+                   {/* fecha */}
+                   <div>
+                    <label className="text-gray-700 text-sm font-medium mb-1">
+                      Fecha*
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="04-02-22"
+                      value={fechaComprobante}
+                      onChange={(e) => setfechaComprobante(e.target.value)}
+                      className={`w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 `}
+                      />
                   </div>
                 </div>
               </div>
