@@ -94,14 +94,14 @@ function SubirArchivo({ setStep }) {
     }
   }
 
-  // Modificar la función processExcelFile para añadir la validación de datos faltantes
+  // Modificar la función processExcelFile para eliminar la validación de datos faltantes
   const processExcelFile = async (file) => {
     setLoading(true)
     try {
       const data = await readExcelFile(file)
       console.log("Datos procesados del Excel:", data)
 
-      if (!data || data.length === 0) {
+      if (!data) {
         setError("No se pudieron extraer datos del archivo Excel.")
         setLoading(false)
         return false
@@ -109,9 +109,7 @@ function SubirArchivo({ setStep }) {
 
       // Check if the Excel has the correct format but no student data
       if (data.inscripciones.length === 0) {
-        setError(
-          "El Excel cumple el formato pero no tiene datos o los datos estan incompletos. Por favor, revise la información de estudiantes.",
-        )
+        setError("El Excel cumple el formato pero no tiene datos. Por favor, agregue información de estudiantes.")
         setLoading(false)
         return false
       }
@@ -121,14 +119,6 @@ function SubirArchivo({ setStep }) {
         setError(
           "El archivo Excel excede el límite de 100 estudiantes. Por favor, divida los datos en múltiples archivos.",
         )
-        setLoading(false)
-        return false
-      }
-
-      // Verificar si hay estudiantes con datos faltantes
-      const estudiantesIncompletos = verificarDatosFaltantes(data.inscripciones)
-      if (estudiantesIncompletos.length > 0) {
-        setError("Los datos de los participantes son faltantes. Por favor, complete la información requerida.")
         setLoading(false)
         return false
       }
@@ -149,38 +139,6 @@ function SubirArchivo({ setStep }) {
       setLoading(false)
       return false
     }
-  }
-
-  // Añadir esta nueva función para verificar datos faltantes
-  const verificarDatosFaltantes = (estudiantes) => {
-    const camposObligatoriosEstudiante = ["nombre", "apellido_pa", "ci", "fecha_nacimiento", "correo"]
-    const camposObligatoriosTutor = ["nombre", "apellido_pa", "ci", "correo", "numero_celular"]
-    const camposObligatoriosColegio = ["nombre_colegio", "departamento", "provincia", "curso"]
-    const camposObligatoriosArea = ["nombre_area"] // Eliminado "categoria" para permitir que esté vacío
-
-    return estudiantes.filter((estudiante) => {
-      // Verificar datos del estudiante
-      const datosEstudianteFaltantes = camposObligatoriosEstudiante.some(
-        (campo) => !estudiante.estudiante[campo] || estudiante.estudiante[campo].trim() === "",
-      )
-
-      // Verificar datos del tutor legal
-      const datosTutorFaltantes = camposObligatoriosTutor.some(
-        (campo) => !estudiante.tutor_legal[campo] || estudiante.tutor_legal[campo].trim() === "",
-      )
-
-      // Verificar datos del colegio
-      const datosColegioFaltantes = camposObligatoriosColegio.some(
-        (campo) => !estudiante.colegio[campo] || estudiante.colegio[campo].trim() === "",
-      )
-
-      // Verificar datos de área de competencia (solo nombre_area es obligatorio)
-      const datosAreaFaltantes = estudiante.areas_competencia.some((area) =>
-        camposObligatoriosArea.some((campo) => !area[campo] || area[campo].trim() === ""),
-      )
-
-      return datosEstudianteFaltantes || datosTutorFaltantes || datosColegioFaltantes || datosAreaFaltantes
-    })
   }
 
   const readExcelFile = (file) => {
@@ -261,9 +219,20 @@ function SubirArchivo({ setStep }) {
     const tutorAcademicoCiIdx = 20
     const tutorAcademicoCorreoIdx = 21
 
+    // Procesar solo las filas que tienen datos significativos (a partir de la fila 5)
     for (let i = 5; i < rawData.length; i++) {
       const row = rawData[i]
-      if (row && row.length > 0 && row[apellidoPaternoIdx] && row[nombresIdx]) {
+
+      // Verificar si la fila tiene datos significativos en las columnas principales
+      // Consideramos que una fila tiene datos significativos si tiene al menos datos en una de las primeras columnas
+      const tieneDatosSignificativos =
+        row &&
+        row.length > 0 &&
+        (row[apellidoPaternoIdx]?.toString().trim() !== "" ||
+          row[nombresIdx]?.toString().trim() !== "" ||
+          row[ciIdx]?.toString().trim() !== "")
+
+      if (tieneDatosSignificativos) {
         const estudiante = {
           nombre: row[nombresIdx] || "",
           apellido_pa: row[apellidoPaternoIdx] || "",
