@@ -25,20 +25,46 @@ const Tutorial = () => {
     <div className="flex justify-center items-center bg-gray-100 p-9">
       <div className="flex flex-col lg:flex-row bg-white p-5 shadow-2xl rounded-lg max-w-7xl w-full">
         {/* Lado izquierdo */}
-        <div className="lg:w-1/2 bg-gray-200 p-6 rounded-lg shadow-md flex flex-col items-center">
-          <p className="text-red-600 font-bold text-2xl lg:text-3xl mb-6 text-center">
-            EJEMPLO DE LLENADO
-          </p>
-          <div
-            onClick={() => setIsOpen(true)}
-            className="cursor-pointer border-4 p-2 border-gray-300 rounded-lg w-full hover:shadow-lg transition"
-          >
-            <img
-              src="/images/excel.png"
-              alt="Ejemplo Excel"
-              className="w-full h-auto object-contain"
-            />
-          </div>
+<div className="lg:w-1/2 bg-gray-200 p-6 rounded-lg shadow-md flex flex-col items-center">
+  <p className="text-red-600 font-bold text-2xl lg:text-3xl mb-6 text-center">
+    EJEMPLO DE LLENADO
+  </p>
+  <div
+  className="w-full overflow-x-auto overflow-y-hidden border border-gray-300 rounded shadow"
+  style={{ height: "8cm" }}
+>
+<div
+  style={{
+    height: '8cm',
+    overflowX: 'auto',
+    overflowY: 'hidden',
+    border: '1px solid #ccc',
+    borderRadius: '0.5rem',
+    padding: '0.5rem',
+  }}
+>
+  <div style={{ width: 'max-content' }}>
+    <img
+      src="/images/Ejemplo.png"
+      alt="Ejemplo Expandido"
+      style={{
+        height: '7cm',
+        display: 'block',
+      }}
+    />
+  </div>
+</div>
+
+</div>
+
+
+
+
+
+<p className="text-center text-sm text-gray-500 mb-2">
+  Usa la barra para deslizar, y visualizar todos los campos
+</p>
+
 
           <div className="flex flex-col sm:flex-row gap-4 mt-5">
             <a
