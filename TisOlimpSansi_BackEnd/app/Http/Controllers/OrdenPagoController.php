@@ -52,6 +52,32 @@ class OrdenPagoController extends Controller
         //
     }
 
+    /**
+     * Genera un código único con formato TSOL-YYYY-XXXXXX donde XXXXXX son 6 letras mayúsculas
+     * 
+     * @return string
+     */
+    public function generarCodigoUnico()
+    {
+        $letras = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $year = date('Y');
+        $codigo = '';
+        
+        do {
+            $codigoLetras = '';
+            for ($i = 0; $i < 6; $i++) {
+                $codigoLetras .= $letras[rand(0, 25)];
+            }
+            
+            $codigo = "TSOL-{$year}-{$codigoLetras}";
+        
+            // Verificar que el código no exista ya en la base de datos
+            $existe = OrdenPago::where('codigo_generado', $codigo)->exists();
+        } while ($existe);
+        
+        return $codigo;
+    }
+
     public function descargarOrdenPago(Request $request)
     {
         // Validar que el ID de la orden de pago esté presente
@@ -177,6 +203,20 @@ class OrdenPagoController extends Controller
             'message' => 'Comprobante guardado exitosamente',
             'ordenPago' => $ordenPago
         ]);
+    }
+
+    /**
+     * Obtiene la orden de pago por su código generado
+     */
+    public function obtenerOrdenPagoPorCodigo($codigo)
+    {
+        $ordenPago = OrdenPago::where('codigo_generado', $codigo)->first();
+        
+        if (!$ordenPago) {
+            return response()->json(['message' => 'Código no encontrado'], 404);
+        }
+        
+        return response()->json($ordenPago);
     }
 
 }
