@@ -3,10 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\OrdenPago;
+use Illuminate\Support\Facades\Storage;
 use App\Models\Inscripcion\InscripcionModel;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Http\Request;
 use thiagoalessio\TesseractOCR\TesseractOCR;
 use Barryvdh\DomPDF\Facade\Pdf;
+
+
 
 use Illuminate\Support\Facades\Log;
 
@@ -52,26 +56,102 @@ class OrdenPagoController extends Controller
         //
     }
 
-    public function descargarOrdenPago(Request $request)
+    /**
+     * Genera un código único con formato TSOL-YYYY-XXXXXX donde XXXXXX son 6 letras mayúsculas
+     * 
+     * @return string
+     */
+    public function generarCodigoUnico()
     {
-        // Validar que el ID de la orden de pago esté presente
+        $letras = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $year = date('Y');
+        $codigo = '';
+        
+        do {
+            $codigoLetras = '';
+            for ($i = 0; $i < 6; $i++) {
+                $codigoLetras .= $letras[rand(0, 25)];
+            }
+            
+            $codigo = "{$codigoLetras}";
+        
+            // Verificar que el código no exista ya en la base de datos
+            $existe = OrdenPago::where('codigo_generado', $codigo)->exists();
+        } while ($existe);
+        
+        return $codigo;
+    }
+    public function generarYGuardarOrdenPagoPDF(Request $request)
+    {
         $validated = $request->validate([
             'codigo_generado' => 'required|string|max:255',
         ]);
-
-        // Obtener la orden de pago
+    
         $ordenPago = OrdenPago::where('codigo_generado', $validated['codigo_generado'])->first();
-
-        // Obtener la inscripción asociada por el ID de la orden de pago
+        if (!$ordenPago) {
+            Log::error("Orden de pago no encontrada para el código: {$validated['codigo_generado']}");
+            return response()->json(['message' => 'Orden de pago no encontrada'], 404);
+        }
+    
         $inscripcion = InscripcionModel::where('id_orden_pago', $ordenPago->id)->first();
-
-        // Generar el PDF utilizando DomPDF
+        if (!$inscripcion) {
+            Log::error("Inscripción no encontrada para la orden de pago con código: {$ordenPago->codigo_generado}");
+            return response()->json(['message' => 'Inscripción no encontrada para esta orden de pago'], 404);
+        }
+    
+        Log::info("Generando PDF para la orden de pago: {$ordenPago->codigo_generado}");
+        // Generar el PDF con la vista 'pdf.orden_pago'
         $pdf = Pdf::loadView('pdf.orden_pago', [
             'ordenPago' => $ordenPago,
             'inscripcion' => $inscripcion,
         ]);
-        // Retornar el PDF como respuesta
-        return $pdf->download('orden_pago.pdf');
+    
+        Log::info("PDF generado correctamente.");
+    
+        // Generar el nombre y guardar el PDF en disco
+        $fileName = 'orden_pago_' . $ordenPago->codigo_generado . '.pdf';
+        $filePath = 'ordenes_pago/' . $fileName;
+    
+        Log::info("Guardando PDF en: {$filePath}");
+        // Guardar el archivo en storage/app/public/ordenes_pago
+        try {
+            Storage::disk('public')->put($filePath, $pdf->output());
+            Log::info("PDF guardado correctamente en: {$filePath}");
+        } catch (\Exception $e) {
+            Log::error("Error al guardar el PDF: " . $e->getMessage());
+            return response()->json(['message' => 'Error al guardar el PDF'], 500);
+        }
+    
+        // Guardar la URL en el modelo
+        $ordenPago->orden_pago_url = $filePath;
+        $ordenPago->save();
+    
+        Log::info("PDF guardado y URL actualizada para la orden de pago: {$ordenPago->codigo_generado}");
+    
+        return response()->json([
+            'message' => 'PDF generado y guardado exitosamente.',
+            'orden_pago_url' => asset('storage/' . $filePath),
+            'ordenPago' => $ordenPago
+        ]);
+    }
+
+    /**
+     * Descarga la orden de pago como PDF
+     */
+    public function descargarOrdenPago($codigo)
+    {
+        $filename = "ordenes_pago/orden_pago_{$codigo}.pdf";
+
+        if (!Storage::disk('public')->exists($filename)) {
+            return response()->json(['error' => 'Archivo no encontrado'], 404);
+        }
+
+        $path = storage_path("app/public/" . $filename);
+
+        return response()->file($path, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => "attachment; filename=orden_pago_{$codigo}.pdf",
+        ]);
     }
 
     public function verificarCodigo(Request $request)
@@ -177,6 +257,20 @@ class OrdenPagoController extends Controller
             'message' => 'Comprobante guardado exitosamente',
             'ordenPago' => $ordenPago
         ]);
+    }
+
+    /**
+     * Obtiene la orden de pago por su código generado
+     */
+    public function obtenerOrdenPagoPorCodigo($codigo)
+    {
+        $ordenPago = OrdenPago::where('codigo_generado', $codigo)->first();
+        
+        if (!$ordenPago) {
+            return response()->json(['message' => 'Código no encontrado'], 404);
+        }
+        
+        return response()->json($ordenPago);
     }
 
 }

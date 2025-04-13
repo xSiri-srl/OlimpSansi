@@ -14,6 +14,7 @@ class OrdenPago extends Model
         'codigo_generado',
         'monto_total',
         'comprobante_url',
+        'orden_pago_url',
         'numero_comprobante',
         'nombre_pagador',
         'fecha_emision',
