@@ -69,7 +69,7 @@ class OrdenPagoController extends Controller
                 $codigoLetras .= $letras[rand(0, 25)];
             }
             
-            $codigo = "TSOL-{$year}-{$codigoLetras}";
+            $codigo = "{$codigoLetras}";
         
             // Verificar que el código no exista ya en la base de datos
             $existe = OrdenPago::where('codigo_generado', $codigo)->exists();
