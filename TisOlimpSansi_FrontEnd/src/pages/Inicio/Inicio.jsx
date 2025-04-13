@@ -17,7 +17,7 @@ const Inicio = () => {
             transition={{ duration: 1 }}
             className="text-5xl md:text-6xl font-extrabold drop-shadow-lg"
           >
-            Bienvenido a !OhSansi
+            Bienvenido a O! Sansi
           </motion.h1>
 
           <motion.p
