@@ -36,22 +36,25 @@ const OrdenPago = () => {
     navigator.clipboard.writeText(codigo)
     alert("Código copiado al portapapeles")
   }
-
   const handleDownload = async () => {
     try {
-      const response = await axios.get(`http://localhost:8000/api/orden-pago/${codigo}`, { responseType: "blob" })
-      console.log("Código actual:", codigo)
+      const response = await axios.get(`http://localhost:8000/api/orden-pago/${codigo}`, {
+        responseType: "blob",
+      })
+  
       const url = window.URL.createObjectURL(new Blob([response.data]))
       const link = document.createElement("a")
       link.href = url
-      link.setAttribute("download", `orden-pago-${codigo}.pdf`)
+      link.setAttribute("download", `orden_pago_${codigo}.pdf`)
       document.body.appendChild(link)
       link.click()
+      link.remove()
     } catch (error) {
       console.error("Error descargando PDF:", error)
       alert("Error al descargar la orden de pago")
     }
   }
+  
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-md">
@@ -94,13 +97,13 @@ const OrdenPago = () => {
               <div className="flex-1">
                 <h3 className="font-bold mb-2">VIDEO TUTORIAL</h3>
                 <div className="aspect-w-16 aspect-h-9">
-                  <iframe
+                  {/* <iframe
                     src="https://www.youtube.com/embed/MqsQI2Di2xY"
                     title="Tutorial de ubicación"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
                     className="w-full h-48 rounded-lg shadow-sm"
-                  />
+                  />*/}
                 </div>
               </div>
             </div>
