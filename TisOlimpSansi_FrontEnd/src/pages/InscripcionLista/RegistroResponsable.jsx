@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { FaUser, FaIdCard } from "react-icons/fa"
 import { useFormData } from "./form-context"
 
@@ -20,6 +20,20 @@ function RegistroResponsable({ setStep }) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { globalData, setGlobalData } = useFormData()
 
+  useEffect(() => {
+    // Verificar si ya existen datos del responsable en el contexto global
+    if (globalData.responsable_inscripcion) {
+      const resp = globalData.responsable_inscripcion;
+      setFormData({
+        responsable: {
+          apellidoPaterno: resp.apellido_pa || "",
+          apellidoMaterno: resp.apellido_ma || "",
+          nombres: resp.nombre || "",
+          ci: resp.ci || "",
+        }
+      });
+    }
+  }, [globalData]);
   // Función para manejar cambios en los inputs
   const handleInputChange = (namespace, field, value) => {
     setFormData((prev) => ({
