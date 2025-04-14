@@ -61,26 +61,7 @@ class OrdenPagoController extends Controller
      * 
      * @return string
      */
-    public function generarCodigoUnico()
-    {
-        $letras = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        $year = date('Y');
-        $codigo = '';
-        
-        do {
-            $codigoLetras = '';
-            for ($i = 0; $i < 6; $i++) {
-                $codigoLetras .= $letras[rand(0, 25)];
-            }
-            
-            $codigo = "{$codigoLetras}";
-        
-            // Verificar que el código no exista ya en la base de datos
-            $existe = OrdenPago::where('codigo_generado', $codigo)->exists();
-        } while ($existe);
-        
-        return $codigo;
-    }
+    
     public function generarYGuardarOrdenPagoPDF(Request $request)
     {
         $validated = $request->validate([
