@@ -13,6 +13,15 @@ const SubirComprobante = () => {
   const [comprobanteNombre, setcomprobanteNombre] = useState("");
   const [fechaComprobante, setfechaComprobante] = useState("");
 
+  const [step, setStep] = useState(1);
+  const [selectedFile, setSelectedFile] = useState(null);
+
+  const [preview, setPreview] = useState(null);
+
+  const [loading, setLoading] = useState(false);
+
+
+
   const storedCodigoGenerado = localStorage.getItem("codigoGenerado");
 
 
