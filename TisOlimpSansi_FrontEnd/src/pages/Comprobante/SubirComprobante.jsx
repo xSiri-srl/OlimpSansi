@@ -20,7 +20,10 @@ const SubirComprobante = () => {
 
   const [loading, setLoading] = useState(false);
 
-
+  const [errorNumero, setErrorNumero] = useState("");
+  const [errorNombre, setErrorNombre] = useState("");
+  const [errorFecha, setErrorFecha] = useState("");
+  
 
   const storedCodigoGenerado = localStorage.getItem("codigoGenerado");
 
@@ -35,6 +38,67 @@ const SubirComprobante = () => {
 
 
   const endpoint = "http://127.0.0.1:8000/api";
+
+
+  const handleFinalizar = () => {
+    let valid = true;
+  
+    // Validar número de comprobante
+    const regexNumero = /^[0-9]+$/;
+    if (!regexNumero.test(numeroComprobante)) {
+      setErrorNumero("En este campo solo se permiten números");
+      valid = false;
+    } else {
+      setErrorNumero("");
+    }
+  
+    // Validar nombre del responsable
+    const regexNombre = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
+    if (!regexNombre.test(comprobanteNombre)) {
+      setErrorNombre("En este campo solo se permiten letras, espacios, acentos y la ñ");
+      valid = false;
+    } else {
+      setErrorNombre("");
+    }
+  
+    // Validar fecha (formato dd-mm-aa)
+    const regexFecha = /^\d{2}-\d{2}-\d{2}$/;
+    if (!regexFecha.test(fechaComprobante)) {
+      setErrorFecha("Formato de fecha inválido. Usa dd-mm-aa");
+      valid = false;
+    } else {
+      setErrorFecha("");
+    }
+  
+    // Si todo es válido
+    if (valid) {
+      guardarComprobante();
+      setStep(5);
+  
+    }
+  };
+  
+  
+  const handleAceptar = () => {
+    
+      // Limpiar estados
+      setCodigoGenerado("");
+      setStep(1);
+      setSelectedFile(null);
+      setPreview(null);
+      setError("");
+      setLoading(false);
+      setNumeroComprobante("");
+      setcomprobanteNombre("");
+      setfechaComprobante("");
+      setComprobantePath("");
+  
+      // Redirigir al home
+      window.location.href = "/";
+    };
+  
+  
+
 
   // Manejo del archiv
   const handleFileChange = (event) => {
@@ -80,19 +144,7 @@ const SubirComprobante = () => {
     setStep(3);
   };
 
-  const handleFinalizar = () => {
-    setCodigoGenerado("");
-    setStep(1);
-    setSelectedFile(null);
-    setPreview(null);
-    setError("");
-    setLoading(false);
-    setNumeroComprobante("");
-    setcomprobanteNombre("");
-    setfechaComprobante("");
-    setComprobantePath("");
-    window.location.href = "/";
-  };
+
 
   // Verificar código
   const verificarCodigo = async () => {
@@ -527,12 +579,16 @@ const SubirComprobante = () => {
                       Número de comprobante *
                     </label>
                     <input
-                      type="text"
-                      placeholder="Ej. 123456"
-                      value={numeroComprobante}
-                      onChange={(e) => setNumeroComprobante(e.target.value)}
-                      className={`w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 `}
-                    />
+                  type="text"
+                  placeholder="Ej. 123456"
+                  value={numeroComprobante}
+                  onChange={(e) => setNumeroComprobante(e.target.value)}
+                  className={`w-full p-2 border ${
+                    errorNumero ? "border-red-500" : "border-gray-300"
+                  } rounded-md focus:outline-none focus:ring-2`}
+                />
+                {errorNumero && <p className="text-red-500 text-sm mt-1">{errorNumero}</p>}
+
                     
                   </div>
 
@@ -546,9 +602,11 @@ const SubirComprobante = () => {
                       placeholder="Ej. Juan Pérez"
                       value={comprobanteNombre}
                       onChange={(e) => setcomprobanteNombre(e.target.value)}
-                     
-                      className={`w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 `}
+                      className={`w-full p-2 border ${
+                        errorNombre ? "border-red-500" : "border-gray-300"
+                      } rounded-md focus:outline-none focus:ring-2`}
                     />
+                    {errorNombre && <p className="text-red-500 text-sm mt-1">{errorNombre}</p>}
 
                   </div>
                    {/* fecha */}
@@ -557,12 +615,15 @@ const SubirComprobante = () => {
                       Fecha*
                     </label>
                     <input
-                      type="text"
-                      placeholder="04-02-22"
-                      value={fechaComprobante}
-                      onChange={(e) => setfechaComprobante(e.target.value)}
-                      className={`w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 `}
+                        type="text"
+                        placeholder="Ej. 04-02-22"
+                        value={fechaComprobante}
+                        onChange={(e) => setfechaComprobante(e.target.value)}
+                        className={`w-full p-2 border ${
+                          errorFecha ? "border-red-500" : "border-gray-300"
+                        } rounded-md focus:outline-none focus:ring-2`}
                       />
+                      {errorFecha && <p className="text-red-500 text-sm mt-1">{errorFecha}</p>}
                   </div>
                 </div>
               </div>
@@ -586,7 +647,7 @@ const SubirComprobante = () => {
 
               {/* Botón para finalizar */}
               <button
-                onClick={guardarComprobante}
+                onClick={handleFinalizar}
                 disabled={loading || !selectedFile}
                 className={`px-6 py-2 transition duration-300 ease-in-out text-white rounded-md shadow-md ${
                   selectedFile && !loading
@@ -594,7 +655,7 @@ const SubirComprobante = () => {
                     : "bg-gray-400 cursor-not-allowed"
                 }`}
               >
-                {loading ? "Guardando..." : "Finalizar"}
+                {loading ? "Finalizando..." : "Finalizar"}
               </button>
             </div>
           </div>
@@ -609,11 +670,13 @@ const SubirComprobante = () => {
               </h2>
               <p className="text-gray-600">FINALIZÓ SU INSCRIPCIÓN</p>
               <button
-                onClick={handleFinalizar}
+                onClick={handleAceptar}
                 className="mt-4 bg-blue-600 text-white px-6 py-2 rounded-md transition duration-300 ease-in-out text-white rounded-md hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500 shadow-md"
               >
-                Aceptar
+                
+                    Aceptar
               </button>
+
             </div>
           </div>
         )}
