@@ -58,9 +58,6 @@ const Tutorial = () => {
 </div>
 
 
-
-
-
 <p className="text-center text-sm text-gray-500 mb-2">
   Usa la barra para deslizar, y visualizar todos los campos
 </p>
@@ -98,9 +95,28 @@ const Tutorial = () => {
               </p>
             </div>
 
-            <div className="bg-gray-300 h-20 w-full rounded-lg flex items-center justify-center text-gray-500 italic">
-              Imagen de ejemplo de doble inscripción
-            </div>
+          
+            <div
+  style={{
+    height: '7cm',
+    overflowX: 'auto',
+    overflowY: 'hidden',
+    border: '1px solid #ccc',
+    borderRadius: '0.5rem',
+    padding: '0.5rem',
+  }}
+>
+  <div style={{ width: 'max-content' }}>
+    <img
+      src="/images/Ejemplo2.png"
+      alt="Ejemplo Expandido"
+      style={{
+        height: '7cm',
+        display: 'block',
+      }}
+    />
+  </div>
+</div>
 
             <div className="flex items-start gap-4">
               <FaExclamationTriangle className="text-yellow-500 text-2xl" />
