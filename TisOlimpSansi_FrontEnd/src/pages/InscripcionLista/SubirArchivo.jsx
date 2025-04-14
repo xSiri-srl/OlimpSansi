@@ -115,9 +115,9 @@ function SubirArchivo({ setStep }) {
       }
 
       // Check if the Excel exceeds the student limit
-      if (data.inscripciones.length > 100) {
+      if (data.inscripciones.length > 500) {
         setError(
-          "El archivo Excel excede el límite de 100 estudiantes. Por favor, divida los datos en múltiples archivos.",
+          "El archivo Excel excede el límite de 500 estudiantes. Por favor, divida los datos en múltiples archivos.",
         )
         setLoading(false)
         return false
