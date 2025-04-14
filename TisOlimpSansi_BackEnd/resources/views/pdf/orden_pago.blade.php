@@ -2,104 +2,128 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Orden de Pago</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        body {
+            font-family: DejaVu Sans, sans-serif;
+            margin: 40px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .text-center { text-align: center; }
+        .text-end { text-align: right; }
+        .mt-4 { margin-top: 1.5rem; }
+        .mb-4 { margin-bottom: 1.5rem; }
+        .mb-3 { margin-bottom: 1rem; }
+
+        h4, h5, h6 {
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5rem;
+        }
+
+        table, th, td {
+            border: 1px solid #000;
+        }
+
+        th, td {
+            padding: 8px;
+            font-size: 13px;
+        }
+
         .firma {
+            margin-top: 50px;
+        }
+
+        .footer {
             margin-top: 40px;
+            text-align: center;
+            font-size: 12px;
+            color: #555;
+        }
+
+        .section-label {
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
-    <div class="container mt-4">
-        <div class="row justify-content-center">
-            <div class="col-md-10">
 
-                <!-- Encabezado institucional -->
-                <div class="text-center mb-4">
-                    <h4>UNIVERSIDAD MAYOR DE SAN SIMÓN</h4>
-                    <h5>Facultad de Ciencias y Tecnología</h5>
-                    <h6>Secretaría Administrativa</h6>
-                </div>
-
-                <!-- Información de la Orden de Pago -->
-                <div class="card">
-                    <div class="card-header">
-                        <strong>Orden de Pago: {{ $ordenPago->codigo_generado }}</strong>
-                    </div>
-                    <div class="card-body">
-
-                        <!-- Datos del responsable -->
-                        <div class="mb-3">
-                            <label class="form-label">Emitido por la Unidad:</label>
-                            <div>Comité de las Olimpiadas Científicas San Simón, Facultad de Ciencias y Tecnología</div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label">Responsable:</label>
-                            <div>
-                                @if($inscripcion->responsable)
-                                    {{ $inscripcion->responsable->nombre }} {{ $inscripcion->responsable->apellido_pa }} {{ $inscripcion->responsable->apellido_ma }}
-                                    (CI: {{ $inscripcion->responsable->ci }}{{ $inscripcion->responsable->complemento ? ' ' . $inscripcion->responsable->complemento : '' }})
-                                @else
-                                    No registrado
-                                @endif
-                            </div>
-                        </div>
-
-                        <!-- Fecha y código de seguimiento -->
-                        <div class="mb-3">
-                            <label class="form-label">Fecha de Emisión:</label>
-                            <div>{{ now()->format('d/m/Y') }}</div>
-                        </div>
-                        
-                        <!-- Detalles de la inscripción -->
-                        <table class="table table-bordered mt-4">
-                            <thead>
-                                <tr class="text-center">
-                                    <th>Cantidad</th>
-                                    <th>Concepto</th>
-                                    <th>Precio Unitario (Bs)</th>
-                                    <th>Subtotal (Bs)</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr class="text-center">
-                                    <td>1</td>
-                                    <td>Inscripción de un estudiante</td>
-                                    <td>20.00</td>
-                                    <td>20.00</td>
-                                </tr>
-                            </tbody>
-                            <tfoot>
-                                <tr class="text-end">
-                                    <th colspan="3">Total (Bs):</th>
-                                    <th class="text-center">20.00</th>
-                                </tr>
-                            </tfoot>
-                        </table>
-
-                        <!-- Responsable y firma -->
-                        <div class="firma">
-                            <div>
-                                <strong>Responsable de Pago:</strong>
-                                {{ $inscripcion->responsable->nombre ?? 'No registrado' }} {{ $inscripcion->responsable->apellido_pa ?? '' }} {{ $inscripcion->responsable->apellido_ma ?? '' }}
-                            </div>
-                            <div>
-                                <strong>Firma:</strong> ___________________________
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-footer text-muted text-center">
-                        Cochabamba, {{ now()->format('d/m/Y') }}
-                    </div>
-                </div>
-            </div>
-        </div>
+    <!-- Encabezado -->
+    <div class="text-center mb-4">
+        <h4>UNIVERSIDAD MAYOR DE SAN SIMÓN</h4>
+        <h5>Facultad de Ciencias y Tecnología</h5>
+        <h6>Secretaría Administrativa</h6>
     </div>
-    
-    <!-- Scripts de Bootstrap -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Orden de Pago -->
+    <h4 class="mb-3">Orden de Pago: {{ $ordenPago->codigo_generado }}</h4>
+
+    <!-- Unidad -->
+    <p><span class="section-label">Emitido por la Unidad:</span><br>
+        Comité de las Olimpiadas Científicas San Simón, Facultad de Ciencias y Tecnología
+    </p>
+
+    <!-- Responsable -->
+    <p><span class="section-label">Responsable:</span><br>
+        @if($inscripcion->responsable)
+            {{ $inscripcion->responsable->nombre }} {{ $inscripcion->responsable->apellido_pa }} {{ $inscripcion->responsable->apellido_ma }}
+            (CI: {{ $inscripcion->responsable->ci }}{{ $inscripcion->responsable->complemento ? ' ' . $inscripcion->responsable->complemento : '' }})
+        @else
+            No registrado
+        @endif
+    </p>
+
+    <!-- Fecha -->
+    <p><span class="section-label">Fecha de Emisión:</span> {{ now()->format('d/m/Y') }}</p>
+
+    <!-- Tabla de detalles -->
+    <table>
+        <thead>
+            <tr class="text-center">
+                <th>Cantidad</th>
+                <th>Concepto</th>
+                <th>Precio Unitario (Bs)</th>
+                <th>Subtotal (Bs)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="text-center">
+                <td>{{ intval($ordenPago->monto_total / 20) }}</td>
+                <td>Inscripción de un estudiante en un area</td>
+                <td>20 </td>
+                <td>{{ number_format($ordenPago->monto_total, 2) }}</td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr class="text-end">
+                <th colspan="3">Total (Bs):</th>
+                <th class="text-center">{{ number_format($ordenPago->monto_total, 2) }}</th>
+            </tr>
+        </tfoot>
+    </table>
+
+    <!-- Firma -->
+    <div class="firma">
+        <p>
+            <strong>Responsable de Pago:</strong><br>
+            {{ $inscripcion->responsable->nombre ?? 'No registrado' }} {{ $inscripcion->responsable->apellido_pa ?? '' }} {{ $inscripcion->responsable->apellido_ma ?? '' }}
+        </p>
+        <p>
+            <strong>Firma:</strong> ___________________________
+        </p>
+    </div>
+
+    <!-- Pie de página -->
+    <div class="footer">
+        Cochabamba, {{ now()->format('d/m/Y') }}
+    </div>
+
 </body>
 </html>
