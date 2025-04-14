@@ -24,38 +24,6 @@ const SubirComprobante = () => {
     }
   }, [codigoGenerado]);
 
-  const storedStep = parseInt(localStorage.getItem('step') || '1'); // Paso predeterminado es 1
-  const storedSelectedFile = JSON.parse(localStorage.getItem('selectedFile') || '{}');
-
-  const [step, setStep] = useState(storedStep);
-  const [selectedFile, setSelectedFile] = useState(storedSelectedFile);
-  const [preview, setPreview] = useState(null); // Aquí cargamos la vista previa de la imagen
-  const [loading, setLoading] = useState(false);
-
-  // Guardar el paso y los recortes cada vez que cambien
-  useEffect(() => {
-    localStorage.setItem('step', step);
-    localStorage.setItem('selectedFile', JSON.stringify(selectedFile));
-  }, [step, selectedFile]);
-
-
-  useEffect(() => {
-    const storedNumero = localStorage.getItem('numeroComprobante');
-    const storedNombre = localStorage.getItem('comprobanteNombre');
-    const storedFecha = localStorage.getItem('fechaComprobante');
-  
-    if (storedNumero) setNumeroComprobante(storedNumero);
-    if (storedNombre) setcomprobanteNombre(storedNombre);
-    if (storedFecha) setfechaComprobante(storedFecha);
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem('numeroComprobante', numeroComprobante);
-    localStorage.setItem('comprobanteNombre', comprobanteNombre);
-    localStorage.setItem('fechaComprobante', fechaComprobante);
-  }, [numeroComprobante, comprobanteNombre, fechaComprobante]);
-  
-
 
   const endpoint = "http://127.0.0.1:8000/api";
 
@@ -316,6 +284,7 @@ const SubirComprobante = () => {
         </div>
       )}
     
+        
         {/* Paso 2 - Subir comprobante */}
         {step === 2 && (
           <div className="grid grid-cols-2 gap-6">
@@ -353,6 +322,7 @@ const SubirComprobante = () => {
             </div>
           </div>
         )}
+
 
          {/* Paso 3 - Vista previa */}
       {step === 3 && (
@@ -570,6 +540,7 @@ const SubirComprobante = () => {
                      
                       className={`w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 `}
                     />
+
                   </div>
                    {/* fecha */}
                    <div>
