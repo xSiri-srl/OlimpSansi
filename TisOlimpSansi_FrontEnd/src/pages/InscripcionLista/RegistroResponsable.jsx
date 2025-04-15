@@ -20,7 +20,6 @@ function RegistroResponsable({ setStep }) {
   const { globalData, setGlobalData } = useFormData()
 
   useEffect(() => {
-    // Verificar si ya existen datos del responsable en el contexto global
     if (globalData.responsable_inscripcion) {
       const resp = globalData.responsable_inscripcion;
       setFormData({
@@ -34,7 +33,6 @@ function RegistroResponsable({ setStep }) {
     }
   }, [globalData]);
 
-  // Función para manejar cambios en los inputs
   const handleInputChange = (namespace, field, value) => {
     setFormData((prev) => ({
       ...prev,
@@ -45,60 +43,45 @@ function RegistroResponsable({ setStep }) {
     }))
   }
 
-  // Función para buscar responsable por CI
   const buscarResponsablePorCI = async (ci) => {
-    if (ci?.length >= 7) {
-      setIsSearching(true);
-      console.log("Buscando responsable con CI:", ci);
-      
+    if (ci?.length >= 7 && ci?.length <= 8) {
+      setIsSearching(true)
       try {
-        const apiUrl = `http://localhost:8000/api/buscarResponsable/${ci}`;
-        console.log("Consultando API en:", apiUrl);
-        
-        const response = await axios.get(apiUrl);
-        console.log("Respuesta recibida:", response.data);
-        
+        const apiUrl = `http://localhost:8000/api/buscarResponsable/${ci}`
+        const response = await axios.get(apiUrl)
         if (response.data.found) {
-          const responsable = response.data.responsable;
-          handleInputChange('responsable', 'nombres', responsable.nombre);
-          handleInputChange('responsable', 'apellidoPaterno', responsable.apellido_pa);
-          handleInputChange('responsable', 'apellidoMaterno', responsable.apellido_ma);
-          setResponsableFound(true);
-          
-          console.log("Responsable encontrado:", responsable);
+          const responsable = response.data.responsable
+          handleInputChange('responsable', 'nombres', responsable.nombre)
+          handleInputChange('responsable', 'apellidoPaterno', responsable.apellido_pa)
+          handleInputChange('responsable', 'apellidoMaterno', responsable.apellido_ma)
+          setResponsableFound(true)
         } else {
-          setResponsableFound(false);
-          console.log("No se encontró responsable con ese CI");
+          setResponsableFound(false)
         }
       } catch (error) {
-        console.error("Error al buscar responsable:", error);
         setErrors(prev => ({
           ...prev,
           ci: "Error al buscar en la base de datos. Intente de nuevo."
-        }));
+        }))
       } finally {
-        setIsSearching(false);
+        setIsSearching(false)
       }
     }
-  };
-  
-  // Manejar cambios en el CI con validación y búsqueda
-  const handleCIChange = (e) => {
-    const value = e.target.value;
-    if (/^[0-9]*$/.test(value) || value === "") {
-      handleInputChange("responsable", "ci", value);
-      setErrors((prev) => ({ ...prev, ci: "" }));
-      
-      // Si el CI tiene exactamente 7 dígitos, buscar en la base de datos
-      if (value.length === 7) {
-        buscarResponsablePorCI(value);
-      } else if (value.length < 7) {
-        setResponsableFound(false);
-      }
-    }
-  };
+  }
 
-  // Función para validar entradas con regex
+  const handleCIChange = (e) => {
+    const value = e.target.value
+    if (/^[0-9]*$/.test(value) || value === "") {
+      handleInputChange("responsable", "ci", value)
+      setErrors((prev) => ({ ...prev, ci: "" }))
+      if (value.length >= 7 && value.length <= 8) {
+        buscarResponsablePorCI(value)
+      } else {
+        setResponsableFound(false)
+      }
+    }
+  }
+
   const validateInput = (value, fieldName, regex, minWords = 1, minLength = 0) => {
     if (!value || value.trim() === "") {
       setErrors((prev) => ({
@@ -107,12 +90,12 @@ function RegistroResponsable({ setStep }) {
       }))
       return false
     }
-  
+
     if (!regex.test(value)) {
       setErrors((prev) => ({ ...prev, [fieldName]: "Formato inválido." }))
       return false
     }
-  
+
     if (minLength > 0 && value.length < minLength) {
       setErrors((prev) => ({
         ...prev,
@@ -120,7 +103,7 @@ function RegistroResponsable({ setStep }) {
       }))
       return false
     }
-  
+
     if (value.trim().split(/\s+/).length < minWords) {
       setErrors((prev) => ({
         ...prev,
@@ -128,12 +111,11 @@ function RegistroResponsable({ setStep }) {
       }))
       return false
     }
-  
+
     setErrors((prev) => ({ ...prev, [fieldName]: "" }))
     return true
   }
 
-  // Manejador de cambio con validación
   const handleValidatedChange = (namespace, field, value, regex) => {
     if (value.startsWith(" ")) return
     if (regex.test(value) || value === "") {
@@ -142,41 +124,38 @@ function RegistroResponsable({ setStep }) {
     }
   }
 
-  const handleNext = () => {
-    setStep(2) // Ir al paso 2
-  }
+  const handleNext = () => setStep(2)
 
   const handleSubmitAndNext = () => {
     const isApellidoPaternoValid = validateInput(
       formData.responsable?.apellidoPaterno,
       "apellidoPaterno",
       /^[A-Za-zÁÉÍÓÚáéíóúÑñ]+(\s[A-Za-zÁÉÍÓÚáéíóúÑñ]+)*$/,
-      1,
+      1
     )
 
     const isApellidoMaternoValid = validateInput(
       formData.responsable?.apellidoMaterno,
       "apellidoMaterno",
       /^[A-Za-zÁÉÍÓÚáéíóúÑñ]+(\s[A-Za-zÁÉÍÓÚáéíóúÑñ]+)*$/,
-      1,
+      1
     )
 
     const isNombresValid = validateInput(
       formData.responsable?.nombres,
       "nombres",
       /^[A-Za-zÁÉÍÓÚáéíóúÑñ]+(\s[A-Za-zÁÉÍÓÚáéíóúÑñ]+)*$/,
-      1,
+      1
     )
 
     const isCIValid = validateInput(
       formData.responsable?.ci,
       "ci",
-      /^[0-9]*$/,
+      /^[0-9]{7,8}$/,
       1,
-      7 
+      7
     )
 
-    // Si hay algún error, no proceder
     if (!isApellidoPaternoValid || !isApellidoMaternoValid || !isNombresValid || !isCIValid) {
       return
     }
@@ -184,7 +163,6 @@ function RegistroResponsable({ setStep }) {
     setIsSubmitting(true)
 
     try {
-      // Actualizar el objeto global con los datos del responsable
       const updatedData = {
         ...globalData,
         responsable_inscripcion: {
@@ -195,18 +173,10 @@ function RegistroResponsable({ setStep }) {
         },
       }
 
-      // Guardar en el contexto global
       setGlobalData(updatedData)
-
-      console.log("Datos guardados en JSON:", updatedData)
-
-      // Continuar al siguiente paso
       handleNext()
     } catch (error) {
-      console.error("Error al procesar los datos:", error)
-      setErrors({
-        general: "Hubo un error al procesar los datos.",
-      })
+      setErrors({ general: "Hubo un error al procesar los datos." })
     } finally {
       setIsSubmitting(false)
     }
@@ -215,15 +185,12 @@ function RegistroResponsable({ setStep }) {
   return (
     <div className="flex justify-center">
       <div className="w-full max-w-2xl">
-        {/* Título */}
         <div className="text-center mb-6">
           <h2 className="text-lg font-semibold mb-2 text-gray-500">Responsable de Inscripción</h2>
           <p className="text-sm text-gray-600">Estos datos corresponden a la persona que pagará en caja.</p>
         </div>
 
-        {/* Formulario */}
         <div className="space-y-4">
-          {/* Campo de CI - Ahora al principio */}
           <div>
             <div className="flex items-center gap-2">
               <FaIdCard className="text-black" />
@@ -235,8 +202,8 @@ function RegistroResponsable({ setStep }) {
                 value={formData.responsable?.ci || ""}
                 onChange={handleCIChange}
                 className="w-full p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Número de Carnet de Identidad (7 dígitos)"
-                maxLength={7}
+                placeholder="Número de Carnet de Identidad (7-8 dígitos)"
+                maxLength={8}
               />
               {isSearching && <div className="ml-2 text-blue-500">Buscando...</div>}
               {responsableFound && <div className="ml-2 text-green-500">✓ Encontrado</div>}
@@ -244,7 +211,6 @@ function RegistroResponsable({ setStep }) {
             {errors.ci && <p className="text-red-500 text-sm mt-1">{errors.ci}</p>}
           </div>
 
-          {/* Mensaje informativo cuando se encuentra un responsable */}
           {responsableFound && (
             <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
               Responsable encontrado en el sistema. Los datos han sido cargados automáticamente.
@@ -265,17 +231,16 @@ function RegistroResponsable({ setStep }) {
                     "responsable",
                     "apellidoPaterno",
                     e.target.value.toUpperCase(),
-                    /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/,
+                    /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
                   )
                 }
                 readOnly={responsableFound}
-                className={`w-full p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  responsableFound ? 'bg-gray-100' : ''
-                }`}
+                className={`w-full p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${responsableFound ? 'bg-gray-100' : ''}`}
                 placeholder="Apellido Paterno"
               />
               {errors.apellidoPaterno && <p className="text-red-500 text-sm mt-1">{errors.apellidoPaterno}</p>}
             </div>
+
             <div className="w-full">
               <div className="flex items-center gap-2">
                 <FaUser className="text-black" />
@@ -289,18 +254,17 @@ function RegistroResponsable({ setStep }) {
                     "responsable",
                     "apellidoMaterno",
                     e.target.value.toUpperCase(),
-                    /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/,
+                    /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
                   )
                 }
                 readOnly={responsableFound}
-                className={`w-full p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  responsableFound ? 'bg-gray-100' : ''
-                }`}
+                className={`w-full p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${responsableFound ? 'bg-gray-100' : ''}`}
                 placeholder="Apellido Materno"
               />
               {errors.apellidoMaterno && <p className="text-red-500 text-sm mt-1">{errors.apellidoMaterno}</p>}
             </div>
           </div>
+
           <div>
             <div className="flex items-center gap-2">
               <FaUser className="text-black" />
@@ -314,37 +278,25 @@ function RegistroResponsable({ setStep }) {
                   "responsable",
                   "nombres",
                   e.target.value.toUpperCase(),
-                  /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/,
+                  /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
                 )
               }
               readOnly={responsableFound}
-              className={`w-full p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                responsableFound ? 'bg-gray-100' : ''
-              }`}
+              className={`w-full p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${responsableFound ? 'bg-gray-100' : ''}`}
               placeholder="Nombres"
             />
             {errors.nombres && <p className="text-red-500 text-sm mt-1">{errors.nombres}</p>}
           </div>
 
-          {/* Mensaje de error general */}
-          {errors.general && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">{errors.general}</div>
-          )}
-        </div>
-
-        {/* Botón */}
-        <div className="flex justify-center mt-8">
-          <button
-            onClick={handleSubmitAndNext}
-            disabled={isSubmitting || !formData.responsable?.nombres || !formData.responsable?.ci}
-            className={`px-6 py-2 transition duration-300 ease-in-out text-white rounded-md shadow-md ${
-              formData.responsable?.nombres && formData.responsable?.ci && !isSubmitting
-                ? "bg-blue-500 hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500"
-                : "bg-gray-400 cursor-not-allowed"
-            }`}
-          >
-            {isSubmitting ? "Procesando..." : "Siguiente"}
-          </button>
+          <div className="text-center mt-6">
+            <button
+              onClick={handleSubmitAndNext}
+              disabled={isSubmitting}
+              className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700"
+            >
+              {isSubmitting ? "Guardando..." : "Siguiente"}
+            </button>
+          </div>
         </div>
       </div>
     </div>

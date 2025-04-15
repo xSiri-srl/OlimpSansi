@@ -158,7 +158,7 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
       setErrors((prev) => ({ ...prev, ci: "" }));
       
       // Si el CI tiene exactamente 7 dígitos, buscar en la base de datos
-      if (value.length === 7) {
+      if (value.length >= 7 && value.length <= 8) {
         buscarResponsablePorCI(value);
       } else if (value.length < 7) {
         setResponsableFound(false);
@@ -192,8 +192,8 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
                 value={formData.responsable?.ci || ""}
                 onChange={handleCIChange}
                 className="w-full p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Número de Carnet de Identidad (7 dígitos)"
-                maxLength="7"
+                placeholder="Número de Carnet de Identidad (7 a 8 dígitos)"
+                maxLength="8"
               />
               {isSearching && <div className="ml-2 text-blue-500">Buscando...</div>}
               {responsableFound && <div className="ml-2 text-green-500">✓ Encontrado</div>}
