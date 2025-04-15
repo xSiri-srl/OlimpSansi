@@ -69,9 +69,11 @@ const TutorAcademico = ({
           pattern="\d{7,8}"
           title="El CI debe contener entre 7 y 8 dígitos"
         />
-        {tieneError(`tutor_academico_${areaIndex}_ci`) && 
-          <p className="text-red-500 text-xs mt-1">{errores[`tutor_academico_${areaIndex}_ci`]}</p>
-        }
+{tieneError(`tutor_academico_${areaIndex}`) && (
+  <p className="text-red-500 text-xs mt-1">
+    {errores[`tutor_academico_${areaIndex}`]}
+  </p>
+)}
       </div>
       
       <div>
