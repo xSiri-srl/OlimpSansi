@@ -8,10 +8,10 @@ const RegistroPorLista = () => {
   const [step, setStep] = useState(1);
 
   const pasos = [
-    'Registrar responsable',
-    'Subir lista',
-    'Lista de competidores',
-    'Confirmar',
+    'Responsable de Inscripción',
+    'Subir Lista',
+    'Lista de Competidores',
+    'Confirmación',
   ];
 
   return (
