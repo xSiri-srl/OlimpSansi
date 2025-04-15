@@ -22,15 +22,15 @@ export function validateBirthDate(dateString: string): {
     return { valid: false, error: "La fecha no puede ser futura." };
   }
 
-  // (Opcional) rango de edad: por ejemplo, entre 3 y 20 años
+  // (Opcional) rango de edad: por ejemplo, entre 5 y 20 años
   const min = new Date();
   min.setFullYear(min.getFullYear() - 20);
   const max = new Date();
-  max.setFullYear(max.getFullYear() - 3);
+  max.setFullYear(max.getFullYear() - 5);
   if (date < min || date > max) {
     return {
       valid: false,
-      error: "La edad debe estar entre 3 y 20 años.",
+      error: "La edad debe estar entre 5 y 20 años.",
     };
   }
 
