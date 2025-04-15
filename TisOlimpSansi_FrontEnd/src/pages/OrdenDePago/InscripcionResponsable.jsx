@@ -12,6 +12,8 @@ import { FormDataContext, useFormData } from "./form-data-context";
 const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const [responsableFound, setResponsableFound] = useState(false);
   const { globalData, setGlobalData } = useFormData();
 
   // Función para validar entradas con regex
@@ -113,6 +115,56 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
       setIsSubmitting(false);
     }
   };
+  const buscarResponsablePorCI = async (ci) => {
+    if (ci?.length >= 7) {
+      setIsSearching(true);
+      console.log("Buscando responsable con CI:", ci);
+      
+      try {
+        const apiUrl = `http://localhost:8000/api/buscarResponsable/${ci}`;
+        console.log("Consultando API en:", apiUrl);
+        
+        const response = await axios.get(apiUrl);
+        console.log("Respuesta recibida:", response.data);
+        
+        if (response.data.found) {
+          const responsable = response.data.responsable;
+          handleInputChange('responsable', 'nombres', responsable.nombre);
+          handleInputChange('responsable', 'apellidoPaterno', responsable.apellido_pa);
+          handleInputChange('responsable', 'apellidoMaterno', responsable.apellido_ma);
+          setResponsableFound(true);
+          
+          console.log("Responsable encontrado:", responsable);
+        } else {
+          setResponsableFound(false);
+          console.log("No se encontró responsable con ese CI");
+        }
+      } catch (error) {
+        console.error("Error al buscar responsable:", error);
+        setErrors(prev => ({
+          ...prev,
+          ci: "Error al buscar en la base de datos. Intente de nuevo."
+        }));
+      } finally {
+        setIsSearching(false);
+      }
+    }
+  };
+  
+  const handleCIChange = (e) => {
+    const value = e.target.value;
+    if (/^[0-9]*$/.test(value) || value === "") {
+      handleInputChange("responsable", "ci", value);
+      setErrors((prev) => ({ ...prev, ci: "" }));
+      
+      // Si el CI tiene exactamente 7 dígitos, buscar en la base de datos
+      if (value.length === 7) {
+        buscarResponsablePorCI(value);
+      } else if (value.length < 7) {
+        setResponsableFound(false);
+      }
+    }
+  };
 
   return (
     <div className="flex justify-center">
@@ -126,9 +178,38 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
             Estos datos corresponden a la persona que pagará en caja.
           </p>
         </div>
-
+  
         {/* Formulario */}
         <div className="space-y-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <FaIdCard className="text-black" />
+              <label>Carnet de Identidad</label>
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={formData.responsable?.ci || ""}
+                onChange={handleCIChange}
+                className="w-full p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Número de Carnet de Identidad (7 dígitos)"
+                maxLength="7"
+              />
+              {isSearching && <div className="ml-2 text-blue-500">Buscando...</div>}
+              {responsableFound && <div className="ml-2 text-green-500">✓ Encontrado</div>}
+            </div>
+            {errors.ci && (
+              <p className="text-red-500 text-sm mt-1">{errors.ci}</p>
+            )}
+          </div>
+          
+          {/* Mensaje informativo cuando se encuentra un responsable */}
+          {responsableFound && (
+            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+              Responsable encontrado en el sistema. Los datos han sido cargados automáticamente.
+            </div>
+          )}
+  
           <div className="flex flex-col md:flex-row gap-4">
             <div className="w-full">
               <div className="flex items-center gap-2">
@@ -207,30 +288,7 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
               <p className="text-red-500 text-sm mt-1">{errors.nombres}</p>
             )}
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <FaIdCard className="text-black" />
-              <label>Carnet de Identidad</label>
-            </div>
-            <input
-              type="text"
-              value={formData.responsable?.ci || ""}
-              onChange={(e) =>
-                handleValidatedChange(
-                  "responsable",
-                  "ci",
-                  e.target.value,
-                  /^[0-9]*$/
-                )
-              }
-              className="w-full p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Número de Carnet de Identidad"
-              maxLength="8"
-            />
-            {errors.ci && (
-              <p className="text-red-500 text-sm mt-1">{errors.ci}</p>
-            )}
-          </div>
+
 
           {/* Mensaje de error general */}
           {errors.general && (
