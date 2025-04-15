@@ -62,7 +62,7 @@ useEffect(() => {
 
           <div className="flex justify-center">
             <div className="flex flex-col items-center">
-              <div className="bg-slate-400 w-52 h-60 flex flex-col justify-center items-center text-center mb-2">
+              <div className="bg-slate-400 w-52 rounded-lg h-60 flex flex-col justify-center items-center text-center mb-2">
                 <p>Orden de pago</p>
                 <p className="text-3xl">PDF</p>
                 <p className="text-2xl">⬇️</p>
@@ -150,8 +150,8 @@ useEffect(() => {
           </div>
 
           <div className="flex justify-center mt-4">
-            <div className="bg-slate-700 w-full h-8 flex justify-center items-center text-white text-xs">
-              <img src="/images/Navbar.png" alt="ejemplo_Navbar" className="h-12 w-auto" />
+            <div className="w-full p-7 h-8 flex justify-center items-center text-white text-xs">
+              <img src="/images/Navbar.png" alt="ejemplo_Navbar" className="h-12.5 w-auto" />
             </div>
           </div>
         </div>
