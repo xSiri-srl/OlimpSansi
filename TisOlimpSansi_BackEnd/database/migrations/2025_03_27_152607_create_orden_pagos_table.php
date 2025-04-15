@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('codigo_generado', 20);
             $table->decimal('monto_total', 10, 2); 
             $table->string('comprobante_url', 500)->nullable();
+            $table->string('orden_pago_url', 500)->nullable(); 
             $table->string('numero_comprobante', 50)->nullable();
             $table->string('nombre_pagador', 200)->nullable(); 
             $table->dateTime('fecha_emision'); 
