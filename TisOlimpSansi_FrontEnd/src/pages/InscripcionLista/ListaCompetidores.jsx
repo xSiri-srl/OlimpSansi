@@ -509,7 +509,7 @@ const ListaCompetidores = ({ setStep }) => {
       ) : (
         // Pantalla de confirmación
         <div className="text-center">
-          <h2 className="text-xl font-semibold mb-4">Resumen de Inscripción por Lista</h2>
+          <h2 className="text-xl font-semibold mb-4">Resumen de Registro por Lista</h2>
           <p className="text-gray-600 mb-6">Por favor, revise la información antes de confirmar</p>
 
           {/* Resumen formateado de la información */}
