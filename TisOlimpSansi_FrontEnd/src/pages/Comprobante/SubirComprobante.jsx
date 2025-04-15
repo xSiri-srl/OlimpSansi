@@ -70,6 +70,7 @@ const SubirComprobante = () => {
       setErrorFecha("");
     }
   
+  
     // Si todo es válido
     if (valid) {
       guardarComprobante();
@@ -78,24 +79,26 @@ const SubirComprobante = () => {
     }
   };
   
-  
   const handleAceptar = () => {
-    
-      // Limpiar estados
-      setCodigoGenerado("");
-      setStep(1);
-      setSelectedFile(null);
-      setPreview(null);
-      setError("");
-      setLoading(false);
-      setNumeroComprobante("");
-      setcomprobanteNombre("");
-      setfechaComprobante("");
-      setComprobantePath("");
+    // Eliminar el código del localStorage
+    localStorage.removeItem("codigoGenerado");
   
-      // Redirigir al home
-      window.location.href = "/";
-    };
+    // Limpiar estados
+    setCodigoGenerado("");
+    setStep(1);
+    setSelectedFile(null);
+    setPreview(null);
+    setError("");
+    setLoading(false);
+    setNumeroComprobante("");
+    setcomprobanteNombre("");
+    setfechaComprobante("");
+    setComprobantePath("");
+  
+    // Redirigir al home
+    window.location.href = "/";
+  };
+  
   
   
 
