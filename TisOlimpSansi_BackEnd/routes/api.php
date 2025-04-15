@@ -31,6 +31,7 @@ Route::controller(ResponsableInscripcionController::class)->group(function(){
     Route::get('/responsableInscrip/{id}', [ResponsableInscripcionController::class, 'show']);
     Route::put('/actualizarResponsableInscrip/{id}', [ResponsableInscripcionController::class, 'update']);
     Route::delete('/eliminarResponsableInscrip/{id}', [ResponsableInscripcionController::class, 'destroy']);
+    Route::get('/buscarResponsable/{ci}', [ResponsableInscripcionController::class, 'buscarResponsable']);
     
 });
 
