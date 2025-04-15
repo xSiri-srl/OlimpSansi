@@ -11,15 +11,53 @@ const ProcesoRegistro = ({
   const navigate = useNavigate();
   const [step, setStep] = useState(initialStep);
 
-  const [formData, setFormData] = useState({
-    flow: {
-      redirectToProfesor: false,
-      currentAreaIndex: 0,
-      pendingAreas: [],
-      skipProfesor: false
-    },
-    profesores: { areasRegistradas: [] }
+  const [formData, setFormData] = useState(() => {
+    // Intentar cargar datos guardados al inicio
+    const savedData = localStorage.getItem('formDataTemp');
+    return savedData ? JSON.parse(savedData) : {
+      flow: {
+        redirectToProfesor: false,
+        currentAreaIndex: 0,
+        pendingAreas: [],
+        skipProfesor: false
+      },
+      profesores: { areasRegistradas: [] }
+    };
   });
+
+  // Efecto para manejar la advertencia antes de recargar/cerrar
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      // Mostrar mensaje de advertencia solo si hay datos en el formulario
+      if (Object.keys(formData).length > 0) {
+        e.preventDefault();
+        e.returnValue = '¿Estás seguro? Los datos del formulario se perderán si recargas o cierras esta página.';
+        return e.returnValue;
+      }
+    };
+
+    // Guardar datos temporalmente en localStorage
+    const saveTempData = () => {
+      localStorage.setItem('formDataTemp', JSON.stringify(formData));
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('unload', saveTempData);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('unload', saveTempData);
+      // Limpiar datos temporales al salir normalmente
+      localStorage.removeItem('formDataTemp');
+    };
+  }, [formData]);
+
+  // Efecto para limpiar datos al completar el proceso
+  useEffect(() => {
+    if (step > steps.length) {
+      localStorage.removeItem('formDataTemp');
+    }
+  }, [step, steps.length]);
 
   useEffect(() => {
     if (formData.flow?.skipProfesor && step === 5) {
@@ -51,6 +89,7 @@ const ProcesoRegistro = ({
       const nextStep = step + 1;
       setStep(nextStep);
       if (nextStep > steps.length && nextRoute) {
+        localStorage.removeItem('formDataTemp'); // Limpiar al completar
         navigate(nextRoute);
       }
     }
@@ -75,6 +114,7 @@ const ProcesoRegistro = ({
         setStep(step - 1);
       }
     } else {
+      localStorage.removeItem('formDataTemp'); // Limpiar al salir
       navigate(backRoute);
     }
   };

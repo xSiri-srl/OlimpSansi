@@ -53,7 +53,7 @@ const Confirmation = ({ navigate, handleBack }) => {
 
   return (
     <div className="text-center">
-      <h2 className="text-xl font-semibold mb-4">Resumen de Inscripción</h2>
+      <h2 className="text-xl font-semibold mb-4">Resumen de Registro</h2>
       <p className="text-gray-600 mb-6">
         Por favor, revise la información antes de confirmar
       </p>
