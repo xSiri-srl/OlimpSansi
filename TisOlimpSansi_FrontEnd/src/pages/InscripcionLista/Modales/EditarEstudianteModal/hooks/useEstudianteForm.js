@@ -180,6 +180,16 @@ export const useEstudianteForm = (estudiante) => {
         nuevoErrores[`categoria_${index}`] = `Debe seleccionar una categoría para ${area.nombre_area}`;
       }
     });
+
+    if (estudianteData.areas_competencia?.[1]?.nombre_area) {
+      const tutorAcademico = estudianteData.tutores_academicos?.[1]?.tutor || {};
+      if (!tutorAcademico.nombre || !tutorAcademico.apellido_pa || !tutorAcademico.ci) {
+        nuevoErrores[`tutor_academico_1`] = "Debe completar los datos del tutor académico para la segunda área";
+      }
+      if (tutorAcademico.ci && !/^\d{7,8}$/.test(tutorAcademico.ci)) {
+        nuevoErrores[`tutor_academico_1_ci`] = "El CI del tutor académico debe contener entre 7 y 8 dígitos numéricos";
+      }
+    }
     
     setErrores(nuevoErrores);
     return Object.keys(nuevoErrores).length === 0;
