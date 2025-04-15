@@ -13,7 +13,7 @@ const TutorAcademico = ({
   return (
     <div className="space-y-4">
       <h4 className="font-medium text-blue-700 border-b pb-1">
-        TUTOR ACADÉMICO PARA {nombreArea}
+        TUTOR ACADÉMICO PARA {nombreArea.toUpperCase()}
       </h4>
       
       <div className="grid grid-cols-2 gap-3">
