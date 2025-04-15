@@ -189,38 +189,55 @@ export const useEstudianteForm = (estudiante) => {
   const tieneError = (campo) => Boolean(errores[campo]);
 
   // Función para mostrar u ocultar campos según la sección activa
+  // Función para mostrar u ocultar campos según la sección activa
   const mostrarCampo = (campo) => {
     if (seccionActiva === SECCIONES.TODOS) return true;
     
-    // Verificar errores de categoría específicos
-    const tieneErrorCategoria0 = tieneError('categoria_0');
-    const tieneErrorCategoria1 = tieneError('categoria_1');
-    const tieneErrorAreas = tieneError('areas');
+    // En modo de solo campos inválidos, verificar todos los tipos de errores
     
-    // Si hay errores de categoría, SOLO mostrar la sección de áreas
-    if (tieneErrorCategoria0 || tieneErrorCategoria1 || tieneErrorAreas) {
-      // Solo mostrar campos relacionados con áreas y categorías
-      const camposAreas = ['areas']; // campo principal para la sección de áreas
-      return camposAreas.includes(campo);
-    }
-    
-    
-    // Si el campo específico tiene error, mostrarlo
+    // Si el campo específico tiene error, siempre mostrarlo
     if (tieneError(campo)) {
       return true;
     }
     
     // Para errores específicos de estudiante
-    if (tieneError('apellido_pa') || tieneError('nombre') || tieneError('ci')) {
-      return campo === 'apellido_pa' || campo === 'nombre' || campo === 'ci';
+    if (tieneError('ci') || tieneError('apellido_pa') || tieneError('nombre')) {
+      if (campo === 'ci' || campo === 'apellido_pa' || campo === 'nombre') {
+        return true;
+      }
     }
     
     // Para errores específicos de colegio
-    if (tieneError('nombre_colegio') || tieneError('curso')) {r
-      return campo === 'nombre_colegio' || campo === 'curso';
+    if (tieneError('nombre_colegio') || tieneError('curso')) {
+      if (campo === 'nombre_colegio' || campo === 'curso') {
+        return true;
+      }
     }
     
-    // no mostrar el campo
+    // Para errores de categoría en áreas
+    const tieneErrorCategoria = Object.keys(errores).some(key => key.startsWith('categoria_'));
+    if (tieneErrorCategoria || tieneError('areas')) {
+      if (campo === 'areas') {
+        return true;
+      }
+    }
+    
+    // Para errores en tutor legal
+    if (tieneError('tutor_legal_ci') || tieneError('tutor_legal_telefono')) {
+      if (campo === 'tutor_legal') {
+        return true;
+      }
+    }
+    
+    // Para errores en tutores académicos
+    const tieneErrorTutorAcademico = Object.keys(errores).some(key => key.startsWith('tutor_academico_'));
+    if (tieneErrorTutorAcademico) {
+      if (campo === 'tutores_academicos') {
+        return true;
+      }
+    }
+    
+    // No mostrar el campo por defecto en modo "Solo campos inválidos"
     return false;
   };
     // Validar formato numérico para CI
