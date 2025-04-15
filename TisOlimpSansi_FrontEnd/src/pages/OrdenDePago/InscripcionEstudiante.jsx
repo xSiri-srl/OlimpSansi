@@ -212,84 +212,87 @@ export default function InscripcionEstudiante({
     <div className="flex flex-col items-center">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl">
         {/* Columna 1: Datos Personales */}
-          <div className="flex flex-col items-center">
-            <h2 className="text-lg font-semibold mb-4 text-gray-500 self-center">
-              Datos Personales
-            </h2>
-            <div className="space-y-4 w-full max-w-md">
-              <div>
-                <label className="flex items-center gap-2">
-            <FaUserAlt className="text-black" /> Apellido Paterno
-                </label>
-                <input
-            type="text"
-            className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            placeholder="Apellido Paterno"
-            value={formData.estudiante?.apellidoPaterno || ""}
-            onChange={(e) =>
-              handleValidatedChange(
-                "estudiante",
-                "apellidoPaterno",
-                e.target.value.toUpperCase(),
-                /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
-              )
-            }
-                />
-                {errors.apellidoPaterno && (
-            <p className="text-red-500 text-sm mt-1">
-              {errors.apellidoPaterno}
-            </p>
-                )}
-              </div>
+        <div className="flex flex-col items-center">
+          <h2 className="text-lg font-semibold mb-4 text-gray-500 self-center">
+            Datos Personales
+          </h2>
+          <div className="space-y-4 w-full max-w-md">
+            <div>
+              <label className="flex items-center gap-2">
+                <FaUserAlt className="text-black" /> Apellido Paterno
+              </label>
+              <input
+                type="text"
+                className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                placeholder="Apellido Paterno"
+                value={formData.estudiante?.apellidoPaterno || ""}
+                onChange={(e) =>
+                  handleValidatedChange(
+                    "estudiante",
+                    "apellidoPaterno",
+                    e.target.value.toUpperCase(),
+                    /^[A-Za-zÁÉÍÓÚáéíóúÑñ]*$/
+                  )
+                }
+                maxLength="15"
+              />
+              {errors.apellidoPaterno && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.apellidoPaterno}
+                </p>
+              )}
+            </div>
 
-              <div>
-                <label className="flex items-center gap-2">
-            <FaUserAlt className="text-black" /> Apellido Materno
-                </label>
-                <input
-            type="text"
-            className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            placeholder="Apellido Materno"
-            value={formData.estudiante?.apellidoMaterno || ""}
-            onChange={(e) =>
-              handleValidatedChange(
-                "estudiante",
-                "apellidoMaterno",
-                e.target.value.toUpperCase(),
-                /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
-              )
-            }
-                />
-                {errors.apellidoMaterno && (
-            <p className="text-red-500 text-sm mt-1">
-              {errors.apellidoMaterno}
-            </p>
-                )}
-              </div>
+            <div>
+              <label className="flex items-center gap-2">
+                <FaUserAlt className="text-black" /> Apellido Materno
+              </label>
+              <input
+                type="text"
+                className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                placeholder="Apellido Materno"
+                value={formData.estudiante?.apellidoMaterno || ""}
+                onChange={(e) =>
+                  handleValidatedChange(
+                    "estudiante",
+                    "apellidoMaterno",
+                    e.target.value.toUpperCase(),
+                    /^[A-Za-zÁÉÍÓÚáéíóúÑñ]*$/
+                  )
+                }
+                maxLength="15"
+              />
+              {errors.apellidoMaterno && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.apellidoMaterno}
+                </p>
+              )}
+            </div>
 
-              <div>
-                <label className="flex items-center gap-2">
-            <FaUserAlt className="text-black" /> Nombres
-                </label>
-                <input
-            type="text"
-            name="nombre"
-            className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            placeholder="Nombres"
-            value={formData.estudiante?.nombres || ""}
-            onChange={(e) =>
-              handleValidatedChange(
-                "estudiante",
-                "nombres",
-                e.target.value.toUpperCase(),
-                /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
-              )
-            }
-                />
-                {errors.nombres && (
-            <p className="text-red-500 text-sm mt-1">{errors.nombres}</p>
-                )}
-              </div>
+            <div>
+              <label className="flex items-center gap-2">
+                <FaUserAlt className="text-black" /> Nombres
+              </label>
+              <input
+                type="text"
+                name="nombre"
+                className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                placeholder="Nombres"
+                value={formData.estudiante?.nombres || ""}
+                onChange={(e) =>
+                  handleValidatedChange(
+                    "estudiante",
+                    "nombres",
+                    e.target.value.toUpperCase(),
+                    /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
+                  )
+                }
+                maxLength="30"
+              />
+              {errors.nombres && (
+                <p className="text-red-500 text-sm mt-1">{errors.nombres}</p>
+              )}
+            </div>
 
               <div>
                 <label className="flex items-center gap-2">
@@ -422,6 +425,7 @@ export default function InscripcionEstudiante({
                     /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
                   )
                 }
+                maxLength="50"
               />
               {errors.colegio && (
                 <p className="text-red-500 text-sm mt-1">{errors.colegio}</p>
@@ -547,7 +551,13 @@ export default function InscripcionEstudiante({
             !formData.estudiante?.curso ||
             !formData.estudiante?.departamentoSeleccionado ||
             !formData.estudiante?.provincia ||
-            !formData.estudiante?.correoPertenece
+            !formData.estudiante?.correoPertenece ||
+            formData.estudiante?.ci.length < 7 ||
+            formData.estudiante?.nombres.length < 2 ||
+            formData.estudiante?.apellidoMaterno.length < 2 ||
+            formData.estudiante?.apellidoPaterno.length < 2 ||
+            formData.estudiante?.colegio.length < 2 ||
+            formData.estudiante?.nombres.split(" ").length > 2
           }
           className={`px-6 py-2 transition duration-300 ease-in-out text-white rounded-md shadow-md ${
             formData.estudiante?.nombres &&
@@ -561,6 +571,12 @@ export default function InscripcionEstudiante({
             formData.estudiante?.departamentoSeleccionado &&
             formData.estudiante?.provincia &&
             formData.estudiante?.correoPertenece &&
+            formData.estudiante?.ci.length >= 7 &&
+            formData.estudiante?.nombres.length >= 2 &&
+            formData.estudiante?.apellidoMaterno.length >= 2 &&
+            formData.estudiante?.apellidoPaterno.length >= 2 &&
+            formData.estudiante?.colegio.length >= 2 &&
+            formData.estudiante?.nombres.split(" ").length <= 2 &&
             !isSubmitting
               ? "bg-blue-500 hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500"
               : "bg-gray-400 cursor-not-allowed"
