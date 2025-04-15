@@ -20,36 +20,39 @@ const Confirmation = ({ navigate, handleBack }) => {
   const handleSubmit = async () => {
     setIsSubmitting(true);
     setSubmitStatus({ success: null, message: "" });
-
+  
     try {
-      // Enviar los datos al backend
       const response = await axios.post("http://localhost:8000/api/inscribir", globalData);
-
-      console.log("Respuesta del servidor:", response.data);
-
-      // Extraer el código generado de la respuesta
       const codigoGenerado = response.data.codigo_generado;
-      console.log("Código generado:", codigoGenerado);
-
+  
       setSubmitStatus({
         success: true,
         message: "Inscripción registrada correctamente.",
       });
-
-      // Navegar a la siguiente página después de un breve retraso, enviando el código generado
+  
+      // Llamar al backend para generar el PDF
+      const pdfResponse = await axios.post("http://localhost:8000/api/orden-pago/pdf", {
+        codigo_generado: codigoGenerado,
+      });
+  
+  
+      // Navegar después de todo
       setTimeout(() => {
+        console.log(codigoGenerado);  // Verifica si el valor está presente
         navigate("/ordenDePago", { state: { codigoGenerado } });
-      }, 1500);
+      }, 1500);;
+  
     } catch (error) {
-      console.error("Error al registrar los datos:", error);
+      console.error("Error al registrar los datos o generar PDF:", error);
       setSubmitStatus({
         success: false,
-        message: error.response?.data?.error || "Error al registrar los datos. Intente nuevamente.",
+        message: error.response?.data?.error || "Error al registrar los datos o generar PDF.",
       });
     } finally {
       setIsSubmitting(false);
     }
   };
+  
 
   return (
     <div className="text-center">

@@ -115,13 +115,16 @@ Route::controller(GradoController::class)->group(function(){
     
 });
 
-Route::get('/orden_pago', [OrdenPagoController::class, 'obtenerOrdenPago']);
+Route::get('/orden-pago', [OrdenPagoController::class, 'obtenerOrdenPago']);
+Route::post('/orden-pago/pdf', [OrdenPagoController::class, 'generarYGuardarOrdenPagoPDF']);
+Route::get('/orden-pago/{codigoGenerado}', [OrdenPagoController::class, 'descargarOrdenPago']);
 
 Route::post('/verificar-codigo-generado', [OrdenPagoController::class, 'verificarCodigo']);
 
 Route::post('/procesar-comprobanteOCR', [OrdenPagoController::class, 'procesarComprobante']);
 
 Route::post('/guardar-comprobante', [OrdenPagoController::class, 'guardarComprobante']);
+
 
 
 Route::post('/inscribir', [InscripcionController::class, 'registrar']);
