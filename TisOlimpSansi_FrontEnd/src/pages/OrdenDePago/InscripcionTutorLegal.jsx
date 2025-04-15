@@ -416,6 +416,7 @@ export default function InscripcionTutorLegal({
               formData.legal?.apellidoMaterno.length < 2 ||
               formData.legal?.apellidoPaterno.length < 2 ||
               formData.legal?.telefono.length != 8 ||
+              !formData.legal?.correoPertenece ||
               formData.legal?.nombres.split(" ").length > 2
             }
             className={`px-6 py-2 transition duration-300 ease-in-out text-white rounded-md shadow-md ${
@@ -425,6 +426,7 @@ export default function InscripcionTutorLegal({
               formData.legal?.ci &&
               formData.legal?.correo &&
               formData.legal?.telefono &&
+              formData.legal?.correoPertenece &&
               formData.legal?.ci.length >= 7 &&
               formData.legal?.nombres.length >= 2 &&
               formData.legal?.apellidoMaterno.length >= 2 &&
