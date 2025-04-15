@@ -48,9 +48,20 @@ useEffect(() => {
 
   return (
     <div className="flex flex-col items-center p-4">
-      <h1 className="text-red-700 font-bold text-4xl mb-4 text-center">
-        ¡SU INSCRIPCIÓN AUN NO TERMINÓ!
-      </h1>
+      {/* Alerta importante */}
+      <div className="bg-red-100 border-4 border-red-600 text-red-800 p-6 mb-10 shadow-lg rounded-lg animate-pulse" role="alert">
+      <div className="flex flex-col items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-red-600 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+        <h1 className="text-4xl font-extrabold text-center tracking-wider mb-2">
+          ¡SU INSCRIPCIÓN NO TERMINÓ!
+        </h1>
+        <p className="text-xl text-center font-semibold">
+          Imprima su orden de pago y realice el pago en Caja Facultativa para subir su comprobante.
+        </p>
+      </div>
+      </div>
 
       <div className="flex flex-col md:flex-row gap-4">
         {/* Paso 1 y 2 */}
