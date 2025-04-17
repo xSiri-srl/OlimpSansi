@@ -12,7 +12,12 @@ const Navbar = () => {
         <div className="container mx-auto flex justify-between items-center py-6 px-6">
           {/* Logo */}
           <div className="text-2xl flex items-center gap-2 font-bold uppercase">
-        
+          <img
+            src="/images/Ohsansi_Logo.png"
+            alt="OlimpSansi Logo"
+            className="h-12 md:h-20 lg:h-24 w-auto"
+            
+          />
             <p className="text-gray-600 text-sm mt-8 ">Olimpiada de Ciencia y Tecnología</p>
             
           </div>
