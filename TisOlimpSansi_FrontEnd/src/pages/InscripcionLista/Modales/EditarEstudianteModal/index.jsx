@@ -18,7 +18,9 @@ const EditarEstudianteModal = ({ estudiante, onClose, onSave }) => {
     handleDepartamentoChange,
     validarDatos,
     tieneError,
-    mostrarCampo
+    mostrarCampo,
+    validarFormatoCI,
+    validarFormatoTelefono
   } = useEstudianteForm(estudiante);
   
   // Si no hay datos, no renderizar nada
@@ -68,6 +70,7 @@ const EditarEstudianteModal = ({ estudiante, onClose, onSave }) => {
               mostrarCampo={mostrarCampo}
               tieneError={tieneError}
               errores={errores}
+              validarFormatoCI={validarFormatoCI}
             />
             
             {/* Solo mostrar si hay campos visibles en esta sección */}
@@ -99,32 +102,44 @@ const EditarEstudianteModal = ({ estudiante, onClose, onSave }) => {
             )}
             
             {/* Tutor legal - solo en modo todos */}
-            {seccionActiva === SECCIONES.TODOS && (
+            {(seccionActiva === SECCIONES.TODOS || mostrarCampo('tutor_legal')) && (
               <TutorLegal 
                 estudianteData={estudianteData}
                 handleChange={handleChange}
+                tieneError={tieneError}
+                errores={errores}
+                validarFormatoCI={validarFormatoCI}
+                validarFormatoTelefono={validarFormatoTelefono}
               />
             )}
             
             {/* Tutor académico - solo en modo todos */}
-            {seccionActiva === SECCIONES.TODOS && areasActuales.length > 0 && areasActuales[0]?.nombre_area && (
-              <TutorAcademico 
-                estudianteData={estudianteData}
-                handleChange={handleChange}
-                areaIndex={0}
-                nombreArea={areasActuales[0].nombre_area}
-              />
-            )}
+            {(seccionActiva === SECCIONES.TODOS || mostrarCampo('tutores_academicos')) && 
+            areasActuales.length > 0 && areasActuales[0]?.nombre_area && (
+            <TutorAcademico 
+              estudianteData={estudianteData}
+              handleChange={handleChange}
+              areaIndex={0}
+              nombreArea={areasActuales[0].nombre_area}
+              tieneError={tieneError}
+              errores={errores}
+              validarFormatoCI={validarFormatoCI}
+            />
+          )}
             
             {/* Segundo tutor académico - solo en modo todos */}
-            {seccionActiva === SECCIONES.TODOS && areasActuales.length > 1 && areasActuales[1]?.nombre_area && (
-              <TutorAcademico 
-                estudianteData={estudianteData}
-                handleChange={handleChange}
-                areaIndex={1}
-                nombreArea={areasActuales[1].nombre_area}
-              />
-            )}
+            {(seccionActiva === SECCIONES.TODOS || mostrarCampo('tutores_academicos')) && 
+            areasActuales.length > 1 && areasActuales[1]?.nombre_area && (
+            <TutorAcademico 
+              estudianteData={estudianteData}
+              handleChange={handleChange}
+              areaIndex={1}
+              nombreArea={areasActuales[1].nombre_area}
+              tieneError={tieneError}
+              errores={errores}
+              validarFormatoCI={validarFormatoCI}
+            />
+          )}
           </div>
         </div>
         
