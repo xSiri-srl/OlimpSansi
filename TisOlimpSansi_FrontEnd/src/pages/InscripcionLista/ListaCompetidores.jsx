@@ -61,6 +61,14 @@ const ListaCompetidores = ({ setStep }) => {
       !est.estudiante?.apellido_pa ||
       !est.areas_competencia ||
       est.areas_competencia.length === 0 ||
+            // Validar formato de CI: debe tener entre 7-8 dígitos
+            (est.estudiante?.ci && !/^\d{7,8}$/.test(est.estudiante.ci)) ||
+            // Validar formato de teléfono del tutor legal si existe
+            (est.tutor_legal?.numero_celular && !/^\d{7,9}$/.test(est.tutor_legal.numero_celular)) ||
+            // Validar formatos de CI de tutores académicos si existen
+            (est.tutores_academicos && est.tutores_academicos.some(tutor => 
+              tutor?.tutor?.ci && !/^\d{7,8}$/.test(tutor.tutor.ci)
+            )) ||
       est.areas_competencia.some((area) => {
         if (!area.nombre_area) return false
         // Normalizar el nombre del área para comparación insensible a mayúsculas/acentos
@@ -75,30 +83,39 @@ const ListaCompetidores = ({ setStep }) => {
     const areas = est.areas_competencia
       ? est.areas_competencia.map((area) => area.nombre_area).filter((area) => area)
       : []
+      let mensajeError = ""
+      if (hasError) {
+        if (!est.estudiante?.nombre || !est.estudiante?.apellido_pa) {
+          mensajeError = "Faltan datos obligatorios del estudiante"
+        } else if (est.estudiante?.ci && !/^\d{7,8}$/.test(est.estudiante.ci)) {
+          mensajeError = "El CI del estudiante debe contener entre 7 y 8 dígitos numéricos"
+        } else if (est.tutor_legal?.numero_celular && !/^\d{7,9}$/.test(est.tutor_legal.numero_celular)) {
+          mensajeError = "El teléfono del tutor legal debe contener entre 7 y 9 dígitos numéricos"
+        } else if (est.tutores_academicos && est.tutores_academicos.some(tutor => 
+          tutor?.tutor?.ci && !/^\d{7,8}$/.test(tutor.tutor.ci))) {
+          mensajeError = "El CI de algún tutor académico tiene un formato incorrecto"
+        } else if (est.areas_competencia && est.areas_competencia.some((area) => {
+          const normalizedArea = area.nombre_area?.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+          return (normalizedArea === "informatica" || normalizedArea === "robotica") && !area.categoria
+        })) {
+          mensajeError = "Falta seleccionar categoría para Informática o Robótica"
+        } else if (!est.areas_competencia || est.areas_competencia.length === 0) {
+          mensajeError = "No se han seleccionado áreas de competencia"
+        }
+      }
 
-    return {
-      id: index + 1,
-      nombres: est.estudiante?.nombre || "",
-      apellidoPaterno: est.estudiante?.apellido_pa || "",
-      apellidoMaterno: est.estudiante?.apellido_ma || "",
-      ci: est.estudiante?.ci || "",
-      areas: areas,
-      error: hasError,
-      mensajeError: hasError
-        ? est.areas_competencia &&
-          est.areas_competencia.some((area) => {
-            const normalizedArea = area.nombre_area
-              ?.toLowerCase()
-              .normalize("NFD")
-              .replace(/[\u0300-\u036f]/g, "")
-            return (normalizedArea === "informatica" || normalizedArea === "robotica") && !area.categoria
-          })
-          ? "Falta seleccionar categoría para Informática o Robótica"
-          : "Faltan datos obligatorios del estudiante"
-        : "",
-      originalData: est,
-    }
-  })
+      return {
+        id: index + 1,
+        nombres: est.estudiante?.nombre || "",
+        apellidoPaterno: est.estudiante?.apellido_pa || "",
+        apellidoMaterno: est.estudiante?.apellido_ma || "",
+        ci: est.estudiante?.ci || "",
+        areas: areas,
+        error: hasError,
+        mensajeError,
+        originalData: est,
+      }
+    })
 
   // Filtrar estudiantes
   const filteredEstudiantes = processedEstudiantes.filter((estudiante) => {
@@ -509,7 +526,7 @@ const ListaCompetidores = ({ setStep }) => {
       ) : (
         // Pantalla de confirmación
         <div className="text-center">
-          <h2 className="text-xl font-semibold mb-4">Resumen de Inscripción por Lista</h2>
+          <h2 className="text-xl font-semibold mb-4">Resumen de Registro por Lista</h2>
           <p className="text-gray-600 mb-6">Por favor, revise la información antes de confirmar</p>
 
           {/* Resumen formateado de la información */}

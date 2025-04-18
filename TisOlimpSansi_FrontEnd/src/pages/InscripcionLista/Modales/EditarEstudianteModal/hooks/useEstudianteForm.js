@@ -14,13 +14,37 @@ export const useEstudianteForm = (estudiante) => {
       const normalizedData = normalizarDatosEstudiante(estudiante.originalData);
       
       console.log("Datos normalizados:", normalizedData);
-
+  
       const erroresIniciales = {};
+      
+      // Validar áreas que requieren categoría
       normalizedData.areas_competencia?.forEach((area, index) => {
         if ((area.nombre_area === "Informática" || area.nombre_area === "Robótica") && !area.categoria) {
           erroresIniciales[`categoria_${index}`] = `Debe seleccionar una categoría para ${area.nombre_area}`;
         }
       });
+      
+      // Validar CI del estudiante
+      if (normalizedData.estudiante?.ci && !/^\d{7,8}$/.test(normalizedData.estudiante.ci)) {
+        erroresIniciales.ci = "El CI del estudiante debe contener entre 7 y 8 dígitos numéricos";
+      }
+      
+      // Validar formato de teléfono del tutor legal
+      if (normalizedData.tutor_legal?.numero_celular && !/^\d{7,9}$/.test(normalizedData.tutor_legal.numero_celular)) {
+        erroresIniciales.tutor_legal_telefono = "El teléfono debe contener entre 7 y 9 dígitos numéricos";
+      }
+      
+      // Validar CI de tutores académicos
+      normalizedData.tutores_academicos?.forEach((tutor, index) => {
+        if (tutor?.tutor?.ci && !/^\d{7,8}$/.test(tutor.tutor.ci)) {
+          erroresIniciales[`tutor_academico_${index}_ci`] = "El CI del tutor académico debe contener entre 7 y 8 dígitos numéricos";
+        }
+      });
+      
+      // Validar CI del tutor legal
+      if (normalizedData.tutor_legal?.ci && !/^\d{7,8}$/.test(normalizedData.tutor_legal.ci)) {
+        erroresIniciales.tutor_legal_ci = "El CI del tutor legal debe contener entre 7 y 8 dígitos numéricos";
+      }
       
       // Establecer errores encontrados
       if (Object.keys(erroresIniciales).length > 0) {
@@ -112,6 +136,31 @@ export const useEstudianteForm = (estudiante) => {
       nuevoErrores.apellido_pa = "El apellido paterno es obligatorio";
     if (!estudianteData.estudiante?.ci) 
       nuevoErrores.ci = "El CI es obligatorio";
+    if (estudianteData.estudiante?.ci) {
+      if (!/^\d{7,8}$/.test(estudianteData.estudiante.ci)) {
+        nuevoErrores.ci = "El CI debe contener entre 7 y 8 dígitos numéricos";
+      }
+    }
+
+      // Validar datos del tutor legal
+    if (estudianteData.tutor_legal?.ci) {
+          if (!/^\d{7,8}$/.test(estudianteData.tutor_legal.ci)) {
+            nuevoErrores.tutor_legal_ci = "El CI del tutor debe contener entre 7 y 8 dígitos numéricos";
+      }
+    }
+    if (estudianteData.tutor_legal?.numero_celular) {
+      if (!/^\d{7,9}$/.test(estudianteData.tutor_legal.numero_celular)) {
+        nuevoErrores.tutor_legal_telefono = "El teléfono debe contener entre 7 y 9 dígitos numéricos";
+      }
+    }
+      // Validar CI de tutores académicos
+      estudianteData.tutores_academicos?.forEach((tutor, index) => {
+         if (tutor?.tutor?.ci) {
+            if (!/^\d{7,8}$/.test(tutor.tutor.ci)) {
+              nuevoErrores[`tutor_academico_${index}_ci`] = "El CI del tutor académico debe contener entre 7 y 8 dígitos numéricos";
+            }
+          }
+        });
     
     // Validar datos del colegio
     if (!estudianteData.colegio?.nombre_colegio) 
@@ -131,6 +180,16 @@ export const useEstudianteForm = (estudiante) => {
         nuevoErrores[`categoria_${index}`] = `Debe seleccionar una categoría para ${area.nombre_area}`;
       }
     });
+
+    if (estudianteData.areas_competencia?.[1]?.nombre_area) {
+      const tutorAcademico = estudianteData.tutores_academicos?.[1]?.tutor || {};
+      if (!tutorAcademico.nombre || !tutorAcademico.apellido_pa || !tutorAcademico.ci) {
+        nuevoErrores[`tutor_academico_1`] = "Debe completar los datos del tutor académico para la segunda área";
+      }
+      if (tutorAcademico.ci && !/^\d{7,8}$/.test(tutorAcademico.ci)) {
+        nuevoErrores[`tutor_academico_1_ci`] = "El CI del tutor académico debe contener entre 7 y 8 dígitos numéricos";
+      }
+    }
     
     setErrores(nuevoErrores);
     return Object.keys(nuevoErrores).length === 0;
@@ -140,41 +199,68 @@ export const useEstudianteForm = (estudiante) => {
   const tieneError = (campo) => Boolean(errores[campo]);
 
   // Función para mostrar u ocultar campos según la sección activa
+  // Función para mostrar u ocultar campos según la sección activa
   const mostrarCampo = (campo) => {
     if (seccionActiva === SECCIONES.TODOS) return true;
     
-    // Verificar errores de categoría específicos
-    const tieneErrorCategoria0 = tieneError('categoria_0');
-    const tieneErrorCategoria1 = tieneError('categoria_1');
-    const tieneErrorAreas = tieneError('areas');
+    // En modo de solo campos inválidos, verificar todos los tipos de errores
     
-    // Si hay errores de categoría, SOLO mostrar la sección de áreas
-    if (tieneErrorCategoria0 || tieneErrorCategoria1 || tieneErrorAreas) {
-      // Solo mostrar campos relacionados con áreas y categorías
-      const camposAreas = ['areas']; // campo principal para la sección de áreas
-      return camposAreas.includes(campo);
-    }
-    
-    
-    // Si el campo específico tiene error, mostrarlo
+    // Si el campo específico tiene error, siempre mostrarlo
     if (tieneError(campo)) {
       return true;
     }
     
     // Para errores específicos de estudiante
-    if (tieneError('apellido_pa') || tieneError('nombre') || tieneError('ci')) {
-      return campo === 'apellido_pa' || campo === 'nombre' || campo === 'ci';
+    if (tieneError('ci') || tieneError('apellido_pa') || tieneError('nombre')) {
+      if (campo === 'ci' || campo === 'apellido_pa' || campo === 'nombre') {
+        return true;
+      }
     }
     
     // Para errores específicos de colegio
-    if (tieneError('nombre_colegio') || tieneError('curso')) {r
-      return campo === 'nombre_colegio' || campo === 'curso';
+    if (tieneError('nombre_colegio') || tieneError('curso')) {
+      if (campo === 'nombre_colegio' || campo === 'curso') {
+        return true;
+      }
     }
     
-    // no mostrar el campo
+    // Para errores de categoría en áreas
+    const tieneErrorCategoria = Object.keys(errores).some(key => key.startsWith('categoria_'));
+    if (tieneErrorCategoria || tieneError('areas')) {
+      if (campo === 'areas') {
+        return true;
+      }
+    }
+    
+    // Para errores en tutor legal
+    if (tieneError('tutor_legal_ci') || tieneError('tutor_legal_telefono')) {
+      if (campo === 'tutor_legal') {
+        return true;
+      }
+    }
+    
+    // Para errores en tutores académicos
+    const tieneErrorTutorAcademico = Object.keys(errores).some(key => key.startsWith('tutor_academico_'));
+    if (tieneErrorTutorAcademico) {
+      if (campo === 'tutores_academicos') {
+        return true;
+      }
+    }
+    
+    // No mostrar el campo por defecto en modo "Solo campos inválidos"
     return false;
   };
-
+    // Validar formato numérico para CI
+    const validarFormatoCI = (value) => {
+      // Permitir solo dígitos y limitar longitud
+      return value.replace(/\D/g, '').substring(0, 8);
+    };
+    
+    // Validar formato numérico para teléfono
+    const validarFormatoTelefono = (value) => {
+      // Permitir solo dígitos y limitar longitud
+      return value.replace(/\D/g, '').substring(0, 9);
+    };
   return {
     seccionActiva,
     setSeccionActiva,
@@ -184,6 +270,8 @@ export const useEstudianteForm = (estudiante) => {
     handleDepartamentoChange,
     validarDatos,
     tieneError,
-    mostrarCampo
+    mostrarCampo,
+    validarFormatoCI,
+    validarFormatoTelefono
   };
 };

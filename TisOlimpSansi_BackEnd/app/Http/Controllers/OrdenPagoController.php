@@ -163,13 +163,15 @@ class OrdenPagoController extends Controller
         $validated = $request->validate([
             'comprobante_numero' => 'required|image|mimes:jpg,png,jpeg|max:5120',
             'comprobante_nombre' => 'required|image|mimes:jpg,png,jpeg|max:5120',
+            'fecha_comprobante' => 'required|image|mimes:jpg,png,jpeg|max:5120',
         ]);
     
         // Obtener imágenes
         $imagenComprobante = $request->file('comprobante_numero');
         $imagenNombre = $request->file('comprobante_nombre');
+        $imagenFecha = $request->file('fecha_comprobante');
     
-        // Guardar imágenes para depuración (solo si falla)
+        // Crear carpeta de depuración si no existe
         $debugDir = storage_path('app/public/debug_ocr');
         if (!file_exists($debugDir)) {
             mkdir($debugDir, 0755, true);
@@ -177,9 +179,11 @@ class OrdenPagoController extends Controller
     
         $rutaComprobante = $imagenComprobante->getRealPath();
         $rutaNombre = $imagenNombre->getRealPath();
+        $rutaFecha = $imagenFecha->getRealPath();
     
         $numeroComprobante = '';
         $nombrePagador = '';
+        $fechaComprobante = '';
     
         try {
             $numeroComprobante = (new TesseractOCR($rutaComprobante))
@@ -199,9 +203,19 @@ class OrdenPagoController extends Controller
             Log::error('OCR falló para comprobante_nombre: ' . $e->getMessage());
         }
     
+        try {
+            $fechaComprobante = (new TesseractOCR($rutaFecha))
+                ->lang('spa')
+                ->run();
+        } catch (UnsuccessfulCommandException $e) {
+            $imagenFecha->move($debugDir, 'fecha_error.jpg');
+            Log::error('OCR falló para fecha_comprobante: ' . $e->getMessage());
+        }
+    
         return response()->json([
             'numero_comprobante' => $numeroComprobante ?: 'No se pudo extraer',
             'nombre_pagador' => $nombrePagador ?: 'No se pudo extraer',
+            'fecha_comprobante' => $fechaComprobante ?: 'No se pudo extraer',
         ]);
     }
 

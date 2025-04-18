@@ -5,12 +5,15 @@ const TutorAcademico = ({
   estudianteData,
   handleChange,
   areaIndex,
-  nombreArea
+  nombreArea,
+  tieneError,
+  errores,
+  validarFormatoCI
 }) => {
   return (
     <div className="space-y-4">
       <h4 className="font-medium text-blue-700 border-b pb-1">
-        TUTOR ACADÉMICO PARA {nombreArea}
+        TUTOR ACADÉMICO PARA {nombreArea.toUpperCase()}
       </h4>
       
       <div className="grid grid-cols-2 gap-3">
@@ -57,11 +60,20 @@ const TutorAcademico = ({
         </label>
         <input
           type="text"
-          className="mt-1 p-2 w-full border rounded-md"
+          className={`mt-1 p-2 w-full border rounded-md ${tieneError(`tutor_academico_${areaIndex}_ci`) ? 'border-red-500' : ''}`}
           value={estudianteData.tutores_academicos?.[areaIndex]?.tutor?.ci || ''}
-          onChange={(e) => handleChange(`tutor_academico_${areaIndex}`, 'ci', e.target.value)}
-          maxLength="8"
+          onChange={(e) => {
+            const formattedValue = validarFormatoCI(e.target.value);
+            handleChange(`tutor_academico_${areaIndex}`, 'ci', formattedValue);
+          }}
+          pattern="\d{7,8}"
+          title="El CI debe contener entre 7 y 8 dígitos"
         />
+{tieneError(`tutor_academico_${areaIndex}`) && (
+  <p className="text-red-500 text-xs mt-1">
+    {errores[`tutor_academico_${areaIndex}`]}
+  </p>
+)}
       </div>
       
       <div>

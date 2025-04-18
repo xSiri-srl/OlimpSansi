@@ -6,7 +6,8 @@ const DatosCompetidor = ({
   handleChange, 
   mostrarCampo, 
   tieneError, 
-  errores 
+  errores,
+  validarFormatoCI 
 }) => {
   return (
     <div className="space-y-4">
@@ -66,8 +67,12 @@ const DatosCompetidor = ({
             type="text"
             className={`mt-1 p-2 w-full border rounded-md ${tieneError('ci') ? 'border-red-500' : ''}`}
             value={estudianteData.estudiante?.ci || ''}
-            onChange={(e) => handleChange('estudiante', 'ci', e.target.value)}
-            maxLength="8"
+            onChange={(e) => {
+              const formattedValue = validarFormatoCI(e.target.value);
+              handleChange('estudiante', 'ci', formattedValue);
+            }}
+            pattern="\d{7,8}"
+            title="El CI debe contener entre 7 y 8 dígitos"
           />
           {tieneError('ci') && <p className="text-red-500 text-xs mt-1">{errores.ci}</p>}
         </div>

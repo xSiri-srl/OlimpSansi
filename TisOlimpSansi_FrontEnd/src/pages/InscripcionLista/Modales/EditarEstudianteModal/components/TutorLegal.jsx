@@ -3,7 +3,11 @@ import { FaUser, FaIdCard, FaEnvelope, FaPhone } from "react-icons/fa";
 
 const TutorLegal = ({ 
   estudianteData, 
-  handleChange
+  handleChange,
+  tieneError,
+  errores,
+  validarFormatoCI,
+  validarFormatoTelefono
 }) => {
   return (
     <div className="space-y-4">
@@ -54,11 +58,16 @@ const TutorLegal = ({
           </label>
           <input
             type="text"
-            className="mt-1 p-2 w-full border rounded-md"
+            className={`mt-1 p-2 w-full border rounded-md ${tieneError('tutor_legal_ci') ? 'border-red-500' : ''}`}
             value={estudianteData.tutor_legal?.ci || ''}
-            onChange={(e) => handleChange('tutor_legal', 'ci', e.target.value)}
-            maxLength="8"
+            onChange={(e) => {
+              const formattedValue = validarFormatoCI(e.target.value);
+              handleChange('tutor_legal', 'ci', formattedValue);
+            }}
+            pattern="\d{7,8}"
+            title="El CI debe contener entre 7 y 8 dígitos"
           />
+          {tieneError('tutor_legal_ci') && <p className="text-red-500 text-xs mt-1">{errores.tutor_legal_ci}</p>}
         </div>
         
         <div>
@@ -67,10 +76,16 @@ const TutorLegal = ({
           </label>
           <input
             type="text"
-            className="mt-1 p-2 w-full border rounded-md"
+            className={`mt-1 p-2 w-full border rounded-md ${tieneError('tutor_legal_telefono') ? 'border-red-500' : ''}`}
             value={estudianteData.tutor_legal?.numero_celular || ''}
-            onChange={(e) => handleChange('tutor_legal', 'numero_celular', e.target.value)}
+            onChange={(e) => {
+              const formattedValue = validarFormatoTelefono(e.target.value);
+              handleChange('tutor_legal', 'numero_celular', formattedValue);
+            }}
+            pattern="\d{7,9}"
+            title="El teléfono debe contener entre 7 y 9 dígitos"
           />
+          {tieneError('tutor_legal_telefono') && <p className="text-red-500 text-xs mt-1">{errores.tutor_legal_telefono}</p>}
         </div>
       </div>
       
