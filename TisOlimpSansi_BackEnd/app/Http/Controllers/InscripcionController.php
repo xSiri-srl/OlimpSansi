@@ -209,7 +209,7 @@ class InscripcionController extends Controller
             $colegio = ColegioModel::firstOrCreate([
                 'nombre_colegio' => $colegioData['nombre_colegio'],
                 'departamento'   => $colegioData['departamento'],
-                'provincia'      => $colegioData['provincia'],
+                'distrito'      => $colegioData['distrito'],
             ]);
 
             // Tutor legal

@@ -3,12 +3,14 @@ import RegistroResponsable from './RegistroResponsable';
 import SubirArchivo from './SubirArchivo';
 import ListaCompetidores from './ListaCompetidores';
 import PasosInscripcion from './PasosInscripcion';
+import RegistroColegio from './RegistroColegio';
 
 const RegistroPorLista = () => {
   const [step, setStep] = useState(1);
 
   const pasos = [
     'Responsable de Inscripción',
+    'Seleccionar Colegio',
     'Subir Lista',
     'Lista de Competidores',
     'Confirmación',
@@ -43,9 +45,10 @@ const RegistroPorLista = () => {
 
       {/* Contenido de cada paso */}
       {step === 1 && <RegistroResponsable setStep={setStep} />}
-      {step === 2 && <SubirArchivo setStep={setStep} />}
-      {step === 3 && <ListaCompetidores setStep={setStep} />}
-      {step === 4 && <PasosInscripcion setStep={setStep} />}
+      {step === 2 && <RegistroColegio setStep={setStep} />}
+      {step === 3 && <SubirArchivo setStep={setStep} />}
+      {step === 4 && <ListaCompetidores setStep={setStep} />}
+      {step === 5 && <PasosInscripcion setStep={setStep} />}
     </div>
     </div>
   );
