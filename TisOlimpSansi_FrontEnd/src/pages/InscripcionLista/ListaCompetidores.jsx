@@ -130,7 +130,7 @@ const ListaCompetidores = ({ setStep }) => {
   const handleTooManyErrorsClose = () => {
     setShowTooManyErrorsModal(false)
     // Redirigir a la pantalla de subir archivo
-    setStep(2)
+    setStep(3)
   }
 
   // Modificado para mostrar directamente el modal de edición
@@ -245,7 +245,7 @@ const ListaCompetidores = ({ setStep }) => {
     setShowSuccessModal(false)
     setShowProgressBar(false)
     setShowConfirmation(false)
-    setStep(4) // Avanzar al siguiente paso
+    setStep(5) // Avanzar al siguiente paso
   }
 
   const handleCancelConfirmation = () => {
@@ -493,7 +493,7 @@ const ListaCompetidores = ({ setStep }) => {
           {/* Botones de navegación */}
           <div className="flex justify-center mt-6 space-x-4">
             <button
-              onClick={() => setStep(2)}
+              onClick={() => setStep(3)}
               className="px-6 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition"
             >
               Atrás
