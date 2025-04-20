@@ -327,7 +327,7 @@ const ListaCompetidores = ({ setStep }) => {
           {/* Panel de resumen */}
           <div className="bg-white p-3 rounded-lg shadow-md mb-4 flex flex-wrap justify-between items-center">
             <div className="flex items-center">
-              <span className="font-medium mr-2">Total competidores:</span>
+              <span className="font-medium mr-2">Total inscripciones:</span>
               <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-md">{processedEstudiantes.length}</span>
 
               <span className="font-medium mx-2">Con errores:</span>

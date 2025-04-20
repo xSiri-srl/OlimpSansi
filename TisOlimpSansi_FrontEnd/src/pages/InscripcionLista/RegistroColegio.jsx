@@ -2,45 +2,6 @@ import { useState, useEffect } from "react"
 import { FaUser, FaIdCard, FaSchool, FaMapMarkedAlt} from "react-icons/fa"
 import { useFormData } from "./form-context"
 import axios from "axios"
-const departamentos = {
-  "Cochabamba": ["Distrito 1", "Distrito 2", "Distrito 3"],
-  "La Paz": ["Distrito 4", "Distrito 5", "Distrito 6"],
-  "Santa Cruz": ["Distrito 7", "Distrito 8", "Distrito 9"],
-  "Oruro": ["Distrito 10", "Distrito 11"],
-  "Potosí": ["Distrito 12", "Distrito 13"],
-  "Tarija": ["Distrito 14"],
-  "Chuquisaca": ["Distrito 15", "Distrito 16"],
-  "Beni": ["Distrito 17"],
-  "Pando": ["Distrito 18"]
-};
-
-const colegiosPorDistrito = {
-  "Distrito 1": ["Colegio A Cochabamba", "Colegio B Cochabamba"],
-  "Distrito 2": ["Colegio C Cochabamba", "Colegio D Cochabamba"],
-  "Distrito 3": ["Colegio E Cochabamba"],
-
-  "Distrito 4": ["Colegio A La Paz", "Colegio B La Paz"],
-  "Distrito 5": ["Colegio C La Paz"],
-  "Distrito 6": ["Colegio D La Paz", "Colegio E La Paz"],
-
-  "Distrito 7": ["Colegio A Santa Cruz"],
-  "Distrito 8": ["Colegio B Santa Cruz", "Colegio C Santa Cruz"],
-  "Distrito 9": ["Colegio D Santa Cruz"],
-
-  "Distrito 10": ["Colegio A Oruro"],
-  "Distrito 11": ["Colegio B Oruro"],
-
-  "Distrito 12": ["Colegio A Potosí"],
-  "Distrito 13": ["Colegio B Potosí", "Colegio C Potosí"],
-
-  "Distrito 14": ["Colegio A Tarija"],
-
-  "Distrito 15": ["Colegio A Chuquisaca"],
-  "Distrito 16": ["Colegio B Chuquisaca"],
-
-  "Distrito 17": ["Colegio A Beni"],
-  "Distrito 18": ["Colegio A Pando"]
-};
 
 
 function RegistroColegio({ setStep }) {
@@ -56,10 +17,22 @@ function RegistroColegio({ setStep }) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errors, setErrors] = useState({})
   const { globalData, setGlobalData } = useFormData()
-  const [distritos, setDistritos] = useState(["Distrito 1", "Distrito 2", "Distrito 3"])
-  const [colegios, setColegios] = useState(["Colegio A", "Colegio B", "Colegio C"])
-  const [noEncontre, setNoEncontre] = useState(false)
 
+  const [noEncontre, setNoEncontre] = useState(false)
+  const [colegiosData, setColegiosData] = useState([]);
+  const [departamentosList, setDepartamentosList] = useState([]);
+  const [distritosList, setDistritosList] = useState([]);
+  const [colegiosFiltrados, setColegiosFiltrados] = useState([]);
+
+  useEffect(() => {
+    axios.post("http://localhost:8000/api/colegios/filtro", {})
+      .then(res => {
+        setColegiosData(res.data);
+        const departamentosUnicos = [...new Set(res.data.map(c => c.departamento))];
+        setDepartamentosList(departamentosUnicos);
+      })
+      .catch(err => console.error("Error al cargar colegios", err));
+  }, []);
   
   useEffect(() => {
     if (globalData.colegio) {
@@ -75,7 +48,21 @@ function RegistroColegio({ setStep }) {
     }
   }, [globalData]);
 
+  useEffect(() => {
+    const distritos = colegiosData
+      .filter(c => c.departamento === formData.colegio.departamento)
+      .map(c => c.distrito);
+  
+    setDistritosList([...new Set(distritos)]);
+  }, [formData.colegio.departamento, colegiosData]);
 
+  useEffect(() => {
+    const colegios = colegiosData
+      .filter(c => c.departamento === formData.colegio.departamento && c.distrito === formData.colegio.distrito)
+      .map(c => c.nombre_colegio);
+  
+    setColegiosFiltrados([...new Set(colegios)]);
+  }, [formData.colegio.distrito, formData.colegio.departamento, colegiosData]);
   
 
   const handleInputChange = (grupo, campo, valor) => {
@@ -137,59 +124,57 @@ function RegistroColegio({ setStep }) {
         <div className="space-y-4">
         
          <div>
-  <label className="flex items-center gap-2">
-  <FaMapMarkedAlt className="text-black" /> Departamento
-  </label>
-  <select
-  name="departamento"
-  className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-  value={formData.colegio.departamento || ""}
-  onChange={(e) => {
-    handleInputChange("colegio", "departamento", e.target.value);
-    handleInputChange("colegio", "distrito", "");
-    handleInputChange("colegio", "nombre_colegio", "");
-  }}
->
-  <option value="">Seleccione un Departamento</option>
-  {Object.keys(departamentos).map((dep) => (
-    <option key={dep} value={dep}>
-      {dep}
-    </option>
-  ))}
-</select>
-{errors.departamento && (
- <p className="text-red-500 text-sm mt-1">
- {errors.departamento}
-</p>
-)}
- </div>
-         
-<div>
-  <label className="flex items-center gap-2">
-  <FaMapMarkedAlt className="text-black" /> Distrito
-  </label>
-  <select
-  name="distrito"
-  className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-  value={formData.colegio.distrito || ""}
-  onChange={(e) => {
-    handleInputChange("colegio", "distrito", e.target.value);
-    handleInputChange("colegio", "nombre_colegio", "");
-  }}
-  disabled={!formData.colegio.departamento}
->
-  <option value="">Seleccione un Distrito</option>
-  {departamentos[formData.colegio.departamento]?.map((dist) => (
-    <option key={dist} value={dist}>
-      {dist}
-    </option>
-  ))}
-</select>
+              <label className="flex items-center gap-2">
+              <FaMapMarkedAlt className="text-black" /> Departamento
+              </label>
+              <select
+              name="departamento"
+              className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              value={formData.colegio.departamento || ""}
+              onChange={(e) => {
+                handleInputChange("colegio", "departamento", e.target.value);
+                handleInputChange("colegio", "distrito", "");
+                handleInputChange("colegio", "nombre_colegio", "");
+              }}
+            >
+              <option value="">Seleccione un Departamento</option>
+              {departamentosList.map(dep => (
+                <option key={dep} value={dep}>{dep}</option>
+              ))}
+            </select>
 
-{errors.distrito && (
-<p className="text-red-500 text-sm mt-1">{errors.distrito}</p>
-)}
-</div>
+            {errors.departamento && (
+            <p className="text-red-500 text-sm mt-1">
+            {errors.departamento}
+            </p>
+            )}
+        </div>
+         
+        <div>
+          <label className="flex items-center gap-2">
+          <FaMapMarkedAlt className="text-black" /> Distrito
+          </label>
+          <select
+              name="distrito"
+              className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              value={formData.colegio.distrito || ""}
+              onChange={(e) => {
+                handleInputChange("colegio", "distrito", e.target.value);
+                handleInputChange("colegio", "nombre_colegio", "");
+              }}
+              disabled={!formData.colegio.departamento}
+            >
+              <option value="">Seleccione un Distrito</option>
+              {distritosList.map(dist => (
+                <option key={dist} value={dist}>{dist}</option>
+              ))}
+            </select>
+
+
+          {errors.distrito && (
+          <p className="text-red-500 text-sm mt-1">{errors.distrito}</p>
+          )}
+        </div>
 <div>
 <label className="flex items-center gap-2">
 <FaSchool className="text-black" /> Nombre del Colegio
@@ -202,12 +187,11 @@ function RegistroColegio({ setStep }) {
   disabled={!formData.colegio.distrito || noEncontre}
 >
   <option value="">Seleccione un Colegio</option>
-  {colegiosPorDistrito[formData.colegio.distrito]?.map((colegio, idx) => (
-    <option key={idx} value={colegio}>
-      {colegio}
-    </option>
+  {colegiosFiltrados.map((colegio, idx) => (
+    <option key={idx} value={colegio}>{colegio}</option>
   ))}
 </select>
+
 
 {errors.colegio && (
 <p className="text-red-500 text-sm mt-1">{errors.colegio}</p>
