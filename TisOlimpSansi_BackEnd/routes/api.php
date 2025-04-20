@@ -130,6 +130,8 @@ Route::post('/guardar-comprobante', [OrdenPagoController::class, 'guardarComprob
 Route::post('/inscribir', [InscripcionController::class, 'registrar']);
 Route::post('/inscribir-lista', [InscripcionController::class, 'registrarLista']);
 
+Route::get('/lista-inscritos', [InscripcionController::class, 'listarInscritos']);
+
 
 Route::post('/colegios/filtro', [ColegioController::class, 'getByFiltro']);
 
