@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect  } from "react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import axios from "axios";
 
 const datos = {
   astronomia: [
@@ -84,7 +85,7 @@ function DescargarListas() {
  
 
   useEffect(() => {
-    axios.get("/lista-inscritos").then((response) => {
+    axios.get("http://localhost:8000/api/lista-inscritos").then((response) => {
       setInscritos(response.data); 
     });
   }, []);
