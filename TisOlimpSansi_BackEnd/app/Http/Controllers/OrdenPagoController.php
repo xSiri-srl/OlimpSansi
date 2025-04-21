@@ -129,20 +129,29 @@ class OrdenPagoController extends Controller
      * Descarga la orden de pago como PDF
      */
     public function descargarOrdenPago($codigo)
-    {
-        $filename = "ordenes_pago/orden_pago_{$codigo}.pdf";
+{
+    // Buscar la orden de pago por el código
+    $ordenPago = OrdenPago::where('codigo_generado', $codigo)->first();
 
-        if (!Storage::disk('public')->exists($filename)) {
-            return response()->json(['error' => 'Archivo no encontrado'], 404);
-        }
-
-        $path = storage_path("app/public/" . $filename);
-
-        return response()->file($path, [
-            'Content-Type' => 'application/pdf',
-            'Content-Disposition' => "attachment; filename=orden_pago_{$codigo}.pdf",
-        ]);
+    if (!$ordenPago) {
+        return response()->json(['error' => 'Orden de pago no encontrada'], 404);
     }
+
+    if (is_null($ordenPago->orden_pago_url)) {
+        return response()->json(['error' => 'Aún no existe una orden de pago generada.'], 400);
+    }
+
+    $path = storage_path("app/public/" . $ordenPago->orden_pago_url);
+
+    if (!file_exists($path)) {
+        return response()->json(['error' => 'El archivo de la orden de pago no fue encontrado'], 404);
+    }
+
+    return response()->file($path, [
+        'Content-Type' => 'application/pdf',
+        'Content-Disposition' => "attachment; filename=orden_pago_{$codigo}.pdf",
+    ]);
+}
 
     public function verificarCodigo(Request $request)
     {
@@ -289,7 +298,6 @@ class OrdenPagoController extends Controller
             ], 404);
         }
     
-        // Obtener inscripciones asociadas con relaciones necesarias
         $inscripciones = InscripcionModel::with([
             'estudiante',
             'responsable',
@@ -332,14 +340,18 @@ class OrdenPagoController extends Controller
     
         // Obtener responsable de la orden de pago desde la primera inscripción (asumiendo es el mismo)
         $responsable = $inscripciones->first()->responsable;
-    
+        $nombreCompleto = trim(
+            ($responsable->nombre ?? '') . ' ' .
+            ($responsable->apellido_pa ?? '') . ' ' .
+            ($responsable->apellido_ma ?? '')
+        );
         return response()->json([
             'success' => true,
             'message' => 'Resumen generado correctamente.',
             'resumen' => [
                 'codigo_generado' => $codigo,
                 'responsable' => [
-                    'nombre' => $responsable->nombre ?? null,
+                    'nombre' => $nombreCompleto,
                     'ci' => $responsable->ci ?? null,
                 ],
                 'total_inscritos' => $totalInscritos,
