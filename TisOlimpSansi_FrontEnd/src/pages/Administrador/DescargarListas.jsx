@@ -6,68 +6,61 @@ import { saveAs } from "file-saver";
 import axios from "axios";
 
 const datos = {
-  astronomia: [
-    "3P - 3ro Primaria",
-    "4P - 4to Primaria",
-    "5P - 5to Primaria",
-    "6P - 6to Primaria",
-    "1S - 1ro Secundaria",
-    "2S - 2do Secundaria",
-    "3S - 3ro Secundaria",
-    "4S - 4to Secundaria",
-    "5S - 5to Secundaria",
-    "6S - 6to Secundaria",
+  ASTRONOMIA_ASTROFISICA: [
+    "3P - 3RO PRIMARIA",
+    "4P - 4TO PRIMARIA",
+    "5P - 5TO PRIMARIA",
+    "6P - 6TO PRIMARIA",
+    "1S - 1RO SECUNDARIA",
+    "2S - 2DO SECUNDARIA",
+    "3S - 3RO SECUNDARIA",
+    "4S - 4TO SECUNDARIA",
+    "5S - 5TO SECUNDARIA",
+    "6S - 6TO SECUNDARIA",
   ],
-  astrofisica: [
-    "3P - 3ro Primaria",
-    "4P - 4to Primaria",
-    "5P - 5to Primaria",
-    "6P - 6to Primaria",
-    "1S - 1ro Secundaria",
-    "2S - 2do Secundaria",
-    "3S - 3ro Secundaria",
-    "4S - 4to Secundaria",
-    "5S - 5to Secundaria",
-    "6S - 6to Secundaria",
+  BIOLOGIA: [
+    "2S - 2DO SECUNDARIA",
+    "3S - 3RO SECUNDARIA",
+    "4S - 4TO SECUNDARIA",
+    "5S - 5TO SECUNDARIA",
+    "6S - 6TO SECUNDARIA",
   ],
-  biologia: [
-    "2S - 2do Secundaria",
-    "3S - 3ro Secundaria",
-    "4S - 4to Secundaria",
-    "5S - 5to Secundaria",
-    "6S - 6to Secundaria",
+  FISICA: [
+    "4S - 4TO SECUNDARIA",
+    "5S - 5TO SECUNDARIA",
+    "6S - 6TO SECUNDARIA"
   ],
-  fisica: ["4S - 4to Secundaria", "5S - 5to Secundaria", "6S - 6to Secundaria"],
-  informatica: [
-    "Guacamayo - 5to a 6to Primaria",
-    "Guanaco - 1ro a 3ro Secundaria",
-    "Londra - 1ro a 3ro Secundaria",
-    "Jucumari - 4to a 6to Secundaria",
-    "Bufeo - 1ro a 3ro Secundaria",
-    "Puma - 4to a 6to Secundaria",
+  INFORMATICA: [
+    "GUACAMAYO - 5TO A 6TO PRIMARIA",
+    "GUANACO - 1RO A 3RO SECUNDARIA",
+    "LONDRA - 1RO A 3RO SECUNDARIA",
+    "JUCUMARI - 4TO A 6TO SECUNDARIA",
+    "BUFEO - 1RO A 3RO SECUNDARIA",
+    "PUMA - 4TO A 6TO SECUNDARIA",
   ],
-  matematicas: [
-    "Primer Nivel - 1ro Secundaria",
-    "Segundo Nivel - 2do Secundaria",
-    "Tercer Nivel - 3ro Secundaria",
-    "Cuarto Nivel - 4to Secundaria",
-    "Quinto Nivel - 5to Secundaria",
-    "Sexto Nivel - 6to Secundaria",
+  MATEMATICAS: [
+    "PRIMER NIVEL - 1RO SECUNDARIA",
+    "SEGUNDO NIVEL - 2DO SECUNDARIA",
+    "TERCER NIVEL - 3RO SECUNDARIA",
+    "CUARTO NIVEL - 4TO SECUNDARIA",
+    "QUINTO NIVEL - 5TO SECUNDARIA",
+    "SEXTO NIVEL - 6TO SECUNDARIA",
   ],
-  quimica: [
-    "2S - 2do Secundaria",
-    "3S - 3ro Secundaria",
-    "4S - 4to Secundaria",
-    "5S - 5to Secundaria",
-    "6S - 6to Secundaria",
+  QUIMICA: [
+    "2S - 2DO SECUNDARIA",
+    "3S - 3RO SECUNDARIA",
+    "4S - 4TO SECUNDARIA",
+    "5S - 5TO SECUNDARIA",
+    "6S - 6TO SECUNDARIA",
   ],
-  robotica: [
-    "Builders P - 5to a 6to Primaria",
-    "Builders S - 1ro a 6to Secundaria",
-    "Lego P - 5to a 6to Primaria",
-    "Lego S - 1ro a 6to Secundaria",
+  ROBOTICA: [
+    "BUILDERS P - 5TO A 6TO PRIMARIA",
+    "BUILDERS S - 1RO A 6TO SECUNDARIA",
+    "LEGO P - 5TO A 6TO PRIMARIA",
+    "LEGO S - 1RO A 6TO SECUNDARIA",
   ],
 };
+
 
 
 
@@ -92,13 +85,14 @@ function DescargarListas() {
 
   const resultadosFiltrados = inscritos.filter((inscrito) => {
     return (
-      (area === "" || inscrito.nombre_area === area) &&
-      (curso === "" || inscrito.curso === curso) &&
-      (categoria === "" || inscrito.categoria === categoria) &&
-      (colegio === "" || inscrito.colegio === colegio) &&
+      (area === "" || inscrito.nombre_area?.toLowerCase() === area.toLowerCase()) &&
+      (curso === "" || inscrito.curso?.toLowerCase() === curso.toLowerCase()) &&
+      (categoria === "" || inscrito.categoria?.toLowerCase() === categoria.toLowerCase()) &&
+      (colegio === "" || inscrito.colegio?.toLowerCase() === colegio.toLowerCase()) &&
       (fecha === "" || inscrito.fecha_nacimiento === fecha)
     );
   });
+  
   
 
   const descargarPDF = () => {
