@@ -125,6 +125,9 @@ Route::post('/procesar-comprobanteOCR', [OrdenPagoController::class, 'procesarCo
 
 Route::post('/guardar-comprobante', [OrdenPagoController::class, 'guardarComprobante']);
 
+Route::get('/obtener-orden-pago/{codigo}', [OrdenPagoController::class, 'obtenerOrdenPagoPorCodigo']);
+
+Route::get('/resumen-orden-pago/{codigo}', [OrdenPagoController::class, 'obtenerResumenPorCodigo']);
 
 
 Route::post('/inscribir', [InscripcionController::class, 'registrar']);
