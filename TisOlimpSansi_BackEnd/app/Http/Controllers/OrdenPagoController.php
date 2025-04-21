@@ -9,7 +9,16 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Http\Request;
 use thiagoalessio\TesseractOCR\TesseractOCR;
 use Barryvdh\DomPDF\Facade\Pdf;
-
+use App\Models\Inscripcion\AreaModel;
+use App\Models\Inscripcion\CategoriaModel;
+use App\Models\Inscripcion\ColegioModel;
+use App\Models\Inscripcion\EstudianteModel;
+use App\Models\Inscripcion\GradoModel;
+use App\Models\Inscripcion\InscripcionAreaModel;
+use App\Models\Inscripcion\InscripcionCategoriaModel;
+use App\Models\Inscripcion\ResponsableInscripcionModel;
+use App\Models\Inscripcion\TutorAcademicoModel;
+use App\Models\Inscripcion\TutorLegalModel;
 
 
 use Illuminate\Support\Facades\Log;
@@ -267,5 +276,80 @@ class OrdenPagoController extends Controller
         
         return response()->json($ordenPago);
     }
+
+    public function obtenerResumenPorCodigo($codigo)
+    {
+        // Buscar orden de pago
+        $ordenPago = OrdenPago::where('codigo_generado', $codigo)->first();
+    
+        if (!$ordenPago) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No se encontró una orden de pago con ese código.'
+            ], 404);
+        }
+    
+        // Obtener inscripciones asociadas con relaciones necesarias
+        $inscripciones = InscripcionModel::with([
+            'estudiante',
+            'responsable',
+            'inscripcionCategoria.categoria.area'
+        ])
+        ->where('id_orden_pago', $ordenPago->id)
+        ->get();
+    
+        if ($inscripciones->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No se encontraron inscripciones asociadas a esta orden de pago.'
+            ], 404);
+        }
+    
+        $totalInscritos = $inscripciones->count();
+        $totalAreas = 0;
+    
+        $datosInscritos = [];
+    
+        foreach ($inscripciones as $inscripcion) {
+            $estudiante = $inscripcion->estudiante;
+    
+            foreach ($inscripcion->inscripcionCategoria as $cat) {
+                $area = $cat->categoria->area->nombre_area ?? null;
+                $categoria = $cat->categoria->nombre_categoria ?? null;
+    
+                $datosInscritos[] = [
+                    'nombre_estudiante' => $estudiante->nombre . ' ' . $estudiante->apellido_pa . ' ' . $estudiante->apellido_ma,
+                    'area' => $area,
+                    'categoria' => $categoria
+                ];
+    
+                // Contamos las áreas si existen
+                if ($area) {
+                    $totalAreas++;
+                }
+            }
+        }
+    
+        // Obtener responsable de la orden de pago desde la primera inscripción (asumiendo es el mismo)
+        $responsable = $inscripciones->first()->responsable;
+    
+        return response()->json([
+            'success' => true,
+            'message' => 'Resumen generado correctamente.',
+            'resumen' => [
+                'codigo_generado' => $codigo,
+                'responsable' => [
+                    'nombre' => $responsable->nombre ?? null,
+                    'ci' => $responsable->ci ?? null,
+                ],
+                'total_inscritos' => $totalInscritos,
+                'total_areas' => $totalAreas,
+                'inscritos' => $datosInscritos
+            ]
+        ]);
+    }
+    
+
+
 
 }
