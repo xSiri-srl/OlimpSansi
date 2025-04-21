@@ -147,7 +147,7 @@ const ListaCompetidores = ({ setStep }) => {
   const handleTooManyErrorsClose = () => {
     setShowTooManyErrorsModal(false)
     // Redirigir a la pantalla de subir archivo
-    setStep(2)
+    setStep(3)
   }
 
   // Modificado para mostrar directamente el modal de edición
@@ -239,10 +239,10 @@ const ListaCompetidores = ({ setStep }) => {
           codigoGenerado: response.data.codigo_generado,
         })
 
-        // Generar PDF de orden de pago
+       /* // Generar PDF de orden de pago
         await axios.post(`${endpoint}/orden-pago/pdf`, {
           codigo_generado: response.data.codigo_generado,
-        })
+        })*/
 
         // Mostrar modal de éxito en lugar de alerta
         setShowSuccessModal(true)
@@ -262,7 +262,7 @@ const ListaCompetidores = ({ setStep }) => {
     setShowSuccessModal(false)
     setShowProgressBar(false)
     setShowConfirmation(false)
-    setStep(4) // Avanzar al siguiente paso
+    setStep(5) // Avanzar al siguiente paso
   }
 
   const handleCancelConfirmation = () => {
@@ -327,7 +327,7 @@ const ListaCompetidores = ({ setStep }) => {
           {/* Panel de resumen */}
           <div className="bg-white p-3 rounded-lg shadow-md mb-4 flex flex-wrap justify-between items-center">
             <div className="flex items-center">
-              <span className="font-medium mr-2">Total competidores:</span>
+              <span className="font-medium mr-2">Total inscripciones:</span>
               <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-md">{processedEstudiantes.length}</span>
 
               <span className="font-medium mx-2">Con errores:</span>
@@ -510,7 +510,7 @@ const ListaCompetidores = ({ setStep }) => {
           {/* Botones de navegación */}
           <div className="flex justify-center mt-6 space-x-4">
             <button
-              onClick={() => setStep(2)}
+              onClick={() => setStep(3)}
               className="px-6 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition"
             >
               Atrás
@@ -563,7 +563,7 @@ const ListaCompetidores = ({ setStep }) => {
               <h3 className="text-lg font-semibold text-blue-600">Resumen de Competidores</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
                 <div>
-                  <p className="text-sm text-gray-500">Total de Competidores</p>
+                  <p className="text-sm text-gray-500">Total de Inscripciones</p>
                   <p className="font-medium">{estudiantes.length}</p>
                 </div>
                 <div>
@@ -637,7 +637,7 @@ const ListaCompetidores = ({ setStep }) => {
               onClick={handleConfirmSubmit}
               className="bg-blue-600 text-white px-6 py-2 rounded-md transition duration-300 ease-in-out hover:bg-indigo-500 shadow-md"
             >
-              Emitir Orden de Pago
+              Registrar preinscripcion
             </button>
           </div>
         </div>

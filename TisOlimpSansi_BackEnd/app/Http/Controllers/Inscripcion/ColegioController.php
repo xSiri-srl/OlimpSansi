@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Inscripcion;
 use App\Http\Controllers\Controller;
 use App\Models\Inscripcion\ColegioModel;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\DB;
 class ColegioController extends Controller
 {
     public function index()
@@ -71,5 +71,28 @@ class ColegioController extends Controller
         ]);
     }
 
+
+    public function getByFiltro(Request $request)
+    {
+        $query = DB::table('colegio')
+            ->select('nombre_colegio', 'departamento', 'distrito');
+    
+        if ($request->filled('departamento')) {
+            $query->whereRaw('UPPER(departamento) LIKE ?', ['%' . strtoupper($request->departamento) . '%']);
+        }
+    
+        if ($request->filled('distrito')) {
+            $query->whereRaw('UPPER(distrito) LIKE ?', ['%' . strtoupper($request->distrito) . '%']);
+        }
+    
+        if ($request->filled('nombre_colegio')) {
+            $query->where('nombre_colegio', 'like', '%' . $request->nombre_colegio . '%');
+        }
+    
+        return response()->json($query->get());
+    }
+    
+    
+    
     
 }
