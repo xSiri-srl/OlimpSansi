@@ -20,9 +20,11 @@ import DescargarListas from "./pages/Administrador/DescargarListas";
 
 export default function App() {
   return (
-    <>
-    <FormProvider>
+ <>
     <Navbar />
+    <div className="pt-20">
+    <FormProvider>
+    
       {/* ORDEN DE PAGO */}
       <Routes>
         <Route path="/" element={<Home />} />
@@ -91,6 +93,7 @@ export default function App() {
       </Routes> 
     </FormProvider>
       
-    </>
+    </div>
+    </>   
   );
 }
