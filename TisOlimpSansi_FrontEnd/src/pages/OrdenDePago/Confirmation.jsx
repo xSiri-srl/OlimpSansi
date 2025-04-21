@@ -327,7 +327,7 @@ const Confirmation = ({ navigate, handleBack }) => {
               isSubmitting ? "opacity-70 cursor-not-allowed" : ""
             }`}
           >
-            {isSubmitting ? "Enviando..." : "Finalizar Registro"}
+            {isSubmitting ? "Emitiendo..." : "Emitir Orden de Pago"}
           </button>
         </div>
       
@@ -336,7 +336,7 @@ const Confirmation = ({ navigate, handleBack }) => {
       {showProgressBar && (
         <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-40">
           <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
-            <h3 className="text-lg font-semibold mb-4 text-center">Procesando registro...</h3>
+            <h3 className="text-lg font-semibold mb-4 text-center">Procesando inscripción...</h3>
             <div className="w-full bg-gray-200 rounded-full h-4 mb-2">
               <div
                 className="bg-blue-600 h-full rounded-full transition-all duration-150"
@@ -353,7 +353,7 @@ const Confirmation = ({ navigate, handleBack }) => {
       {/* Modal de éxito */}
       {showSuccessModal && (
         <ExitoModal
-          mensaje="El registro ha sido completado exitosamente."
+          mensaje="La inscripción ha sido registrada exitosamente. Se generó su orden de pago."
           onClose={handleSuccessModalClose}
         />
       )}
