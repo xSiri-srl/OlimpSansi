@@ -133,6 +133,8 @@ Route::get('/resumen-orden-pago/{codigo}', [OrdenPagoController::class, 'obtener
 Route::post('/inscribir', [InscripcionController::class, 'registrar']);
 Route::post('/inscribir-lista', [InscripcionController::class, 'registrarLista']);
 
+Route::get('/lista-inscritos', [InscripcionController::class, 'listarInscritos']);
+
 
 Route::post('/colegios/filtro', [ColegioController::class, 'getByFiltro']);
 
