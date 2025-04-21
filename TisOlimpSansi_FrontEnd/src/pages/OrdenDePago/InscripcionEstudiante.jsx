@@ -217,6 +217,30 @@ export default function InscripcionEstudiante({
             Datos Personales
           </h2>
           <div className="space-y-4 w-full max-w-md">
+          <div>
+                <label className="flex items-center gap-2">
+            <FaIdCard className="text-black" /> Carnet de Identidad
+                </label>
+                <input
+            type="text"
+            name="ci"
+            className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            placeholder="Número de Carnet de Identidad"
+            value={formData.estudiante?.ci || ""}
+            onChange={(e) =>
+              handleValidatedChange(
+                "estudiante",
+                "ci",
+                e.target.value,
+                /^[0-9]*$/
+              )
+            }
+            maxLength="8"
+                />
+                {errors.ci && (
+            <p className="text-red-500 text-sm mt-1">{errors.ci}</p>
+                )}
+              </div>
             <div>
               <label className="flex items-center gap-2">
                 <FaUserAlt className="text-black" /> Apellido Paterno
@@ -293,31 +317,6 @@ export default function InscripcionEstudiante({
                 <p className="text-red-500 text-sm mt-1">{errors.nombres}</p>
               )}
             </div>
-
-              <div>
-                <label className="flex items-center gap-2">
-            <FaIdCard className="text-black" /> Carnet de Identidad
-                </label>
-                <input
-            type="text"
-            name="ci"
-            className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            placeholder="Número de Carnet de Identidad"
-            value={formData.estudiante?.ci || ""}
-            onChange={(e) =>
-              handleValidatedChange(
-                "estudiante",
-                "ci",
-                e.target.value,
-                /^[0-9]*$/
-              )
-            }
-            maxLength="8"
-                />
-                {errors.ci && (
-            <p className="text-red-500 text-sm mt-1">{errors.ci}</p>
-                )}
-              </div>
 
               <div>
                 <label className="flex items-center gap-2">
@@ -407,6 +406,64 @@ export default function InscripcionEstudiante({
             Datos del Colegio
           </h3>
           <div className="space-y-4 w-full max-w-md">
+          <div>
+              <label className="flex items-center gap-2">
+                <FaMapMarkedAlt className="text-black" /> Departamento
+              </label>
+              <select
+                name="departamento"
+                className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                value={formData.estudiante?.departamentoSeleccionado || ""}
+                onChange={(e) => {
+                  handleInputChange(
+                    "estudiante",
+                    "departamentoSeleccionado",
+                    e.target.value
+                  );
+                  handleInputChange("estudiante", "provincia", ""); // Reiniciar provincia
+                }}
+              >
+                <option value="">Seleccione un Departamento</option>
+                {Object.keys(departamentos).map((dep) => (
+                  <option key={dep} value={dep}>
+                    {dep}
+                  </option>
+                ))}
+              </select>
+              {errors.departamento && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.departamento}
+                </p>
+              )}
+            </div>
+            <div>
+              <label className="flex items-center gap-2">
+                <FaMapMarkedAlt className="text-black" /> Provincia
+              </label>
+              <select
+                name="provincia"
+                className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                value={formData.estudiante?.provincia || ""}
+                onChange={(e) =>
+                  handleInputChange("estudiante", "provincia", e.target.value)
+                }
+                disabled={!formData.estudiante?.departamentoSeleccionado}
+              >
+                <option value="">Seleccione una Provincia</option>
+                {(
+                  departamentos[
+                    formData.estudiante?.departamentoSeleccionado
+                  ] || []
+                ).map((provincia) => (
+                  <option key={provincia} value={provincia}>
+                    {provincia}
+                  </option>
+                ))}
+              </select>
+              {errors.provincia && (
+                <p className="text-red-500 text-sm mt-1">{errors.provincia}</p>
+              )}
+            </div>
             <div>
               <label className="flex items-center gap-2">
                 <FaSchool className="text-black" /> Nombre del Colegio
@@ -453,66 +510,6 @@ export default function InscripcionEstudiante({
               </select>
               {errors.curso && (
                 <p className="text-red-500 text-sm mt-1">{errors.curso}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="flex items-center gap-2">
-                <FaMapMarkedAlt className="text-black" /> Departamento
-              </label>
-              <select
-                name="departamento"
-                className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                value={formData.estudiante?.departamentoSeleccionado || ""}
-                onChange={(e) => {
-                  handleInputChange(
-                    "estudiante",
-                    "departamentoSeleccionado",
-                    e.target.value
-                  );
-                  handleInputChange("estudiante", "provincia", ""); // Reiniciar provincia
-                }}
-              >
-                <option value="">Seleccione un Departamento</option>
-                {Object.keys(departamentos).map((dep) => (
-                  <option key={dep} value={dep}>
-                    {dep}
-                  </option>
-                ))}
-              </select>
-              {errors.departamento && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.departamento}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <label className="flex items-center gap-2">
-                <FaMapMarkedAlt className="text-black" /> Provincia
-              </label>
-              <select
-                name="provincia"
-                className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                value={formData.estudiante?.provincia || ""}
-                onChange={(e) =>
-                  handleInputChange("estudiante", "provincia", e.target.value)
-                }
-                disabled={!formData.estudiante?.departamentoSeleccionado}
-              >
-                <option value="">Seleccione una Provincia</option>
-                {(
-                  departamentos[
-                    formData.estudiante?.departamentoSeleccionado
-                  ] || []
-                ).map((provincia) => (
-                  <option key={provincia} value={provincia}>
-                    {provincia}
-                  </option>
-                ))}
-              </select>
-              {errors.provincia && (
-                <p className="text-red-500 text-sm mt-1">{errors.provincia}</p>
               )}
             </div>
           </div>
