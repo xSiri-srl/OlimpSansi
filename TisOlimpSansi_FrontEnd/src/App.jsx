@@ -15,6 +15,7 @@ import SubirArchivo from "./pages/InscripcionLista/SubirArchivo";
 import ListaCompetidores from "./pages/InscripcionLista/ListaCompetidores";
 import { FormProvider } from "./pages/InscripcionLista/form-context"
 import PasosInscripcion from "./pages/InscripcionLista/PasosInscripcion";
+import GenerarOrdenPago from "./pages/OrdenPago/GenerarOrdenPago";
 import InicioAdmin from "./pages/Inicio/InicioAdmin";
 import DescargarListas from "./pages/Administrador/DescargarListas";
 
@@ -55,6 +56,10 @@ export default function App() {
         <Route
           path="/ordenDePago"
           element={<OrdenPago />}
+        />
+         <Route
+          path="/generar-orden-pago"
+          element={<GenerarOrdenPago />}
         />
       {/* COMPROBANTE */}
         <Route 

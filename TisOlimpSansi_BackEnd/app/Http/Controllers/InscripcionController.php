@@ -209,7 +209,7 @@ class InscripcionController extends Controller
             $colegio = ColegioModel::firstOrCreate([
                 'nombre_colegio' => $colegioData['nombre_colegio'],
                 'departamento'   => $colegioData['departamento'],
-                'provincia'      => $colegioData['provincia'],
+                'distrito'      => $colegioData['distrito'],
             ]);
 
             // Tutor legal
@@ -293,7 +293,69 @@ class InscripcionController extends Controller
 }
 
     
-    
+public function listarInscritos()
+{
+    $inscripciones = InscripcionModel::with([
+        'estudiante.colegio', 
+        'estudiante.grado',
+        'estudiante.tutorLegal',
+        'responsable',
+        'ordenPago',
+        'inscripcionCategoria.categoria.area',
+        'inscripcionCategoria.tutorAcademico',
+    ])->get();
+
+    $resultado = $inscripciones->map(function ($inscripcion) {
+        $estudiante = $inscripcion->estudiante;
+        $tutorLegal = $estudiante->tutorLegal;
+        $colegio = $estudiante->colegio;
+        $grado = $estudiante->grado;
+
+        $datos = [
+            'apellido_pa'         => $estudiante->apellido_pa,
+            'apellido_ma'         => $estudiante->apellido_ma,
+            'nombre'              => $estudiante->nombre,
+            'ci'                  => $estudiante->ci,
+            'fecha_nacimiento'    => $estudiante->fecha_nacimiento,
+            'correo'              => $estudiante->correo,
+            'propietario_correo'  => $estudiante->propietario_correo,
+            'curso'               => $grado->nombre_grado ?? null,
+            'colegio'             => $colegio->nombre_colegio ?? null,
+            'departamento'        => $colegio->departamento ?? null,
+            'provincia'           => $colegio->distrito ?? null,
+            'rol_tutor_legal'     => 'Tutor Legal',
+            'tutor_legal_apellido_pa' => $tutorLegal->apellido_pa ?? null,
+            'tutor_legal_apellido_ma' => $tutorLegal->apellido_ma ?? null,
+            'tutor_legal_nombre'      => $tutorLegal->nombre ?? null,
+            'tutor_legal_ci'          => $tutorLegal->ci ?? null,
+            'tutor_legal_correo'      => $tutorLegal->correo ?? null,
+            'tutor_legal_telefono'    => $tutorLegal->numero_celular ?? null,
+        ];
+
+        $tutores = $inscripcion->inscripcionCategoria->map(function ($cat) {
+            $tutor = $cat->tutorAcademico;
+            $categoria = $cat->categoria;
+            $area = $categoria?->area;
+        
+            return [
+                'nombre_area' => $area?->nombre_area ?? null,
+                'categoria'   => $categoria?->nombre_categoria ?? null,
+                'tutor_academico_apellido_pa' => $tutor->apellido_pa ?? null,
+                'tutor_academico_apellido_ma' => $tutor->apellido_ma ?? null,
+                'tutor_academico_nombre'      => $tutor->nombre ?? null,
+                'tutor_academico_ci'          => $tutor->ci ?? null,
+                'tutor_academico_correo'      => $tutor->correo ?? null,
+            ];
+        });
+
+        return $tutores->map(function ($tutor) use ($datos) {
+            return array_merge($datos, $tutor);
+        });
+    })->flatten(1);
+
+    return response()->json($resultado);
+}
+
     
 
 }
