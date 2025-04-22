@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaSchool, FaBuilding, FaMapMarkedAlt } from "react-icons/fa";
+import axios from "axios";
 
 const DatosColegio = ({ 
   estudianteData, 
@@ -9,17 +10,31 @@ const DatosColegio = ({
   tieneError, 
   errores 
 }) => {
-  const departamentos = {
-    "La Paz": ["Murillo", "Pacajes", "Los Andes", "Larecaja", "Ingavi"],
-    Cochabamba: ["Cercado", "Quillacollo", "Chapare", "Arani", "Ayopaya"],
-    "Santa Cruz": ["Andrés Ibáñez", "Warnes", "Ichilo", "Sara", "Vallegrande"],
-    Oruro: ["Cercado", "Sajama", "Sabaya", "Litoral", "Pantaleón Dalence"],
-    Potosí: ["Tomás Frías", "Charcas", "Chayanta", "Nor Chichas", "Sur Chichas"],
-    Chuquisaca: ["Oropeza", "Zudáñez", "Tomina", "Belisario Boeto", "Nor Cinti"],
-    Tarija: ["Cercado", "Gran Chaco", "O'Connor", "Avilés", "Arce"],
-    Beni: ["Cercado", "Moxos", "Vaca Díez", "Marbán", "Yacuma"],
-    Pando: ["Madre de Dios", "Manuripi", "Nicolás Suárez", "Abuná", "Federico Román"],
-  };
+  const [colegiosData, setColegiosData] = useState([]);
+  const [departamentosList, setDepartamentosList] = useState([]);
+  const [distritosList, setDistritosList] = useState([]);
+
+  // Fetch colegios data on component mount
+  useEffect(() => {
+    axios.post("http://localhost:8000/api/colegios/filtro", {})
+      .then(res => {
+        setColegiosData(res.data);
+        const departamentosUnicos = [...new Set(res.data.map(c => c.departamento))];
+        setDepartamentosList(departamentosUnicos);
+      })
+      .catch(err => console.error("Error al cargar colegios", err));
+  }, []);
+
+  // Update distritos when departamento changes
+  useEffect(() => {
+    if (estudianteData?.colegio?.departamento) {
+      const distritos = colegiosData
+        .filter(c => c.departamento === estudianteData.colegio.departamento)
+        .map(c => c.distrito);
+      
+      setDistritosList([...new Set(distritos)]);
+    }
+  }, [estudianteData?.colegio?.departamento, colegiosData]);
 
   const cursos = [
     "3ro de Primaria",
@@ -83,27 +98,27 @@ const DatosColegio = ({
             onChange={(e) => handleDepartamentoChange(e.target.value)}
           >
             <option value="">Seleccione un Departamento</option>
-            {Object.keys(departamentos).map((dep) => (
+            {departamentosList.map((dep) => (
               <option key={dep} value={dep}>{dep}</option>
             ))}
           </select>
         </div>
       )}
       
-      {mostrarCampo('provincia') && (
+      {mostrarCampo('distrito') && (
         <div>
           <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-            <FaMapMarkedAlt /> Provincia
+            <FaMapMarkedAlt /> Distrito
           </label>
           <select
             className="mt-1 p-2 w-full border rounded-md"
-            value={estudianteData.colegio?.provincia || ''}
-            onChange={(e) => handleChange('colegio', 'provincia', e.target.value)}
+            value={estudianteData.colegio?.distrito || ''}
+            onChange={(e) => handleChange('colegio', 'distrito', e.target.value)}
             disabled={!estudianteData.colegio?.departamento}
           >
-            <option value="">Seleccione una Provincia</option>
-            {(departamentos[estudianteData.colegio?.departamento] || []).map((provincia) => (
-              <option key={provincia} value={provincia}>{provincia}</option>
+            <option value="">Seleccione un Distrito</option>
+            {distritosList.map((distrito) => (
+              <option key={distrito} value={distrito}>{distrito}</option>
             ))}
           </select>
         </div>

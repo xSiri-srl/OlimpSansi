@@ -13,7 +13,7 @@ const TutorAcademico = ({
   return (
     <div className="space-y-4">
       <h4 className="font-medium text-blue-700 border-b pb-1">
-        TUTOR ACADÉMICO PARA {nombreArea.toUpperCase()}
+        TUTOR ACADÉMICO PARA {nombreArea.toUpperCase()} (Opcional)
       </h4>
       
       <div className="grid grid-cols-2 gap-3">
@@ -23,10 +23,13 @@ const TutorAcademico = ({
           </label>
           <input
             type="text"
-            className="mt-1 p-2 w-full border rounded-md"
+            className={`mt-1 p-2 w-full border rounded-md ${tieneError(`tutor_academico_${areaIndex}_apellido_pa`) ? 'border-red-500' : ''}`}
             value={estudianteData.tutores_academicos?.[areaIndex]?.tutor?.apellido_pa || ''}
             onChange={(e) => handleChange(`tutor_academico_${areaIndex}`, 'apellido_pa', e.target.value.toUpperCase())}
           />
+          {tieneError(`tutor_academico_${areaIndex}_apellido_pa`) && (
+            <p className="text-red-500 text-xs mt-1">{errores[`tutor_academico_${areaIndex}_apellido_pa`]}</p>
+          )}
         </div>
         
         <div>
@@ -48,10 +51,13 @@ const TutorAcademico = ({
         </label>
         <input
           type="text"
-          className="mt-1 p-2 w-full border rounded-md"
+          className={`mt-1 p-2 w-full border rounded-md ${tieneError(`tutor_academico_${areaIndex}_nombre`) ? 'border-red-500' : ''}`}
           value={estudianteData.tutores_academicos?.[areaIndex]?.tutor?.nombre || ''}
           onChange={(e) => handleChange(`tutor_academico_${areaIndex}`, 'nombre', e.target.value.toUpperCase())}
         />
+        {tieneError(`tutor_academico_${areaIndex}_nombre`) && (
+          <p className="text-red-500 text-xs mt-1">{errores[`tutor_academico_${areaIndex}_nombre`]}</p>
+        )}
       </div>
       
       <div>
@@ -69,11 +75,9 @@ const TutorAcademico = ({
           pattern="\d{7,8}"
           title="El CI debe contener entre 7 y 8 dígitos"
         />
-{tieneError(`tutor_academico_${areaIndex}`) && (
-  <p className="text-red-500 text-xs mt-1">
-    {errores[`tutor_academico_${areaIndex}`]}
-  </p>
-)}
+        {tieneError(`tutor_academico_${areaIndex}_ci`) && (
+          <p className="text-red-500 text-xs mt-1">{errores[`tutor_academico_${areaIndex}_ci`]}</p>
+        )}
       </div>
       
       <div>
@@ -86,6 +90,10 @@ const TutorAcademico = ({
           value={estudianteData.tutores_academicos?.[areaIndex]?.tutor?.correo || ''}
           onChange={(e) => handleChange(`tutor_academico_${areaIndex}`, 'correo', e.target.value)}
         />
+      </div>
+      
+      <div className="text-xs text-gray-500 italic mt-1">
+        Si no desea registrar un tutor académico para esta área, puede dejar estos campos en blanco.
       </div>
     </div>
   );

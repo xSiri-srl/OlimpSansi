@@ -125,6 +125,8 @@ export const useEstudianteForm = (estudiante) => {
     }));
   };
 
+// Modify the validarDatos function to fix the validation for tutores_academicos
+
   // Validar todos los campos requeridos
   const validarDatos = () => {
     const nuevoErrores = {};
@@ -142,10 +144,10 @@ export const useEstudianteForm = (estudiante) => {
       }
     }
 
-      // Validar datos del tutor legal
+    // Validar datos del tutor legal
     if (estudianteData.tutor_legal?.ci) {
-          if (!/^\d{7,8}$/.test(estudianteData.tutor_legal.ci)) {
-            nuevoErrores.tutor_legal_ci = "El CI del tutor debe contener entre 7 y 8 dígitos numéricos";
+      if (!/^\d{7,8}$/.test(estudianteData.tutor_legal.ci)) {
+        nuevoErrores.tutor_legal_ci = "El CI del tutor debe contener entre 7 y 8 dígitos numéricos";
       }
     }
     if (estudianteData.tutor_legal?.numero_celular) {
@@ -153,14 +155,29 @@ export const useEstudianteForm = (estudiante) => {
         nuevoErrores.tutor_legal_telefono = "El teléfono debe contener entre 7 y 9 dígitos numéricos";
       }
     }
-      // Validar CI de tutores académicos
-      estudianteData.tutores_academicos?.forEach((tutor, index) => {
-         if (tutor?.tutor?.ci) {
-            if (!/^\d{7,8}$/.test(tutor.tutor.ci)) {
-              nuevoErrores[`tutor_academico_${index}_ci`] = "El CI del tutor académico debe contener entre 7 y 8 dígitos numéricos";
-            }
-          }
-        });
+    
+    // Validar CI de tutores académicos - SOLO si hay datos parciales ingresados
+    estudianteData.tutores_academicos?.forEach((tutor, index) => {
+      // Solo validar si al menos uno de los campos tiene datos
+      const tutorData = tutor?.tutor || {};
+      const hasTutorData = tutorData.nombre || tutorData.apellido_pa || tutorData.apellido_ma || 
+                           tutorData.ci || tutorData.correo;
+      
+      // Si hay datos parciales, entonces validar que estén los campos requeridos
+      if (hasTutorData) {
+        if (!tutorData.nombre) {
+          nuevoErrores[`tutor_academico_${index}_nombre`] = "El nombre del tutor académico es requerido";
+        }
+        if (!tutorData.apellido_pa) {
+          nuevoErrores[`tutor_academico_${index}_apellido_pa`] = "El apellido paterno del tutor académico es requerido";
+        }
+        if (!tutorData.ci) {
+          nuevoErrores[`tutor_academico_${index}_ci`] = "El CI del tutor académico es requerido";
+        } else if (!/^\d{7,8}$/.test(tutorData.ci)) {
+          nuevoErrores[`tutor_academico_${index}_ci`] = "El CI del tutor académico debe contener entre 7 y 8 dígitos numéricos";
+        }
+      }
+    });
     
     // Validar datos del colegio
     if (!estudianteData.colegio?.nombre_colegio) 
@@ -180,16 +197,6 @@ export const useEstudianteForm = (estudiante) => {
         nuevoErrores[`categoria_${index}`] = `Debe seleccionar una categoría para ${area.nombre_area}`;
       }
     });
-
-    if (estudianteData.areas_competencia?.[1]?.nombre_area) {
-      const tutorAcademico = estudianteData.tutores_academicos?.[1]?.tutor || {};
-      if (!tutorAcademico.nombre || !tutorAcademico.apellido_pa || !tutorAcademico.ci) {
-        nuevoErrores[`tutor_academico_1`] = "Debe completar los datos del tutor académico para la segunda área";
-      }
-      if (tutorAcademico.ci && !/^\d{7,8}$/.test(tutorAcademico.ci)) {
-        nuevoErrores[`tutor_academico_1_ci`] = "El CI del tutor académico debe contener entre 7 y 8 dígitos numéricos";
-      }
-    }
     
     setErrores(nuevoErrores);
     return Object.keys(nuevoErrores).length === 0;
