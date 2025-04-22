@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { validateField, validateEmail, validateCI } from './validationsUtils';
+import { validateField, validateEmail, validateCI } from '../utils/validationsUtils';
 
 /**
  * Hook personalizado para manejar validaciones de formulario
