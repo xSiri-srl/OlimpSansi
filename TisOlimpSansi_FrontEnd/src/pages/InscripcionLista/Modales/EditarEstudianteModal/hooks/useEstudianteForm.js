@@ -268,17 +268,50 @@ export const useEstudianteForm = (estudiante) => {
       // Permitir solo dígitos y limitar longitud
       return value.replace(/\D/g, '').substring(0, 9);
     };
-  return {
-    seccionActiva,
-    setSeccionActiva,
-    estudianteData,
-    errores,
-    handleChange,
-    handleDepartamentoChange,
-    validarDatos,
-    tieneError,
-    mostrarCampo,
-    validarFormatoCI,
-    validarFormatoTelefono
-  };
+    // Añadir antes del return final
+
+// Determinar si un campo debe ser editable
+const campoEditable = (campo) => {
+  // Si el campo tiene error, siempre debe ser editable
+  if (tieneError(campo)) return true;
+  
+  // Verificar si el campo está vacío (obligatorio)
+  if (campo === 'nombre' && !estudianteData.estudiante?.nombre) return true;
+  if (campo === 'apellido_pa' && !estudianteData.estudiante?.apellido_pa) return true;
+  if (campo === 'ci' && !estudianteData.estudiante?.ci) return true;
+  if (campo === 'nombre_colegio' && !estudianteData.colegio?.nombre_colegio) return true;
+  if (campo === 'curso' && !estudianteData.colegio?.curso) return true;
+  
+  // Para áreas de competencia
+  if (campo === 'areas' && (!estudianteData.areas_competencia || estudianteData.areas_competencia.length === 0 || 
+      !estudianteData.areas_competencia[0]?.nombre_area)) return true;
+  
+  // Categorías para informática/robótica
+  if (campo.startsWith('categoria_')) {
+    const index = parseInt(campo.split('_')[1]);
+    const area = estudianteData.areas_competencia?.[index]?.nombre_area;
+    if ((area === 'Informática' || area === 'Robótica') && !estudianteData.areas_competencia[index]?.categoria) {
+      return true;
+    }
+  }
+  
+ 
+  return false;
+};
+
+return {
+  seccionActiva,
+  setSeccionActiva,
+  estudianteData,
+  errores,
+  handleChange,
+  handleDepartamentoChange,
+  validarDatos,
+  tieneError,
+  mostrarCampo,
+  campoEditable,
+  validarFormatoCI,
+  validarFormatoTelefono
+};
+
 };

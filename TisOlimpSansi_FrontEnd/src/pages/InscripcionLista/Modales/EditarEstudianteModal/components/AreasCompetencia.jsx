@@ -4,8 +4,8 @@ const AreasCompetencia = ({
   estudianteData, 
   areasActuales,
   handleChange, 
-  mostrarCampo, 
   tieneError, 
+  campoEditable,
   errores 
 }) => {
   const areas = [
@@ -18,7 +18,7 @@ const AreasCompetencia = ({
     "Astronomía y Astrofísica"
   ];
 
-  // Mapping for category names from Excel to full UI names
+  // Mapping for category names from Excel to full UI names - conservamos esto intacto
   const categoryMapping = {
     // Informática categories
     "GUACAMAYO": "\"Guacamayo\" 5to a 6to Primaria",
@@ -35,7 +35,7 @@ const AreasCompetencia = ({
     "LEGO S": "\"Lego S\" 1ro a 6to Secundaria"
   };
 
-  // Normalize category names when component mounts
+  // Normalize category names when component mounts - conservamos este useEffect intacto
   useEffect(() => {
     if (areasActuales?.length > 0) {
       areasActuales.forEach((area, index) => {
@@ -55,6 +55,7 @@ const AreasCompetencia = ({
     }
   }, [areasActuales]);
 
+  // Mantenemos esta función intacta
   const obtenerCategorias = (area, curso) => {
     if (area !== "Informática" && area !== "Robótica") {
       return [];
@@ -111,9 +112,10 @@ const AreasCompetencia = ({
           </label>
           <div className="flex gap-2">
             <select
-              className={`mt-1 p-2 w-full border rounded-md ${tieneError('areas') ? 'border-red-500' : ''}`}
+              className={`mt-1 p-2 w-full border rounded-md ${tieneError('areas') ? 'border-red-500' : ''} ${!campoEditable('areas') ? 'bg-gray-100' : ''}`}
               value={areasActuales[0]?.nombre_area || ''}
               onChange={(e) => handleChange('area_0', 'nombre_area', e.target.value)}
+              disabled={!campoEditable('areas')}
             >
               <option value="">Seleccione un área</option>
               {areas.map((area) => (
@@ -131,9 +133,10 @@ const AreasCompetencia = ({
               Categoría para {areasActuales[0].nombre_area} *
             </label>
             <select
-              className={`mt-1 p-2 w-full border rounded-md ${tieneError('categoria_0') ? 'border-red-500' : ''}`}
+              className={`mt-1 p-2 w-full border rounded-md ${tieneError('categoria_0') ? 'border-red-500' : ''} ${!campoEditable('categoria_0') ? 'bg-gray-100' : ''}`}
               value={areasActuales[0].categoria || ''}
               onChange={(e) => handleChange('area_0', 'categoria', e.target.value)}
+              disabled={!campoEditable('categoria_0')}
             >
               <option value="">Seleccione una categoría</option>
               {obtenerCategorias(areasActuales[0].nombre_area, estudianteData.colegio?.curso || '').map((cat) => (
@@ -151,9 +154,10 @@ const AreasCompetencia = ({
               Categoría para {areasActuales[1].nombre_area} *
             </label>
             <select
-              className={`mt-1 p-2 w-full border rounded-md ${tieneError('categoria_1') ? 'border-red-500' : ''}`}
+              className={`mt-1 p-2 w-full border rounded-md ${tieneError('categoria_1') ? 'border-red-500' : ''} ${!campoEditable('categoria_1') ? 'bg-gray-100' : ''}`}
               value={areasActuales[1].categoria || ''}
               onChange={(e) => handleChange('area_1', 'categoria', e.target.value)}
+              disabled={!campoEditable('categoria_1')}
             >
               <option value="">Seleccione una categoría</option>
               {obtenerCategorias(areasActuales[1].nombre_area, estudianteData.colegio?.curso || '').map((cat) => (
