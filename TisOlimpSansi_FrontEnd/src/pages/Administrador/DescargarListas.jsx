@@ -62,7 +62,35 @@ const datos = {
 };
 
 
-
+const departamentos = {
+  "La Paz": ["Murillo", "Pacajes", "Los Andes", "Larecaja", "Ingavi"],
+  Cochabamba: ["Cercado", "Quillacollo", "Chapare", "Arani", "Ayopaya"],
+  "Santa Cruz": ["Andrés Ibáñez", "Warnes", "Ichilo", "Sara", "Vallegrande"],
+  Oruro: ["Cercado", "Sajama", "Sabaya", "Litoral", "Pantaleón Dalence"],
+  Potosí: [
+    "Tomás Frías",
+    "Charcas",
+    "Chayanta",
+    "Nor Chichas",
+    "Sur Chichas",
+  ],
+  Chuquisaca: [
+    "Oropeza",
+    "Zudáñez",
+    "Tomina",
+    "Belisario Boeto",
+    "Nor Cinti",
+  ],
+  Tarija: ["Cercado", "Gran Chaco", "O'Connor", "Avilés", "Arce"],
+  Beni: ["Cercado", "Moxos", "Vaca Díez", "Marbán", "Yacuma"],
+  Pando: [
+    "Madre de Dios",
+    "Manuripi",
+    "Nicolás Suárez",
+    "Abuná",
+    "Federico Román",
+  ],
+};
 
 function DescargarListas() {
   const [area, setArea] = useState("");
@@ -75,7 +103,10 @@ function DescargarListas() {
 
 
   const [inscritos, setInscritos] = useState([]);
- 
+  const [departamentoSeleccionado, setDepartamentoSeleccionado] = useState("");
+  const [provinciaSeleccionada, setProvinciaSeleccionada] = useState("");
+
+  const provincias = departamentos[departamentoSeleccionado] || [];
 
   useEffect(() => {
     axios.get("http://localhost:8000/api/lista-inscritos").then((response) => {
@@ -226,16 +257,47 @@ function DescargarListas() {
             </select>
           </div>
   
-          <div className="flex-1">
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-              Fecha
-            </label>
-            <input
-              type="date"
-              name="fechaNacimiento"
-              className="p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm text-gray-700"
-            />
-          </div>
+               {/* Departamento */}
+      <div className="flex-1">
+        <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+          Departamento
+        </label>
+        <select
+          value={departamentoSeleccionado}
+          onChange={(e) => {
+            setDepartamentoSeleccionado(e.target.value);
+            setProvinciaSeleccionada("");
+          }}
+          className="p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm text-gray-700"
+        >
+          <option value="">Seleccionar departamento</option>
+          {Object.keys(departamentos).map((dep) => (
+            <option key={dep} value={dep}>
+              {dep}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Provincia */}
+      <div className="flex-1">
+        <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+          Provincia
+        </label>
+        <select
+          value={provinciaSeleccionada}
+          onChange={(e) => setProvinciaSeleccionada(e.target.value)}
+          disabled={!departamentoSeleccionado}
+          className="p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm text-gray-700 bg-white disabled:bg-gray-100"
+        >
+          <option value="">Seleccionar provincia</option>
+          {provincias.map((prov) => (
+            <option key={prov} value={prov}>
+              {prov}
+            </option>
+          ))}
+        </select>
+      </div>
         </div>
       </div>
   
