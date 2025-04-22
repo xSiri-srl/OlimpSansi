@@ -201,62 +201,120 @@ const ListaCompetidores = ({ setStep }) => {
 
   const handleConfirmSubmit = async () => {
     // Estructura el JSON que se enviará
-    const datosAEnviar = {
+    const datosPreparados = {
       responsable_inscripcion: responsableInscripcion,
-      inscripciones: estudiantes,
-    }
+      inscripciones: estudiantes.map(estudiante => {
+        // Crear una copia del estudiante para manipular
+        const estudianteModificado = { ...estudiante };
+        
+        // Si hay áreas de competencia, verificar tutores académicos
+        if (estudianteModificado.areas_competencia && estudianteModificado.areas_competencia.length > 0) {
+          // Asegurar que tutores_academicos sea un array
+          if (!estudianteModificado.tutores_academicos) {
+            estudianteModificado.tutores_academicos = [];
+          }
+          
+          // Verificar cada área para asegurarse de que tiene un tutor académico
+          estudianteModificado.areas_competencia.forEach((area, index) => {
+            // Si no hay tutor para esta área, crear uno con valores predeterminados
+            if (!estudianteModificado.tutores_academicos[index] || 
+                !estudianteModificado.tutores_academicos[index].tutor) {
+              
+              estudianteModificado.tutores_academicos[index] = {
+                area_id: index,
+                area_nombre: area.nombre_area,
+                tutor: {
+                  nombre: "SIN TUTOR",
+                  apellido_pa: "ACADÉMICO",
+                  apellido_ma: "ACADÉMICO",
+                  ci: "00000000",
+                  correo: "sintutor@ejemplo.com"
+                }
+              };
+            } else {
+              // Si existe el tutor pero tiene campos vacíos, rellenarlos con valores predeterminados
+              const tutor = estudianteModificado.tutores_academicos[index].tutor;
+              
+              if (!tutor.nombre || tutor.nombre.trim() === "") {
+                tutor.nombre = "SIN TUTOR";
+              }
+              
+              if (!tutor.apellido_pa || tutor.apellido_pa.trim() === "") {
+                tutor.apellido_pa = "ACADÉMICO";
+              }
+              
+              if (!tutor.apellido_ma || tutor.apellido_ma.trim() === "") {
+                tutor.apellido_ma = "ACADÉMICO";
+              }
+              
+              if (!tutor.ci || tutor.ci.trim() === "") {
+                tutor.ci = "00000000";
+              }
+              
+              if (!tutor.correo || tutor.correo.trim() === "") {
+                tutor.correo = "sintutor@ejemplo.com";
+              }
+            }
+          });
+        }
+        
+        return estudianteModificado;
+      })
+    };
 
-    console.log("Enviando datos:", datosAEnviar)
+    console.log("Enviando datos:", datosPreparados);
     // Iniciar barra de progreso
-    setShowProgressBar(true)
-    setUploadProgress(0)
+    setShowProgressBar(true);
+    setUploadProgress(0);
     const progressInterval = setInterval(() => {
       setUploadProgress((prev) => {
-        const newValue = prev + 2
+        const newValue = prev + 2;
         if (newValue >= 90) {
-          clearInterval(progressInterval)
-          return 90 // Mantenemos en 90% hasta que termine la petición
+          clearInterval(progressInterval);
+          return 90; // Mantenemos en 90% hasta que termine la petición
         }
-        return newValue
-      })
-    }, 100)
+        return newValue;
+      });
+    }, 100);
 
     // Enviar los datos al servidor
     try {
-      const response = await axios.post(`${endpoint}/inscribir-lista`, datosAEnviar)
+      const response = await axios.post(`${endpoint}/inscribir-lista`, datosPreparados);
 
       if (response.status === 201) {
         // Completar la barra de progreso
-        setUploadProgress(100)
-        clearInterval(progressInterval)
+        setUploadProgress(100);
+        clearInterval(progressInterval);
 
         // Guardar el código generado
-        setCodigoGenerado(response.data.codigo_generado)
+        setCodigoGenerado(response.data.codigo_generado);
 
         // Actualizar el estado global con el código generado
         setGlobalData({
           ...globalData,
           codigoGenerado: response.data.codigo_generado,
-        })
-
-       /* // Generar PDF de orden de pago
-        await axios.post(`${endpoint}/orden-pago/pdf`, {
-          codigo_generado: response.data.codigo_generado,
-        })*/
+        });
 
         // Mostrar modal de éxito en lugar de alerta
-        setShowSuccessModal(true)
+        setShowSuccessModal(true);
       } else {
-        throw new Error(`Error en la respuesta: ${response.status}`)
+        throw new Error(`Error en la respuesta: ${response.status}`);
       }
     } catch (error) {
-      console.error("Error al enviar la lista:", error)
-      clearInterval(progressInterval)
-      setShowProgressBar(false)
-      setErrorMessage(`Hubo un error al enviar la lista: ${error.message}. Intenta nuevamente.`)
-      setShowErrorModal(true)
+      console.error("Error al enviar la lista:", error);
+      clearInterval(progressInterval);
+      setShowProgressBar(false);
+      
+      // Mostrar mensaje de error más detallado si está disponible
+      let errorMsg = `Hubo un error al enviar la lista: ${error.message}`;
+      if (error.response && error.response.data && error.response.data.message) {
+        errorMsg += ` - ${error.response.data.message}`;
+      }
+      
+      setErrorMessage(errorMsg + ". Intenta nuevamente.");
+      setShowErrorModal(true);
     }
-  }
+  };
 
   const handleSuccessModalClose = () => {
     setShowSuccessModal(false)
