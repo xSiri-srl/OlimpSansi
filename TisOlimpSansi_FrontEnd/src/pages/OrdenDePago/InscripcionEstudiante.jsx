@@ -11,7 +11,13 @@ import {
   FaMapMarkedAlt,
 } from "react-icons/fa";
 import { useFormData } from "./form-data-context";
-import { validateBirthDate } from "../../utils/dateValidation";
+import { validateBirthDate } from "./utils/dateValidation";
+import {
+  TextField,
+  SelectField,
+  RadioGroupField,
+  DateField,
+} from "./components/FormComponents";
 
 export default function InscripcionEstudiante({
   formData,
@@ -23,6 +29,7 @@ export default function InscripcionEstudiante({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { globalData, setGlobalData } = useFormData();
 
+  // Función para validar campos de entrada
   const validateInput = (value, fieldName, regex) => {
     if (!value) {
       setErrors((prev) => ({ ...prev, [fieldName]: "Campo obligatorio." }));
@@ -38,11 +45,13 @@ export default function InscripcionEstudiante({
     return true;
   };
 
+  // Función para validar email
   const validateEmail = (email) => {
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return validateInput(email, "correo", emailRegex);
   };
 
+  // Manejador de cambios para campos con validación
   const handleValidatedChange = (namespace, field, value, regex) => {
     if (value.startsWith(" ")) return;
     if (regex.test(value) || value === "") {
@@ -51,7 +60,9 @@ export default function InscripcionEstudiante({
     }
   };
 
+  // Manejador para enviar el formulario y avanzar
   const handleSubmitAndNext = () => {
+    // Validar todos los campos
     const isApellidoPaternoValid = validateInput(
       formData.estudiante?.apellidoPaterno,
       "apellidoPaterno",
@@ -97,9 +108,9 @@ export default function InscripcionEstudiante({
       "departamento"
     );
 
-    const isProvinciaValid = validateInput(
-      formData.estudiante?.provincia,
-      "provincia"
+    const isDistritoValid = validateInput(
+      formData.estudiante?.distrito,
+      "distrito"
     );
 
     const fecha = formData.estudiante?.fechaNacimiento || "";
@@ -108,6 +119,7 @@ export default function InscripcionEstudiante({
       setErrors((prev) => ({ ...prev, fechaNacimiento: fechaError }));
     }
 
+    // Si algún campo no es válido, detener el proceso
     if (
       !isApellidoPaternoValid ||
       !isApellidoMaternoValid ||
@@ -120,7 +132,7 @@ export default function InscripcionEstudiante({
       !isColegioValid ||
       !isCursoValid ||
       !isDepartamentoValid ||
-      !isProvinciaValid
+      !isDistritoValid
     ) {
       return;
     }
@@ -143,7 +155,7 @@ export default function InscripcionEstudiante({
         colegio: {
           nombre_colegio: formData.estudiante?.colegio,
           departamento: formData.estudiante?.departamentoSeleccionado,
-          provincia: formData.estudiante?.provincia,
+          distrito: formData.estudiante?.distrito,
           curso: formData.estudiante?.curso,
         },
       };
@@ -165,6 +177,7 @@ export default function InscripcionEstudiante({
     }
   };
 
+  // Datos para los campos select
   const departamentos = {
     "La Paz": ["Murillo", "Pacajes", "Los Andes", "Larecaja", "Ingavi"],
     Cochabamba: ["Cercado", "Quillacollo", "Chapare", "Arani", "Ayopaya"],
@@ -195,7 +208,7 @@ export default function InscripcionEstudiante({
     ],
   };
 
-  const curso = [
+  const cursos = [
     "3ro de Primaria",
     "4to de Primaria",
     "5to de Primaria",
@@ -208,6 +221,42 @@ export default function InscripcionEstudiante({
     "6to de Secundaria",
   ];
 
+  const propietariosCorreo = ["Estudiante", "Padre/Madre", "Profesor"];
+
+  // Calculadores para límites de fecha
+  const getMinDate = () => {
+    const d = new Date();
+    d.setFullYear(d.getFullYear() - 20);
+    return d.toISOString().split("T")[0];
+  };
+
+  const getMaxDate = () => {
+    const d = new Date();
+    d.setFullYear(d.getFullYear() - 5);
+    return d.toISOString().split("T")[0];
+  };
+
+  // Verificación para habilitar botón de siguiente
+  const isFormValid =
+    formData.estudiante?.nombres &&
+    formData.estudiante?.ci &&
+    formData.estudiante?.apellidoPaterno &&
+    formData.estudiante?.apellidoMaterno &&
+    formData.estudiante?.fechaNacimiento &&
+    formData.estudiante?.correo &&
+    formData.estudiante?.colegio &&
+    formData.estudiante?.curso &&
+    formData.estudiante?.departamentoSeleccionado &&
+    formData.estudiante?.distrito &&
+    formData.estudiante?.correoPertenece &&
+    formData.estudiante?.ci.length >= 7 &&
+    formData.estudiante?.nombres.length >= 2 &&
+    formData.estudiante?.apellidoMaterno.length >= 2 &&
+    formData.estudiante?.apellidoPaterno.length >= 2 &&
+    formData.estudiante?.colegio.length >= 2 &&
+    formData.estudiante?.nombres.split(" ").length <= 2 &&
+    !isSubmitting;
+
   return (
     <div className="flex flex-col items-center">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl">
@@ -217,304 +266,164 @@ export default function InscripcionEstudiante({
             Datos Personales
           </h2>
           <div className="space-y-4 w-full max-w-md">
-            <div>
-              <label className="flex items-center gap-2">
-                <FaUserAlt className="text-black" /> Apellido Paterno
-              </label>
-              <input
-                type="text"
-                className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                placeholder="Apellido Paterno"
-                value={formData.estudiante?.apellidoPaterno || ""}
-                onChange={(e) =>
-                  handleValidatedChange(
-                    "estudiante",
-                    "apellidoPaterno",
-                    e.target.value.toUpperCase(),
-                    /^[A-Za-zÁÉÍÓÚáéíóúÑñ]*$/
-                  )
-                }
-                maxLength="15"
-              />
-              {errors.apellidoPaterno && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.apellidoPaterno}
-                </p>
-              )}
-            </div>
+            <TextField
+              label="Apellido Paterno"
+              icon={<FaUserAlt className="text-black" />}
+              name="apellidoPaterno"
+              placeholder="Apellido Paterno"
+              value={formData.estudiante?.apellidoPaterno || ""}
+              onChange={(value) =>
+                handleInputChange("estudiante", "apellidoPaterno", value)
+              }
+              error={errors.apellidoPaterno}
+              maxLength="15"
+              regex={/^[A-Za-zÁÉÍÓÚáéíóúÑñ]*$/}
+              transform={(value) => value.toUpperCase()}
+            />
 
-            <div>
-              <label className="flex items-center gap-2">
-                <FaUserAlt className="text-black" /> Apellido Materno
-              </label>
-              <input
-                type="text"
-                className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                placeholder="Apellido Materno"
-                value={formData.estudiante?.apellidoMaterno || ""}
-                onChange={(e) =>
-                  handleValidatedChange(
-                    "estudiante",
-                    "apellidoMaterno",
-                    e.target.value.toUpperCase(),
-                    /^[A-Za-zÁÉÍÓÚáéíóúÑñ]*$/
-                  )
-                }
-                maxLength="15"
-              />
-              {errors.apellidoMaterno && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.apellidoMaterno}
-                </p>
-              )}
-            </div>
+            <TextField
+              label="Apellido Materno"
+              icon={<FaUserAlt className="text-black" />}
+              name="apellidoMaterno"
+              placeholder="Apellido Materno"
+              value={formData.estudiante?.apellidoMaterno || ""}
+              onChange={(value) =>
+                handleInputChange("estudiante", "apellidoMaterno", value)
+              }
+              error={errors.apellidoMaterno}
+              maxLength="15"
+              regex={/^[A-Za-zÁÉÍÓÚáéíóúÑñ]*$/}
+              transform={(value) => value.toUpperCase()}
+            />
 
-            <div>
-              <label className="flex items-center gap-2">
-                <FaUserAlt className="text-black" /> Nombres
-              </label>
-              <input
-                type="text"
-                name="nombre"
-                className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                placeholder="Nombres"
-                value={formData.estudiante?.nombres || ""}
-                onChange={(e) =>
-                  handleValidatedChange(
-                    "estudiante",
-                    "nombres",
-                    e.target.value.toUpperCase(),
-                    /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
-                  )
-                }
-                maxLength="30"
-              />
-              {errors.nombres && (
-                <p className="text-red-500 text-sm mt-1">{errors.nombres}</p>
-              )}
-            </div>
+            <TextField
+              label="Nombres"
+              icon={<FaUserAlt className="text-black" />}
+              name="nombres"
+              placeholder="Nombres"
+              value={formData.estudiante?.nombres || ""}
+              onChange={(value) =>
+                handleInputChange("estudiante", "nombres", value)
+              }
+              error={errors.nombres}
+              maxLength="30"
+              regex={/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/}
+              transform={(value) => value.toUpperCase()}
+            />
 
-              <div>
-                <label className="flex items-center gap-2">
-            <FaIdCard className="text-black" /> Carnet de Identidad
-                </label>
-                <input
-            type="text"
-            name="ci"
-            className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            placeholder="Número de Carnet de Identidad"
-            value={formData.estudiante?.ci || ""}
-            onChange={(e) =>
-              handleValidatedChange(
-                "estudiante",
-                "ci",
-                e.target.value,
-                /^[0-9]*$/
-              )
-            }
-            maxLength="8"
-                />
-                {errors.ci && (
-            <p className="text-red-500 text-sm mt-1">{errors.ci}</p>
-                )}
-              </div>
+            <TextField
+              label="Carnet de Identidad"
+              icon={<FaIdCard className="text-black" />}
+              name="ci"
+              placeholder="Número de Carnet de Identidad"
+              value={formData.estudiante?.ci || ""}
+              onChange={(value) =>
+                handleInputChange("estudiante", "ci", value)
+              }
+              error={errors.ci}
+              maxLength="8"
+              regex={/^[0-9]*$/}
+            />
 
-              <div>
-                <label className="flex items-center gap-2">
-            <FaCalendarAlt className="text-black" /> Fecha de Nacimiento
-                </label>
-                <input
-            type="date"
-            name="fechaNacimiento"
-            className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            value={formData.estudiante?.fechaNacimiento || ""}
-            min={(() => {
-              const d = new Date();
-              d.setFullYear(d.getFullYear() - 20);
-              return d.toISOString().split('T')[0];
-            })()}
-            max={(() => {
-              const d = new Date();
-              d.setFullYear(d.getFullYear() - 3);
-              return d.toISOString().split('T')[0];
-            })()}
-            onChange={(e) =>
-              handleInputChange(
-                "estudiante",
-                "fechaNacimiento",
-                e.target.value
-              )
-            }
-                />
-                {errors.fechaNacimiento && (
-            <p className="text-red-500 text-sm mt-1">
-              {errors.fechaNacimiento}
-            </p>
-                )}
-              </div>
-            <div>
-              <label className="flex items-center gap-2">
-                <FaEnvelope className="text-black" /> Correo Electrónico
-              </label>
-                <input
-            type="email"
-            name="correo"
-            className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            placeholder="Correo Electrónico"
-            value={formData.estudiante?.correo || ""}
-            onChange={(e) =>
-              handleInputChange("estudiante", "correo", e.target.value)
-            }
-                />
-                {errors.correo && (
-            <p className="text-red-500 text-sm mt-1">{errors.correo}</p>
-                )}
-              </div>
+            <DateField
+              label="Fecha de Nacimiento"
+              icon={<FaCalendarAlt className="text-black" />}
+              name="fechaNacimiento"
+              value={formData.estudiante?.fechaNacimiento || ""}
+              onChange={(value) =>
+                handleInputChange("estudiante", "fechaNacimiento", value)
+              }
+              error={errors.fechaNacimiento}
+              min={getMinDate()}
+              max={getMaxDate()}
+            />
 
-              <div>
-                <p className="text-sm text-gray-600 mt-2">
-            El correo electrónico pertenece a:
-                </p>
-                <div className="flex flex-row space-x-5 mt-2">
-            {["Estudiante", "Padre/Madre", "Profesor"].map((rol) => (
-              <label key={rol} className="inline-flex items-center">
-                <input
-                  type="radio"
-                  name="correoPertenece"
-                  value={rol}
-                  checked={formData.estudiante?.correoPertenece === rol}
-                  onChange={() =>
-              handleInputChange("estudiante", "correoPertenece", rol)
-                  }
-                  className="mr-2"
-                />
-                {rol}
-              </label>
-            ))}
-                </div>
-                {errors.correoPertenece && (
-            <p className="text-red-500 text-sm mt-1">
-              {errors.correoPertenece}
-            </p>
-                )}
-              </div>
-            </div>
+            <TextField
+              label="Correo Electrónico"
+              icon={<FaEnvelope className="text-black" />}
+              name="correo"
+              type="email"
+              placeholder="Correo Electrónico"
+              value={formData.estudiante?.correo || ""}
+              onChange={(value) =>
+                handleInputChange("estudiante", "correo", value)
+              }
+              error={errors.correo}
+            />
+
+            <RadioGroupField
+              label="El correo electrónico pertenece a:"
+              name="correoPertenece"
+              options={propietariosCorreo}
+              value={formData.estudiante?.correoPertenece || ""}
+              onChange={(value) =>
+                handleInputChange("estudiante", "correoPertenece", value)
+              }
+              error={errors.correoPertenece}
+            />
           </div>
+        </div>
 
-          {/* Columna 2: Datos del Colegio */}
+        {/* Columna 2: Datos del Colegio */}
         <div className="flex flex-col items-center bg-gray-300 p-6 rounded-md">
           <h3 className="text-lg font-semibold mb-4 text-gray-700 self-center">
             Datos del Colegio
           </h3>
           <div className="space-y-4 w-full max-w-md">
-            <div>
-              <label className="flex items-center gap-2">
-                <FaSchool className="text-black" /> Nombre del Colegio
-              </label>
-              <input
-                type="text"
-                name="colegio"
-                className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                placeholder="Nombre del Colegio"
-                value={formData.estudiante?.colegio || ""}
-                onChange={(e) =>
-                  handleValidatedChange(
-                    "estudiante",
-                    "colegio",
-                    e.target.value.toUpperCase(),
-                    /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
-                  )
-                }
-                maxLength="50"
-              />
-              {errors.colegio && (
-                <p className="text-red-500 text-sm mt-1">{errors.colegio}</p>
-              )}
-            </div>
+          <SelectField
+              label="Departamento"
+              icon={<FaMapMarkedAlt className="text-black" />}
+              name="departamento"
+              value={formData.estudiante?.departamentoSeleccionado || ""}
+              onChange={(value) => {
+                handleInputChange("estudiante", "departamentoSeleccionado", value);
+                handleInputChange("estudiante", "distrito", ""); // Reiniciar distrito
+              }}
+              options={Object.keys(departamentos)}
+              error={errors.departamento}
+              placeholder="Seleccione un Departamento"
+            />
 
-            <div>
-              <label className="flex items-center gap-2">
-                <FaBuilding className="text-black" /> Curso
-              </label>
-              <select
-                name="curso"
-                className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                value={formData.estudiante?.curso || ""}
-                onChange={(e) =>
-                  handleInputChange("estudiante", "curso", e.target.value)
-                }
-              >
-                <option value="">Seleccione un Curso</option>
-                {curso.map((curso) => (
-                  <option key={curso} value={curso}>
-                    {curso}
-                  </option>
-                ))}
-              </select>
-              {errors.curso && (
-                <p className="text-red-500 text-sm mt-1">{errors.curso}</p>
-              )}
-            </div>
+            <SelectField
+              label="Distrito"
+              icon={<FaMapMarkedAlt className="text-black" />}
+              name="distrito"
+              value={formData.estudiante?.distrito || ""}
+              onChange={(value) => 
+                handleInputChange("estudiante", "distrito", value)
+              }
+              options={
+                departamentos[formData.estudiante?.departamentoSeleccionado] || []
+              }
+              error={errors.distrito}
+              disabled={!formData.estudiante?.departamentoSeleccionado}
+              placeholder="Seleccione un Distrito"
+            />
+            <TextField
+              label="Nombre del Colegio"
+              icon={<FaSchool className="text-black" />}
+              name="colegio"
+              placeholder="Nombre del Colegio"
+              value={formData.estudiante?.colegio || ""}
+              onChange={(value) =>
+                handleInputChange("estudiante", "colegio", value)
+              }
+              error={errors.colegio}
+              maxLength="50"
+              regex={/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/}
+              transform={(value) => value.toUpperCase()}
+            />
 
-            <div>
-              <label className="flex items-center gap-2">
-                <FaMapMarkedAlt className="text-black" /> Departamento
-              </label>
-              <select
-                name="departamento"
-                className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                value={formData.estudiante?.departamentoSeleccionado || ""}
-                onChange={(e) => {
-                  handleInputChange(
-                    "estudiante",
-                    "departamentoSeleccionado",
-                    e.target.value
-                  );
-                  handleInputChange("estudiante", "provincia", ""); // Reiniciar provincia
-                }}
-              >
-                <option value="">Seleccione un Departamento</option>
-                {Object.keys(departamentos).map((dep) => (
-                  <option key={dep} value={dep}>
-                    {dep}
-                  </option>
-                ))}
-              </select>
-              {errors.departamento && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.departamento}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <label className="flex items-center gap-2">
-                <FaMapMarkedAlt className="text-black" /> Provincia
-              </label>
-              <select
-                name="provincia"
-                className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                value={formData.estudiante?.provincia || ""}
-                onChange={(e) =>
-                  handleInputChange("estudiante", "provincia", e.target.value)
-                }
-                disabled={!formData.estudiante?.departamentoSeleccionado}
-              >
-                <option value="">Seleccione una Provincia</option>
-                {(
-                  departamentos[
-                    formData.estudiante?.departamentoSeleccionado
-                  ] || []
-                ).map((provincia) => (
-                  <option key={provincia} value={provincia}>
-                    {provincia}
-                  </option>
-                ))}
-              </select>
-              {errors.provincia && (
-                <p className="text-red-500 text-sm mt-1">{errors.provincia}</p>
-              )}
-            </div>
+            <SelectField
+              label="Curso"
+              icon={<FaBuilding className="text-black" />}
+              name="curso"
+              value={formData.estudiante?.curso || ""}
+              onChange={(value) => handleInputChange("estudiante", "curso", value)}
+              options={cursos}
+              error={errors.curso}
+              placeholder="Seleccione un Curso"
+            />
           </div>
         </div>
       </div>
@@ -550,7 +459,7 @@ export default function InscripcionEstudiante({
             !formData.estudiante?.colegio ||
             !formData.estudiante?.curso ||
             !formData.estudiante?.departamentoSeleccionado ||
-            !formData.estudiante?.provincia ||
+            !formData.estudiante?.distrito ||
             !formData.estudiante?.correoPertenece ||
             formData.estudiante?.ci.length < 7 ||
             formData.estudiante?.nombres.length < 2 ||
@@ -560,24 +469,7 @@ export default function InscripcionEstudiante({
             formData.estudiante?.nombres.split(" ").length > 2
           }
           className={`px-6 py-2 transition duration-300 ease-in-out text-white rounded-md shadow-md ${
-            formData.estudiante?.nombres &&
-            formData.estudiante?.ci &&
-            formData.estudiante?.apellidoPaterno &&
-            formData.estudiante?.apellidoMaterno &&
-            formData.estudiante?.fechaNacimiento &&
-            formData.estudiante?.correo &&
-            formData.estudiante?.colegio &&
-            formData.estudiante?.curso &&
-            formData.estudiante?.departamentoSeleccionado &&
-            formData.estudiante?.provincia &&
-            formData.estudiante?.correoPertenece &&
-            formData.estudiante?.ci.length >= 7 &&
-            formData.estudiante?.nombres.length >= 2 &&
-            formData.estudiante?.apellidoMaterno.length >= 2 &&
-            formData.estudiante?.apellidoPaterno.length >= 2 &&
-            formData.estudiante?.colegio.length >= 2 &&
-            formData.estudiante?.nombres.split(" ").length <= 2 &&
-            !isSubmitting
+            isFormValid
               ? "bg-blue-500 hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500"
               : "bg-gray-400 cursor-not-allowed"
           }`}

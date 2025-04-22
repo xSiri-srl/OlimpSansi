@@ -400,6 +400,30 @@ export default function IncripcionTutorAcademico({
 
         {/* Datos del profesor */}
         <div className="space-y-4">
+        <div>
+            <label className="flex items-center gap-2">
+              <FaIdCard className="text-black" /> Carnet de Identidad
+            </label>
+            <input
+              type="text"
+              name="ci"
+              className="mt-1 p-2 w-full border rounded-md"
+              placeholder="Número de Carnet de Identidad"
+              value={formData.profesor?.ci || ""}
+              onChange={(e) =>
+                handleValidatedChange(
+                  "profesor",
+                  "ci",
+                  e.target.value,
+                  /^[0-9]*$/
+                )
+              }
+              maxLength="8"
+            />
+            {errors.ci && (
+              <p className="text-red-500 text-sm mt-1">{errors.ci}</p>
+            )}
+          </div>
           <div className="flex gap-4">
             <div className="w-full">
               <label className="flex items-center gap-2">
@@ -478,31 +502,6 @@ export default function IncripcionTutorAcademico({
             />
             {errors.nombres && (
               <p className="text-red-500 text-sm mt-1">{errors.nombres}</p>
-            )}
-          </div>
-
-          <div>
-            <label className="flex items-center gap-2">
-              <FaIdCard className="text-black" /> Carnet de Identidad
-            </label>
-            <input
-              type="text"
-              name="ci"
-              className="mt-1 p-2 w-full border rounded-md"
-              placeholder="Número de Carnet de Identidad"
-              value={formData.profesor?.ci || ""}
-              onChange={(e) =>
-                handleValidatedChange(
-                  "profesor",
-                  "ci",
-                  e.target.value,
-                  /^[0-9]*$/
-                )
-              }
-              maxLength="8"
-            />
-            {errors.ci && (
-              <p className="text-red-500 text-sm mt-1">{errors.ci}</p>
             )}
           </div>
 
