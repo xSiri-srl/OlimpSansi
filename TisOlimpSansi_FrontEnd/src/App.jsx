@@ -16,7 +16,7 @@ import ListaCompetidores from "./pages/InscripcionLista/ListaCompetidores";
 import { FormProvider } from "./pages/InscripcionLista/form-context"
 import PasosInscripcion from "./pages/InscripcionLista/PasosInscripcion";
 import GenerarOrdenPago from "./pages/OrdenPago/GenerarOrdenPago";
-import InicioAdmin from "./pages/Inicio/InicioAdmin";
+import PanelDatos from "./pages/Administrador/PanelDatos";
 import DescargarListas from "./pages/Administrador/DescargarListas";
 
 export default function App() {
@@ -27,7 +27,7 @@ export default function App() {
       {/* ORDEN DE PAGO */}
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/home-admin" element={<InicioAdmin />} />
+        <Route path="/home-admin" element={<PanelDatos />} />
         <Route
           path="/inscripcion/forma-inscripcion"
           element={<FormaInscripcion />}
