@@ -53,69 +53,103 @@ const ListaCompetidores = ({ setStep }) => {
     "Astronomía y Astrofísica": <FaAtom className="text-indigo-600" />,
   }
 
-  // Process students to match the expected format
-  const processedEstudiantes = estudiantes.map((est, index) => {
-    // Check if student has all required data
-    const hasError =
-      !est.estudiante?.nombre ||
-      !est.estudiante?.apellido_pa ||
-      !est.areas_competencia ||
-      est.areas_competencia.length === 0 ||
-            // Validar formato de CI: debe tener entre 7-8 dígitos
-            (est.estudiante?.ci && !/^\d{7,8}$/.test(est.estudiante.ci)) ||
-            // Validar formato de teléfono del tutor legal si existe
-            (est.tutor_legal?.numero_celular && !/^\d{7,9}$/.test(est.tutor_legal.numero_celular)) ||
-            // Validar formatos de CI de tutores académicos si existen
-            (est.tutores_academicos && est.tutores_academicos.some(tutor => 
-              tutor?.tutor?.ci && !/^\d{7,8}$/.test(tutor.tutor.ci)
-            )) ||
-      est.areas_competencia.some((area) => {
-        if (!area.nombre_area) return false
-        // Normalizar el nombre del área para comparación insensible a mayúsculas/acentos
-        const normalizedArea = area.nombre_area
-          .toLowerCase()
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "")
-        return (normalizedArea === "informatica" || normalizedArea === "robotica") && !area.categoria
-      })
 
-    // Get areas from the student data
-    const areas = est.areas_competencia
-      ? est.areas_competencia.map((area) => area.nombre_area).filter((area) => area)
-      : []
-      let mensajeError = ""
-      if (hasError) {
-        if (!est.estudiante?.nombre || !est.estudiante?.apellido_pa) {
-          mensajeError = "Faltan datos obligatorios del estudiante"
-        } else if (est.estudiante?.ci && !/^\d{7,8}$/.test(est.estudiante.ci)) {
-          mensajeError = "El CI del estudiante debe contener entre 7 y 8 dígitos numéricos"
-        } else if (est.tutor_legal?.numero_celular && !/^\d{7,9}$/.test(est.tutor_legal.numero_celular)) {
-          mensajeError = "El teléfono del tutor legal debe contener entre 7 y 9 dígitos numéricos"
-        } else if (est.tutores_academicos && est.tutores_academicos.some(tutor => 
-          tutor?.tutor?.ci && !/^\d{7,8}$/.test(tutor.tutor.ci))) {
-          mensajeError = "El CI de algún tutor académico tiene un formato incorrecto"
-        } else if (est.areas_competencia && est.areas_competencia.some((area) => {
-          const normalizedArea = area.nombre_area?.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-          return (normalizedArea === "informatica" || normalizedArea === "robotica") && !area.categoria
-        })) {
-          mensajeError = "Falta seleccionar categoría para Informática o Robótica"
-        } else if (!est.areas_competencia || est.areas_competencia.length === 0) {
-          mensajeError = "No se han seleccionado áreas de competencia"
+  const processedEstudiantes = estudiantes.map((est, index) => {
+    // Arrays para recopilar todos los errores posibles
+    const errores = [];
+    let hasError = false;
+    let mensajeError = "";
+  
+    // PASO 1: Verificar si hay áreas de competencia que necesitan categoría pero no la tienen
+    if (est.areas_competencia) {
+      for (const area of est.areas_competencia) {
+        if (area.nombre_area === "Informática" || area.nombre_area === "Robótica") {
+          // Si no hay categoría seleccionada, es un error
+          if (!area.categoria || area.categoria.trim() === "") {
+            errores.push(`Falta seleccionar categoría para ${area.nombre_area}`);
+            hasError = true; // Marcar el registro como erróneo
+          } else {
+            // Si hay categoría, verificar que corresponda al curso
+            const curso = est.colegio?.curso || '';
+            const esPrimaria = curso.includes("Primaria");
+            const esSecundaria = curso.includes("Secundaria");
+            const numeroCurso = parseInt(curso.match(/\d+/)?.[0] || "0");
+  
+            let categoriaIncorrecta = false;
+  
+            if (area.nombre_area === "Informática") {
+              if (esPrimaria && (numeroCurso === 5 || numeroCurso === 6)) {
+                categoriaIncorrecta = !area.categoria.includes("Guacamayo");
+              } else if (esSecundaria && numeroCurso >= 1 && numeroCurso <= 3) {
+                categoriaIncorrecta = !area.categoria.includes("Guanaco") &&
+                                       !area.categoria.includes("Londra") &&
+                                       !area.categoria.includes("Bufeo");
+              } else if (esSecundaria && numeroCurso >= 4 && numeroCurso <= 6) {
+                categoriaIncorrecta = !area.categoria.includes("Jucumari") &&
+                                       !area.categoria.includes("Puma");
+              }
+            }
+  
+            if (area.nombre_area === "Robótica") {
+              if (esPrimaria && (numeroCurso === 5 || numeroCurso === 6)) {
+                categoriaIncorrecta = !area.categoria.includes("Builders P") &&
+                                       !area.categoria.includes("Lego P");
+              } else if (esSecundaria) {
+                categoriaIncorrecta = !area.categoria.includes("Builders S") &&
+                                       !area.categoria.includes("Lego S");
+              }
+            }
+  
+            if (categoriaIncorrecta) {
+              errores.push(`La categoría de ${area.nombre_area} no corresponde al curso ${curso}`);
+              hasError = true; // Marcar el registro como erróneo
+            }
+          }
         }
       }
-
-      return {
-        id: index + 1,
-        nombres: est.estudiante?.nombre || "",
-        apellidoPaterno: est.estudiante?.apellido_pa || "",
-        apellidoMaterno: est.estudiante?.apellido_ma || "",
-        ci: est.estudiante?.ci || "",
-        areas: areas,
-        error: hasError,
-        mensajeError,
-        originalData: est,
+    }
+  
+    // PASO 2: Verificar otros errores solo si aún no se encontró ninguno
+    if (!hasError) {
+      if (est.estudiante?.nombre && !/^[A-ZÁÉÍÓÚÑ\s]+$/i.test(est.estudiante.nombre)) {
+        errores.push("El nombre debe contener solo letras");
+        hasError = true;
+      } else if (est.estudiante?.apellido_pa && !/^[A-ZÁÉÍÓÚÑ\s]+$/i.test(est.estudiante.apellido_pa)) {
+        errores.push("El apellido paterno debe contener solo letras");
+        hasError = true;
+      } else if (est.estudiante?.apellido_ma && !/^[A-ZÁÉÍÓÚÑ\s]+$/i.test(est.estudiante.apellido_ma)) {
+        errores.push("El apellido materno debe contener solo letras");
+        hasError = true;
       }
-    })
+    }
+  
+    // Mensaje de error: mostrar el primer error encontrado
+    mensajeError = errores.length > 0 ? errores[0] : "";
+  
+    // Log para depuración
+    if (hasError) {
+      console.log(`Estudiante ${index + 1} tiene errores: ${errores.join(', ')}`);
+    }
+  
+    // Obtener áreas para mostrar
+    const areas = est.areas_competencia
+      ? est.areas_competencia.map((area) => area.nombre_area).filter((area) => area)
+      : [];
+  
+    return {
+      id: index + 1,
+      nombres: est.estudiante?.nombre || "",
+      apellidoPaterno: est.estudiante?.apellido_pa || "",
+      apellidoMaterno: est.estudiante?.apellido_ma || "",
+      ci: est.estudiante?.ci || "",
+      areas: areas,
+      error: hasError,        // Este valor determina si la tarjeta se muestra en rojo
+      mensajeError: mensajeError,  // Mensaje que se muestra en la tarjeta
+      todosErrores: errores,  // Lista completa de errores para depuración
+      originalData: est,
+    };
+  });
+
 
   // Filtrar estudiantes
   const filteredEstudiantes = processedEstudiantes.filter((estudiante) => {
@@ -455,60 +489,66 @@ const ListaCompetidores = ({ setStep }) => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {currentItems.length > 0 ? (
-                  currentItems.map((estudiante) => (
-                    <tr
-                      key={estudiante.id}
-                      onClick={() => handleStudentClick(estudiante)}
-                      className={`${estudiante.error ? "bg-red-50" : "hover:bg-gray-50"} cursor-pointer transition`}
-                    >
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="flex-shrink-0 h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
-                            <FaUser className="text-gray-600 text-xs" />
-                          </div>
-                          <div className="ml-3">
-                            <div className="text-sm font-medium text-gray-900">
-                              {estudiante.apellidoPaterno} {estudiante.apellidoMaterno}
-                            </div>
-                            <div className="text-sm text-gray-500">{estudiante.nombres}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <div className="flex flex-wrap">
-                          {estudiante.areas.map((area, idx) => (
-                            <span
-                              key={idx}
-                              className="inline-flex items-center px-2 py-0.5 mr-1 mb-1 rounded-full text-xs bg-gray-100"
-                            >
-                              {areaIcons[area] || <FaAtom className="text-gray-600" />}
-                              <span className="ml-1 truncate max-w-[80px]">{area}</span>
-                            </span>
-                          ))}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        {estudiante.error ? (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                            Error
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                            Correcto
-                          </span>
-                        )}
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="3" className="px-4 py-4 text-center text-gray-500">
-                      No se encontraron competidores con los criterios de búsqueda.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
+  {currentItems.length > 0 ? (
+    currentItems.map((estudiante) => (
+<tr
+  key={estudiante.id}
+  onClick={() => handleStudentClick(estudiante)}
+  className={`${estudiante.error ? "bg-red-50" : "hover:bg-gray-50"} cursor-pointer transition`}
+>
+  <td className="px-4 py-3 whitespace-nowrap">
+    <div className="flex items-center">
+      <div className="flex-shrink-0 h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
+        <FaUser className="text-gray-600 text-xs" />
+      </div>
+      <div className="ml-3">
+        <div className="text-sm font-medium text-gray-900">
+          {estudiante.apellidoPaterno} {estudiante.apellidoMaterno}
+        </div>
+        <div className="text-sm text-gray-500">{estudiante.nombres}</div>
+      </div>
+    </div>
+  </td>
+  <td className="px-4 py-3 whitespace-nowrap">
+    <div className="flex flex-wrap">
+      {estudiante.areas.map((area, idx) => (
+        <span
+          key={idx}
+          className={`inline-flex items-center px-2 py-0.5 mr-1 mb-1 rounded-full text-xs 
+          ${estudiante.error && estudiante.mensajeError.includes(area) ? 'bg-red-100 text-red-800' : 'bg-gray-100'}`}
+        >
+          {areaIcons[area] || <FaAtom className="text-gray-600" />}
+          <span className="ml-1 truncate max-w-[80px]">{area}</span>
+        </span>
+      ))}
+    </div>
+  </td>
+  <td className="px-4 py-3 whitespace-nowrap">
+    {estudiante.error ? (
+      <div>
+        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+          Error
+        </span>
+        <p className="text-red-500 text-xs mt-1 max-w-[200px] truncate" title={estudiante.mensajeError}>
+          {estudiante.mensajeError}
+        </p>
+      </div>
+    ) : (
+      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+        Correcto
+      </span>
+    )}
+  </td>
+</tr>
+    ))
+  ) : (
+    <tr>
+      <td colSpan="3" className="px-4 py-4 text-center text-gray-500">
+        No se encontraron competidores con los criterios de búsqueda.
+      </td>
+    </tr>
+  )}
+</tbody>
             </table>
           </div>
 

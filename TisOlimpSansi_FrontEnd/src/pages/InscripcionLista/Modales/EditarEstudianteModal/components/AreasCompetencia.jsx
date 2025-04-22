@@ -107,12 +107,12 @@ const AreasCompetencia = ({
       
       <div className="space-y-4">
         <div>
-          <label className="text-sm font-medium text-gray-700">
+          <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
             Área de competencia *
           </label>
           <div className="flex gap-2">
             <select
-              className={`mt-1 p-2 w-full border rounded-md ${tieneError('areas') ? 'border-red-500' : ''} ${!campoEditable('areas') ? 'bg-gray-100' : ''}`}
+              className={`mt-1 p-2 w-full border rounded-md ${tieneError('areas') ? 'border-red-500 bg-red-50' : ''} ${!campoEditable('areas') ? 'bg-gray-100' : ''}`}
               value={areasActuales[0]?.nombre_area || ''}
               onChange={(e) => handleChange('area_0', 'nombre_area', e.target.value)}
               disabled={!campoEditable('areas')}
@@ -129,42 +129,42 @@ const AreasCompetencia = ({
         {(areasActuales[0]?.nombre_area === "Informática" || 
           areasActuales[0]?.nombre_area === "Robótica") && (
           <div>
-            <label className="text-sm font-medium text-gray-700">
+            <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
               Categoría para {areasActuales[0].nombre_area} *
             </label>
             <select
-              className={`mt-1 p-2 w-full border rounded-md ${tieneError('categoria_0') ? 'border-red-500' : ''} ${!campoEditable('categoria_0') ? 'bg-gray-100' : ''}`}
+              className={`mt-1 p-2 w-full border rounded-md ${tieneError('categoria_0') ? 'border-red-500 bg-red-50' : ''} ${!campoEditable('categoria_0') && !tieneError('categoria_0') ? 'bg-gray-100' : ''}`}
               value={areasActuales[0].categoria || ''}
               onChange={(e) => handleChange('area_0', 'categoria', e.target.value)}
-              disabled={!campoEditable('categoria_0')}
+              disabled={!campoEditable('categoria_0') && !tieneError('categoria_0')}
             >
               <option value="">Seleccione una categoría</option>
               {obtenerCategorias(areasActuales[0].nombre_area, estudianteData.colegio?.curso || '').map((cat) => (
                 <option key={cat} value={cat}>{cat}</option>
               ))}
             </select>
-            {tieneError('categoria_0') && <p className="text-red-500 text-xs mt-1">{errores.categoria_0}</p>}
+            {tieneError('categoria_0') && <p className="text-red-500 text-xs mt-1 font-medium">{errores.categoria_0}</p>}
           </div>
         )}
         
         {(areasActuales[1]?.nombre_area === "Informática" || 
           areasActuales[1]?.nombre_area === "Robótica") && (
           <div>
-            <label className="text-sm font-medium text-gray-700">
+            <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
               Categoría para {areasActuales[1].nombre_area} *
             </label>
             <select
-              className={`mt-1 p-2 w-full border rounded-md ${tieneError('categoria_1') ? 'border-red-500' : ''} ${!campoEditable('categoria_1') ? 'bg-gray-100' : ''}`}
+              className={`mt-1 p-2 w-full border rounded-md ${tieneError('categoria_1') ? 'border-red-500 bg-red-50' : ''} ${!campoEditable('categoria_1') && !tieneError('categoria_1') ? 'bg-gray-100' : ''}`}
               value={areasActuales[1].categoria || ''}
               onChange={(e) => handleChange('area_1', 'categoria', e.target.value)}
-              disabled={!campoEditable('categoria_1')}
+              disabled={!campoEditable('categoria_1') && !tieneError('categoria_1')}
             >
               <option value="">Seleccione una categoría</option>
               {obtenerCategorias(areasActuales[1].nombre_area, estudianteData.colegio?.curso || '').map((cat) => (
                 <option key={cat} value={cat}>{cat}</option>
               ))}
             </select>
-            {tieneError('categoria_1') && <p className="text-red-500 text-xs mt-1">{errores.categoria_1}</p>}
+            {tieneError('categoria_1') && <p className="text-red-500 text-xs mt-1 font-medium">{errores.categoria_1}</p>}
           </div>
         )}
       </div>

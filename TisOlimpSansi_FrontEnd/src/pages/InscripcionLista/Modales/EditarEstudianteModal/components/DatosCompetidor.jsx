@@ -24,7 +24,7 @@ const DatosCompetidor = ({
             className={`mt-1 p-2 w-full border rounded-md ${tieneError('apellido_pa') ? 'border-red-500' : ''} ${!campoEditable('apellido_pa') ? 'bg-gray-100' : ''}`}
             value={estudianteData.estudiante?.apellido_pa || ''}
             onChange={(e) => handleChange('estudiante', 'apellido_pa', e.target.value.toUpperCase())}
-            readOnly={!campoEditable('apellido_pa')}
+            readOnly={!campoEditable('apellido_pa') && !tieneError('apellido_pa')}
           />
           {tieneError('apellido_pa') && <p className="text-red-500 text-xs mt-1">{errores.apellido_pa}</p>}
         </div>
@@ -40,25 +40,26 @@ const DatosCompetidor = ({
             className={`mt-1 p-2 w-full border rounded-md ${!campoEditable('apellido_ma') ? 'bg-gray-100' : ''}`}
             value={estudianteData.estudiante?.apellido_ma || ''}
             onChange={(e) => handleChange('estudiante', 'apellido_ma', e.target.value.toUpperCase())}
-            readOnly={!campoEditable('apellido_ma')}
+            readOnly={!campoEditable('apellido_ma') && !tieneError('apellido_ma')}
           />
+          {tieneError('apellido_ma') && <p className="text-red-500 text-xs mt-1 font-medium">{errores.apellido_ma}</p>}
         </div>
       )}
       
       {mostrarCampo('nombre') && (
-        <div>
-          <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-            <FaUser /> Nombres *
-          </label>
-          <input
-            type="text"
-            className={`mt-1 p-2 w-full border rounded-md ${tieneError('nombre') ? 'border-red-500' : ''} ${!campoEditable('nombre') ? 'bg-gray-100' : ''}`}
-            value={estudianteData.estudiante?.nombre || ''}
-            onChange={(e) => handleChange('estudiante', 'nombre', e.target.value.toUpperCase())}
-            readOnly={!campoEditable('nombre')}
-          />
-          {tieneError('nombre') && <p className="text-red-500 text-xs mt-1">{errores.nombre}</p>}
-        </div>
+          <div>
+            <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+              <FaUser /> Nombres *
+            </label>
+            <input
+              type="text"
+              className={`mt-1 p-2 w-full border rounded-md ${tieneError('nombre') ? 'border-red-500 bg-red-50' : ''} ${!campoEditable('nombre') && !tieneError('nombre') ? 'bg-gray-100' : ''}`}
+              value={estudianteData.estudiante?.nombre || ''}
+              onChange={(e) => handleChange('estudiante', 'nombre', e.target.value.toUpperCase())}
+              readOnly={!campoEditable('nombre') && !tieneError('nombre')}
+            />
+            {tieneError('nombre') && <p className="text-red-500 text-xs mt-1 font-medium">{errores.nombre}</p>}
+          </div>
       )}
       
       {mostrarCampo('ci') && (
