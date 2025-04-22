@@ -32,7 +32,7 @@ const Navbar = () => {
     <>
       <nav className="fixed top-0 w-full z-50 shadow-md bg-primary h-24">
       <div className="container mx-auto flex justify-between items-center py-4 px-6 h-full">
-          {/* Logo y texto */}
+          {/* Logo y texto j*/}
           <div className="flex items-center gap-4">
             <img
               src="/images/Ohsansi_Logo.png"
