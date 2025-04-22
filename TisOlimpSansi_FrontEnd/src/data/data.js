@@ -6,9 +6,8 @@ export const navbarLinksByRole = {
       { id: 4, title: "Subir Comprobante", link: "/subirComprobante" },
     ],
     admin: [
-      { id: 1, title: "Dashboard", link: "/admin/dashboard" },
-      { id: 2, title: "Descargar Listas", link: "/admin/descargar_listas" },
-      { id: 3, title: "Reportes", link: "/admin/reportes" },
+      { id: 1, title: "Descargar Listas", link: "/admin/descargar_listas" },
+      { id: 2, title: "Reportes", link: "/admin/reportes" },
     ],
   };
   
