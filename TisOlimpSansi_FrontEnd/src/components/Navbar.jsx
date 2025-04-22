@@ -39,7 +39,7 @@ const Navbar = () => {
               alt="OlimpSansi Logo"
               className="h-12 md:h-20 lg:h-24 w-auto"
             />
-            <p className="text-gray-600 text-sm mt-8">
+            <p className="text-white text-sm mt-8">
               Olimpiada de Ciencia y Tecnología
             </p>
           </div>
