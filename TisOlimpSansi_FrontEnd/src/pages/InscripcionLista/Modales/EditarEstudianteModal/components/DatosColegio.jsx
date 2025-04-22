@@ -8,13 +8,13 @@ const DatosColegio = ({
   handleDepartamentoChange,
   mostrarCampo, 
   tieneError, 
+  campoEditable, 
   errores 
 }) => {
   const [colegiosData, setColegiosData] = useState([]);
   const [departamentosList, setDepartamentosList] = useState([]);
   const [distritosList, setDistritosList] = useState([]);
 
-  // Fetch colegios data on component mount
   useEffect(() => {
     axios.post("http://localhost:8000/api/colegios/filtro", {})
       .then(res => {
@@ -25,7 +25,6 @@ const DatosColegio = ({
       .catch(err => console.error("Error al cargar colegios", err));
   }, []);
 
-  // Update distritos when departamento changes
   useEffect(() => {
     if (estudianteData?.colegio?.departamento) {
       const distritos = colegiosData
@@ -60,9 +59,10 @@ const DatosColegio = ({
           </label>
           <input
             type="text"
-            className={`mt-1 p-2 w-full border rounded-md ${tieneError('nombre_colegio') ? 'border-red-500' : ''}`}
+            className={`mt-1 p-2 w-full border rounded-md ${tieneError('nombre_colegio') ? 'border-red-500' : ''} ${!campoEditable('nombre_colegio') ? 'bg-gray-100' : ''}`}
             value={estudianteData.colegio?.nombre_colegio || ''}
             onChange={(e) => handleChange('colegio', 'nombre_colegio', e.target.value.toUpperCase())}
+            readOnly={!campoEditable('nombre_colegio')}
           />
           {tieneError('nombre_colegio') && <p className="text-red-500 text-xs mt-1">{errores.nombre_colegio}</p>}
         </div>
@@ -74,9 +74,10 @@ const DatosColegio = ({
             <FaBuilding /> Curso *
           </label>
           <select
-            className={`mt-1 p-2 w-full border rounded-md ${tieneError('curso') ? 'border-red-500' : ''}`}
+            className={`mt-1 p-2 w-full border rounded-md ${tieneError('curso') ? 'border-red-500' : ''} ${!campoEditable('curso') ? 'bg-gray-100' : ''}`}
             value={estudianteData.colegio?.curso || ''}
             onChange={(e) => handleChange('colegio', 'curso', e.target.value)}
+            disabled={!campoEditable('curso')}
           >
             <option value="">Seleccione un Curso</option>
             {cursos.map((curso) => (
@@ -93,9 +94,10 @@ const DatosColegio = ({
             <FaMapMarkedAlt /> Departamento
           </label>
           <select
-            className="mt-1 p-2 w-full border rounded-md"
+            className={`mt-1 p-2 w-full border rounded-md ${!campoEditable('departamento') ? 'bg-gray-100' : ''}`}
             value={estudianteData.colegio?.departamento || ''}
             onChange={(e) => handleDepartamentoChange(e.target.value)}
+            disabled={!campoEditable('departamento')}
           >
             <option value="">Seleccione un Departamento</option>
             {departamentosList.map((dep) => (
@@ -111,10 +113,10 @@ const DatosColegio = ({
             <FaMapMarkedAlt /> Distrito
           </label>
           <select
-            className="mt-1 p-2 w-full border rounded-md"
+            className={`mt-1 p-2 w-full border rounded-md ${!campoEditable('distrito') ? 'bg-gray-100' : ''}`}
             value={estudianteData.colegio?.distrito || ''}
             onChange={(e) => handleChange('colegio', 'distrito', e.target.value)}
-            disabled={!estudianteData.colegio?.departamento}
+            disabled={!estudianteData.colegio?.departamento || !campoEditable('distrito')}
           >
             <option value="">Seleccione un Distrito</option>
             {distritosList.map((distrito) => (
