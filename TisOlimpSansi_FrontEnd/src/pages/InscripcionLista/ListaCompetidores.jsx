@@ -239,10 +239,10 @@ const ListaCompetidores = ({ setStep }) => {
           codigoGenerado: response.data.codigo_generado,
         })
 
-        // Generar PDF de orden de pago
+       /* // Generar PDF de orden de pago
         await axios.post(`${endpoint}/orden-pago/pdf`, {
           codigo_generado: response.data.codigo_generado,
-        })
+        })*/
 
         // Mostrar modal de éxito en lugar de alerta
         setShowSuccessModal(true)
@@ -563,7 +563,7 @@ const ListaCompetidores = ({ setStep }) => {
               <h3 className="text-lg font-semibold text-blue-600">Resumen de Competidores</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
                 <div>
-                  <p className="text-sm text-gray-500">Total de Competidores</p>
+                  <p className="text-sm text-gray-500">Total de Inscripciones</p>
                   <p className="font-medium">{estudiantes.length}</p>
                 </div>
                 <div>
@@ -637,7 +637,7 @@ const ListaCompetidores = ({ setStep }) => {
               onClick={handleConfirmSubmit}
               className="bg-blue-600 text-white px-6 py-2 rounded-md transition duration-300 ease-in-out hover:bg-indigo-500 shadow-md"
             >
-              Emitir Orden de Pago
+              Registrar preinscripcion
             </button>
           </div>
         </div>
