@@ -13,7 +13,7 @@ class ColegioModel extends Model
     protected $fillable = [
         'nombre_colegio',
         'departamento',
-        'provincia',
+        'distrito',
     ];
 
     public function estudiante(){
@@ -25,7 +25,7 @@ class ColegioModel extends Model
     return self::create([
         'nombre_colegio' => $data['nombre_colegio'],
         'departamento' => $data['departamento'],
-        'provincia' => $data['provincia'],
+        'distrito' => $data['distrito'],
     ]);
 }
 }

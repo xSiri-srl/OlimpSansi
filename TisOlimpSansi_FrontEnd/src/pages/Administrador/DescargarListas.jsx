@@ -1,220 +1,79 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import axios from "axios";
 
 const datos = {
-  astronomia: [
-    "3P - 3ro Primaria",
-    "4P - 4to Primaria",
-    "5P - 5to Primaria",
-    "6P - 6to Primaria",
-    "1S - 1ro Secundaria",
-    "2S - 2do Secundaria",
-    "3S - 3ro Secundaria",
-    "4S - 4to Secundaria",
-    "5S - 5to Secundaria",
-    "6S - 6to Secundaria",
+  ASTRONOMIA_ASTROFISICA: [
+    "3P - 3RO PRIMARIA",
+    "4P - 4TO PRIMARIA",
+    "5P - 5TO PRIMARIA",
+    "6P - 6TO PRIMARIA",
+    "1S - 1RO SECUNDARIA",
+    "2S - 2DO SECUNDARIA",
+    "3S - 3RO SECUNDARIA",
+    "4S - 4TO SECUNDARIA",
+    "5S - 5TO SECUNDARIA",
+    "6S - 6TO SECUNDARIA",
   ],
-  astrofisica: [
-    "3P - 3ro Primaria",
-    "4P - 4to Primaria",
-    "5P - 5to Primaria",
-    "6P - 6to Primaria",
-    "1S - 1ro Secundaria",
-    "2S - 2do Secundaria",
-    "3S - 3ro Secundaria",
-    "4S - 4to Secundaria",
-    "5S - 5to Secundaria",
-    "6S - 6to Secundaria",
+  BIOLOGIA: [
+    "2S - 2DO SECUNDARIA",
+    "3S - 3RO SECUNDARIA",
+    "4S - 4TO SECUNDARIA",
+    "5S - 5TO SECUNDARIA",
+    "6S - 6TO SECUNDARIA",
   ],
-  biologia: [
-    "2S - 2do Secundaria",
-    "3S - 3ro Secundaria",
-    "4S - 4to Secundaria",
-    "5S - 5to Secundaria",
-    "6S - 6to Secundaria",
+  FISICA: ["4S - 4TO SECUNDARIA", "5S - 5TO SECUNDARIA", "6S - 6TO SECUNDARIA"],
+  INFORMATICA: [
+    "GUACAMAYO - 5TO A 6TO PRIMARIA",
+    "GUANACO - 1RO A 3RO SECUNDARIA",
+    "LONDRA - 1RO A 3RO SECUNDARIA",
+    "JUCUMARI - 4TO A 6TO SECUNDARIA",
+    "BUFEO - 1RO A 3RO SECUNDARIA",
+    "PUMA - 4TO A 6TO SECUNDARIA",
   ],
-  fisica: ["4S - 4to Secundaria", "5S - 5to Secundaria", "6S - 6to Secundaria"],
-  informatica: [
-    "Guacamayo - 5to a 6to Primaria",
-    "Guanaco - 1ro a 3ro Secundaria",
-    "Londra - 1ro a 3ro Secundaria",
-    "Jucumari - 4to a 6to Secundaria",
-    "Bufeo - 1ro a 3ro Secundaria",
-    "Puma - 4to a 6to Secundaria",
+  MATEMATICAS: [
+    "PRIMER NIVEL - 1RO SECUNDARIA",
+    "SEGUNDO NIVEL - 2DO SECUNDARIA",
+    "TERCER NIVEL - 3RO SECUNDARIA",
+    "CUARTO NIVEL - 4TO SECUNDARIA",
+    "QUINTO NIVEL - 5TO SECUNDARIA",
+    "SEXTO NIVEL - 6TO SECUNDARIA",
   ],
-  matematicas: [
-    "Primer Nivel - 1ro Secundaria",
-    "Segundo Nivel - 2do Secundaria",
-    "Tercer Nivel - 3ro Secundaria",
-    "Cuarto Nivel - 4to Secundaria",
-    "Quinto Nivel - 5to Secundaria",
-    "Sexto Nivel - 6to Secundaria",
+  QUIMICA: [
+    "2S - 2DO SECUNDARIA",
+    "3S - 3RO SECUNDARIA",
+    "4S - 4TO SECUNDARIA",
+    "5S - 5TO SECUNDARIA",
+    "6S - 6TO SECUNDARIA",
   ],
-  quimica: [
-    "2S - 2do Secundaria",
-    "3S - 3ro Secundaria",
-    "4S - 4to Secundaria",
-    "5S - 5to Secundaria",
-    "6S - 6to Secundaria",
-  ],
-  robotica: [
-    "Builders P - 5to a 6to Primaria",
-    "Builders S - 1ro a 6to Secundaria",
-    "Lego P - 5to a 6to Primaria",
-    "Lego S - 1ro a 6to Secundaria",
+  ROBOTICA: [
+    "BUILDERS P - 5TO A 6TO PRIMARIA",
+    "BUILDERS S - 1RO A 6TO SECUNDARIA",
+    "LEGO P - 5TO A 6TO PRIMARIA",
+    "LEGO S - 1RO A 6TO SECUNDARIA",
   ],
 };
 
-const listaInscritos = [
-  {
-    apellidoPaternoEstudiante: "Ramirez",
-    apellidoMaternoEstudiante: "Fernandez",
-    nombresEstudiante: "Lucia Mariana",
-    carnetDeIdentidadEstudiante: "7865432",
-    fechaNacimiento: "2010-05-15",
-    correoElectronicoEstudiante: "lucia.mf@gmail.com",
-    correoPertenece: "Estudiante",
-    curso: "3ro Primaria",
-    area: "astronomia",
-    categoria: "3P",
-    colegio: "San Agustin",
-    departamento: "Coachabamba",
-    provincia: "Cercado",
-
-    rolDelTutor: "Tutor",
-    apellidoPaterno: "Guzman",
-    apellidoMaterno: "Torrez",
-    nombres: "Eduardo",
-    carnetDeIdentidad: "1234567890",
-    correoElectronico: "guzman@email.com",
-    telefonoCelular: "+591 71122334",
-
-    apellidoPaternoTutorAcademico: "Martinez",
-    apellidoMaternoTutorAcademico: "Paredes",
-    nombresTutorAcademico: "Juan Pablo",
-    carnetDeIdentidadTutorAcademico: "0987654321",
-    correoElectronicoTutorAcademico: "juan.martinez@email.com",
-  },
-  {
-    apellidoPaternoEstudiante: "Salazar",
-    apellidoMaternoEstudiante: "Gomez",
-    nombresEstudiante: "Mateo Andres",
-    carnetDeIdentidadEstudiante: "7654321",
-    fechaNacimiento: "2011-07-20",
-    correoElectronicoEstudiante: "mateo.salazar@gmail.com",
-    correoPertenece: "Estudiante",
-    curso: "3ro Primaria",
-    area: "fisica",
-    categoria: "3P",
-    colegio: "San Agustin",
-    departamento: "Cochabamba",
-    provincia: "Cercado",
-
-    rolDelTutor: "Padre",
-    apellidoPaterno: "Salazar",
-    apellidoMaterno: "Ruiz",
-    nombres: "Fernando Javier",
-    carnetDeIdentidad: "88776655",
-    correoElectronico: "fernando.salazar@email.com",
-    telefonoCelular: "+591 71011223",
-
-    apellidoPaternoTutorAcademico: "Chavez",
-    apellidoMaternoTutorAcademico: "Luna",
-    nombresTutorAcademico: "Natalia Sofia",
-    carnetDeIdentidadTutorAcademico: "22114433",
-    correoElectronicoTutorAcademico: "natalia.chavez@email.com",
-  },
-  {
-    apellidoPaternoEstudiante: "Rojas",
-    apellidoMaternoEstudiante: "Llanos",
-    nombresEstudiante: "Camila Renata",
-    carnetDeIdentidadEstudiante: "8765432",
-    fechaNacimiento: "2010-09-10",
-    correoElectronicoEstudiante: "camila.rojas@gmail.com",
-    correoPertenece: "Estudiante",
-    curso: "4to Primaria",
-    area: "astronomia",
-    categoria: "3P",
-    colegio: "Santa Ana",
-    departamento: "Cochabamba",
-    provincia: "Cercado",
-
-    rolDelTutor: "Tutor",
-    apellidoPaterno: "Rojas",
-    apellidoMaterno: "Mendoza",
-    nombres: "Javier Leonel",
-    carnetDeIdentidad: "99887766",
-    correoElectronico: "javier.rojas@email.com",
-    telefonoCelular: "+591 72445566",
-
-    apellidoPaternoTutorAcademico: "Paz",
-    apellidoMaternoTutorAcademico: "Arce",
-    nombresTutorAcademico: "Rodrigo Esteban",
-    carnetDeIdentidadTutorAcademico: "33446677",
-    correoElectronicoTutorAcademico: "rodrigo.paz@email.com",
-  },
-  {
-    apellidoPaternoEstudiante: "Gutierrez",
-    apellidoMaternoEstudiante: "Medina",
-    nombresEstudiante: "Sofia Alejandra",
-    carnetDeIdentidadEstudiante: "9988221",
-    fechaNacimiento: "2012-01-25",
-    correoElectronicoEstudiante: "sofia.gutierrez@gmail.com",
-    correoPertenece: "Estudiante",
-    curso: "3ro Primaria",
-    area: "astronomia",
-    categoria: "3P",
-    colegio: "San Agustin",
-    departamento: "Cochabamba",
-    provincia: "Cercado",
-
-    rolDelTutor: "Tutor",
-    apellidoPaterno: "Gutierrez",
-    apellidoMaterno: "Sanchez",
-    nombres: "Carlos Ernesto",
-    carnetDeIdentidad: "55667788",
-    correoElectronico: "carlos.gutierrez@email.com",
-    telefonoCelular: "+591 73334455",
-
-    apellidoPaternoTutorAcademico: "Vargas",
-    apellidoMaternoTutorAcademico: "Delgado",
-    nombresTutorAcademico: "Daniela Fernanda",
-    carnetDeIdentidadTutorAcademico: "22331144",
-    correoElectronicoTutorAcademico: "daniela.vargas@email.com",
-  },
-  {
-    apellidoPaternoEstudiante: "Lopez",
-    apellidoMaternoEstudiante: "Carrasco",
-    nombresEstudiante: "Diego Armando",
-    carnetDeIdentidadEstudiante: "5566778",
-    fechaNacimiento: "2011-04-18",
-    correoElectronicoEstudiante: "diego.lopez@gmail.com",
-    correoPertenece: "Estudiante",
-    curso: "3ro Primaria",
-    area: "astronomia",
-    categoria: "5P",
-    colegio: "San Agustin",
-    departamento: "Cochabamba",
-    provincia: "Cercado",
-
-    rolDelTutor: "Tutor",
-    apellidoPaterno: "Lopez",
-    apellidoMaterno: "Villarroel",
-    nombres: "Marcos Ivan",
-    carnetDeIdentidad: "44556677",
-    correoElectronico: "marcos.lopez@email.com",
-    telefonoCelular: "+591 74455667",
-
-    apellidoPaternoTutorAcademico: "Peña",
-    apellidoMaternoTutorAcademico: "Rivera",
-    nombresTutorAcademico: "Angela Marcela",
-    carnetDeIdentidadTutorAcademico: "11223344",
-    correoElectronicoTutorAcademico: "angela.pena@email.com",
-  },
-];
+const departamentos = {
+  "La Paz": ["Murillo", "Pacajes", "Los Andes", "Larecaja", "Ingavi"],
+  Cochabamba: ["Cercado", "Quillacollo", "Chapare", "Arani", "Ayopaya"],
+  "Santa Cruz": ["Andrés Ibáñez", "Warnes", "Ichilo", "Sara", "Vallegrande"],
+  Oruro: ["Cercado", "Sajama", "Sabaya", "Litoral", "Pantaleón Dalence"],
+  Potosí: ["Tomás Frías", "Charcas", "Chayanta", "Nor Chichas", "Sur Chichas"],
+  Chuquisaca: ["Oropeza", "Zudáñez", "Tomina", "Belisario Boeto", "Nor Cinti"],
+  Tarija: ["Cercado", "Gran Chaco", "O'Connor", "Avilés", "Arce"],
+  Beni: ["Cercado", "Moxos", "Vaca Díez", "Marbán", "Yacuma"],
+  Pando: [
+    "Madre de Dios",
+    "Manuripi",
+    "Nicolás Suárez",
+    "Abuná",
+    "Federico Román",
+  ],
+};
 
 function DescargarListas() {
   const [area, setArea] = useState("");
@@ -225,13 +84,28 @@ function DescargarListas() {
   const [colegio, setColegio] = useState("");
   const [fecha, setFecha] = useState("");
 
-  const resultadosFiltrados = listaInscritos.filter((item) => {
+  const [inscritos, setInscritos] = useState([]);
+  const [departamentoSeleccionado, setDepartamentoSeleccionado] = useState("");
+  const [provinciaSeleccionada, setProvinciaSeleccionada] = useState("");
+
+  const provincias = departamentos[departamentoSeleccionado] || [];
+
+  useEffect(() => {
+    axios.get("http://localhost:8000/api/lista-inscritos").then((response) => {
+      setInscritos(response.data);
+    });
+  }, []);
+
+  const resultadosFiltrados = inscritos.filter((inscrito) => {
     return (
-      (!area || item.area === area) &&
-      (!curso || item.curso === curso) &&
-      (!categoria || item.categoria === categoria) &&
-      (!colegio || item.colegio === colegio) &&
-      (!fecha || item.fecha === fecha)
+      (area === "" ||
+        inscrito.nombre_area?.toLowerCase() === area.toLowerCase()) &&
+      (curso === "" || inscrito.curso?.toLowerCase() === curso.toLowerCase()) &&
+      (categoria === "" ||
+        inscrito.categoria?.toLowerCase() === categoria.toLowerCase()) &&
+      (colegio === "" ||
+        inscrito.colegio?.toLowerCase() === colegio.toLowerCase()) &&
+      (fecha === "" || inscrito.fecha_nacimiento === fecha)
     );
   });
 
@@ -372,7 +246,7 @@ function DescargarListas() {
               onChange={(e) => setColegio(e.target.value)}
             >
               <option value="">-- Selecciona --</option>
-              {[...new Set(listaInscritos.map((item) => item.colegio))].map(
+              {[...new Set(inscritos.map((item) => item.colegio))].map(
                 (colegioName, idx) => (
                   <option key={idx} value={colegioName}>
                     {colegioName}
@@ -381,15 +255,47 @@ function DescargarListas() {
               )}
             </select>
           </div>
+
+          {/* Departamento */}
           <div className="flex-1">
             <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-              Fecha
+              Departamento
             </label>
-            <input
-              type="date"
-              name="fechaNacimiento"
+            <select
+              value={departamentoSeleccionado}
+              onChange={(e) => {
+                setDepartamentoSeleccionado(e.target.value);
+                setProvinciaSeleccionada("");
+              }}
               className="p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm text-gray-700"
-            />
+            >
+              <option value="">Seleccionar departamento</option>
+              {Object.keys(departamentos).map((dep) => (
+                <option key={dep} value={dep}>
+                  {dep}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Provincia */}
+          <div className="flex-1">
+            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+              Provincia
+            </label>
+            <select
+              value={provinciaSeleccionada}
+              onChange={(e) => setProvinciaSeleccionada(e.target.value)}
+              disabled={!departamentoSeleccionado}
+              className="p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm text-gray-700 bg-white disabled:bg-gray-100"
+            >
+              <option value="">Seleccionar provincia</option>
+              {provincias.map((prov) => (
+                <option key={prov} value={prov}>
+                  {prov}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
       </div>
@@ -397,7 +303,7 @@ function DescargarListas() {
       {resultadosFiltrados.length > 0 ? (
         <div className="mt-6 flex justify-center">
           <div className="overflow-x-auto w-full max-w-6xl">
-            <table class="min-w-max border border-gray-300 text-sm text-left">
+            <table className="min-w-max border border-gray-300 text-sm text-left">
               <thead>
                 <tr>
                   <th
@@ -464,70 +370,68 @@ function DescargarListas() {
                 </tr>
               </thead>
               <tbody>
-                {resultadosFiltrados.map((inscrito, index) => (
+                {resultadosFiltrados.map((inscritos, index) => (
                   <tr key={index} className="hover:bg-gray-50">
                     <td className="px-4 py-2 border">
-                      {inscrito.apellidoPaternoEstudiante}
+                      {inscritos.apellido_pa}
                     </td>
                     <td className="px-4 py-2 border">
-                      {inscrito.apellidoMaternoEstudiante}
+                      {inscritos.apellido_ma}
+                    </td>
+                    <td className="px-4 py-2 border">{inscritos.nombre}</td>
+                    <td className="px-4 py-2 border">{inscritos.ci}</td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.fecha_nacimiento}
+                    </td>
+                    <td className="px-4 py-2 border">{inscritos.correo}</td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.propietario_correo}
+                    </td>
+                    <td className="px-4 py-2 border">{inscritos.curso}</td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.nombre_area}
+                    </td>
+                    <td className="px-4 py-2 border">{inscritos.categoria}</td>
+                    <td className="px-4 py-2 border">{inscritos.colegio}</td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.departamento}
+                    </td>
+                    <td className="px-4 py-2 border">{inscritos.provincia}</td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.rol_tutor_legal}
                     </td>
                     <td className="px-4 py-2 border">
-                      {inscrito.nombresEstudiante}
+                      {inscritos.tutor_legal_apellido_pa}
                     </td>
                     <td className="px-4 py-2 border">
-                      {inscrito.carnetDeIdentidadEstudiante}
+                      {inscritos.tutor_legal_apellido_ma}
                     </td>
                     <td className="px-4 py-2 border">
-                      {inscrito.fechaNacimiento}
+                      {inscritos.tutor_legal_nombre}
                     </td>
                     <td className="px-4 py-2 border">
-                      {inscrito.correoElectronicoEstudiante}
+                      {inscritos.tutor_legal_ci}
                     </td>
                     <td className="px-4 py-2 border">
-                      {inscrito.correoPertenece}
-                    </td>
-                    <td className="px-4 py-2 border">{inscrito.curso}</td>
-                    <td className="px-4 py-2 border">{inscrito.area}</td>
-                    <td className="px-4 py-2 border">{inscrito.categoria}</td>
-                    <td className="px-4 py-2 border">{inscrito.colegio}</td>
-                    <td className="px-4 py-2 border">
-                      {inscrito.departamento}
-                    </td>
-                    <td className="px-4 py-2 border">{inscrito.provincia}</td>
-
-                    <td className="px-4 py-2 border">{inscrito.rolDelTutor}</td>
-                    <td className="px-4 py-2 border">
-                      {inscrito.apellidoPaterno}
+                      {inscritos.tutor_legal_correo}
                     </td>
                     <td className="px-4 py-2 border">
-                      {inscrito.apellidoMaterno}
-                    </td>
-                    <td className="px-4 py-2 border">{inscrito.nombres}</td>
-                    <td className="px-4 py-2 border">
-                      {inscrito.carnetDeIdentidad}
+                      {inscritos.tutor_legal_telefono}
                     </td>
                     <td className="px-4 py-2 border">
-                      {inscrito.correoElectronico}
+                      {inscritos.tutor_academico_apellido_pa}
                     </td>
                     <td className="px-4 py-2 border">
-                      {inscrito.telefonoCelular}
-                    </td>
-
-                    <td className="px-4 py-2 border">
-                      {inscrito.apellidoPaternoTutorAcademico}
+                      {inscritos.tutor_academico_apellido_ma}
                     </td>
                     <td className="px-4 py-2 border">
-                      {inscrito.apellidoMaternoTutorAcademico}
+                      {inscritos.tutor_academico_nombre}
                     </td>
                     <td className="px-4 py-2 border">
-                      {inscrito.nombresTutorAcademico}
+                      {inscritos.tutor_academico_ci}
                     </td>
                     <td className="px-4 py-2 border">
-                      {inscrito.carnetDeIdentidadTutorAcademico}
-                    </td>
-                    <td className="px-4 py-2 border">
-                      {inscrito.correoElectronicoTutorAcademico}
+                      {inscritos.tutor_academico_correo}
                     </td>
                   </tr>
                 ))}
@@ -541,20 +445,22 @@ function DescargarListas() {
         </p>
       )}
 
-      <div className="flex justify-end gap-2 mb-4">
-        <button
-          onClick={descargarPDF}
-          className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
-        >
-          Descargar PDF
-        </button>
-        <button
-          onClick={descargarExcel}
-          className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"
-        >
-          Descargar Excel
-        </button>
-      </div>
+      {resultadosFiltrados.length > 0 && (
+        <div className="flex justify-end mt-6 gap-2 mb-4">
+          <button
+            onClick={descargarPDF}
+            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+          >
+            Descargar PDF
+          </button>
+          <button
+            onClick={descargarExcel}
+            className="bg-green-500 text-white px-4 mr-9 py-2 rounded hover:bg-green-600"
+          >
+            Descargar Excel
+          </button>
+        </div>
+      )}
     </div>
   );
 }

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('nombre_colegio');
             $table->string('departamento');
-            $table->string('provincia');
+            $table->string('distrito');
             $table->timestamps();
         });
     }

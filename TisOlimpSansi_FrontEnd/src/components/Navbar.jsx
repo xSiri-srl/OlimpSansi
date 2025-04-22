@@ -30,19 +30,25 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="bg-primary">
-        <div className="container mx-auto flex justify-between items-center py-6 px-6">
-          {/* Logo */}
-          <div className="text-2xl flex items-center gap-2 font-bold uppercase">
+      <nav className="fixed top-0 w-full z-50 shadow-md bg-primary h-24">
+      <div className="container mx-auto flex justify-between items-center py-4 px-6 h-full">
+          {/* Logo y texto j*/}
+          <div className="flex items-center gap-4">
             <img
               src="/images/Ohsansi_Logo.png"
               alt="OlimpSansi Logo"
-              className="h-12 md:h-20 lg:h-24 w-auto"
+              className="h-12 md:h-16 lg:h-20 w-auto"
             />
-            <p className="text-gray-600 text-sm mt-8">
-              Olimpiada de Ciencia y Tecnología
-            </p>
+            <div className="flex flex-col">
+              <span className="text-white font-bold text-lg sm:text-xl">
+              O! SANSI
+              </span>
+              <p className="text-white text-xs sm:text-sm">
+                Olimpiada de Ciencia y Tecnología
+              </p>
+            </div>
           </div>
+
 
           {/* Menú escritorio */}
           <div className="hidden md:flex items-center gap-6">
@@ -89,7 +95,8 @@ const Navbar = () => {
 
       {/* Sidebar flotante */}
       {showSidebar && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 z-40 flex justify-end">
+  <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex justify-end">
+
           <div className="w-64 bg-white h-full p-6 shadow-lg relative">
             <button
               onClick={() => setShowSidebar(false)}

@@ -53,69 +53,103 @@ const ListaCompetidores = ({ setStep }) => {
     "Astronomía y Astrofísica": <FaAtom className="text-indigo-600" />,
   }
 
-  // Process students to match the expected format
-  const processedEstudiantes = estudiantes.map((est, index) => {
-    // Check if student has all required data
-    const hasError =
-      !est.estudiante?.nombre ||
-      !est.estudiante?.apellido_pa ||
-      !est.areas_competencia ||
-      est.areas_competencia.length === 0 ||
-            // Validar formato de CI: debe tener entre 7-8 dígitos
-            (est.estudiante?.ci && !/^\d{7,8}$/.test(est.estudiante.ci)) ||
-            // Validar formato de teléfono del tutor legal si existe
-            (est.tutor_legal?.numero_celular && !/^\d{7,9}$/.test(est.tutor_legal.numero_celular)) ||
-            // Validar formatos de CI de tutores académicos si existen
-            (est.tutores_academicos && est.tutores_academicos.some(tutor => 
-              tutor?.tutor?.ci && !/^\d{7,8}$/.test(tutor.tutor.ci)
-            )) ||
-      est.areas_competencia.some((area) => {
-        if (!area.nombre_area) return false
-        // Normalizar el nombre del área para comparación insensible a mayúsculas/acentos
-        const normalizedArea = area.nombre_area
-          .toLowerCase()
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "")
-        return (normalizedArea === "informatica" || normalizedArea === "robotica") && !area.categoria
-      })
 
-    // Get areas from the student data
-    const areas = est.areas_competencia
-      ? est.areas_competencia.map((area) => area.nombre_area).filter((area) => area)
-      : []
-      let mensajeError = ""
-      if (hasError) {
-        if (!est.estudiante?.nombre || !est.estudiante?.apellido_pa) {
-          mensajeError = "Faltan datos obligatorios del estudiante"
-        } else if (est.estudiante?.ci && !/^\d{7,8}$/.test(est.estudiante.ci)) {
-          mensajeError = "El CI del estudiante debe contener entre 7 y 8 dígitos numéricos"
-        } else if (est.tutor_legal?.numero_celular && !/^\d{7,9}$/.test(est.tutor_legal.numero_celular)) {
-          mensajeError = "El teléfono del tutor legal debe contener entre 7 y 9 dígitos numéricos"
-        } else if (est.tutores_academicos && est.tutores_academicos.some(tutor => 
-          tutor?.tutor?.ci && !/^\d{7,8}$/.test(tutor.tutor.ci))) {
-          mensajeError = "El CI de algún tutor académico tiene un formato incorrecto"
-        } else if (est.areas_competencia && est.areas_competencia.some((area) => {
-          const normalizedArea = area.nombre_area?.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-          return (normalizedArea === "informatica" || normalizedArea === "robotica") && !area.categoria
-        })) {
-          mensajeError = "Falta seleccionar categoría para Informática o Robótica"
-        } else if (!est.areas_competencia || est.areas_competencia.length === 0) {
-          mensajeError = "No se han seleccionado áreas de competencia"
+  const processedEstudiantes = estudiantes.map((est, index) => {
+    // Arrays para recopilar todos los errores posibles
+    const errores = [];
+    let hasError = false;
+    let mensajeError = "";
+  
+    // PASO 1: Verificar si hay áreas de competencia que necesitan categoría pero no la tienen
+    if (est.areas_competencia) {
+      for (const area of est.areas_competencia) {
+        if (area.nombre_area === "Informática" || area.nombre_area === "Robótica") {
+          // Si no hay categoría seleccionada, es un error
+          if (!area.categoria || area.categoria.trim() === "") {
+            errores.push(`Falta seleccionar categoría para ${area.nombre_area}`);
+            hasError = true; // Marcar el registro como erróneo
+          } else {
+            // Si hay categoría, verificar que corresponda al curso
+            const curso = est.colegio?.curso || '';
+            const esPrimaria = curso.includes("Primaria");
+            const esSecundaria = curso.includes("Secundaria");
+            const numeroCurso = parseInt(curso.match(/\d+/)?.[0] || "0");
+  
+            let categoriaIncorrecta = false;
+  
+            if (area.nombre_area === "Informática") {
+              if (esPrimaria && (numeroCurso === 5 || numeroCurso === 6)) {
+                categoriaIncorrecta = !area.categoria.includes("Guacamayo");
+              } else if (esSecundaria && numeroCurso >= 1 && numeroCurso <= 3) {
+                categoriaIncorrecta = !area.categoria.includes("Guanaco") &&
+                                       !area.categoria.includes("Londra") &&
+                                       !area.categoria.includes("Bufeo");
+              } else if (esSecundaria && numeroCurso >= 4 && numeroCurso <= 6) {
+                categoriaIncorrecta = !area.categoria.includes("Jucumari") &&
+                                       !area.categoria.includes("Puma");
+              }
+            }
+  
+            if (area.nombre_area === "Robótica") {
+              if (esPrimaria && (numeroCurso === 5 || numeroCurso === 6)) {
+                categoriaIncorrecta = !area.categoria.includes("Builders P") &&
+                                       !area.categoria.includes("Lego P");
+              } else if (esSecundaria) {
+                categoriaIncorrecta = !area.categoria.includes("Builders S") &&
+                                       !area.categoria.includes("Lego S");
+              }
+            }
+  
+            if (categoriaIncorrecta) {
+              errores.push(`La categoría de ${area.nombre_area} no corresponde al curso ${curso}`);
+              hasError = true; // Marcar el registro como erróneo
+            }
+          }
         }
       }
-
-      return {
-        id: index + 1,
-        nombres: est.estudiante?.nombre || "",
-        apellidoPaterno: est.estudiante?.apellido_pa || "",
-        apellidoMaterno: est.estudiante?.apellido_ma || "",
-        ci: est.estudiante?.ci || "",
-        areas: areas,
-        error: hasError,
-        mensajeError,
-        originalData: est,
+    }
+  
+    // PASO 2: Verificar otros errores solo si aún no se encontró ninguno
+    if (!hasError) {
+      if (est.estudiante?.nombre && !/^[A-ZÁÉÍÓÚÑ\s]+$/i.test(est.estudiante.nombre)) {
+        errores.push("El nombre debe contener solo letras");
+        hasError = true;
+      } else if (est.estudiante?.apellido_pa && !/^[A-ZÁÉÍÓÚÑ\s]+$/i.test(est.estudiante.apellido_pa)) {
+        errores.push("El apellido paterno debe contener solo letras");
+        hasError = true;
+      } else if (est.estudiante?.apellido_ma && !/^[A-ZÁÉÍÓÚÑ\s]+$/i.test(est.estudiante.apellido_ma)) {
+        errores.push("El apellido materno debe contener solo letras");
+        hasError = true;
       }
-    })
+    }
+  
+    // Mensaje de error: mostrar el primer error encontrado
+    mensajeError = errores.length > 0 ? errores[0] : "";
+  
+    // Log para depuración
+    if (hasError) {
+      console.log(`Estudiante ${index + 1} tiene errores: ${errores.join(', ')}`);
+    }
+  
+    // Obtener áreas para mostrar
+    const areas = est.areas_competencia
+      ? est.areas_competencia.map((area) => area.nombre_area).filter((area) => area)
+      : [];
+  
+    return {
+      id: index + 1,
+      nombres: est.estudiante?.nombre || "",
+      apellidoPaterno: est.estudiante?.apellido_pa || "",
+      apellidoMaterno: est.estudiante?.apellido_ma || "",
+      ci: est.estudiante?.ci || "",
+      areas: areas,
+      error: hasError,        // Este valor determina si la tarjeta se muestra en rojo
+      mensajeError: mensajeError,  // Mensaje que se muestra en la tarjeta
+      todosErrores: errores,  // Lista completa de errores para depuración
+      originalData: est,
+    };
+  });
+
 
   // Filtrar estudiantes
   const filteredEstudiantes = processedEstudiantes.filter((estudiante) => {
@@ -147,7 +181,7 @@ const ListaCompetidores = ({ setStep }) => {
   const handleTooManyErrorsClose = () => {
     setShowTooManyErrorsModal(false)
     // Redirigir a la pantalla de subir archivo
-    setStep(2)
+    setStep(3)
   }
 
   // Modificado para mostrar directamente el modal de edición
@@ -201,68 +235,126 @@ const ListaCompetidores = ({ setStep }) => {
 
   const handleConfirmSubmit = async () => {
     // Estructura el JSON que se enviará
-    const datosAEnviar = {
+    const datosPreparados = {
       responsable_inscripcion: responsableInscripcion,
-      inscripciones: estudiantes,
-    }
+      inscripciones: estudiantes.map(estudiante => {
+        // Crear una copia del estudiante para manipular
+        const estudianteModificado = { ...estudiante };
+        
+        // Si hay áreas de competencia, verificar tutores académicos
+        if (estudianteModificado.areas_competencia && estudianteModificado.areas_competencia.length > 0) {
+          // Asegurar que tutores_academicos sea un array
+          if (!estudianteModificado.tutores_academicos) {
+            estudianteModificado.tutores_academicos = [];
+          }
+          
+          // Verificar cada área para asegurarse de que tiene un tutor académico
+          estudianteModificado.areas_competencia.forEach((area, index) => {
+            // Si no hay tutor para esta área, crear uno con valores predeterminados
+            if (!estudianteModificado.tutores_academicos[index] || 
+                !estudianteModificado.tutores_academicos[index].tutor) {
+              
+              estudianteModificado.tutores_academicos[index] = {
+                area_id: index,
+                area_nombre: area.nombre_area,
+                tutor: {
+                  nombre: "SIN TUTOR",
+                  apellido_pa: "ACADÉMICO",
+                  apellido_ma: "ACADÉMICO",
+                  ci: "00000000",
+                  correo: "sintutor@ejemplo.com"
+                }
+              };
+            } else {
+              // Si existe el tutor pero tiene campos vacíos, rellenarlos con valores predeterminados
+              const tutor = estudianteModificado.tutores_academicos[index].tutor;
+              
+              if (!tutor.nombre || tutor.nombre.trim() === "") {
+                tutor.nombre = "SIN TUTOR";
+              }
+              
+              if (!tutor.apellido_pa || tutor.apellido_pa.trim() === "") {
+                tutor.apellido_pa = "ACADÉMICO";
+              }
+              
+              if (!tutor.apellido_ma || tutor.apellido_ma.trim() === "") {
+                tutor.apellido_ma = "ACADÉMICO";
+              }
+              
+              if (!tutor.ci || tutor.ci.trim() === "") {
+                tutor.ci = "00000000";
+              }
+              
+              if (!tutor.correo || tutor.correo.trim() === "") {
+                tutor.correo = "sintutor@ejemplo.com";
+              }
+            }
+          });
+        }
+        
+        return estudianteModificado;
+      })
+    };
 
-    console.log("Enviando datos:", datosAEnviar)
+    console.log("Enviando datos:", datosPreparados);
     // Iniciar barra de progreso
-    setShowProgressBar(true)
-    setUploadProgress(0)
+    setShowProgressBar(true);
+    setUploadProgress(0);
     const progressInterval = setInterval(() => {
       setUploadProgress((prev) => {
-        const newValue = prev + 2
+        const newValue = prev + 2;
         if (newValue >= 90) {
-          clearInterval(progressInterval)
-          return 90 // Mantenemos en 90% hasta que termine la petición
+          clearInterval(progressInterval);
+          return 90; // Mantenemos en 90% hasta que termine la petición
         }
-        return newValue
-      })
-    }, 100)
+        return newValue;
+      });
+    }, 100);
 
     // Enviar los datos al servidor
     try {
-      const response = await axios.post(`${endpoint}/inscribir-lista`, datosAEnviar)
+      const response = await axios.post(`${endpoint}/inscribir-lista`, datosPreparados);
 
       if (response.status === 201) {
         // Completar la barra de progreso
-        setUploadProgress(100)
-        clearInterval(progressInterval)
+        setUploadProgress(100);
+        clearInterval(progressInterval);
 
         // Guardar el código generado
-        setCodigoGenerado(response.data.codigo_generado)
+        setCodigoGenerado(response.data.codigo_generado);
 
         // Actualizar el estado global con el código generado
         setGlobalData({
           ...globalData,
           codigoGenerado: response.data.codigo_generado,
-        })
-
-        // Generar PDF de orden de pago
-        await axios.post(`${endpoint}/orden-pago/pdf`, {
-          codigo_generado: response.data.codigo_generado,
-        })
+        });
 
         // Mostrar modal de éxito en lugar de alerta
-        setShowSuccessModal(true)
+        setShowSuccessModal(true);
       } else {
-        throw new Error(`Error en la respuesta: ${response.status}`)
+        throw new Error(`Error en la respuesta: ${response.status}`);
       }
     } catch (error) {
-      console.error("Error al enviar la lista:", error)
-      clearInterval(progressInterval)
-      setShowProgressBar(false)
-      setErrorMessage(`Hubo un error al enviar la lista: ${error.message}. Intenta nuevamente.`)
-      setShowErrorModal(true)
+      console.error("Error al enviar la lista:", error);
+      clearInterval(progressInterval);
+      setShowProgressBar(false);
+      
+      // Mostrar mensaje de error más detallado si está disponible
+      let errorMsg = `Hubo un error al enviar la lista: ${error.message}`;
+      if (error.response && error.response.data && error.response.data.message) {
+        errorMsg += ` - ${error.response.data.message}`;
+      }
+      
+      setErrorMessage(errorMsg + ". Intenta nuevamente.");
+      setShowErrorModal(true);
     }
-  }
+  };
 
   const handleSuccessModalClose = () => {
     setShowSuccessModal(false)
     setShowProgressBar(false)
     setShowConfirmation(false)
-    setStep(4) // Avanzar al siguiente paso
+    setStep(5) // Avanzar al siguiente paso
   }
 
   const handleCancelConfirmation = () => {
@@ -327,7 +419,7 @@ const ListaCompetidores = ({ setStep }) => {
           {/* Panel de resumen */}
           <div className="bg-white p-3 rounded-lg shadow-md mb-4 flex flex-wrap justify-between items-center">
             <div className="flex items-center">
-              <span className="font-medium mr-2">Total competidores:</span>
+              <span className="font-medium mr-2">Total inscripciones:</span>
               <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-md">{processedEstudiantes.length}</span>
 
               <span className="font-medium mx-2">Con errores:</span>
@@ -397,60 +489,66 @@ const ListaCompetidores = ({ setStep }) => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {currentItems.length > 0 ? (
-                  currentItems.map((estudiante) => (
-                    <tr
-                      key={estudiante.id}
-                      onClick={() => handleStudentClick(estudiante)}
-                      className={`${estudiante.error ? "bg-red-50" : "hover:bg-gray-50"} cursor-pointer transition`}
-                    >
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="flex-shrink-0 h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
-                            <FaUser className="text-gray-600 text-xs" />
-                          </div>
-                          <div className="ml-3">
-                            <div className="text-sm font-medium text-gray-900">
-                              {estudiante.apellidoPaterno} {estudiante.apellidoMaterno}
-                            </div>
-                            <div className="text-sm text-gray-500">{estudiante.nombres}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <div className="flex flex-wrap">
-                          {estudiante.areas.map((area, idx) => (
-                            <span
-                              key={idx}
-                              className="inline-flex items-center px-2 py-0.5 mr-1 mb-1 rounded-full text-xs bg-gray-100"
-                            >
-                              {areaIcons[area] || <FaAtom className="text-gray-600" />}
-                              <span className="ml-1 truncate max-w-[80px]">{area}</span>
-                            </span>
-                          ))}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        {estudiante.error ? (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                            Error
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                            Correcto
-                          </span>
-                        )}
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="3" className="px-4 py-4 text-center text-gray-500">
-                      No se encontraron competidores con los criterios de búsqueda.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
+  {currentItems.length > 0 ? (
+    currentItems.map((estudiante) => (
+<tr
+  key={estudiante.id}
+  onClick={() => handleStudentClick(estudiante)}
+  className={`${estudiante.error ? "bg-red-50" : "hover:bg-gray-50"} cursor-pointer transition`}
+>
+  <td className="px-4 py-3 whitespace-nowrap">
+    <div className="flex items-center">
+      <div className="flex-shrink-0 h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
+        <FaUser className="text-gray-600 text-xs" />
+      </div>
+      <div className="ml-3">
+        <div className="text-sm font-medium text-gray-900">
+          {estudiante.apellidoPaterno} {estudiante.apellidoMaterno}
+        </div>
+        <div className="text-sm text-gray-500">{estudiante.nombres}</div>
+      </div>
+    </div>
+  </td>
+  <td className="px-4 py-3 whitespace-nowrap">
+    <div className="flex flex-wrap">
+      {estudiante.areas.map((area, idx) => (
+        <span
+          key={idx}
+          className={`inline-flex items-center px-2 py-0.5 mr-1 mb-1 rounded-full text-xs 
+          ${estudiante.error && estudiante.mensajeError.includes(area) ? 'bg-red-100 text-red-800' : 'bg-gray-100'}`}
+        >
+          {areaIcons[area] || <FaAtom className="text-gray-600" />}
+          <span className="ml-1 truncate max-w-[80px]">{area}</span>
+        </span>
+      ))}
+    </div>
+  </td>
+  <td className="px-4 py-3 whitespace-nowrap">
+    {estudiante.error ? (
+      <div>
+        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+          Error
+        </span>
+        <p className="text-red-500 text-xs mt-1 max-w-[200px] truncate" title={estudiante.mensajeError}>
+          {estudiante.mensajeError}
+        </p>
+      </div>
+    ) : (
+      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+        Correcto
+      </span>
+    )}
+  </td>
+</tr>
+    ))
+  ) : (
+    <tr>
+      <td colSpan="3" className="px-4 py-4 text-center text-gray-500">
+        No se encontraron competidores con los criterios de búsqueda.
+      </td>
+    </tr>
+  )}
+</tbody>
             </table>
           </div>
 
@@ -510,7 +608,7 @@ const ListaCompetidores = ({ setStep }) => {
           {/* Botones de navegación */}
           <div className="flex justify-center mt-6 space-x-4">
             <button
-              onClick={() => setStep(2)}
+              onClick={() => setStep(3)}
               className="px-6 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition"
             >
               Atrás
@@ -563,7 +661,7 @@ const ListaCompetidores = ({ setStep }) => {
               <h3 className="text-lg font-semibold text-blue-600">Resumen de Competidores</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
                 <div>
-                  <p className="text-sm text-gray-500">Total de Competidores</p>
+                  <p className="text-sm text-gray-500">Total de Inscripciones</p>
                   <p className="font-medium">{estudiantes.length}</p>
                 </div>
                 <div>
@@ -637,7 +735,7 @@ const ListaCompetidores = ({ setStep }) => {
               onClick={handleConfirmSubmit}
               className="bg-blue-600 text-white px-6 py-2 rounded-md transition duration-300 ease-in-out hover:bg-indigo-500 shadow-md"
             >
-              Emitir Orden de Pago
+              Registrar preinscripcion
             </button>
           </div>
         </div>
