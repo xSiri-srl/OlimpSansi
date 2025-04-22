@@ -244,7 +244,21 @@ export default function InscripcionTutorLegal({
 
         {/* Formulario de Datos del Tutor */}
         <div className="space-y-4">
+        <TextField
+            label="Carnet de Identidad"
+            icon={<FaIdCard className="text-black" />}
+            name="ci"
+            placeholder="Número de Carnet de Identidad"
+            value={formData.legal?.ci || ""}
+            onChange={(value) =>
+              handleInputChange("legal", "ci", value)
+            }
+            error={errors.ci}
+            maxLength="8"
+            regex={/^[0-9]*$/}
+          />
           <div className="flex flex-col md:flex-row gap-4">
+            
             <div className="w-full">
               <TextField
                 label="Apellido Paterno"
@@ -292,20 +306,6 @@ export default function InscripcionTutorLegal({
             maxLength="30"
             regex={/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/}
             transform={(value) => value.toUpperCase()}
-          />
-
-          <TextField
-            label="Carnet de Identidad"
-            icon={<FaIdCard className="text-black" />}
-            name="ci"
-            placeholder="Número de Carnet de Identidad"
-            value={formData.legal?.ci || ""}
-            onChange={(value) =>
-              handleInputChange("legal", "ci", value)
-            }
-            error={errors.ci}
-            maxLength="8"
-            regex={/^[0-9]*$/}
           />
 
           <TextField
