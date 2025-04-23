@@ -46,7 +46,7 @@ const SubirComprobante = () => {
     // Validar número de comprobante
     const regexNumero = /^[0-9]+$/;
     if (!regexNumero.test(numeroComprobante)) {
-      setErrorNumero("En este campo solo se permiten números");
+      setErrorNumero("Sólo se permiten números.");
       valid = false;
     } else {
       setErrorNumero("");
@@ -55,7 +55,7 @@ const SubirComprobante = () => {
     // Validar nombre del responsable
     const regexNombre = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
     if (!regexNombre.test(comprobanteNombre)) {
-      setErrorNombre("En este campo solo se permiten letras, espacios, acentos y la ñ");
+      setErrorNombre("Sólo se permiten letras, acentuación y espacios en blanco.");
       valid = false;
     } else {
       setErrorNombre("");
@@ -64,7 +64,7 @@ const SubirComprobante = () => {
     // Validar fecha (formato dd-mm-aa)
     const regexFecha = /^\d{2}-\d{2}-\d{2}$/;
     if (!regexFecha.test(fechaComprobante)) {
-      setErrorFecha("Formato de fecha inválido. Usa dd-mm-aa");
+      setErrorFecha("Sólo fechas con el formato dd-mm-aa");
       valid = false;
     } else {
       // Convertir fecha a objeto Date
@@ -81,7 +81,7 @@ const SubirComprobante = () => {
         parsedYear < currentYear || // Año pasado
         (parsedYear === currentYear && month - 1 < currentMonth) // Mes anterior
       ) {
-        setErrorFecha("La fecha no puede ser de un mes o año anterior al actual.");
+        setErrorFecha("Sólo se permiten comprobantes del mes y año vigentes.");
         valid = false;
       } else {
         setErrorFecha("");

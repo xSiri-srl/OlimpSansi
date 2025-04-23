@@ -22,55 +22,12 @@ use App\Models\Inscripcion\TutorLegalModel;
 
 
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 use thiagoalessio\TesseractOCR\UnsuccessfulCommandException;
 class OrdenPagoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(OrdenPago $ordenPago)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, OrdenPago $ordenPago)
-    {
-
-    }
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(OrdenPago $ordenPago)
-    {
-        //
-    }
-
-    /**
-     * Genera un código único con formato TSOL-YYYY-XXXXXX donde XXXXXX son 6 letras mayúsculas
-     * 
-     * @return string
-     */
-    
     public function generarYGuardarOrdenPagoPDF(Request $request)
     {
         $validated = $request->validate([
@@ -361,7 +318,62 @@ class OrdenPagoController extends Controller
         ]);
     }
     
+    public function obtenerOrdenPago(){
+    $ordenesPago = OrdenPago::all();
+    return response()->json($ordenesPago);
+    }
 
-
-
+    public function obtenerOrdenesConResponsable(){
+        try {
+            // Calcular la fecha de hace 7 días
+            $fechaLimite = now()->subDays(7);
+            
+            // Primero obtenemos las órdenes de pago recientes (últimos 7 días)
+            $ordenesPago = OrdenPago::where('fecha_emision', '>=', $fechaLimite)
+                ->orderBy('fecha_emision', 'desc')
+                ->get();
+                
+            $resultado = [];
+            
+            // Para cada orden de pago, buscamos su primera inscripción y responsable asociado
+            foreach ($ordenesPago as $orden) {
+                // Buscar la primera inscripción asociada a esta orden
+                $inscripcion = InscripcionModel::where('id_orden_pago', $orden->id)
+                    ->with('responsable')
+                    ->first();
+                    
+                $responsable = $inscripcion ? $inscripcion->responsable : null;
+                
+                // Si hay un responsable, obtenemos su nombre completo
+                $nombreResponsable = 'No disponible';
+                if ($responsable) {
+                    $nombreResponsable = trim(
+                        ($responsable->nombre ?? '') . ' ' .
+                        ($responsable->apellido_pa ?? '') . ' ' .
+                        ($responsable->apellido_ma ?? '')
+                    );
+                }
+                
+                // Formateo de fecha
+                $fecha = $orden->fecha_emision ? 
+                    date('d M Y', strtotime($orden->fecha_emision)) : 
+                    'Fecha no disponible';
+                    
+                // Añadir al resultado
+                $resultado[] = [
+                    'id' => $orden->codigo_generado,
+                    'responsable' => $nombreResponsable,
+                    'fecha' => $fecha,
+                    'monto' => $orden->monto_total,
+                    'estado' => $orden->numero_comprobante ? 'pagado' : 'pendiente'
+                ];
+            }
+                
+            return response()->json($resultado);
+            
+        } catch (\Exception $e) {
+            \Log::error('Error en obtenerOrdenesConResponsable: ' . $e->getMessage());
+            return response()->json(['error' => 'Error al procesar la solicitud'], 500);
+        }
+    }
 }
