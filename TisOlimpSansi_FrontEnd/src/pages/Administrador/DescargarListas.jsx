@@ -106,7 +106,18 @@ function DescargarListas() {
   const [departamentoSeleccionado, setDepartamentoSeleccionado] = useState("");
   const [provinciaSeleccionada, setProvinciaSeleccionada] = useState("");
 
-  const provincias = departamentos[departamentoSeleccionado] || [];
+  const departamentosDisponibles = [
+    ...new Set(inscritos.map((i) => i.departamento).filter(Boolean))
+  ];
+  
+  const provinciasDisponibles = [
+    ...new Set(
+      inscritos
+        .filter((i) => i.departamento === departamentoSeleccionado)
+        .map((i) => i.provincia)
+        .filter(Boolean)
+    )
+  ];
 
   useEffect(() => {
     axios.get("http://localhost:8000/api/lista-inscritos").then((response) => {
@@ -120,7 +131,9 @@ function DescargarListas() {
       (curso === "" || inscrito.curso?.toLowerCase() === curso.toLowerCase()) &&
       (categoria === "" || inscrito.categoria?.toLowerCase() === categoria.toLowerCase()) &&
       (colegio === "" || inscrito.colegio?.toLowerCase() === colegio.toLowerCase()) &&
-      (fecha === "" || inscrito.fecha_nacimiento === fecha)
+      (fecha === "" || inscrito.fecha_nacimiento === fecha) &&
+      (departamentoSeleccionado === "" || inscrito.departamento === departamentoSeleccionado) &&
+      (provinciaSeleccionada === "" || inscrito.provincia === provinciaSeleccionada)
     );
   });
   
@@ -258,46 +271,50 @@ function DescargarListas() {
           </div>
   
                {/* Departamento */}
-      <div className="flex-1">
-        <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-          Departamento
-        </label>
-        <select
-          value={departamentoSeleccionado}
-          onChange={(e) => {
-            setDepartamentoSeleccionado(e.target.value);
-            setProvinciaSeleccionada("");
-          }}
-          className="p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm text-gray-700"
-        >
-          <option value="">Seleccionar departamento</option>
-          {Object.keys(departamentos).map((dep) => (
-            <option key={dep} value={dep}>
-              {dep}
-            </option>
-          ))}
-        </select>
-      </div>
+              <div className="flex-1">
+                <label htmlFor="departamento" className="block mb-2 text-sm font-semibold text-gray-700">
+                  Departamento
+                </label>
+                <select
+                  id="departamento"
+                  name="departamento"
+                  value={departamentoSeleccionado}
+                  onChange={(e) => {
+                    setDepartamentoSeleccionado(e.target.value);
+                    setProvinciaSeleccionada(""); // resetea provincia si cambia departamento
+                  }}
+                  className="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm text-gray-700"
+                >
+                  <option value="">-- Selecciona --</option>
+                  {departamentosDisponibles.map((dep) => (
+                    <option key={dep} value={dep}>
+                      {dep}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-      {/* Provincia */}
-      <div className="flex-1">
-        <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-          Provincia
-        </label>
-        <select
-          value={provinciaSeleccionada}
-          onChange={(e) => setProvinciaSeleccionada(e.target.value)}
-          disabled={!departamentoSeleccionado}
-          className="p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm text-gray-700 bg-white disabled:bg-gray-100"
-        >
-          <option value="">Seleccionar provincia</option>
-          {provincias.map((prov) => (
-            <option key={prov} value={prov}>
-              {prov}
-            </option>
-          ))}
-        </select>
-      </div>
+              {/* Provincia */}
+              <div className="flex-1">
+                <label htmlFor="provincia" className="block mb-2 text-sm font-semibold text-gray-700">
+                  Provincia
+                </label>
+                <select
+                  id="provincia"
+                  name="provincia"
+                  value={provinciaSeleccionada}
+                  onChange={(e) => setProvinciaSeleccionada(e.target.value)}
+                  className="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm text-gray-700"
+                >
+                  <option value="">-- Selecciona --</option>
+                  {provinciasDisponibles.map((prov) => (
+                    <option key={prov} value={prov}>
+                      {prov}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
         </div>
       </div>
   
