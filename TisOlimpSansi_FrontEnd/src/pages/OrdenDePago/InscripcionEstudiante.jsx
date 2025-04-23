@@ -506,7 +506,7 @@ export default function InscripcionEstudiante({
                       ))
                     ) : (
                       <div className="p-2 text-gray-500">
-                        No se encontraron colegios. Se registrará como nuevo.
+                        No se encontro ninguna coincidencia, puede registrar una nueva unidad educativa.
                       </div>
                     )}
                   </div>
@@ -515,7 +515,7 @@ export default function InscripcionEstudiante({
               
               {esNuevoColegio && busquedaColegio.length >= 2 && (
                 <p className="text-blue-500 text-sm mt-1">
-                  Se registrará un nuevo colegio con este nombre.
+                  Se registrará una nueva unidad educativa con este nombre.
                 </p>
               )}
               
