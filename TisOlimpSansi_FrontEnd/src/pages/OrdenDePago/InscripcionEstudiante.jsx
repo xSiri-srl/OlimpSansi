@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import {
   FaUserAlt,
   FaEnvelope,
@@ -28,6 +29,43 @@ export default function InscripcionEstudiante({
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { globalData, setGlobalData } = useFormData();
+  
+  // Estados para manejar datos de colegios
+  const [colegiosData, setColegiosData] = useState([]);
+  const [departamentosList, setDepartamentosList] = useState([]);
+  const [distritosList, setDistritosList] = useState([]);
+  const [colegiosFiltrados, setColegiosFiltrados] = useState([]);
+  const [noEncontre, setNoEncontre] = useState(false);
+
+  // Cargar datos de colegios al iniciar
+  useEffect(() => {
+    axios.post("http://localhost:8000/api/colegios/filtro", {})
+      .then(res => {
+        setColegiosData(res.data);
+        const departamentosUnicos = [...new Set(res.data.map(c => c.departamento))];
+        setDepartamentosList(departamentosUnicos);
+      })
+      .catch(err => console.error("Error al cargar colegios", err));
+  }, []);
+
+  // Filtrar distritos cuando cambia el departamento
+  useEffect(() => {
+    const distritos = colegiosData
+      .filter(c => c.departamento === formData.estudiante?.departamentoSeleccionado)
+      .map(c => c.distrito);
+
+    setDistritosList([...new Set(distritos)]);
+  }, [formData.estudiante?.departamentoSeleccionado, colegiosData]);
+
+  // Filtrar colegios cuando cambia el distrito
+  useEffect(() => {
+    const colegios = colegiosData
+      .filter(c => c.departamento === formData.estudiante?.departamentoSeleccionado && 
+                  c.distrito === formData.estudiante?.distrito)
+      .map(c => c.nombre_colegio);
+
+    setColegiosFiltrados([...new Set(colegios)]);
+  }, [formData.estudiante?.distrito, formData.estudiante?.departamentoSeleccionado, colegiosData]);
 
   // Función para validar campos de entrada
   const validateInput = (value, fieldName, regex) => {
@@ -175,37 +213,6 @@ export default function InscripcionEstudiante({
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  // Datos para los campos select
-  const departamentos = {
-    "La Paz": ["Murillo", "Pacajes", "Los Andes", "Larecaja", "Ingavi"],
-    Cochabamba: ["Cercado", "Quillacollo", "Chapare", "Arani", "Ayopaya"],
-    "Santa Cruz": ["Andrés Ibáñez", "Warnes", "Ichilo", "Sara", "Vallegrande"],
-    Oruro: ["Cercado", "Sajama", "Sabaya", "Litoral", "Pantaleón Dalence"],
-    Potosí: [
-      "Tomás Frías",
-      "Charcas",
-      "Chayanta",
-      "Nor Chichas",
-      "Sur Chichas",
-    ],
-    Chuquisaca: [
-      "Oropeza",
-      "Zudáñez",
-      "Tomina",
-      "Belisario Boeto",
-      "Nor Cinti",
-    ],
-    Tarija: ["Cercado", "Gran Chaco", "O'Connor", "Avilés", "Arce"],
-    Beni: ["Cercado", "Moxos", "Vaca Díez", "Marbán", "Yacuma"],
-    Pando: [
-      "Madre de Dios",
-      "Manuripi",
-      "Nicolás Suárez",
-      "Abuná",
-      "Federico Román",
-    ],
   };
 
   const cursos = [
@@ -370,49 +377,111 @@ export default function InscripcionEstudiante({
             Datos del Colegio
           </h3>
           <div className="space-y-4 w-full max-w-md">
-          <SelectField
-              label="Departamento"
-              icon={<FaMapMarkedAlt className="text-black" />}
-              name="departamento"
-              value={formData.estudiante?.departamentoSeleccionado || ""}
-              onChange={(value) => {
-                handleInputChange("estudiante", "departamentoSeleccionado", value);
-                handleInputChange("estudiante", "distrito", ""); // Reiniciar distrito
-              }}
-              options={Object.keys(departamentos)}
-              error={errors.departamento}
-              placeholder="Seleccione un Departamento"
-            />
+            {/* Departamento - Usando la lista de departamentos de la API */}
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <FaMapMarkedAlt className="text-black" />
+                <label>Departamento</label>
+              </div>
+              <select
+                name="departamento"
+                className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                value={formData.estudiante?.departamentoSeleccionado || ""}
+                onChange={(e) => {
+                  handleInputChange("estudiante", "departamentoSeleccionado", e.target.value);
+                  handleInputChange("estudiante", "distrito", ""); // Reiniciar distrito
+                  handleInputChange("estudiante", "colegio", ""); // Reiniciar colegio
+                }}
+              >
+                <option value="">Seleccione un Departamento</option>
+                {departamentosList.map(dep => (
+                  <option key={dep} value={dep}>{dep}</option>
+                ))}
+              </select>
+              {errors.departamento && (
+                <p className="text-red-500 text-sm mt-1">{errors.departamento}</p>
+              )}
+            </div>
 
-            <SelectField
-              label="Distrito"
-              icon={<FaMapMarkedAlt className="text-black" />}
-              name="distrito"
-              value={formData.estudiante?.distrito || ""}
-              onChange={(value) => 
-                handleInputChange("estudiante", "distrito", value)
-              }
-              options={
-                departamentos[formData.estudiante?.departamentoSeleccionado] || []
-              }
-              error={errors.distrito}
-              disabled={!formData.estudiante?.departamentoSeleccionado}
-              placeholder="Seleccione un Distrito"
-            />
-            <TextField
-              label="Nombre del Colegio"
-              icon={<FaSchool className="text-black" />}
-              name="colegio"
-              placeholder="Nombre del Colegio"
-              value={formData.estudiante?.colegio || ""}
-              onChange={(value) =>
-                handleInputChange("estudiante", "colegio", value)
-              }
-              error={errors.colegio}
-              maxLength="50"
-              regex={/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/}
-              transform={(value) => value.toUpperCase()}
-            />
+            {/* Distrito - Usando la lista filtrada por departamento */}
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <FaMapMarkedAlt className="text-black" />
+                <label>Distrito</label>
+              </div>
+              <select
+                name="distrito"
+                className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                value={formData.estudiante?.distrito || ""}
+                onChange={(e) => {
+                  handleInputChange("estudiante", "distrito", e.target.value);
+                  handleInputChange("estudiante", "colegio", ""); // Reiniciar colegio
+                }}
+                disabled={!formData.estudiante?.departamentoSeleccionado}
+              >
+                <option value="">Seleccione un Distrito</option>
+                {distritosList.map(dist => (
+                  <option key={dist} value={dist}>{dist}</option>
+                ))}
+              </select>
+              {errors.distrito && (
+                <p className="text-red-500 text-sm mt-1">{errors.distrito}</p>
+              )}
+            </div>
+
+            {/* Colegio - Con opción para añadir manualmente */}
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <FaSchool className="text-black" />
+                <label>Nombre del Colegio</label>
+              </div>
+              
+              {!noEncontre ? (
+                <select
+                  name="colegio"
+                  className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  value={formData.estudiante?.colegio || ""}
+                  onChange={(e) => handleInputChange("estudiante", "colegio", e.target.value)}
+                  disabled={!formData.estudiante?.distrito}
+                >
+                  <option value="">Seleccione un Colegio</option>
+                  {colegiosFiltrados.map((colegio, idx) => (
+                    <option key={idx} value={colegio}>{colegio}</option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  type="text"
+                  className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  placeholder="Nombre del Colegio"
+                  value={formData.estudiante?.colegio || ""}
+                  onChange={(e) => handleInputChange("estudiante", "colegio", e.target.value)}
+                />
+              )}
+              
+              {errors.colegio && (
+                <p className="text-red-500 text-sm mt-1">{errors.colegio}</p>
+              )}
+              
+              {/* Checkbox "No encontré mi colegio" */}
+              <div className="flex items-center gap-2 mt-2">
+                <input
+                  type="checkbox"
+                  id="noEncontreColegio"
+                  checked={noEncontre}
+                  onChange={(e) => {
+                    const isChecked = e.target.checked;
+                    setNoEncontre(isChecked);
+                    if (isChecked) {
+                      handleInputChange("estudiante", "colegio", ""); // Limpiar valor al cambiar
+                    }
+                  }}
+                />
+                <label htmlFor="noEncontreColegio" className="text-sm text-gray-600">
+                  No encontré mi colegio
+                </label>
+              </div>
+            </div>
 
             <SelectField
               label="Curso"
@@ -448,26 +517,7 @@ export default function InscripcionEstudiante({
         <button
           type="button"
           onClick={handleSubmitAndNext}
-          disabled={
-            isSubmitting ||
-            !formData.estudiante?.nombres ||
-            !formData.estudiante?.ci ||
-            !formData.estudiante?.apellidoPaterno ||
-            !formData.estudiante?.apellidoMaterno ||
-            !formData.estudiante?.fechaNacimiento ||
-            !formData.estudiante?.correo ||
-            !formData.estudiante?.colegio ||
-            !formData.estudiante?.curso ||
-            !formData.estudiante?.departamentoSeleccionado ||
-            !formData.estudiante?.distrito ||
-            !formData.estudiante?.correoPertenece ||
-            formData.estudiante?.ci.length < 7 ||
-            formData.estudiante?.nombres.length < 2 ||
-            formData.estudiante?.apellidoMaterno.length < 2 ||
-            formData.estudiante?.apellidoPaterno.length < 2 ||
-            formData.estudiante?.colegio.length < 2 ||
-            formData.estudiante?.nombres.split(" ").length > 2
-          }
+          disabled={!isFormValid}
           className={`px-6 py-2 transition duration-300 ease-in-out text-white rounded-md shadow-md ${
             isFormValid
               ? "bg-blue-500 hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500"
