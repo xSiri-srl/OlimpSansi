@@ -171,7 +171,7 @@ function DescargarListas() {
               value={area}
               onChange={(e) => setArea(e.target.value)}
             >
-              <option value="">-- Selecciona --</option>
+              <option value="">Todo</option>
               {Object.keys(datos).map((key) => (
                 <option key={key} value={key}>
                   {key.charAt(0).toUpperCase() + key.slice(1)}
@@ -195,7 +195,7 @@ function DescargarListas() {
               onChange={(e) => setCurso(e.target.value)}
               className="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm text-gray-700"
             >
-              <option value="">-- Selecciona --</option>
+              <option value="">Todo</option>
               {[...new Set(categorias.map((cat) => cat.split(" - ")[1]))].map(
                 (curso, index) => (
                   <option key={index} value={curso}>
@@ -221,7 +221,7 @@ function DescargarListas() {
               value={categoria}
               onChange={(e) => setCategoria(e.target.value)}
             >
-              <option value="">-- Selecciona --</option>
+              <option value="">Todo</option>
               {categorias.map((cat, index) => (
                 <option key={index} value={cat.split(" - ")[0]}>
                   {cat.split(" - ")[0]}
@@ -245,7 +245,7 @@ function DescargarListas() {
               value={colegio}
               onChange={(e) => setColegio(e.target.value)}
             >
-              <option value="">-- Selecciona --</option>
+              <option value="">Todo</option>
               {[...new Set(inscritos.map((item) => item.colegio))].map(
                 (colegioName, idx) => (
                   <option key={idx} value={colegioName}>
@@ -269,7 +269,7 @@ function DescargarListas() {
               }}
               className="p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm text-gray-700"
             >
-              <option value="">Seleccionar departamento</option>
+              <option value="">Todo</option>
               {Object.keys(departamentos).map((dep) => (
                 <option key={dep} value={dep}>
                   {dep}
@@ -289,7 +289,7 @@ function DescargarListas() {
               disabled={!departamentoSeleccionado}
               className="p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm text-gray-700 bg-white disabled:bg-gray-100"
             >
-              <option value="">Seleccionar provincia</option>
+              <option value="">Todo</option>
               {provincias.map((prov) => (
                 <option key={prov} value={prov}>
                   {prov}
