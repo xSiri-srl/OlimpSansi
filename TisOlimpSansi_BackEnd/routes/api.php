@@ -135,6 +135,6 @@ Route::post('/inscribir-lista', [InscripcionController::class, 'registrarLista']
 
 Route::get('/lista-inscritos', [InscripcionController::class, 'listarInscritos']);
 
-
+Route::get('/ordenes-recientes', [OrdenPagoController::class, 'obtenerOrdenesConResponsable']);
 Route::post('/colegios/filtro', [ColegioController::class, 'getByFiltro']);
 

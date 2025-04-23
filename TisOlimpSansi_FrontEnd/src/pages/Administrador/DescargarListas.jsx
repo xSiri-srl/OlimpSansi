@@ -1,4 +1,4 @@
-import React, { useState, useEffect  } from "react";
+import React, { useState, useEffect } from "react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
@@ -25,11 +25,7 @@ const datos = {
     "5S - 5TO SECUNDARIA",
     "6S - 6TO SECUNDARIA",
   ],
-  FISICA: [
-    "4S - 4TO SECUNDARIA",
-    "5S - 5TO SECUNDARIA",
-    "6S - 6TO SECUNDARIA"
-  ],
+  FISICA: ["4S - 4TO SECUNDARIA", "5S - 5TO SECUNDARIA", "6S - 6TO SECUNDARIA"],
   INFORMATICA: [
     "GUACAMAYO - 5TO A 6TO PRIMARIA",
     "GUANACO - 1RO A 3RO SECUNDARIA",
@@ -61,26 +57,13 @@ const datos = {
   ],
 };
 
-
 const departamentos = {
   "La Paz": ["Murillo", "Pacajes", "Los Andes", "Larecaja", "Ingavi"],
   Cochabamba: ["Cercado", "Quillacollo", "Chapare", "Arani", "Ayopaya"],
   "Santa Cruz": ["Andrés Ibáñez", "Warnes", "Ichilo", "Sara", "Vallegrande"],
   Oruro: ["Cercado", "Sajama", "Sabaya", "Litoral", "Pantaleón Dalence"],
-  Potosí: [
-    "Tomás Frías",
-    "Charcas",
-    "Chayanta",
-    "Nor Chichas",
-    "Sur Chichas",
-  ],
-  Chuquisaca: [
-    "Oropeza",
-    "Zudáñez",
-    "Tomina",
-    "Belisario Boeto",
-    "Nor Cinti",
-  ],
+  Potosí: ["Tomás Frías", "Charcas", "Chayanta", "Nor Chichas", "Sur Chichas"],
+  Chuquisaca: ["Oropeza", "Zudáñez", "Tomina", "Belisario Boeto", "Nor Cinti"],
   Tarija: ["Cercado", "Gran Chaco", "O'Connor", "Avilés", "Arce"],
   Beni: ["Cercado", "Moxos", "Vaca Díez", "Marbán", "Yacuma"],
   Pando: [
@@ -101,7 +84,6 @@ function DescargarListas() {
   const [colegio, setColegio] = useState("");
   const [fecha, setFecha] = useState("");
 
-
   const [inscritos, setInscritos] = useState([]);
   const [departamentoSeleccionado, setDepartamentoSeleccionado] = useState("");
   const [provinciaSeleccionada, setProvinciaSeleccionada] = useState("");
@@ -121,13 +103,14 @@ function DescargarListas() {
 
   useEffect(() => {
     axios.get("http://localhost:8000/api/lista-inscritos").then((response) => {
-      setInscritos(response.data); 
+      setInscritos(response.data);
     });
   }, []);
 
   const resultadosFiltrados = inscritos.filter((inscrito) => {
     return (
-      (area === "" || inscrito.nombre_area?.toLowerCase() === area.toLowerCase()) &&
+      (area === "" ||
+        inscrito.nombre_area?.toLowerCase() === area.toLowerCase()) &&
       (curso === "" || inscrito.curso?.toLowerCase() === curso.toLowerCase()) &&
       (categoria === "" || inscrito.categoria?.toLowerCase() === categoria.toLowerCase()) &&
       (colegio === "" || inscrito.colegio?.toLowerCase() === colegio.toLowerCase()) &&
@@ -136,8 +119,6 @@ function DescargarListas() {
       (provinciaSeleccionada === "" || inscrito.provincia === provinciaSeleccionada)
     );
   });
-  
-  
 
   const descargarPDF = () => {
     const doc = new jsPDF();
@@ -183,12 +164,15 @@ function DescargarListas() {
       <h1 className="text-sky-950 font-bold text-3xl mb-6 p-6 text-center">
         Descargar lista de inscritos
       </h1>
-  
+
       <div className="w-full max-w-4xl mx-auto bg-sky-50 p-6 rounded-2xl shadow-lg">
         <div className="flex flex-col md:flex-row gap-4">
           {/* Área */}
           <div className="flex-1">
-            <label htmlFor="area" className="block mb-2 text-sm font-semibold text-gray-700">
+            <label
+              htmlFor="area"
+              className="block mb-2 text-sm font-semibold text-gray-700"
+            >
               Área
             </label>
             <select
@@ -198,7 +182,7 @@ function DescargarListas() {
               value={area}
               onChange={(e) => setArea(e.target.value)}
             >
-              <option value="">-- Selecciona --</option>
+              <option value="">Todo</option>
               {Object.keys(datos).map((key) => (
                 <option key={key} value={key}>
                   {key.charAt(0).toUpperCase() + key.slice(1)}
@@ -206,10 +190,13 @@ function DescargarListas() {
               ))}
             </select>
           </div>
-  
+
           {/* Curso */}
           <div className="flex-1">
-            <label htmlFor="curso" className="block mb-2 text-sm font-semibold text-gray-700">
+            <label
+              htmlFor="curso"
+              className="block mb-2 text-sm font-semibold text-gray-700"
+            >
               Curso
             </label>
             <select
@@ -219,18 +206,23 @@ function DescargarListas() {
               onChange={(e) => setCurso(e.target.value)}
               className="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm text-gray-700"
             >
-              <option value="">-- Selecciona --</option>
-              {[...new Set(categorias.map((cat) => cat.split(" - ")[1]))].map((curso, index) => (
-                <option key={index} value={curso}>
-                  {curso}
-                </option>
-              ))}
+              <option value="">Todo</option>
+              {[...new Set(categorias.map((cat) => cat.split(" - ")[1]))].map(
+                (curso, index) => (
+                  <option key={index} value={curso}>
+                    {curso}
+                  </option>
+                )
+              )}
             </select>
           </div>
-  
+
           {/* Categoría */}
           <div className="flex-1">
-            <label htmlFor="categoria" className="block mb-2 text-sm font-semibold text-gray-700">
+            <label
+              htmlFor="categoria"
+              className="block mb-2 text-sm font-semibold text-gray-700"
+            >
               Categoría
             </label>
             <select
@@ -240,7 +232,7 @@ function DescargarListas() {
               value={categoria}
               onChange={(e) => setCategoria(e.target.value)}
             >
-              <option value="">-- Selecciona --</option>
+              <option value="">Todo</option>
               {categorias.map((cat, index) => (
                 <option key={index} value={cat.split(" - ")[0]}>
                   {cat.split(" - ")[0]}
@@ -248,10 +240,13 @@ function DescargarListas() {
               ))}
             </select>
           </div>
-  
+
           {/* colegio */}
           <div className="flex-1">
-            <label htmlFor="colegio" className="block mb-2 text-sm font-semibold text-gray-700">
+            <label
+              htmlFor="colegio"
+              className="block mb-2 text-sm font-semibold text-gray-700"
+            >
               Colegio
             </label>
             <select
@@ -261,12 +256,14 @@ function DescargarListas() {
               value={colegio}
               onChange={(e) => setColegio(e.target.value)}
             >
-              <option value="">-- Selecciona --</option>
-              {[...new Set(inscritos.map((item) => item.colegio))].map((colegioName, idx) => (
-                <option key={idx} value={colegioName}>
-                  {colegioName}
-                </option>
-              ))}
+              <option value="">Todo</option>
+              {[...new Set(inscritos.map((item) => item.colegio))].map(
+                (colegioName, idx) => (
+                  <option key={idx} value={colegioName}>
+                    {colegioName}
+                  </option>
+                )
+              )}
             </select>
           </div>
   
@@ -317,20 +314,29 @@ function DescargarListas() {
 
         </div>
       </div>
-  
+
       {resultadosFiltrados.length > 0 ? (
         <div className="mt-6 flex justify-center">
           <div className="overflow-x-auto w-full max-w-6xl">
             <table className="min-w-max border border-gray-300 text-sm text-left">
               <thead>
                 <tr>
-                  <th colSpan="13" className="py-2 px-4 border border-gray-300 font-semibold bg-green-200 text-center">
+                  <th
+                    colSpan="13"
+                    className="py-2 px-4 border border-gray-300 font-semibold bg-green-200 text-center"
+                  >
                     Datos del competidor
                   </th>
-                  <th colSpan="7" className="py-2 px-4 border border-gray-300 font-semibold bg-blue-200 text-center">
+                  <th
+                    colSpan="7"
+                    className="py-2 px-4 border border-gray-300 font-semibold bg-blue-200 text-center"
+                  >
                     Datos del tutor legal
                   </th>
-                  <th colSpan="5" className="py-2 px-4 border border-gray-300 font-semibold bg-purple-200 text-center">
+                  <th
+                    colSpan="5"
+                    className="py-2 px-4 border border-gray-300 font-semibold bg-purple-200 text-center"
+                  >
                     Datos del tutor académico
                   </th>
                 </tr>
@@ -366,7 +372,7 @@ function DescargarListas() {
                     if (idx < 13) bgColor = "bg-green-100";
                     else if (idx < 20) bgColor = "bg-blue-100";
                     else bgColor = "bg-purple-100";
-  
+
                     return (
                       <th
                         key={idx}
@@ -381,31 +387,67 @@ function DescargarListas() {
               <tbody>
                 {resultadosFiltrados.map((inscritos, index) => (
                   <tr key={index} className="hover:bg-gray-50">
-                    <td className="px-4 py-2 border">{inscritos.apellido_pa}</td>
-                    <td className="px-4 py-2 border">{inscritos.apellido_ma}</td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.apellido_pa}
+                    </td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.apellido_ma}
+                    </td>
                     <td className="px-4 py-2 border">{inscritos.nombre}</td>
                     <td className="px-4 py-2 border">{inscritos.ci}</td>
-                    <td className="px-4 py-2 border">{inscritos.fecha_nacimiento}</td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.fecha_nacimiento}
+                    </td>
                     <td className="px-4 py-2 border">{inscritos.correo}</td>
-                    <td className="px-4 py-2 border">{inscritos.propietario_correo}</td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.propietario_correo}
+                    </td>
                     <td className="px-4 py-2 border">{inscritos.curso}</td>
-                    <td className="px-4 py-2 border">{inscritos.nombre_area}</td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.nombre_area}
+                    </td>
                     <td className="px-4 py-2 border">{inscritos.categoria}</td>
                     <td className="px-4 py-2 border">{inscritos.colegio}</td>
-                    <td className="px-4 py-2 border">{inscritos.departamento}</td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.departamento}
+                    </td>
                     <td className="px-4 py-2 border">{inscritos.provincia}</td>
-                    <td className="px-4 py-2 border">{inscritos.rol_tutor_legal}</td>
-                    <td className="px-4 py-2 border">{inscritos.tutor_legal_apellido_pa}</td>
-                    <td className="px-4 py-2 border">{inscritos.tutor_legal_apellido_ma}</td>
-                    <td className="px-4 py-2 border">{inscritos.tutor_legal_nombre}</td>
-                    <td className="px-4 py-2 border">{inscritos.tutor_legal_ci}</td>
-                    <td className="px-4 py-2 border">{inscritos.tutor_legal_correo}</td>
-                    <td className="px-4 py-2 border">{inscritos.tutor_legal_telefono}</td>
-                    <td className="px-4 py-2 border">{inscritos.tutor_academico_apellido_pa}</td>
-                    <td className="px-4 py-2 border">{inscritos.tutor_academico_apellido_ma}</td>
-                    <td className="px-4 py-2 border">{inscritos.tutor_academico_nombre}</td>
-                    <td className="px-4 py-2 border">{inscritos.tutor_academico_ci}</td>
-                    <td className="px-4 py-2 border">{inscritos.tutor_academico_correo}</td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.rol_tutor_legal}
+                    </td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.tutor_legal_apellido_pa}
+                    </td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.tutor_legal_apellido_ma}
+                    </td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.tutor_legal_nombre}
+                    </td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.tutor_legal_ci}
+                    </td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.tutor_legal_correo}
+                    </td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.tutor_legal_telefono}
+                    </td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.tutor_academico_apellido_pa}
+                    </td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.tutor_academico_apellido_ma}
+                    </td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.tutor_academico_nombre}
+                    </td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.tutor_academico_ci}
+                    </td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.tutor_academico_correo}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -413,9 +455,11 @@ function DescargarListas() {
           </div>
         </div>
       ) : (
-        <p className="mt-6 text-center text-gray-600">No se encontraron resultados.</p>
+        <p className="mt-6 text-center text-gray-600">
+          No se encontraron resultados.
+        </p>
       )}
-  
+
       {resultadosFiltrados.length > 0 && (
         <div className="flex justify-end mt-6 gap-2 mb-4">
           <button
@@ -434,7 +478,6 @@ function DescargarListas() {
       )}
     </div>
   );
-  
 }
 
 export default DescargarListas;
