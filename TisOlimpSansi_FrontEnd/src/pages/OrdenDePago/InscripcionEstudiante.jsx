@@ -19,8 +19,7 @@ import {
   TextField,
   SelectField,
   RadioGroupField,
-  DateField,
-  AutocompleteField
+  DateField
 } from "./components/FormComponents";
 
 export default function InscripcionEstudiante({
