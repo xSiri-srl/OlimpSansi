@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { ResponsiveLine } from "@nivo/line";
-//import axios from "axios";
+import axios from "axios";
 import { FaUsers, FaFileInvoiceDollar, FaCheckCircle, FaUserGraduate } from "react-icons/fa";
 import DarkModeToggle from "./components/DarkModeToggle";
 import OrdenesRecientes from "./components/OrdenesRecientes";
@@ -152,72 +152,116 @@ const PanelDatos = () => {
   });
   const [loading, setLoading] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
+  const [error, setError] = useState(null);
   
   const toggleDarkMode = () => {
     setDarkMode(prevMode => !prevMode);
   };
   
+  const API_BASE_URL = "http://localhost:8000/api";
+  
   useEffect(() => {
-    // Simulación de datos para demostración
-    setTimeout(() => {
-      const mockData = [
-        {
-          id: "Órdenes de Pago",
-          color: "hsl(240, 70%, 50%)",
-          data: [
-            { x: "Ene", y: 20 },
-            { x: "Feb", y: 25 },
-            { x: "Mar", y: 35 },
-            { x: "Abr", y: 45 },
-            { x: "May", y: 40 },
-            { x: "Jun", y: 50 },
-          ],
-        },
-        {
-          id: "Pre-inscritos",
-          color: "hsl(120, 70%, 50%)",
-          data: [
-            { x: "Ene", y: 15 },
-            { x: "Feb", y: 20 },
-            { x: "Mar", y: 30 },
-            { x: "Abr", y: 40 },
-            { x: "May", y: 35 },
-            { x: "Jun", y: 45 },
-          ],
-        },
-        {
-          id: "Inscritos Verificados",
-          color: "hsl(40, 70%, 50%)",
-          data: [
-            { x: "Ene", y: 10 },
-            { x: "Feb", y: 15 },
-            { x: "Mar", y: 25 },
-            { x: "Abr", y: 30 },
-            { x: "May", y: 25 },
-            { x: "Jun", y: 35 },
-          ],
-        },
-      ];
-      
-      setChartData(mockData);
-      
-      setStats({
-        ordenesPago: 215,
-        estudiantesRegistrados: 185,
-        estudiantesInscritos: 165,
-        totalInscritos: 165,
-        ordenesPagadas: 165, 
-        ordenesPendientes: 50, 
-      });
-      
-      setLoading(false);
-    }, 1000);
+    // Función para cargar los datos de la API
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        
+        // Obtener lista de todos los inscritos
+        const inscritosResponse = await axios.get(`${API_BASE_URL}/lista-inscritos`);
+        
+        // Obtener información de todas las órdenes de pago
+        // Nota: Asumimos que hay un endpoint para obtener todas las órdenes, si no existe
+        // sería necesario crear uno en el backend
+        const ordenesPagoResponse = await axios.get(`${API_BASE_URL}/orden-pago`);
+        
+        // Procesar datos para estadísticas
+        const ordenes = ordenesPagoResponse.data;
+        const inscritos = inscritosResponse.data;
+        
+        // Contar órdenes de pago verificadas (con comprobante) y pendientes
+        const ordenesPagadas = ordenes.filter(orden => orden.numero_comprobante !== null).length;
+        const ordenesPendientes = ordenes.length - ordenesPagadas;
+        
+        // Guardar estadísticas
+        setStats({
+          ordenesPago: ordenes.length,
+          estudiantesRegistrados: ordenesPendientes,  // Pre-inscritos (sin verificar)
+          estudiantesInscritos: ordenesPagadas,       // Inscritos verificados
+          totalInscritos: inscritos.length,
+          ordenesPagadas: ordenesPagadas,
+          ordenesPendientes: ordenesPendientes,
+        });
+        
+        // Procesar datos para el gráfico de líneas
+        // Aquí necesitaríamos datos históricos mes a mes
+        // Por ahora, usaremos datos de ejemplo que siguen la misma estructura
+        // En un entorno real, deberíamos obtener estos datos del backend
+        const mockChartData = [
+          {
+            id: "Órdenes de Pago",
+            color: "hsl(240, 70%, 50%)",
+            data: [
+              { x: "Ene", y: Math.floor(ordenes.length * 0.4) },
+              { x: "Feb", y: Math.floor(ordenes.length * 0.5) },
+              { x: "Mar", y: Math.floor(ordenes.length * 0.7) },
+              { x: "Abr", y: Math.floor(ordenes.length * 0.9) },
+              { x: "May", y: Math.floor(ordenes.length * 0.8) },
+              { x: "Jun", y: ordenes.length },
+            ],
+          },
+          {
+            id: "Pre-inscritos",
+            color: "hsl(120, 70%, 50%)",
+            data: [
+              { x: "Ene", y: Math.floor(ordenesPendientes * 0.3) },
+              { x: "Feb", y: Math.floor(ordenesPendientes * 0.4) },
+              { x: "Mar", y: Math.floor(ordenesPendientes * 0.6) },
+              { x: "Abr", y: Math.floor(ordenesPendientes * 0.8) },
+              { x: "May", y: Math.floor(ordenesPendientes * 0.7) },
+              { x: "Jun", y: ordenesPendientes },
+            ],
+          },
+          {
+            id: "Inscritos Verificados",
+            color: "hsl(40, 70%, 50%)",
+            data: [
+              { x: "Ene", y: Math.floor(ordenesPagadas * 0.2) },
+              { x: "Feb", y: Math.floor(ordenesPagadas * 0.3) },
+              { x: "Mar", y: Math.floor(ordenesPagadas * 0.5) },
+              { x: "Abr", y: Math.floor(ordenesPagadas * 0.6) },
+              { x: "May", y: Math.floor(ordenesPagadas * 0.5) },
+              { x: "Jun", y: ordenesPagadas },
+            ],
+          },
+        ];
+        
+        setChartData(mockChartData);
+        
+      } catch (error) {
+        console.error("Error al cargar datos:", error);
+        setError("Error al cargar datos del servidor");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-red-500 text-xl">
+          {error}
+        </div>
       </div>
     );
   }
