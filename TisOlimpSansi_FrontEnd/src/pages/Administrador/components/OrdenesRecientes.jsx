@@ -1,62 +1,91 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { FaCircle } from "react-icons/fa";
+import axios from "axios";
 
 const OrdenesRecientes = ({ darkMode }) => {
-  const mockOrders = [
-    {
-      id: "TSOL-2025-001",
-      responsable: "María Fernanda López",
-      fecha: "20 Abr 2025",
-      monto: 350,
-      estado: "pagado"
-    },
-    {
-      id: "TSOL-2025-002",
-      responsable: "Carlos Eduardo Pérez",
-      fecha: "19 Abr 2025",
-      monto: 450,
-      estado: "pendiente"
-    },
-    {
-      id: "TSOL-2025-003",
-      responsable: "Ana Lucía Rodríguez",
-      fecha: "18 Abr 2025",
-      monto: 250,
-      estado: "pagado"
-    },
-    {
-      id: "TSOL-2025-004",
-      responsable: "José Miguel Torres",
-      fecha: "17 Abr 2025",
-      monto: 550,
-      estado: "pendiente"
-    },
-    {
-      id: "TSOL-2025-005",
-      responsable: "Laura Valentina Paz",
-      fecha: "16 Abr 2025",
-      monto: 300,
-      estado: "pagado"
-    },
-    {
-      id: "TSOL-2025-006",
-      responsable: "Roberto Carlos Méndez",
-      fecha: "15 Abr 2025",
-      monto: 400,
-      estado: "pendiente"
-    }
-  ];
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
+  const API_BASE_URL = "http://localhost:8000/api";
+
+  useEffect(() => {
+    const fetchOrdenesRecientes = async () => {
+      try {
+        setLoading(true);
+        
+        // Usar el endpoint optimizado para órdenes recientes
+        const response = await axios.get(`${API_BASE_URL}/ordenes-recientes`);
+        
+        // Establecer las órdenes directamente desde la respuesta
+        setOrders(response.data);
+        
+      } catch (err) {
+        console.error("Error al cargar órdenes recientes:", err);
+        setError("Error al cargar datos del servidor");
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchOrdenesRecientes();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className={`${darkMode ? "bg-gray-800" : "bg-white"} rounded-lg shadow-md overflow-hidden`}>
+        <div className={`${darkMode ? "bg-gray-700" : "bg-gray-50"} px-6 py-4 border-b ${darkMode ? "border-gray-700" : "border-gray-200"}`}>
+          <h3 className={`text-lg font-semibold ${darkMode ? "text-white" : "text-gray-800"}`}>
+            Órdenes de Pago Recientes
+          </h3>
+        </div>
+        <div className="p-6 flex justify-center items-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={`${darkMode ? "bg-gray-800" : "bg-white"} rounded-lg shadow-md overflow-hidden`}>
+        <div className={`${darkMode ? "bg-gray-700" : "bg-gray-50"} px-6 py-4 border-b ${darkMode ? "border-gray-700" : "border-gray-200"}`}>
+          <h3 className={`text-lg font-semibold ${darkMode ? "text-white" : "text-gray-800"}`}>
+            Órdenes de Pago Recientes
+          </h3>
+        </div>
+        <div className="p-6 text-center text-red-500">
+          {error}
+        </div>
+      </div>
+    );
+  }
+
+  if (orders.length === 0) {
+    return (
+      <div className={`${darkMode ? "bg-gray-800" : "bg-white"} rounded-lg shadow-md overflow-hidden`}>
+        <div className={`${darkMode ? "bg-gray-700" : "bg-gray-50"} px-6 py-4 border-b ${darkMode ? "border-gray-700" : "border-gray-200"}`}>
+          <h3 className={`text-lg font-semibold ${darkMode ? "text-white" : "text-gray-800"}`}>
+            Órdenes de Pago Recientes
+          </h3>
+        </div>
+        <div className="p-6 text-center text-gray-500">
+          No hay órdenes de pago en los últimos 7 días
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`${darkMode ? "bg-gray-800" : "bg-white"} rounded-lg shadow-md overflow-hidden`}>
       <div className={`${darkMode ? "bg-gray-700" : "bg-gray-50"} px-6 py-4 border-b ${darkMode ? "border-gray-700" : "border-gray-200"}`}>
         <h3 className={`text-lg font-semibold ${darkMode ? "text-white" : "text-gray-800"}`}>
-          Órdenes de Pago Recientes
+          Órdenes de Pago Recientes (últimos 7 días)
         </h3>
       </div>
       
       <div className="overflow-auto max-h-[400px]">
-        {mockOrders.map((order) => (
+        {orders.map((order) => (
           <div 
             key={order.id}
             className={`px-6 py-4 flex justify-between items-center border-b ${
