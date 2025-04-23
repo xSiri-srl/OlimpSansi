@@ -20,6 +20,7 @@ import {
   SelectField,
   RadioGroupField,
   DateField,
+  AutocompleteField
 } from "./components/FormComponents";
 
 export default function InscripcionEstudiante({
@@ -142,15 +143,6 @@ export default function InscripcionEstudiante({
   const validateEmail = (email) => {
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return validateInput(email, "correo", emailRegex);
-  };
-
-  // Manejador de cambios para campos con validación
-  const handleValidatedChange = (namespace, field, value, regex) => {
-    if (value.startsWith(" ")) return;
-    if (regex.test(value) || value === "") {
-      handleInputChange(namespace, field, value);
-      setErrors((prev) => ({ ...prev, [field]: "" }));
-    }
   };
 
   // Manejador para enviar el formulario y avanzar
@@ -433,61 +425,41 @@ export default function InscripcionEstudiante({
             Datos del Colegio
           </h3>
           <div className="space-y-4 w-full max-w-md">
-            {/* Departamento - Usando la lista de departamentos de la API */}
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <FaMapMarkedAlt className="text-black" />
-                <label>Departamento</label>
-              </div>
-              <select
-                name="departamento"
-                className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                value={formData.estudiante?.departamentoSeleccionado || ""}
-                onChange={(e) => {
-                  handleInputChange("estudiante", "departamentoSeleccionado", e.target.value);
-                  handleInputChange("estudiante", "distrito", ""); // Reiniciar distrito
-                  handleInputChange("estudiante", "colegio", ""); // Reiniciar colegio
-                  setBusquedaColegio(""); // Limpiar búsqueda
-                }}
-              >
-                <option value="">Seleccione un Departamento</option>
-                {departamentosList.map(dep => (
-                  <option key={dep} value={dep}>{dep}</option>
-                ))}
-              </select>
-              {errors.departamento && (
-                <p className="text-red-500 text-sm mt-1">{errors.departamento}</p>
-              )}
-            </div>
+            {/* Departamento - Usando nuestro componente SelectField */}
+            <SelectField
+              label="Departamento"
+              icon={<FaMapMarkedAlt className="text-black" />}
+              name="departamentoSeleccionado"
+              value={formData.estudiante?.departamentoSeleccionado || ""}
+              onChange={(value) => {
+                handleInputChange("estudiante", "departamentoSeleccionado", value);
+                handleInputChange("estudiante", "distrito", "");
+                handleInputChange("estudiante", "colegio", "");
+                setBusquedaColegio("");
+              }}
+              options={departamentosList}
+              error={errors.departamento}
+              placeholder="Seleccione un Departamento"
+            />
 
-            {/* Distrito - Usando la lista filtrada por departamento */}
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <FaMapMarkedAlt className="text-black" />
-                <label>Distrito</label>
-              </div>
-              <select
-                name="distrito"
-                className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                value={formData.estudiante?.distrito || ""}
-                onChange={(e) => {
-                  handleInputChange("estudiante", "distrito", e.target.value);
-                  handleInputChange("estudiante", "colegio", ""); // Reiniciar colegio
-                  setBusquedaColegio(""); // Limpiar búsqueda
-                }}
-                disabled={!formData.estudiante?.departamentoSeleccionado}
-              >
-                <option value="">Seleccione un Distrito</option>
-                {distritosList.map(dist => (
-                  <option key={dist} value={dist}>{dist}</option>
-                ))}
-              </select>
-              {errors.distrito && (
-                <p className="text-red-500 text-sm mt-1">{errors.distrito}</p>
-              )}
-            </div>
+            {/* Distrito - Usando nuestro componente SelectField */}
+            <SelectField
+              label="Distrito"
+              icon={<FaMapMarkedAlt className="text-black" />}
+              name="distrito"
+              value={formData.estudiante?.distrito || ""}
+              onChange={(value) => {
+                handleInputChange("estudiante", "distrito", value);
+                handleInputChange("estudiante", "colegio", "");
+                setBusquedaColegio("");
+              }}
+              options={distritosList}
+              error={errors.distrito}
+              placeholder="Seleccione un Distrito"
+              disabled={!formData.estudiante?.departamentoSeleccionado}
+            />
 
-            {/* Colegio - Con autocompletado */}
+            {/* Componente de Autocompletado para colegios */}
             <div className="relative">
               <div className="flex items-center gap-2 mb-1">
                 <FaSchool className="text-black" />
@@ -495,29 +467,27 @@ export default function InscripcionEstudiante({
               </div>
               
               <div className="relative">
-                <div className="flex items-center">
-                  <input
-                    type="text"
-                    className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                    placeholder="Ingresar nombre de la unidad educativa"
-                    value={busquedaColegio}
-                    onChange={(e) => actualizarSugerencias(e.target.value)}
-                    onFocus={() => {
-                      if (busquedaColegio.length >= 2) setMostrarSugerencias(true);
+                <input
+                  type="text"
+                  className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  placeholder="Ingresar nombre de la unidad educativa"
+                  value={busquedaColegio}
+                  onChange={(e) => actualizarSugerencias(e.target.value)}
+                  onFocus={() => {
+                    if (busquedaColegio.length >= 2) setMostrarSugerencias(true);
+                  }}
+                  disabled={!formData.estudiante?.distrito}
+                />
+                {busquedaColegio && (
+                  <FaTimesCircle 
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 cursor-pointer"
+                    onClick={() => {
+                      setBusquedaColegio("");
+                      handleInputChange("estudiante", "colegio", "");
+                      setMostrarSugerencias(false);
                     }}
-                    disabled={!formData.estudiante?.distrito}
                   />
-                  {busquedaColegio && (
-                    <FaTimesCircle 
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 cursor-pointer"
-                      onClick={() => {
-                        setBusquedaColegio("");
-                        handleInputChange("estudiante", "colegio", "");
-                        setMostrarSugerencias(false);
-                      }}
-                    />
-                  )}
-                </div>
+                )}
                 
                 {/* Sugerencias */}
                 {mostrarSugerencias && (
