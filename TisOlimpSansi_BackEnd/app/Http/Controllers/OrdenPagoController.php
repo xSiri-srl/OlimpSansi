@@ -26,51 +26,7 @@ use Illuminate\Support\Facades\Log;
 use thiagoalessio\TesseractOCR\UnsuccessfulCommandException;
 class OrdenPagoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(OrdenPago $ordenPago)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, OrdenPago $ordenPago)
-    {
-
-    }
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(OrdenPago $ordenPago)
-    {
-        //
-    }
-
-    /**
-     * Genera un código único con formato TSOL-YYYY-XXXXXX donde XXXXXX son 6 letras mayúsculas
-     * 
-     * @return string
-     */
-    
     public function generarYGuardarOrdenPagoPDF(Request $request)
     {
         $validated = $request->validate([
@@ -361,7 +317,12 @@ class OrdenPagoController extends Controller
         ]);
     }
     
-
+    public function obtenerOrdenPago()
+{
+    $ordenesPago = OrdenPago::all();
+    
+    return response()->json($ordenesPago);
+}
 
 
 }
