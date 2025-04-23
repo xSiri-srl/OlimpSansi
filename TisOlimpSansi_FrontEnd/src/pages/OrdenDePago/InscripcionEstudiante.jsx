@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import {
   FaUserAlt,
@@ -10,6 +10,8 @@ import {
   FaSchool,
   FaBuilding,
   FaMapMarkedAlt,
+  FaSearch,
+  FaTimesCircle
 } from "react-icons/fa";
 import { useFormData } from "./form-data-context";
 import { validateBirthDate } from "./utils/dateValidation";
@@ -35,7 +37,26 @@ export default function InscripcionEstudiante({
   const [departamentosList, setDepartamentosList] = useState([]);
   const [distritosList, setDistritosList] = useState([]);
   const [colegiosFiltrados, setColegiosFiltrados] = useState([]);
-  const [noEncontre, setNoEncontre] = useState(false);
+  const [sugerencias, setSugerencias] = useState([]);
+  const [mostrarSugerencias, setMostrarSugerencias] = useState(false);
+  const [busquedaColegio, setBusquedaColegio] = useState("");
+  const [esNuevoColegio, setEsNuevoColegio] = useState(false);
+  
+  const sugerenciasRef = useRef(null);
+
+  // Detector de clics fuera del componente de sugerencias
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (sugerenciasRef.current && !sugerenciasRef.current.contains(event.target)) {
+        setMostrarSugerencias(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   // Cargar datos de colegios al iniciar
   useEffect(() => {
@@ -66,6 +87,40 @@ export default function InscripcionEstudiante({
 
     setColegiosFiltrados([...new Set(colegios)]);
   }, [formData.estudiante?.distrito, formData.estudiante?.departamentoSeleccionado, colegiosData]);
+
+  // Actualizar sugerencias cuando cambia el texto de búsqueda
+  const actualizarSugerencias = (texto) => {
+    setBusquedaColegio(texto);
+    
+    if (!texto || texto.length < 2) {
+      setSugerencias([]);
+      setMostrarSugerencias(false);
+      return;
+    }
+    
+    const filtrados = colegiosFiltrados.filter(
+      colegio => colegio.toLowerCase().includes(texto.toLowerCase())
+    );
+    
+    setSugerencias(filtrados);
+    setMostrarSugerencias(true);
+    setEsNuevoColegio(filtrados.length === 0);
+    
+    // Si hay una coincidencia exacta o no hay coincidencias, actualizar el valor del colegio
+    if (filtrados.length === 1 && filtrados[0].toLowerCase() === texto.toLowerCase()) {
+      handleInputChange("estudiante", "colegio", filtrados[0]);
+    } else if (filtrados.length === 0) {
+      handleInputChange("estudiante", "colegio", texto);
+    }
+  };
+
+  // Seleccionar una sugerencia
+  const seleccionarSugerencia = (sugerencia) => {
+    setBusquedaColegio(sugerencia);
+    handleInputChange("estudiante", "colegio", sugerencia);
+    setMostrarSugerencias(false);
+    setEsNuevoColegio(false);
+  };
 
   // Función para validar campos de entrada
   const validateInput = (value, fieldName, regex) => {
@@ -195,6 +250,7 @@ export default function InscripcionEstudiante({
           departamento: formData.estudiante?.departamentoSeleccionado,
           distrito: formData.estudiante?.distrito,
           curso: formData.estudiante?.curso,
+          es_nuevo: esNuevoColegio
         },
       };
 
@@ -391,6 +447,7 @@ export default function InscripcionEstudiante({
                   handleInputChange("estudiante", "departamentoSeleccionado", e.target.value);
                   handleInputChange("estudiante", "distrito", ""); // Reiniciar distrito
                   handleInputChange("estudiante", "colegio", ""); // Reiniciar colegio
+                  setBusquedaColegio(""); // Limpiar búsqueda
                 }}
               >
                 <option value="">Seleccione un Departamento</option>
@@ -416,6 +473,7 @@ export default function InscripcionEstudiante({
                 onChange={(e) => {
                   handleInputChange("estudiante", "distrito", e.target.value);
                   handleInputChange("estudiante", "colegio", ""); // Reiniciar colegio
+                  setBusquedaColegio(""); // Limpiar búsqueda
                 }}
                 disabled={!formData.estudiante?.departamentoSeleccionado}
               >
@@ -429,58 +487,72 @@ export default function InscripcionEstudiante({
               )}
             </div>
 
-            {/* Colegio - Con opción para añadir manualmente */}
-            <div>
+            {/* Colegio - Con autocompletado */}
+            <div className="relative">
               <div className="flex items-center gap-2 mb-1">
                 <FaSchool className="text-black" />
-                <label>Nombre del Colegio</label>
+                <label>Nombre de la Unidad Educativa</label>
               </div>
               
-              {!noEncontre ? (
-                <select
-                  name="colegio"
-                  className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                  value={formData.estudiante?.colegio || ""}
-                  onChange={(e) => handleInputChange("estudiante", "colegio", e.target.value)}
-                  disabled={!formData.estudiante?.distrito}
-                >
-                  <option value="">Seleccione un Colegio</option>
-                  {colegiosFiltrados.map((colegio, idx) => (
-                    <option key={idx} value={colegio}>{colegio}</option>
-                  ))}
-                </select>
-              ) : (
-                <input
-                  type="text"
-                  className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                  placeholder="Nombre del Colegio"
-                  value={formData.estudiante?.colegio || ""}
-                  onChange={(e) => handleInputChange("estudiante", "colegio", e.target.value)}
-                />
+              <div className="relative">
+                <div className="flex items-center">
+                  <input
+                    type="text"
+                    className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    placeholder="Ingresar nombre de la unidad educativa"
+                    value={busquedaColegio}
+                    onChange={(e) => actualizarSugerencias(e.target.value)}
+                    onFocus={() => {
+                      if (busquedaColegio.length >= 2) setMostrarSugerencias(true);
+                    }}
+                    disabled={!formData.estudiante?.distrito}
+                  />
+                  {busquedaColegio && (
+                    <FaTimesCircle 
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 cursor-pointer"
+                      onClick={() => {
+                        setBusquedaColegio("");
+                        handleInputChange("estudiante", "colegio", "");
+                        setMostrarSugerencias(false);
+                      }}
+                    />
+                  )}
+                </div>
+                
+                {/* Sugerencias */}
+                {mostrarSugerencias && (
+                  <div 
+                    ref={sugerenciasRef}
+                    className="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg mt-1 max-h-48 overflow-y-auto"
+                  >
+                    {sugerencias.length > 0 ? (
+                      sugerencias.map((sugerencia, idx) => (
+                        <div 
+                          key={idx} 
+                          className="p-2 hover:bg-blue-100 cursor-pointer"
+                          onClick={() => seleccionarSugerencia(sugerencia)}
+                        >
+                          {sugerencia}
+                        </div>
+                      ))
+                    ) : (
+                      <div className="p-2 text-gray-500">
+                        No se encontraron colegios. Se registrará como nuevo.
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+              
+              {esNuevoColegio && busquedaColegio.length >= 2 && (
+                <p className="text-blue-500 text-sm mt-1">
+                  Se registrará un nuevo colegio con este nombre.
+                </p>
               )}
               
               {errors.colegio && (
                 <p className="text-red-500 text-sm mt-1">{errors.colegio}</p>
               )}
-              
-              {/* Checkbox "No encontré mi colegio" */}
-              <div className="flex items-center gap-2 mt-2">
-                <input
-                  type="checkbox"
-                  id="noEncontreColegio"
-                  checked={noEncontre}
-                  onChange={(e) => {
-                    const isChecked = e.target.checked;
-                    setNoEncontre(isChecked);
-                    if (isChecked) {
-                      handleInputChange("estudiante", "colegio", ""); // Limpiar valor al cambiar
-                    }
-                  }}
-                />
-                <label htmlFor="noEncontreColegio" className="text-sm text-gray-600">
-                  No encontré mi colegio
-                </label>
-              </div>
             </div>
 
             <SelectField
