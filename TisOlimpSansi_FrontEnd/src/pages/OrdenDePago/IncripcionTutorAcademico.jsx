@@ -17,51 +17,32 @@ export default function FormularioTutoresAcademicos({
   // Obtener las áreas del contexto global
   const areasCompetencia = globalData.areas_competencia || [];
   
-  // Inicializar el estado cuando se cargan las áreas o cuando cambia el formData
+  // Inicializar el estado cuando se cargan las áreas
   useEffect(() => {
     const initialState = {};
     areasCompetencia.forEach(area => {
-      initialState[area.nombre_area] =
-        (formData.profesores?.areasRegistradas || []).includes(area.nombre_area);
+      initialState[area.nombre_area] = false;
     });
     setExpandedAreas(initialState);
-  
-    const tutoresState = {};
-  
-    if (globalData.tutores_academicos?.length > 0) {
+    
+    // Si estamos en modo edición, cargar los tutores existentes
+    if (formData.flow?.editingTutores && globalData.tutores_academicos) {
+      const tutoresState = {};
       globalData.tutores_academicos.forEach(tutor => {
-        const isCustomTutor = tutor.tutor?.ci !== globalData.estudiante?.ci ||
-                              tutor.tutor?.correo !== globalData.estudiante?.correo;
-  
         tutoresState[tutor.nombre_area] = {
           apellidoPaterno: tutor.tutor?.apellido_pa || "",
           apellidoMaterno: tutor.tutor?.apellido_ma || "",
           nombres: tutor.tutor?.nombre || "",
           ci: tutor.tutor?.ci || "",
           correo: tutor.tutor?.correo || "",
-          seleccionado: isCustomTutor
-        };
-  
-        if (isCustomTutor) {
-          setExpandedAreas(prev => ({...prev, [tutor.nombre_area]: true}));
-        }
-      });
-    } else {
-      // Si no hay datos en el contexto global, inicializar con seleccionados desde formData
-      (formData.profesores?.areasRegistradas || []).forEach(area => {
-        tutoresState[area] = {
-          apellidoPaterno: "",
-          apellidoMaterno: "",
-          nombres: "",
-          ci: "",
-          correo: "",
           seleccionado: true
         };
+        // Expandir áreas con tutores ya registrados
+        setExpandedAreas(prev => ({...prev, [tutor.nombre_area]: true}));
       });
+      setTutoresPorArea(tutoresState);
     }
-  
-    setTutoresPorArea(tutoresState);
-  }, [areasCompetencia, globalData, formData.profesores]);
+  }, [areasCompetencia, formData.flow?.editingTutores, globalData.tutores_academicos]);
   
   const toggleArea = (area) => {
     // Solo expandir/colapsar si el área está seleccionada
@@ -89,26 +70,12 @@ export default function FormularioTutoresAcademicos({
         seleccionado: nuevoEstado
       }
     }));
-
-    handleInputChange("profesores", "areasRegistradas", [
-      ...new Set([
-        ...(formData.profesores.areasRegistradas || []).filter(a => a !== area),
-        ...(nuevoEstado ? [area] : []),
-      ])
-    ]);
     
     // Si se selecciona, expandir; si se deselecciona, colapsar
     setExpandedAreas(prev => ({
       ...prev,
       [area]: nuevoEstado
     }));
-    
-    // Limpiar errores relacionados con esta área
-    Object.keys(errors).forEach(key => {
-      if (key.startsWith(`${area}-`)) {
-        setErrors(prev => ({...prev, [key]: ""}));
-      }
-    });
   };
   
   const handleFormChange = (area, field, value, regex) => {
@@ -216,7 +183,7 @@ export default function FormularioTutoresAcademicos({
       // Construir el array de tutores académicos
       const tutoresAcademicos = [];
       
-      // Procesar todas las áreas de competencia
+      // Procesar áreas seleccionadas primero
       areasCompetencia.forEach(areaObj => {
         const area = areaObj.nombre_area;
         const tutor = tutoresPorArea[area];
@@ -257,10 +224,10 @@ export default function FormularioTutoresAcademicos({
       setGlobalData(updatedData);
       console.log("Tutores académicos actualizados:", updatedData);
       
-      // Actualizar el formData para el componente padre
+      // Desactivar el modo de edición y limpiar estado relacionado
       handleInputChange("flow", "editingTutores", false);
       
-      // Importante: permitir el paso al siguiente componente
+      // Avanzar al siguiente paso
       handleNext();
       
     } catch (error) {
@@ -293,9 +260,16 @@ export default function FormularioTutoresAcademicos({
         return false;
       }
       
-      // Validar formato de correo electrónico
-      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-      if (!emailRegex.test(tutor.correo)) {
+      // Validar longitudes mínimas
+      if (tutor.ci.length < 7 || 
+          tutor.nombres.length < 2 || 
+          tutor.apellidoMaterno.length < 2 || 
+          tutor.apellidoPaterno.length < 2) {
+        return false;
+      }
+      
+      // Validar número de nombres (máximo 2)
+      if (tutor.nombres.split(" ").length > 2) {
         return false;
       }
     }
@@ -355,7 +329,7 @@ export default function FormularioTutoresAcademicos({
                 </div>
                 
                 <div className="space-y-4">
-                  <div className="flex flex-col md:flex-row gap-4">
+                  <div className="flex gap-4">
                     <div className="w-full">
                       <label className="flex items-center gap-2">
                         <FaUser className="text-black" /> Apellido Paterno
@@ -369,7 +343,7 @@ export default function FormularioTutoresAcademicos({
                           area.nombre_area,
                           "apellidoPaterno",
                           e.target.value.toUpperCase(),
-                          /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
+                          /^[A-Za-zÁÉÍÓÚáéíóúÑñ]*$/
                         )}
                         maxLength="15"
                       />
@@ -393,7 +367,7 @@ export default function FormularioTutoresAcademicos({
                           area.nombre_area,
                           "apellidoMaterno",
                           e.target.value.toUpperCase(),
-                          /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
+                          /^[A-Za-zÁÉÍÓÚáéíóúÑñ]*$/
                         )}
                         maxLength="15"
                       />
@@ -500,9 +474,9 @@ export default function FormularioTutoresAcademicos({
           <button
             type="button"
             onClick={handleSubmit}
-            disabled={isSubmitting}
+            disabled={isSubmitting || !isFormValid()}
             className={`px-6 py-2 transition duration-300 ease-in-out text-white rounded-md shadow-md ${
-              !isSubmitting
+              isFormValid() && !isSubmitting
                 ? "bg-blue-500 hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500"
                 : "bg-gray-400 cursor-not-allowed"
             }`}
