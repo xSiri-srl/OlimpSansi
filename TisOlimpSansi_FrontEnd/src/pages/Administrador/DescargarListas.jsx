@@ -89,16 +89,16 @@ function DescargarListas() {
   const [provinciaSeleccionada, setProvinciaSeleccionada] = useState("");
 
   const departamentosDisponibles = [
-    ...new Set(inscritos.map((i) => i.departamento).filter(Boolean))
+    ...new Set(inscritos.map((i) => i.departamento).filter(Boolean)),
   ];
-  
+
   const provinciasDisponibles = [
     ...new Set(
       inscritos
         .filter((i) => i.departamento === departamentoSeleccionado)
         .map((i) => i.provincia)
         .filter(Boolean)
-    )
+    ),
   ];
 
   useEffect(() => {
@@ -112,11 +112,15 @@ function DescargarListas() {
       (area === "" ||
         inscrito.nombre_area?.toLowerCase() === area.toLowerCase()) &&
       (curso === "" || inscrito.curso?.toLowerCase() === curso.toLowerCase()) &&
-      (categoria === "" || inscrito.categoria?.toLowerCase() === categoria.toLowerCase()) &&
-      (colegio === "" || inscrito.colegio?.toLowerCase() === colegio.toLowerCase()) &&
+      (categoria === "" ||
+        inscrito.categoria?.toLowerCase() === categoria.toLowerCase()) &&
+      (colegio === "" ||
+        inscrito.colegio?.toLowerCase() === colegio.toLowerCase()) &&
       (fecha === "" || inscrito.fecha_nacimiento === fecha) &&
-      (departamentoSeleccionado === "" || inscrito.departamento === departamentoSeleccionado) &&
-      (provinciaSeleccionada === "" || inscrito.provincia === provinciaSeleccionada)
+      (departamentoSeleccionado === "" ||
+        inscrito.departamento === departamentoSeleccionado) &&
+      (provinciaSeleccionada === "" ||
+        inscrito.provincia === provinciaSeleccionada)
     );
   });
 
@@ -247,7 +251,7 @@ function DescargarListas() {
               htmlFor="colegio"
               className="block mb-2 text-sm font-semibold text-gray-700"
             >
-              Colegio
+              Unidad Educativa
             </label>
             <select
               id="colegio"
@@ -266,52 +270,57 @@ function DescargarListas() {
               )}
             </select>
           </div>
-  
-               {/* Departamento */}
-              <div className="flex-1">
-                <label htmlFor="departamento" className="block mb-2 text-sm font-semibold text-gray-700">
-                  Departamento
-                </label>
-                <select
-                  id="departamento"
-                  name="departamento"
-                  value={departamentoSeleccionado}
-                  onChange={(e) => {
-                    setDepartamentoSeleccionado(e.target.value);
-                    setProvinciaSeleccionada(""); // resetea provincia si cambia departamento
-                  }}
-                  className="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm text-gray-700"
-                >
-                  <option value="">-- Selecciona --</option>
-                  {departamentosDisponibles.map((dep) => (
-                    <option key={dep} value={dep}>
-                      {dep}
-                    </option>
-                  ))}
-                </select>
-              </div>
 
-              {/* Provincia */}
-              <div className="flex-1">
-                <label htmlFor="provincia" className="block mb-2 text-sm font-semibold text-gray-700">
-                  Provincia
-                </label>
-                <select
-                  id="provincia"
-                  name="provincia"
-                  value={provinciaSeleccionada}
-                  onChange={(e) => setProvinciaSeleccionada(e.target.value)}
-                  className="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm text-gray-700"
-                >
-                  <option value="">-- Selecciona --</option>
-                  {provinciasDisponibles.map((prov) => (
-                    <option key={prov} value={prov}>
-                      {prov}
-                    </option>
-                  ))}
-                </select>
-              </div>
+          {/* Departamento */}
+          <div className="flex-1">
+            <label
+              htmlFor="departamento"
+              className="block mb-2 text-sm font-semibold text-gray-700"
+            >
+              Departamento
+            </label>
+            <select
+              id="departamento"
+              name="departamento"
+              value={departamentoSeleccionado}
+              onChange={(e) => {
+                setDepartamentoSeleccionado(e.target.value);
+                setProvinciaSeleccionada(""); // resetea provincia si cambia departamento
+              }}
+              className="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm text-gray-700"
+            >
+              <option value="">-- Selecciona --</option>
+              {departamentosDisponibles.map((dep) => (
+                <option key={dep} value={dep}>
+                  {dep}
+                </option>
+              ))}
+            </select>
+          </div>
 
+          {/* Provincia */}
+          <div className="flex-1">
+            <label
+              htmlFor="provincia"
+              className="block mb-2 text-sm font-semibold text-gray-700"
+            >
+              Provincia
+            </label>
+            <select
+              id="provincia"
+              name="provincia"
+              value={provinciaSeleccionada}
+              onChange={(e) => setProvinciaSeleccionada(e.target.value)}
+              className="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm text-gray-700"
+            >
+              <option value="">-- Selecciona --</option>
+              {provinciasDisponibles.map((prov) => (
+                <option key={prov} value={prov}>
+                  {prov}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 

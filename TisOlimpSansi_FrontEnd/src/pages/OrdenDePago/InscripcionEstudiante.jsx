@@ -438,7 +438,7 @@ export default function InscripcionEstudiante({
         {/* Columna 2: Datos del Colegio */}
         <div className="flex flex-col items-center bg-gray-300 p-6 rounded-md">
           <h3 className="text-lg font-semibold mb-4 text-gray-700 self-center">
-            Datos del Colegio
+            Datos de la Unidad Educativa
           </h3>
           <div className="space-y-4 w-full max-w-md">
             {/* Departamento - Usando nuestro componente SelectField */}
@@ -483,7 +483,7 @@ export default function InscripcionEstudiante({
             <div className="relative">
               <div className="flex items-center gap-2 mb-1">
                 <FaSchool className="text-black" />
-                <label>Nombre de la Unidad Educativa</label>
+                <label>Unidad Educativa</label>
               </div>
 
               <div className="relative">
