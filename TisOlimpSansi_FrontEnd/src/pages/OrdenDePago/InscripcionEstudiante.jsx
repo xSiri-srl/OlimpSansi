@@ -114,7 +114,8 @@ export default function InscripcionEstudiante({
     );
 
     const fecha = formData.estudiante?.fechaNacimiento || "";
-    const { valid: isFechaValida, error: fechaError } = validateBirthDate(fecha);
+    const { valid: isFechaValida, error: fechaError } =
+      validateBirthDate(fecha);
     if (!isFechaValida) {
       setErrors((prev) => ({ ...prev, fechaNacimiento: fechaError }));
     }
@@ -317,9 +318,7 @@ export default function InscripcionEstudiante({
               name="ci"
               placeholder="Número de Carnet de Identidad"
               value={formData.estudiante?.ci || ""}
-              onChange={(value) =>
-                handleInputChange("estudiante", "ci", value)
-              }
+              onChange={(value) => handleInputChange("estudiante", "ci", value)}
               error={errors.ci}
               maxLength="8"
               regex={/^[0-9]*$/}
@@ -370,13 +369,17 @@ export default function InscripcionEstudiante({
             Datos del Colegio
           </h3>
           <div className="space-y-4 w-full max-w-md">
-          <SelectField
+            <SelectField
               label="Departamento"
               icon={<FaMapMarkedAlt className="text-black" />}
               name="departamento"
               value={formData.estudiante?.departamentoSeleccionado || ""}
               onChange={(value) => {
-                handleInputChange("estudiante", "departamentoSeleccionado", value);
+                handleInputChange(
+                  "estudiante",
+                  "departamentoSeleccionado",
+                  value
+                );
                 handleInputChange("estudiante", "distrito", ""); // Reiniciar distrito
               }}
               options={Object.keys(departamentos)}
@@ -389,21 +392,22 @@ export default function InscripcionEstudiante({
               icon={<FaMapMarkedAlt className="text-black" />}
               name="distrito"
               value={formData.estudiante?.distrito || ""}
-              onChange={(value) => 
+              onChange={(value) =>
                 handleInputChange("estudiante", "distrito", value)
               }
               options={
-                departamentos[formData.estudiante?.departamentoSeleccionado] || []
+                departamentos[formData.estudiante?.departamentoSeleccionado] ||
+                []
               }
               error={errors.distrito}
               disabled={!formData.estudiante?.departamentoSeleccionado}
               placeholder="Seleccione un Distrito"
             />
             <TextField
-              label="Nombre del Colegio"
+              label="Unidad Educativa"
               icon={<FaSchool className="text-black" />}
               name="colegio"
-              placeholder="Nombre del Colegio"
+              placeholder="Unidad Educativa"
               value={formData.estudiante?.colegio || ""}
               onChange={(value) =>
                 handleInputChange("estudiante", "colegio", value)
@@ -419,7 +423,9 @@ export default function InscripcionEstudiante({
               icon={<FaBuilding className="text-black" />}
               name="curso"
               value={formData.estudiante?.curso || ""}
-              onChange={(value) => handleInputChange("estudiante", "curso", value)}
+              onChange={(value) =>
+                handleInputChange("estudiante", "curso", value)
+              }
               options={cursos}
               error={errors.curso}
               placeholder="Seleccione un Curso"
