@@ -1,5 +1,11 @@
-import { useState, useEffect } from "react";
-import { FaUser, FaIdCard, FaSchool, FaMapMarkedAlt } from "react-icons/fa";
+import { useState, useEffect, useRef } from "react";
+import {
+  FaUser,
+  FaIdCard,
+  FaSchool,
+  FaMapMarkedAlt,
+  FaTimesCircle,
+} from "react-icons/fa";
 import { useFormData } from "./form-context";
 import axios from "axios";
 
@@ -17,11 +23,34 @@ function RegistroColegio({ setStep }) {
   const [errors, setErrors] = useState({});
   const { globalData, setGlobalData } = useFormData();
 
-  const [noEncontre, setNoEncontre] = useState(false);
   const [colegiosData, setColegiosData] = useState([]);
   const [departamentosList, setDepartamentosList] = useState([]);
   const [distritosList, setDistritosList] = useState([]);
   const [colegiosFiltrados, setColegiosFiltrados] = useState([]);
+
+  // Estados para manejar el autocompletado
+  const [busquedaColegio, setBusquedaColegio] = useState("");
+  const [sugerencias, setSugerencias] = useState([]);
+  const [mostrarSugerencias, setMostrarSugerencias] = useState(false);
+  const [esNuevoColegio, setEsNuevoColegio] = useState(false);
+  const sugerenciasRef = useRef(null);
+
+  // Detector de clics fuera del componente de sugerencias
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (
+        sugerenciasRef.current &&
+        !sugerenciasRef.current.contains(event.target)
+      ) {
+        setMostrarSugerencias(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     axios
@@ -46,6 +75,7 @@ function RegistroColegio({ setStep }) {
           nombre_colegio: resp.nombre_colegio || "",
         },
       });
+      setBusquedaColegio(resp.nombre_colegio || "");
     }
   }, [globalData]);
 
@@ -68,6 +98,43 @@ function RegistroColegio({ setStep }) {
 
     setColegiosFiltrados([...new Set(colegios)]);
   }, [formData.colegio.distrito, formData.colegio.departamento, colegiosData]);
+
+  // Actualizar sugerencias cuando cambia el texto de búsqueda
+  const actualizarSugerencias = (texto) => {
+    setBusquedaColegio(texto);
+
+    if (!texto || texto.length < 2) {
+      setSugerencias([]);
+      setMostrarSugerencias(false);
+      return;
+    }
+
+    const filtrados = colegiosFiltrados.filter((colegio) =>
+      colegio.toLowerCase().includes(texto.toLowerCase())
+    );
+
+    setSugerencias(filtrados);
+    setMostrarSugerencias(true);
+    setEsNuevoColegio(filtrados.length === 0);
+
+    // Si hay una coincidencia exacta o no hay coincidencias, actualizar el valor del colegio
+    if (
+      filtrados.length === 1 &&
+      filtrados[0].toLowerCase() === texto.toLowerCase()
+    ) {
+      handleInputChange("colegio", "nombre_colegio", filtrados[0]);
+    } else if (filtrados.length === 0) {
+      handleInputChange("colegio", "nombre_colegio", texto);
+    }
+  };
+
+  // Seleccionar una sugerencia
+  const seleccionarSugerencia = (sugerencia) => {
+    setBusquedaColegio(sugerencia);
+    handleInputChange("colegio", "nombre_colegio", sugerencia);
+    setMostrarSugerencias(false);
+    setEsNuevoColegio(false);
+  };
 
   const handleInputChange = (grupo, campo, valor) => {
     setFormData((prev) => ({
@@ -106,7 +173,10 @@ function RegistroColegio({ setStep }) {
       try {
         setGlobalData((prevData) => ({
           ...prevData,
-          colegio: formData.colegio,
+          colegio: {
+            ...formData.colegio,
+            es_nuevo: esNuevoColegio,
+          },
         }));
         handleNext();
       } catch (error) {
@@ -124,7 +194,9 @@ function RegistroColegio({ setStep }) {
           <h2 className="text-lg font-semibold mb-2 text-gray-500">
             Registro del colegio
           </h2>
-          <p className="text-sm text-gray-600">Estos datos corresponden.</p>
+          <p className="text-sm text-gray-600">
+            Estos datos corresponden al colegio del estudiante.
+          </p>
         </div>
 
         <div className="space-y-4">
@@ -140,6 +212,7 @@ function RegistroColegio({ setStep }) {
                 handleInputChange("colegio", "departamento", e.target.value);
                 handleInputChange("colegio", "distrito", "");
                 handleInputChange("colegio", "nombre_colegio", "");
+                setBusquedaColegio("");
               }}
             >
               <option value="">Seleccione un Departamento</option>
@@ -166,6 +239,7 @@ function RegistroColegio({ setStep }) {
               onChange={(e) => {
                 handleInputChange("colegio", "distrito", e.target.value);
                 handleInputChange("colegio", "nombre_colegio", "");
+                setBusquedaColegio("");
               }}
               disabled={!formData.colegio.departamento}
             >
@@ -181,65 +255,73 @@ function RegistroColegio({ setStep }) {
               <p className="text-red-500 text-sm mt-1">{errors.distrito}</p>
             )}
           </div>
-          <div>
+
+          {/* Autocompletado de Colegios */}
+          <div className="relative">
             <label className="flex items-center gap-2">
-              <FaSchool className="text-black" /> Unidad Educativa
+              <FaSchool className="text-black" /> Nombre del Colegio
             </label>
-            <select
-              name="nombre_colegio"
-              className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              value={formData.colegio.nombre_colegio || ""}
-              onChange={(e) =>
-                handleInputChange("colegio", "nombre_colegio", e.target.value)
-              }
-              disabled={!formData.colegio.distrito || noEncontre}
-            >
-              <option value="">Seleccione un Colegio</option>
-              {colegiosFiltrados.map((colegio, idx) => (
-                <option key={idx} value={colegio}>
-                  {colegio}
-                </option>
-              ))}
-            </select>
+
+            <div className="relative">
+              <input
+                type="text"
+                className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                placeholder="Ingresar nombre de la unidad educativa"
+                value={busquedaColegio}
+                onChange={(e) => actualizarSugerencias(e.target.value)}
+                onFocus={() => {
+                  if (busquedaColegio.length >= 2) setMostrarSugerencias(true);
+                }}
+                disabled={!formData.colegio.distrito}
+              />
+
+              {busquedaColegio && (
+                <FaTimesCircle
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 cursor-pointer"
+                  onClick={() => {
+                    setBusquedaColegio("");
+                    handleInputChange("colegio", "nombre_colegio", "");
+                    setMostrarSugerencias(false);
+                  }}
+                />
+              )}
+
+              {/* Sugerencias */}
+              {mostrarSugerencias && (
+                <div
+                  ref={sugerenciasRef}
+                  className="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg mt-1 max-h-48 overflow-y-auto"
+                >
+                  {sugerencias.length > 0 ? (
+                    sugerencias.map((sugerencia, idx) => (
+                      <div
+                        key={idx}
+                        className="p-2 hover:bg-blue-100 cursor-pointer"
+                        onClick={() => seleccionarSugerencia(sugerencia)}
+                      >
+                        {sugerencia}
+                      </div>
+                    ))
+                  ) : (
+                    <div className="p-2 text-gray-500">
+                      No se encontro ninguna coincidencia, puede registrar una
+                      nueva unidad educativa.
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {esNuevoColegio && busquedaColegio.length >= 2 && (
+              <p className="text-blue-500 text-sm mt-1">
+                Se registrará una nueva unidad educativa con este nombre.
+              </p>
+            )}
 
             {errors.colegio && (
               <p className="text-red-500 text-sm mt-1">{errors.colegio}</p>
             )}
           </div>
-          {/* Checkbox no encontré */}
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={noEncontre}
-              onChange={(e) => {
-                const isChecked = e.target.checked;
-                setNoEncontre(isChecked);
-                if (isChecked) {
-                  handleInputChange("colegio", "nombre_colegio", ""); // Deselecciona el colegio
-                }
-              }}
-            />
-            <label>No encontré mi colegio</label>
-          </div>
-
-          {/* Input libre si no encuentra */}
-          {noEncontre && (
-            <div>
-              <div className="flex items-center gap-2">
-                <FaUser className="text-black" />
-                <label>Escriba el nombre de su colegio</label>
-              </div>
-              <input
-                type="text"
-                value={formData.colegio.nombre_colegio || ""}
-                onChange={(e) =>
-                  handleInputChange("colegio", "nombre_colegio", e.target.value)
-                }
-                className="w-full p-2 border border-gray-500 rounded-md"
-                placeholder="Nombre del colegio"
-              />
-            </div>
-          )}
 
           {/* Botones */}
           <div className="text-center mt-6">
