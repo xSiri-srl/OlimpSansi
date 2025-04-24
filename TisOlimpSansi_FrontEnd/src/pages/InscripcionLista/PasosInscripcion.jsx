@@ -1,157 +1,154 @@
 import React, { useEffect, useState } from "react"
-import { useLocation, useNavigate } from "react-router-dom"
-import { useFormData } from "./form-context";
-import axios from "axios"
-import { FaDownload, FaCopy } from "react-icons/fa"
+import { useNavigate } from "react-router-dom"
+import { useFormData } from "./form-context"
+import { FaCopy } from "react-icons/fa"
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet"
+import L from "leaflet"
+import "leaflet/dist/leaflet.css"
+
+// Iconos para Leaflet
+import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png"
+import markerIcon from "leaflet/dist/images/marker-icon.png"
+import markerShadow from "leaflet/dist/images/marker-shadow.png"
+delete L.Icon.Default.prototype._getIconUrl
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: markerIcon2x,
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow,
+})
 
 const PasosInscripcion = () => {
   const navigate = useNavigate()
-  
-  const { globalData } = useFormData();
-  const [codigo, setCodigo] = useState("");
+  const { globalData } = useFormData()
+  const [codigo, setCodigo] = useState("")
+  const ubicacionCaja = [-17.3934698, -66.1448631]
 
-
-useEffect(() => {
-      if (globalData.codigoGenerado) {
-        setCodigo(globalData.codigoGenerado);
-      }
-    }, [globalData.codigoGenerado]);
-  
-
-  const handleConfirmar = () => {
-    navigate("/generar-orden-pago")
-  }
+  useEffect(() => {
+    if (globalData.codigoGenerado) {
+      setCodigo(globalData.codigoGenerado)
+    }
+  }, [globalData.codigoGenerado])
 
   const handleCopyCode = () => {
     navigator.clipboard.writeText(codigo)
     alert("Código copiado al portapapeles")
   }
 
-  /*const handleDownload = async () => {
-    try {
-      const response = await axios.get(`http://localhost:8000/api/orden-pago/${codigo}`, {
-        responseType: "blob",
-      })
-
-      const url = window.URL.createObjectURL(new Blob([response.data]))
-      const link = document.createElement("a")
-      link.href = url
-      link.setAttribute("download", `orden_pago_${codigo}.pdf`)
-      document.body.appendChild(link)
-      link.click()
-      link.remove()
-    } catch (error) {
-      console.error("Error descargando PDF:", error)
-      alert("Error al descargar la orden de pago")
-    }
-  }*/
-
   return (
-    <div className="p-4">
-      {/* Alerta importante */}
-      <div className="text-xl font-semibold mb-4 text-center text-gray-700" role="alert">
-      <div className="flex flex-col items-center">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-red-600 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-        </svg>
-        <h1 className="text-4xl font-extrabold text-center tracking-wider mb-2">
-          ¡SU INSCRIPCIÓN NO TERMINÓ!
-        </h1>
-        <p className="text-xl text-center font-semibold">
-          Imprima su orden de pago y realice el pago en Caja Facultativa para subir su comprobante.
-        </p>
-      </div>
-      </div>
-
-      <div className="flex flex-col md:flex-row gap-4">
-        {/* Paso 1 y 2 */}
-        <div className="bg-white p-4 rounded w-full md:w-1/2">
-          
-
-          <div className="mt-4 font-bold">
-            <span className="bg-blue-500 font-bold text-white px-2 py-1 rounded-full mr-2">2</span>
-            RECUERDA ESTE CÓDIGO, más adelante se te pedirá para seguir con su inscripción:
-            <div className="border-2 border-green-500 text-center mt-2 p-2 flex items-center justify-center gap-2 font-mono">
-              <span>{codigo || "..."}</span>
-              <button
-                onClick={handleCopyCode}
-                className="p-1 rounded hover:bg-gray-200"
-                title="Copiar código"
-              >
-                <FaCopy className="text-gray-600" />
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Paso 3 y 4 */}
-        <div className="bg-white p-4 rounded w-full md:w-1/2">
-          <div className="mb-4 font-bold">
-            <span className="bg-blue-500 font-bold text-white px-2 py-1 rounded-full mr-2">3</span>
-            Con la orden de pago impresa, diríjase a las cajas facultativas
-          </div>
-
-          <div className="flex justify-center mb-4">
-            <div className="bg-slate-400 w-80 h-48 flex justify-center items-center">
-              <iframe
-                title="Mapa"
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1195.8612683389127!2d-58.43876809357229!3d-34.60373898223974!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95bccb6c7f682799%3A0x6a4c58ad35e32f94!2sUBA!5e0!3m2!1ses-419!2sar!4v1643134347643!5m2!1ses-419!2sar"
-                width="100%"
-                height="100%"
-                allowFullScreen=""
-                loading="lazy"
-                className="rounded"
-              ></iframe>
-            </div>
-          </div>
-
-          <div className="flex justify-center">
-            <a
-              href="https://g.co/kgs/GBSciku"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-blue-500 text-white px-4 py-2 rounded flex items-center gap-2 hover:bg-blue-600 transition"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="w-5 h-5"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M19.5 10.5c0 7-7.5 11.25-7.5 11.25S4.5 17.5 4.5 10.5a7.5 7.5 0 1115 0z"
-                />
-              </svg>
-              Ver ubicación
-            </a>
-          </div>
-
-          <div className="mt-10 font-bold">
-            <span className="bg-blue-500 font-bold text-white px-2 py-1 rounded-full mr-2">4</span>
-            Cuando ya haya pagado, redirígete a la pestaña "Subir comprobante"
-          </div>
-
-          <div className="flex justify-center mt-4">
-            <div className="w-full p-7 h-8 flex justify-center items-center text-white text-xs">
-              <img src="/images/Navbar.png" alt="ejemplo_Navbar" className="h-12.5 w-auto" />
-            </div>
-          </div>
+    <div className="max-w-3xl mx-auto p-6 bg-white rounded-xl shadow-lg space-y-8">
+      {/* Alerta */}
+      <div className="bg-red-100 border-l-8 border-red-600 p-6 rounded-lg shadow animate-pulse">
+        <div className="text-center">
+          <h1 className="text-3xl font-extrabold text-red-700 mb-2">¡SU INSCRIPCIÓN NO HA FINALIZADO!</h1>
+          <p className="text-lg font-medium text-red-800">Debe realizar el pago para completar su inscripción, siga los siguientes pasos:</p>
         </div>
       </div>
 
-      <div className="flex justify-center mt-8">
+      {/* Código generado */}
+      <div className="text-center">
+        <h2 className="text-xl font-bold text-gray-800 mb-2">RECUERDE ESTE CÓDIGO</h2>
+        <div className="inline-flex items-center space-x-3 bg-blue-100 border-2 border-blue-500 rounded-full px-6 py-3 shadow-md">
+          <span className="text-lg font-mono tracking-widest text-gray-800">{codigo || "..."}</span>
+          <button
+            onClick={handleCopyCode}
+            className="text-gray-600 hover:text-blue-600 transition-colors"
+            title="Copiar código"
+          >
+            <FaCopy className="text-xl" />
+          </button>
+        </div>
+        <p className="text-sm text-gray-500 mt-2">Se le pedirá este código para subir su comprobante.</p>
+      </div>
+
+      {/* Instrucciones */}
+      <div className="bg-yellow-50 border border-yellow-300 rounded-xl p-8">
+        <h3 className="text-2xl font-extrabold text-yellow-800 mb-6">Siga estos pasos:</h3>
+        <div className="space-y-6">
+
+        <div className="flex items-start">
+  <span className="bg-blue-500 font-bold text-white px-3 py-1 rounded-full mr-4">1</span>
+  <div className="flex-1">
+    <h4 className="font-semibold text-gray-800">Cuando ya haya copiado el codigo generado</h4>
+    <p className="text-sm text-gray-600">
+      Rediríjase a la pestaña <strong>"Generar Orden de pago"</strong>.
+    </p>
+    <div className="flex justify-center mt-4 w-full">
+      <img
+        src="/images/generar.png"
+        alt="ejemplo_Navbar"
+        className="h-25 w-auto rounded-lg shadow"
+      />
+    </div>
+  </div>
+</div>
+
+
+          <div className="flex items-start">
+            <span className="bg-blue-500 font-bold text-white px-3 py-1 rounded-full mr-4">2</span>
+            <div>
+              <h4 className="font-semibold text-gray-800">Imprima la orden de pago</h4>
+              <p className="text-sm text-gray-600">Lleve el documento para realizar el pago en Caja Facultativa.</p>
+             
+              
+            </div>
+          </div>
+
+          <div className="flex items-start">
+            <span className="bg-blue-500 font-bold text-white px-3 py-1 rounded-full mr-4">3</span>
+            <div className="w-full">
+              <h4 className="font-semibold text-gray-800">Realice el pago presencial</h4>
+              <div className="h-48 mt-3 rounded-lg overflow-hidden">
+                <MapContainer center={ubicacionCaja} zoom={17} scrollWheelZoom={false} className="h-full w-full">
+                  <TileLayer
+                    attribution='&copy; OpenStreetMap contributors'
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  />
+                  <Marker position={ubicacionCaja}>
+                    <Popup>
+                      <div className="text-sm">
+                        <strong>Caja FCyT</strong><br />
+                        Universidad Mayor de San Simón<br />
+                        Av. Oquendo S/N, Nivel 1 - Cochabamba, Bolivia
+                      </div>
+                    </Popup>
+                  </Marker>
+                </MapContainer>
+              </div>
+              <p className="text-xs text-gray-600 mt-2">
+                Horario de atención: Lunes a Viernes 8:30 - 12:30 / 14:30 - 18:30
+              </p>
+            </div>
+          </div>
+          <div className="flex items-start">
+  <span className="bg-blue-500 font-bold text-white px-3 py-1 rounded-full mr-4">4</span>
+  <div className="flex-1">
+    <h4 className="font-semibold text-gray-800">Cuando ya haya pagado</h4>
+    <p className="text-sm text-gray-600">
+      Rediríjase a la pestaña <strong>"Subir comprobante"</strong>.
+    </p>
+    <div className="flex justify-center mt-4 w-full">
+      <img
+        src="/images/navbar.png"
+        alt="ejemplo_Navbar"
+        className="h-25 w-auto rounded-lg shadow"
+      />
+    </div>
+  </div>
+</div>
+        </div>
+      </div>
+
+      {/* Mensaje final */}
+      <p className="text-center text-sm text-gray-500">
+        Una vez realizado el pago, vuelva a esta plataforma para subir el comprobante.
+      </p>
+  
+
+      {/* Botón para continuar */}
+      <div className="flex justify-center mt-6">
         <button
-          onClick={handleConfirmar}
-          className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
+          onClick={() => navigate("/generar-orden-pago")}
+          className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition-all"
         >
           Continuar
         </button>
