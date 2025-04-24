@@ -162,12 +162,6 @@ const OrdenPago = () => {
         Una vez realizado el pago, vuelva a esta plataforma para subir el comprobante.
       </p>
   
-
-      {/* Mensaje final */}
-      <p className="text-center text-sm text-gray-500">
-        Una vez realizado el pago, vuelva a esta plataforma para subir el comprobante.
-      </p>
-
        {/* Botón para continuar */}
        <div className="flex justify-center mt-6">
         <button
