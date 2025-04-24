@@ -12,12 +12,12 @@ const DatosCompetidor = ({
 }) => {
   return (
     <div className="space-y-4">
-      <h4 className="font-medium text-blue-700 border-b pb-1">DATOS DEL COMPETIDOR</h4>
+      <h4 className="font-medium text-blue-700 border-b pb-1">DATOS DE COMPETIDOR</h4>
       
       {mostrarCampo('apellido_pa') && (
         <div>
           <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-            <FaUser /> Apellido Paterno *
+            <FaUser /> Apellido Paterno 
           </label>
           <input
             type="text"
@@ -49,7 +49,7 @@ const DatosCompetidor = ({
       {mostrarCampo('nombre') && (
           <div>
             <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-              <FaUser /> Nombres *
+              <FaUser /> Nombres 
             </label>
             <input
               type="text"
@@ -65,7 +65,7 @@ const DatosCompetidor = ({
       {mostrarCampo('ci') && (
         <div>
           <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-            <FaIdCard /> Carnet de Identidad *
+            <FaIdCard /> Carnet de Identidad 
           </label>
           <input
             type="text"

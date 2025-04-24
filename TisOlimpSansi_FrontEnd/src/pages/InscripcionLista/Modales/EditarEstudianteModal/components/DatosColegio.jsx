@@ -60,7 +60,7 @@ const DatosColegio = ({
       {mostrarCampo("nombre_colegio") && (
         <div>
           <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-            <FaSchool /> Nombre de la Unidad Educativa *
+            <FaSchool /> Nombre de la Unidad Educativa 
           </label>
           <input
             type="text"
@@ -88,7 +88,7 @@ const DatosColegio = ({
       {mostrarCampo("curso") && (
         <div>
           <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-            <FaBuilding /> Curso *
+            <FaBuilding /> Curso 
           </label>
           <select
             className={`mt-1 p-2 w-full border rounded-md ${

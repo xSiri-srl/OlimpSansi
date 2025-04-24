@@ -12,7 +12,7 @@ const TutorLegal = ({
 }) => {
   return (
     <div className="space-y-4">
-      <h4 className="font-medium text-blue-700 border-b pb-1">DATOS DEL TUTOR LEGAL</h4>
+      <h4 className="font-medium text-blue-700 border-b pb-1">DATOS DE TUTOR LEGAL</h4>
       
       <div className="grid grid-cols-2 gap-3">
         <div>
