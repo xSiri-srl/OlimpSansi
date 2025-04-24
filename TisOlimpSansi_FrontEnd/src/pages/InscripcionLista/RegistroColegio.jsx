@@ -192,7 +192,7 @@ function RegistroColegio({ setStep }) {
       <div className="w-full max-w-2xl">
         <div className="text-center mb-6">
           <h2 className="text-lg font-semibold mb-2 text-gray-500">
-            Registro del colegio
+            Registro de la Unidad Educativa
           </h2>
           <p className="text-sm text-gray-600">
             Estos datos corresponden al colegio del estudiante.
@@ -259,7 +259,7 @@ function RegistroColegio({ setStep }) {
           {/* Autocompletado de Colegios */}
           <div className="relative">
             <label className="flex items-center gap-2">
-              <FaSchool className="text-black" /> Nombre del Colegio
+              <FaSchool className="text-black" /> Unidad Educativa
             </label>
 
             <div className="relative">

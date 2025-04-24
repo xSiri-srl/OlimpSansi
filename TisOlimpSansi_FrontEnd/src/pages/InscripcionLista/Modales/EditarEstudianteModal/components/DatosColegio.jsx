@@ -54,13 +54,13 @@ const DatosColegio = ({
   return (
     <div className="space-y-4">
       <h4 className="font-medium text-blue-700 border-b pb-1">
-        DATOS DEL COLEGIO
+        DATOS DE LA UNIDAD EDUCATIVA
       </h4>
 
       {mostrarCampo("nombre_colegio") && (
         <div>
           <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-            <FaSchool /> Nombre del Colegio *
+            <FaSchool /> Nombre de la Unidad Educativa *
           </label>
           <input
             type="text"
