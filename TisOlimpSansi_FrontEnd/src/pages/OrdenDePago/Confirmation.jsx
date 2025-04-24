@@ -13,6 +13,8 @@ const Confirmation = ({ navigate, handleBack }) => {
   const [codigoGenerado, setCodigoGenerado] = useState("");
 
   useEffect(() => {
+    console.log("NUEVOOOOOOOOOO");
+    console.log(globalData);
     console.log("Confirmation mounted, handleBack is:", typeof handleBack);
   }, [handleBack]);
 
