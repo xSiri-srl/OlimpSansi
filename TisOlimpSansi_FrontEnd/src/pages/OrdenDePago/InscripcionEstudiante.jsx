@@ -200,7 +200,7 @@ export default function InscripcionEstudiante({
     const isColegioValid = validateInput(
       formData.estudiante?.colegio,
       "colegio",
-      /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/
+      /^[A-Za-zÁÉÍÓÚáéíóúÑñËë0-9\s,.\-+()'"’№ºª°\n\r]+$/
     );
 
     const isCursoValid = validateInput(formData.estudiante?.curso, "curso");
@@ -340,6 +340,18 @@ export default function InscripcionEstudiante({
           </h2>
           <div className="space-y-4 w-full max-w-md">
             <TextField
+              label="Carnet de Identidad"
+              icon={<FaIdCard className="text-black" />}
+              name="ci"
+              placeholder="Número de Carnet de Identidad"
+              value={formData.estudiante?.ci || ""}
+              onChange={(value) => handleInputChange("estudiante", "ci", value)}
+              error={errors.ci}
+              maxLength="8"
+              regex={/^[0-9]*$/}
+            />
+
+            <TextField
               label="Apellido Paterno"
               icon={<FaUserAlt className="text-black" />}
               name="apellidoPaterno"
@@ -382,18 +394,6 @@ export default function InscripcionEstudiante({
               maxLength="30"
               regex={/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/}
               transform={(value) => value.toUpperCase()}
-            />
-
-            <TextField
-              label="Carnet de Identidad"
-              icon={<FaIdCard className="text-black" />}
-              name="ci"
-              placeholder="Número de Carnet de Identidad"
-              value={formData.estudiante?.ci || ""}
-              onChange={(value) => handleInputChange("estudiante", "ci", value)}
-              error={errors.ci}
-              maxLength="8"
-              regex={/^[0-9]*$/}
             />
 
             <DateField
