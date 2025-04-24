@@ -322,11 +322,11 @@ const SubirComprobante = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-gray-300 p-4 rounded-md">
             <h3 className="text-lg font-semibold mb-2">Ejemplo:</h3>
-            <div className="bg-gray-400 p-6 rounded-md flex flex-col items-center justify-center">
+            <div className="bg-green-200 p-6 rounded-md flex flex-col items-center justify-center">
             <img
-            src="/images/ejeOrden.png"
+            src="/images/codigo.png"
             alt="Ejemplo Orden"
-            className="h-10 md:h-10 lg:h-24 w-auto"
+            className="w-40 h-10 md:h-10 lg:h-24 w-auto border-green-500 rounded-md border-4 border-dashed" 
             
           />
             </div>
