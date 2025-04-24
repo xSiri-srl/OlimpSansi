@@ -108,7 +108,7 @@ const AreasCompetencia = ({
       <div className="space-y-4">
         <div>
           <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-            Área de competencia *
+            Área de competencia 
           </label>
           <div className="flex gap-2">
             <select
@@ -130,7 +130,7 @@ const AreasCompetencia = ({
           areasActuales[0]?.nombre_area === "Robótica") && (
           <div>
             <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-              Categoría para {areasActuales[0].nombre_area} *
+              Categoría para {areasActuales[0].nombre_area} 
             </label>
             <select
               className={`mt-1 p-2 w-full border rounded-md ${tieneError('categoria_0') ? 'border-red-500 bg-red-50' : ''} ${!campoEditable('categoria_0') && !tieneError('categoria_0') ? 'bg-gray-100' : ''}`}
@@ -151,7 +151,7 @@ const AreasCompetencia = ({
           areasActuales[1]?.nombre_area === "Robótica") && (
           <div>
             <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-              Categoría para {areasActuales[1].nombre_area} *
+              Categoría para {areasActuales[1].nombre_area} 
             </label>
             <select
               className={`mt-1 p-2 w-full border rounded-md ${tieneError('categoria_1') ? 'border-red-500 bg-red-50' : ''} ${!campoEditable('categoria_1') && !tieneError('categoria_1') ? 'bg-gray-100' : ''}`}

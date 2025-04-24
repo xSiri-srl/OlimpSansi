@@ -409,42 +409,56 @@ const validarDatos = () => {
       // Permitir solo dígitos y limitar longitud
       return value.replace(/\D/g, '').substring(0, 9);
     };
-    // Añadir antes del return final
 
-// Reemplazar la función campoEditable con esta versión mejorada
-
-const campoEditable = (campo) => {
-  // Si el campo tiene error, siempre debe ser editable
-  if (tieneError(campo)) return true;
-  
-  // Los campos que tienen errores relacionados también deben ser editables
-  // Por ejemplo, si hay error en categoria_0, el campo areas debe ser editable
-  if (campo === 'areas' && Object.keys(errores).some(e => e.startsWith('categoria_'))) return true;
-  
-  // Verificar si el campo está vacío (obligatorio)
-  if (campo === 'nombre' && !estudianteData.estudiante?.nombre) return true;
-  if (campo === 'apellido_pa' && !estudianteData.estudiante?.apellido_pa) return true;
-  if (campo === 'ci' && !estudianteData.estudiante?.ci) return true;
-  if (campo === 'nombre_colegio' && !estudianteData.colegio?.nombre_colegio) return true;
-  if (campo === 'curso' && !estudianteData.colegio?.curso) return true;
-  
-  // Para áreas de competencia
-  if (campo === 'areas' && (!estudianteData.areas_competencia || estudianteData.areas_competencia.length === 0 || 
-      !estudianteData.areas_competencia[0]?.nombre_area)) return true;
-  
-  // Categorías para informática/robótica
-  if (campo.startsWith('categoria_')) {
-    const index = parseInt(campo.split('_')[1]);
-    const area = estudianteData.areas_competencia?.[index]?.nombre_area;
-    if (!area) return true;
-    if ((area === 'Informática' || area === 'Robótica') && !estudianteData.areas_competencia[index]?.categoria) {
-      return true;
-    }
-  }
-  
-  // Por defecto, si el campo tiene datos y no tiene errores, no debe ser editable
-  return false;
-};
+    const campoEditable = (campo) => {
+      // Si el campo tiene error, siempre debe ser editable
+      if (tieneError(campo)) return true;
+      
+      // Los campos que tienen errores relacionados también deben ser editables
+      if (campo === 'areas' && Object.keys(errores).some(e => e.startsWith('categoria_'))) return true;
+      
+      // Verificar si el campo está vacío (obligatorio)
+      if (campo === 'nombre' && !estudianteData.estudiante?.nombre) return true;
+      if (campo === 'apellido_pa' && !estudianteData.estudiante?.apellido_pa) return true;
+      if (campo === 'ci' && !estudianteData.estudiante?.ci) return true;
+      if (campo === 'nombre_colegio' && !estudianteData.colegio?.nombre_colegio) return true;
+      if (campo === 'curso' && !estudianteData.colegio?.curso) return true;
+      
+      // Para áreas de competencia
+      if (campo === 'areas' && (!estudianteData.areas_competencia || estudianteData.areas_competencia.length === 0 || 
+          !estudianteData.areas_competencia[0]?.nombre_area)) return true;
+      
+      // Categorías para informática/robótica
+      if (campo.startsWith('categoria_')) {
+        const index = parseInt(campo.split('_')[1]);
+        const area = estudianteData.areas_competencia?.[index]?.nombre_area;
+        if (!area) return true;
+        if ((area === 'Informática' || area === 'Robótica') && !estudianteData.areas_competencia[index]?.categoria) {
+          return true;
+        }
+      }
+      
+      if (campo.startsWith('tutor_academico_')) {
+        const parts = campo.split('_');
+        const index = parseInt(parts[2]);
+        const field = parts.slice(3).join('_'); 
+        const tutor = estudianteData.tutores_academicos?.[index]?.tutor;
+        if (!tutor) return true;
+        
+        // Verificar si todos los campos obligatorios del tutor están llenos y sin errores
+        const camposObligatorios = ['nombre', 'apellido_pa', 'ci'];
+        const camposCompletos = camposObligatorios.every(c => 
+          tutor[c] && !tieneError(`tutor_academico_${index}_${c}`)
+        );
+        
+        // Si están todos los campos obligatorios completos y sin errores, no debe ser editable
+        if (camposCompletos) return false;
+        
+        // Si el campo específico está vacío, debe ser editable
+        if (!tutor[field]) return true;
+      }
+      return false;
+    };
 
 return {
   seccionActiva,
