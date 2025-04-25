@@ -6,6 +6,7 @@ import DarkModeToggle from "./components/DarkModeToggle";
 import OrdenesRecientes from "./components/OrdenesRecientes";
 import MapaBolivia from "./components/MapaBolivia";
 import GraficoCircularPagos from "./components/GraficoCircularPagos";
+import { Link } from "react-router-dom";
 
 const StatCard = ({ title, value, icon, bgColor, textColor, darkMode }) => {
   const darkModeClasses = darkMode 
@@ -250,10 +251,12 @@ const PanelDatos = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      <div className="flex flex-col items-center justify-center h-screen bg-white">
+        <div className="animate-spin rounded-full h-14 w-14 border-4 border-blue-500 border-t-transparent mb-4"></div>
+        <p className="text-gray-600 text-lg font-medium">Cargando...</p>
       </div>
     );
+   
   }
 
   if (error) {
@@ -305,6 +308,7 @@ const PanelDatos = () => {
             textColor="text-yellow-600"
             darkMode={darkMode}
           />
+        <Link to="/admin/descargar_listas" className="block">
           <StatCard 
             title="Total Competidores" 
             value={stats.totalInscritos} 
@@ -313,6 +317,7 @@ const PanelDatos = () => {
             textColor="text-purple-600"
             darkMode={darkMode}
           />
+        </Link>
         </div>
         
          {/* Sección de gráfico y órdenes recientes */}
