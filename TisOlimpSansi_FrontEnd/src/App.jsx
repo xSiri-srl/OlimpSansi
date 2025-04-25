@@ -95,7 +95,10 @@ export default function App() {
           element={<ListaCompetidores />}
         />
 
-
+          <Route 
+          path="/PasosInscripcion" 
+          element={<PasosInscripcion/>}
+        />
         <Route 
           path="/admin/descargar_listas" 
           element={<DescargarListas/>}

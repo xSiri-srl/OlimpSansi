@@ -13,7 +13,7 @@ const RegistroPorLista = () => {
     "Seleccionar Unidad Educativa",
     "Subir Lista",
     "Lista de Competidores",
-    "Confirmación",
+    
   ];
 
   return (
@@ -48,7 +48,7 @@ const RegistroPorLista = () => {
         {step === 2 && <RegistroColegio setStep={setStep} />}
         {step === 3 && <SubirArchivo setStep={setStep} />}
         {step === 4 && <ListaCompetidores setStep={setStep} />}
-        {step === 5 && <PasosInscripcion setStep={setStep} />}
+     
       </div>
     </div>
   );
