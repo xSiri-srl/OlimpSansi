@@ -86,4 +86,23 @@ class EstudianteController extends Controller
             'message' => 'Estudiante eliminado exitosamente',
         ]);
     }
+    public function buscarEstudiante($ci)
+{
+    $estudiante = EstudianteModel::where('ci', $ci)->first();
+    
+    if ($estudiante) {
+        // Cargar la relación con el colegio para obtener datos completos
+        $estudiante->load('colegio', 'grado');
+        
+        return response()->json([
+            'found' => true,
+            'estudiante' => $estudiante
+        ]);
+    }
+    
+    return response()->json([
+        'found' => false,
+        'message' => 'No se encontró estudiante con ese CI'
+    ]);
+}
 }

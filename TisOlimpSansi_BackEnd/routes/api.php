@@ -138,3 +138,4 @@ Route::get('/lista-inscritos', [InscripcionController::class, 'listarInscritos']
 Route::get('/ordenes-recientes', [OrdenPagoController::class, 'obtenerOrdenesConResponsable']);
 Route::post('/colegios/filtro', [ColegioController::class, 'getByFiltro']);
 
+Route::get('/buscarEstudiante/{ci}', [EstudianteController::class, 'buscarEstudiante']);
