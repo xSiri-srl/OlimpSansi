@@ -122,4 +122,18 @@ class ColegioController extends Controller
         ]);
     }
     
+    public function contarPorGrado(Request $request)
+    {
+        $gradoEstudiante = $request->input('grado');
+
+        $cantidad = DB::table('estudiante')
+            ->join('grado', 'estudiante.id_grado', '=', 'grado.id')
+            ->where('grado.nombre_grado', $gradoEstudiante)
+            ->count();
+
+        return response()->json([
+            'grado' => $gradoEstudiante,
+            'cantidad_estudiantes' => $cantidad
+        ]);
+    }
 }
