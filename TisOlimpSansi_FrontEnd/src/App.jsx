@@ -18,6 +18,7 @@ import PasosInscripcion from "./pages/InscripcionLista/PasosInscripcion";
 import GenerarOrdenPago from "./pages/OrdenPago/GenerarOrdenPago";
 import PanelDatos from "./pages/Administrador/PanelDatos";
 import DescargarListas from "./pages/Administrador/DescargarListas";
+import Propuesta from "./pages/OrdenDePago/Propuesta";
 
 export default function App() {
   return (
@@ -53,6 +54,10 @@ export default function App() {
         <Route
           path="/inscripcion/tutor-academico"
           element={<InscripcionTutorAcademico />}
+        />
+        <Route
+          path="/inscripcion/propuesta"
+          element={<Propuesta />}
         />
         {/* ORDEN DE PAGO GENERADA */}
         <Route

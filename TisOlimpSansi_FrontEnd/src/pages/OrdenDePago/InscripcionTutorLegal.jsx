@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { FaUser, FaIdCard, FaEnvelope, FaPhoneAlt } from "react-icons/fa";
-import ModalConfirmacion from "./modales/ModalConfirmacion";
 import { useFormData } from "./form-data-context";
 import { TextField, RadioGroupField } from "./components/FormComponents";
 import { useFormValidation } from "./hooks/useFormValidation";
@@ -11,20 +10,13 @@ export default function InscripcionTutorLegal({
   handleNext,
   handleBack,
 }) {
-  const [showModal, setShowModal] = useState(false);
-  const [currentAreaIndex, setCurrentAreaIndex] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { globalData, setGlobalData } = useFormData();
-  const { errors, validateInput, validateEmailField, clearError, setErrors } = useFormValidation();
+  const { errors, validateInput, validateEmailField, setErrors } = useFormValidation();
 
-  const areasSeleccionadas = formData.estudiante?.areasSeleccionadas || [];
-  const areasConProfesor = formData.profesores?.areasRegistradas || [];
-
-  // Roles disponibles para el tutor legal
   const rolesDisponibles = ["Padre", "Madre", "Tutor Legal"];
 
   const handleSubmitAndNext = async () => {
-    // Validar todos los campos
     const isRolValid = validateInput(
       formData.legal?.correoPertenece,
       "correoPertenece"
@@ -48,11 +40,7 @@ export default function InscripcionTutorLegal({
       /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
     );
 
-    const isCIValid = validateInput(
-      formData.legal?.ci, 
-      "ci", 
-      /^[0-9]*$/
-    );
+    const isCIValid = validateInput(formData.legal?.ci, "ci", /^[0-9]*$/);
 
     const isTelefonoValid = validateInput(
       formData.legal?.telefono,
@@ -80,7 +68,6 @@ export default function InscripcionTutorLegal({
     setIsSubmitting(true);
 
     try {
-      // Actualizar datos en el objeto JSON global
       const updatedData = {
         ...globalData,
         tutor_legal: {
@@ -94,22 +81,11 @@ export default function InscripcionTutorLegal({
         },
       };
 
-      // Guardar en el contexto global
       setGlobalData(updatedData);
-
       console.log("Datos del tutor legal actualizados en JSON:", updatedData);
 
-      // Marcar como completo
       handleInputChange("legal", "isComplete", true);
-      
-      // Si hay áreas seleccionadas, mostrar modal para gestión de profesores
-      if (areasSeleccionadas.length > 0) {
-        handleInputChange("flow", "pendingAreas", [...areasSeleccionadas]);
-        setCurrentAreaIndex(0);
-        setShowModal(true);
-      } else {
-        handleNext();
-      }
+      handleNext();
     } catch (error) {
       console.error("Error al procesar los datos:", error);
       setErrors({
@@ -120,84 +96,6 @@ export default function InscripcionTutorLegal({
     }
   };
 
-  // Manejador para el caso en que el usuario quiere registrar un profesor
-  const handleSiProfesor = () => {
-    const currentArea = areasSeleccionadas[currentAreaIndex];
-
-    // Configurar para el registro del profesor
-    handleInputChange("profesor", "areaCompetencia", currentArea);
-
-    // Actualizar áreas que ya tienen profesor asignado
-    const nuevasAreasConProfesor = [...(areasConProfesor || []), currentArea];
-    handleInputChange("profesores", "areasRegistradas", nuevasAreasConProfesor);
-
-    // Guardar el índice actual 
-    handleInputChange("flow", "currentAreaIndex", currentAreaIndex);
-
-    // Gestionar áreas pendientes
-    if (currentAreaIndex < areasSeleccionadas.length - 1) {
-      const areasRestantes = areasSeleccionadas.filter(
-        (area, idx) =>
-          idx > currentAreaIndex && !nuevasAreasConProfesor.includes(area)
-      );
-      handleInputChange("flow", "pendingAreas", areasRestantes);
-    } else {
-      handleInputChange("flow", "pendingAreas", []);
-    }
-
-    // Cerrar modal y redirigir
-    setShowModal(false);
-    handleInputChange("flow", "redirectToProfesor", true);
-    handleNext();
-  };
-
-  // Manejador para el caso en que el estudiante será su propio tutor académico
-  const handleNoProfesor = () => {
-    // Obtener el área actual
-    const currentArea = areasSeleccionadas[currentAreaIndex];
-    const estudiante = globalData.estudiante || {};
-    
-    // Usar al estudiante como tutor para esta área
-    const tutorEstudiante = {
-      nombre_area: currentArea,
-      tutor: {
-        nombre: estudiante.nombre,
-        apellido_pa: estudiante.apellido_pa,
-        apellido_ma: estudiante.apellido_ma,
-        ci: estudiante.ci,
-        correo: estudiante.correo,
-      },
-    };
-    
-    // Actualizar datos globales
-    const tutoresExistentes = globalData.tutores_academicos || [];
-    const updatedData = {
-      ...globalData,
-      tutores_academicos: [...tutoresExistentes, tutorEstudiante],
-    };
-    
-    setGlobalData(updatedData);
-    console.log(
-      "Usando datos del estudiante como tutor para",
-      currentArea,
-      ":",
-      updatedData
-    );
-
-    if (currentAreaIndex < areasSeleccionadas.length - 1) {
-      // Avanzar al siguiente área
-      setCurrentAreaIndex(currentAreaIndex + 1);
-    } else {
-      // No hay más áreas, terminar el proceso
-      setShowModal(false);
-      handleInputChange("flow", "pendingAreas", []);
-      handleInputChange("flow", "skipProfesor", true);
-      handleInputChange("flow", "redirectToProfesor", false);
-      handleNext();
-    }
-  };
-
-  // Verificar si el formulario es válido para habilitar el botón
   const isFormValid =
     formData.legal?.apellidoPaterno &&
     formData.legal?.apellidoMaterno &&
@@ -210,14 +108,13 @@ export default function InscripcionTutorLegal({
     formData.legal?.nombres.length >= 2 &&
     formData.legal?.apellidoMaterno.length >= 2 &&
     formData.legal?.apellidoPaterno.length >= 2 &&
-    formData.legal?.telefono.length == 8 &&
+    formData.legal?.telefono.length === 8 &&
     formData.legal?.nombres.split(" ").length <= 2 &&
     !isSubmitting;
 
   return (
     <div className="flex flex-col items-center">
       <div className="w-full max-w-2xl">
-        {/* Título */}
         <div className="text-center mb-6">
           <h2 className="text-lg font-semibold mb-2 text-gray-500">
             Tutor Legal
@@ -227,7 +124,6 @@ export default function InscripcionTutorLegal({
           </p>
         </div>
 
-        {/* Selección de Rol */}
         <div className="mb-6 text-center">
           <h3 className="text-md font-semibold mb-2">Rol del Tutor</h3>
           <RadioGroupField
@@ -242,23 +138,19 @@ export default function InscripcionTutorLegal({
           />
         </div>
 
-        {/* Formulario de Datos del Tutor */}
         <div className="space-y-4">
-        <TextField
+          <TextField
             label="Carnet de Identidad"
             icon={<FaIdCard className="text-black" />}
             name="ci"
             placeholder="Número de Carnet de Identidad"
             value={formData.legal?.ci || ""}
-            onChange={(value) =>
-              handleInputChange("legal", "ci", value)
-            }
+            onChange={(value) => handleInputChange("legal", "ci", value)}
             error={errors.ci}
             maxLength="8"
             regex={/^[0-9]*$/}
           />
           <div className="flex flex-col md:flex-row gap-4">
-            
             <div className="w-full">
               <TextField
                 label="Apellido Paterno"
@@ -299,9 +191,7 @@ export default function InscripcionTutorLegal({
             name="nombres"
             placeholder="Nombres"
             value={formData.legal?.nombres || ""}
-            onChange={(value) =>
-              handleInputChange("legal", "nombres", value)
-            }
+            onChange={(value) => handleInputChange("legal", "nombres", value)}
             error={errors.nombres}
             maxLength="30"
             regex={/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/}
@@ -315,9 +205,7 @@ export default function InscripcionTutorLegal({
             type="email"
             placeholder="Correo Electrónico"
             value={formData.legal?.correo || ""}
-            onChange={(value) =>
-              handleInputChange("legal", "correo", value)
-            }
+            onChange={(value) => handleInputChange("legal", "correo", value)}
             error={errors.correo}
           />
 
@@ -336,14 +224,12 @@ export default function InscripcionTutorLegal({
           />
         </div>
 
-        {/* Mensaje de error general */}
         {errors.general && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mt-4">
             {errors.general}
           </div>
         )}
 
-        {/* Botones de Navegación */}
         <div className="flex justify-center mt-8 gap-4">
           <button
             type="button"
@@ -367,15 +253,6 @@ export default function InscripcionTutorLegal({
           </button>
         </div>
       </div>
-
-      {/* Modal de confirmación */}
-      {showModal && (
-        <ModalConfirmacion
-          area={areasSeleccionadas[currentAreaIndex]}
-          onConfirm={handleSiProfesor}
-          onCancel={handleNoProfesor}
-        />
-      )}
     </div>
   );
 }

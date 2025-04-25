@@ -139,6 +139,7 @@ Route::get('/ordenes-recientes', [OrdenPagoController::class, 'obtenerOrdenesCon
 
 Route::post('/colegios/filtro', [ColegioController::class, 'getByFiltro']);
 
+Route::get('/buscarEstudiante/{ci}', [EstudianteController::class, 'buscarEstudiante']);
 
 
 

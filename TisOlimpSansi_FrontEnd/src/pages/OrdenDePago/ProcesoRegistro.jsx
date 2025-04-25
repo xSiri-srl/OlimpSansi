@@ -26,9 +26,13 @@ const ProcesoRegistro = ({
   useEffect(() => {
     const checkFormData = () => {
       const hasData = 
-        formData.flow.pendingAreas.length > 0 ||
         formData.profesores.areasRegistradas.length > 0 ||
-        Object.values(formData.flow).some(val => val !== false && val !== 0);
+        Object.values(formData.flow).some(val => {
+          if (typeof val === 'boolean' && val === true) return true;
+          if (typeof val === 'number' && val > 0) return true;
+          if (Array.isArray(val) && val.length > 0) return true;
+          return false;
+        });
       
       setHasFormData(hasData);
     };
@@ -53,65 +57,18 @@ const ProcesoRegistro = ({
     };
   }, [hasFormData]);
 
-  useEffect(() => {
-    if (formData.flow?.skipProfesor === true && step === 5) {
-      setStep(6);
-    }
-  }, [formData.flow?.skipProfesor, step]);
-
   const handleNext = () => {
-    if (formData.flow?.skipProfesor === true) {
-      setStep(6);
-      return;
-    }
-  
-    if (step === 5 && !formData.flow.redirectToProfesor) {
-      if (formData.flow.pendingAreas && formData.flow.pendingAreas.length > 0) {
-        setFormData(prev => ({
-          ...prev,
-          flow: {
-            ...prev.flow,
-            showNextAreaModal: true
-          }
-        }));
-      } else {
-        setStep(6); 
-      }
-    }
-    else if (formData.flow?.redirectToProfesor) {
-      setStep(5);
-    } 
-    else if (step < steps.length) {
-      if (step === 4 && formData.flow?.skipProfesor === true) {
-        setStep(6); 
-      } else {
-        setStep(step + 1);
-      }
-      
-      if (step === steps.length - 1) {
-        navigate(nextRoute);
-      }
+    // Simplificar la lógica de navegación
+    if (step < steps.length) {
+      setStep(step + 1);
+    } else if (step === steps.length) {
+      navigate(nextRoute);
     }
   };
 
   const handleBack = () => {
     if (step > 1) {
-      if (step === 6) {
-        setFormData(prev => ({
-          ...prev,
-          flow: {
-            ...prev.flow,
-            editingTutores: true,
-            skipProfesor: false,  
-            redirectToProfesor: false,
-            pendingAreas: [], 
-            showNextAreaModal: false
-          }
-        }));
-        setStep(5);
-      } else {
-        setStep(step - 1);
-      }
+      setStep(step - 1);
     } else {
       navigate(backRoute);
     }
