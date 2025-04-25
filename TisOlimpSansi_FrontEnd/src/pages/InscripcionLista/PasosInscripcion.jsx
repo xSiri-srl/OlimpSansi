@@ -35,7 +35,7 @@ const PasosInscripcion = () => {
   }
 
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-white rounded-xl shadow-lg space-y-8">
+    <div className="max-w-3xl mx-auto p-8 bg-white rounded-2xl shadow-2xl space-y-10 animate-fade-in">
       {/* Alerta */}
       <div className="bg-red-100 border-l-8 border-red-600 p-6 rounded-lg shadow animate-pulse">
         <div className="text-center">
@@ -46,7 +46,7 @@ const PasosInscripcion = () => {
 
       {/* Código generado */}
       <div className="text-center">
-        <h2 className="text-xl font-bold text-gray-800 mb-2">RECUERDE ESTE CÓDIGO</h2>
+        <h2 className="text-xl font-bold text-gray-800 mb-2">GUARDE Y RECUERDE ESTE CÓDIGO DE ORDEN</h2>
         <div className="inline-flex items-center space-x-3 bg-blue-100 border-2 border-blue-500 rounded-full px-6 py-3 shadow-md">
           <span className="text-lg font-mono tracking-widest text-gray-800">{codigo || "..."}</span>
           <button
@@ -57,7 +57,7 @@ const PasosInscripcion = () => {
             <FaCopy className="text-xl" />
           </button>
         </div>
-        <p className="text-sm text-gray-500 mt-2">Se le pedirá este código para subir su comprobante.</p>
+        <p className="text-sm text-gray-500 mt-2">Lo necesitará para generar su orden de pago y subir su comprobante de pago.</p>
       </div>
 
       {/* Instrucciones */}
@@ -68,7 +68,7 @@ const PasosInscripcion = () => {
         <div className="flex items-start">
   <span className="bg-blue-500 font-bold text-white px-3 py-1 rounded-full mr-4">1</span>
   <div className="flex-1">
-    <h4 className="font-semibold text-gray-800">Cuando ya haya copiado el codigo generado</h4>
+    <h4 className="font-semibold text-gray-800">Una vez que haya copiado el código generado</h4>
     <p className="text-sm text-gray-600">
       Rediríjase a la pestaña <strong>"Generar Orden de pago"</strong>.
     </p>
@@ -122,7 +122,7 @@ const PasosInscripcion = () => {
           <div className="flex items-start">
   <span className="bg-blue-500 font-bold text-white px-3 py-1 rounded-full mr-4">4</span>
   <div className="flex-1">
-    <h4 className="font-semibold text-gray-800">Cuando ya haya pagado</h4>
+    <h4 className="font-semibold text-gray-800">Una vez que haya realizado el pago</h4>
     <p className="text-sm text-gray-600">
       Rediríjase a la pestaña <strong>"Subir comprobante"</strong>.
     </p>

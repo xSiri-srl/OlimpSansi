@@ -18,9 +18,10 @@ import ErrorModal from "./Modales/RegistrosInvalidosModal";
 import DemasiadosErroresModal from "./Modales/DemasiadosErroresModal";
 import ExitoModal from "./Modales/ExitoModal";
 import EditarEstudianteModal from "./Modales/EditarEstudianteModal";
-
+import { useNavigate } from 'react-router-dom';
 const ListaCompetidores = ({ setStep }) => {
   const { globalData, setGlobalData } = useFormData();
+  const navigate = useNavigate();
 
   const responsableInscripcion = globalData.responsable_inscripcion;
   const [showTooManyErrorsModal, setShowTooManyErrorsModal] = useState(false);
@@ -393,7 +394,7 @@ const ListaCompetidores = ({ setStep }) => {
     setShowSuccessModal(false);
     setShowProgressBar(false);
     setShowConfirmation(false);
-    setStep(5); // Avanzar al siguiente paso
+    navigate('/PasosInscripcion');
   };
 
   const handleCancelConfirmation = () => {
