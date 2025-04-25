@@ -175,12 +175,12 @@ const [cargandoExcel, setCargandoExcel] = useState(false);
 
   return (
     <div>
-      <h1 className="text-sky-950 font-bold text-3xl mb-6 p-6 text-center">
+      <h1 className="text-sky-950 font-bold text-3xl p-6 text-center">
         Descargar lista de inscritos
       </h1>
 
-      <div className="w-full max-w-4xl mx-auto bg-sky-50 p-6 rounded-2xl shadow-lg">
-        <div className="flex flex-col md:flex-row gap-4">
+      <div className="w-full max-w-4xl mx-auto bg-sky-50 rounded-2xl shadow-lg">
+        <div className="flex flex-col md:flex-row p-6 gap-4">
           {/* Área */}
           <div className="flex-1">
             <label
