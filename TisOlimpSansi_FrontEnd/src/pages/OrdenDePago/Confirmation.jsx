@@ -270,24 +270,30 @@ const Confirmation = ({ navigate, handleBack }) => {
                   <p className="font-medium text-gray-700">
                     {tutor.nombre_area}
                   </p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
-                    <div>
-                      <p className="text-sm text-gray-500">Nombre Completo</p>
-                      <p className="font-medium">
-                        {`${tutor.tutor?.nombre || ""} 
-                        ${tutor.tutor?.apellido_pa || ""} 
-                        ${tutor.tutor?.apellido_ma || ""}`}
-                      </p>
+                  {tutor.checkbox_activo ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
+                      <div>
+                        <p className="text-sm text-gray-500">Nombre Completo</p>
+                        <p className="font-medium">
+                          {`${tutor.tutor?.nombre || ""} 
+                          ${tutor.tutor?.apellido_pa || ""} 
+                          ${tutor.tutor?.apellido_ma || ""}`}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-500">CI</p>
+                        <p className="font-medium">{tutor.tutor?.ci || ""}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-500">Correo</p>
+                        <p className="font-medium">{tutor.tutor?.correo || ""}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm text-gray-500">CI</p>
-                      <p className="font-medium">{tutor.tutor?.ci || ""}</p>
+                  ) : (
+                    <div className="flex justify-center items-center py-4">
+                      <p className="font-bold text-center">SIN TUTOR ACADÉMICO</p>
                     </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Correo</p>
-                      <p className="font-medium">{tutor.tutor?.correo || ""}</p>
-                    </div>
-                  </div>
+                  )}
                 </div>
               ))}
             </div>
