@@ -203,10 +203,102 @@ const ListaCompetidores = ({ setStep }) => {
     // Estructura el JSON que se enviará
     const datosAEnviar = {
       responsable_inscripcion: responsableInscripcion,
-      inscripciones: estudiantes,
-    }
+      inscripciones: estudiantes.map((estudiante) => {
+        // Crear una copia del estudiante para manipular
+        const estudianteModificado = { ...estudiante };
 
-    console.log("Enviando datos:", datosAEnviar)
+              // Convertir las categorías al formato original para el backend
+      if (
+        estudianteModificado.areas_competencia &&
+        estudianteModificado.areas_competencia.length > 0
+      ) {
+        estudianteModificado.areas_competencia = estudianteModificado.areas_competencia.map(area => {
+          // Si ya tiene categoria_original, la usamos
+          if (area.categoria_original) {
+            console.log(`Usando categoría original: ${area.categoria_original} en lugar de ${area.categoria}`);
+            area.categoria = area.categoria_original;
+            delete area.categoria_original;
+            return area;
+          }
+
+          // Si es informática o robótica y tiene categoría, convertir al formato original
+          if ((area.nombre_area === "Informática" || area.nombre_area === "Robótica") && area.categoria) {
+            // Verificar si la categoría ya está en formato original (mayúsculas sin comillas)
+            if (area.categoria === area.categoria.toUpperCase() && !area.categoria.includes('"')) {
+              return area;
+            }
+            
+            // Extraer el nombre de la categoría que está entre comillas
+            const match = area.categoria.match(/\"([^\"]+)\"/);
+            if (match && match[1]) {
+              const originalFormat = match[1].toUpperCase();
+              console.log(`Convirtiendo categoría: ${area.categoria} -> ${originalFormat}`);
+              area.categoria = originalFormat;
+            }
+          }
+          return area;
+        });
+      }
+        if (
+          estudianteModificado.areas_competencia &&
+          estudianteModificado.areas_competencia.length > 0
+        ) {
+          // Asegurar que tutores_academicos sea un array
+          if (!estudianteModificado.tutores_academicos) {
+            estudianteModificado.tutores_academicos = [];
+          }
+
+          // Verificar cada área para asegurarse de que tiene un tutor académico
+          estudianteModificado.areas_competencia.forEach((area, index) => {
+            // Si no hay tutor para esta área, crear uno con valores predeterminados
+            if (
+              !estudianteModificado.tutores_academicos[index] ||
+              !estudianteModificado.tutores_academicos[index].tutor
+            ) {
+              estudianteModificado.tutores_academicos[index] = {
+                area_id: index,
+                area_nombre: area.nombre_area,
+                tutor: {
+                  nombre: "SIN TUTOR",
+                  apellido_pa: "ACADÉMICO",
+                  apellido_ma: "ACADÉMICO",
+                  ci: "00000000",
+                  correo: "sintutor@ejemplo.com",
+                },
+              };
+            } else {
+              // Si existe el tutor pero tiene campos vacíos, rellenarlos con valores predeterminados
+              const tutor =
+                estudianteModificado.tutores_academicos[index].tutor;
+
+              if (!tutor.nombre || tutor.nombre.trim() === "") {
+                tutor.nombre = "SIN TUTOR";
+              }
+
+              if (!tutor.apellido_pa || tutor.apellido_pa.trim() === "") {
+                tutor.apellido_pa = "ACADÉMICO";
+              }
+
+              if (!tutor.apellido_ma || tutor.apellido_ma.trim() === "") {
+                tutor.apellido_ma = "ACADÉMICO";
+              }
+
+              if (!tutor.ci || tutor.ci.trim() === "") {
+                tutor.ci = "00000000";
+              }
+
+              if (!tutor.correo || tutor.correo.trim() === "") {
+                tutor.correo = "sintutor@ejemplo.com";
+              }
+            }
+          });
+        }
+
+        return estudianteModificado;
+      }),
+    };
+
+    console.log("Enviando datos:", datosPreparados);
     // Iniciar barra de progreso
     setShowProgressBar(true)
     setUploadProgress(0)

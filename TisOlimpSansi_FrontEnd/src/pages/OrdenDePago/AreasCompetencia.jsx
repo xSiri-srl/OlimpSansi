@@ -158,26 +158,29 @@ export default function AreasCompetencia({
       </div>
     );
   };
-
   const handleSubmitAndNext = () => {
     if (!validarFormulario()) {
       return;
     }
   
     try {
-
       const areasCompetencia = seleccionadas.map(area => {
         if (area === "Informática" || area === "Robótica") {
           const categoriaCompleta = categoriasSeleccionadas[area] || "";
-          const nombreCategoria = categoriaCompleta.match(/\"([^\"]+)\"/)?.[1] || "";
+          
+          // Extraer el nombre entre comillas y convertirlo a mayúsculas
+          const nombreCategoria = (categoriaCompleta.match(/\"([^\"]+)\"/)?.[1] || "").toUpperCase();
+          
+          console.log(`Categoría original: ${categoriaCompleta} -> Categoría procesada: ${nombreCategoria}`);
+          console.log(`Área original: ${area} -> Área procesada: ${area.toUpperCase()}`);
           
           return {
-            nombre_area: area,
+            nombre_area: area.toUpperCase(),
             categoria: nombreCategoria  
           };
         } else {
           return {
-            nombre_area: area
+            nombre_area: area.toUpperCase()
           };
         }
       });
@@ -188,11 +191,11 @@ export default function AreasCompetencia({
       };
   
       setGlobalData(updatedData);
-
+  
       console.log("Datos de áreas actualizados en JSON:", updatedData);
       console.log("Áreas seleccionadas:", seleccionadas);
       console.log("Categorías extraídas:", areasCompetencia);
-
+  
       handleInputChange("estudiante", "areasComplete", true);
   
       handleNext();
