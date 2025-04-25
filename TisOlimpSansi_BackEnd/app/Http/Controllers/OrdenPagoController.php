@@ -325,26 +325,22 @@ class OrdenPagoController extends Controller
 
     public function obtenerOrdenesConResponsable(){
         try {
-            // Calcular la fecha de hace 7 días
+            //calcular la fecha de hace 7 días
             $fechaLimite = now()->subDays(7);
             
-            // Primero obtenemos las órdenes de pago recientes (últimos 7 días)
             $ordenesPago = OrdenPago::where('fecha_emision', '>=', $fechaLimite)
                 ->orderBy('fecha_emision', 'desc')
                 ->get();
                 
             $resultado = [];
             
-            // Para cada orden de pago, buscamos su primera inscripción y responsable asociado
             foreach ($ordenesPago as $orden) {
-                // Buscar la primera inscripción asociada a esta orden
                 $inscripcion = InscripcionModel::where('id_orden_pago', $orden->id)
                     ->with('responsable')
                     ->first();
                     
                 $responsable = $inscripcion ? $inscripcion->responsable : null;
                 
-                // Si hay un responsable, obtenemos su nombre completo
                 $nombreResponsable = 'No disponible';
                 if ($responsable) {
                     $nombreResponsable = trim(
@@ -354,12 +350,10 @@ class OrdenPagoController extends Controller
                     );
                 }
                 
-                // Formateo de fecha
                 $fecha = $orden->fecha_emision ? 
                     date('d M Y', strtotime($orden->fecha_emision)) : 
                     'Fecha no disponible';
                     
-                // Añadir al resultado
                 $resultado[] = [
                     'id' => $orden->codigo_generado,
                     'responsable' => $nombreResponsable,
