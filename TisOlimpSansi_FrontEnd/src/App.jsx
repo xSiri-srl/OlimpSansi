@@ -13,97 +13,79 @@ import Tutorial from "./pages/InscripcionLista/Tutorial";
 import RegistroPorLista from "./pages/InscripcionLista/RegistroPorLista";
 import SubirArchivo from "./pages/InscripcionLista/SubirArchivo";
 import ListaCompetidores from "./pages/InscripcionLista/ListaCompetidores";
-import { FormProvider } from "./pages/InscripcionLista/form-context"
+import { FormProvider } from "./pages/InscripcionLista/form-context";
 import PasosInscripcion from "./pages/InscripcionLista/PasosInscripcion";
 import GenerarOrdenPago from "./pages/OrdenPago/GenerarOrdenPago";
 import PanelDatos from "./pages/Administrador/PanelDatos";
 import DescargarListas from "./pages/Administrador/DescargarListas";
+import PreInscritos from "./pages/Administrador/PreInscritos";
 import Propuesta from "./pages/OrdenDePago/Propuesta";
 
 export default function App() {
   return (
- <>
-    <Navbar />
-    <div className="pt-20">
-    <FormProvider>
-    
-      {/* ORDEN DE PAGO */}
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/admin/generar-reportes" element={<PanelDatos />} />
-        <Route
-          path="/inscripcion/forma-inscripcion"
-          element={<FormaInscripcion />}
-        />
-        <Route
-          path="/inscripcion/responsable"
-          element={<InscripcionResponsable />}
-        />
-        <Route
-          path="/inscripcion/estudiante"
-          element={<InscripcionEstudiante />}
-        />
-        <Route 
-          path="/inscripcion/areas-competencia" 
-          element={<AreaCompetencia />}
-        />
-        <Route
-          path="/inscripcion/tutor-legal"
-          element={<InscripcionTutorLegal />}
-        />
-        <Route
-          path="/inscripcion/tutor-academico"
-          element={<InscripcionTutorAcademico />}
-        />
-        <Route
-          path="/inscripcion/propuesta"
-          element={<Propuesta />}
-        />
-        {/* ORDEN DE PAGO GENERADA */}
-        <Route
-          path="/ordenDePago"
-          element={<OrdenPago />}
-        />
-         <Route
-          path="/generar-orden-pago"
-          element={<GenerarOrdenPago />}
-        />
-      {/* COMPROBANTE */}
-        <Route 
-          path="/SubirComprobante" 
-          element={<SubirComprobante />}
-        />
+    <>
+      <Navbar />
+      <div className="pt-20">
+        <FormProvider>
+          {/* ORDEN DE PAGO */}
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/admin/generar-reportes" element={<PanelDatos />} />
+            <Route
+              path="/inscripcion/forma-inscripcion"
+              element={<FormaInscripcion />}
+            />
+            <Route
+              path="/inscripcion/responsable"
+              element={<InscripcionResponsable />}
+            />
+            <Route
+              path="/inscripcion/estudiante"
+              element={<InscripcionEstudiante />}
+            />
+            <Route
+              path="/inscripcion/areas-competencia"
+              element={<AreaCompetencia />}
+            />
+            <Route
+              path="/inscripcion/tutor-legal"
+              element={<InscripcionTutorLegal />}
+            />
+            <Route
+              path="/inscripcion/tutor-academico"
+              element={<InscripcionTutorAcademico />}
+            />
+            <Route path="/inscripcion/propuesta" element={<Propuesta />} />
+            {/* ORDEN DE PAGO GENERADA */}
+            <Route path="/ordenDePago" element={<OrdenPago />} />
+            <Route path="/generar-orden-pago" element={<GenerarOrdenPago />} />
+            {/* COMPROBANTE */}
+            <Route path="/SubirComprobante" element={<SubirComprobante />} />
 
-        {/*Inscripcion Listas*/}
+            {/*Inscripcion Listas*/}
 
-        <Route 
-          path="/inscripcion-lista/tutorial" 
-          element={<Tutorial />}
-        />
-         <Route 
-          path="/inscripcion-lista/registro-lista" 
-          element={<RegistroPorLista />}
-        />
-          <Route 
-          path="/inscripcion-lista/subir-archivo" 
-          element={<SubirArchivo />}
-        />
-       
+            <Route path="/inscripcion-lista/tutorial" element={<Tutorial />} />
+            <Route
+              path="/inscripcion-lista/registro-lista"
+              element={<RegistroPorLista />}
+            />
+            <Route
+              path="/inscripcion-lista/subir-archivo"
+              element={<SubirArchivo />}
+            />
+            <Route
+              path="/inscripcion-lista/lista-competidores"
+              element={<ListaCompetidores />}
+            />
 
-          <Route 
-          path="/inscripcion-lista/lista-competidores" 
-          element={<ListaCompetidores />}
-        />
-
-
-        <Route 
-          path="/admin/descargar_listas" 
-          element={<DescargarListas/>}
-        />
-      </Routes> 
-    </FormProvider>
-      
-    </div>
-    </>   
+            <Route
+              path="/admin/descargar_listas"
+              element={<DescargarListas />}
+            />
+            <Route path="/admin/preInscritos" element={<PreInscritos />} />
+          </Routes>
+        </FormProvider>
+      </div>
+    </>
   );
 }
