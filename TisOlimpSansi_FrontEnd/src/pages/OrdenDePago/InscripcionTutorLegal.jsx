@@ -12,56 +12,46 @@ export default function InscripcionTutorLegal({
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { globalData, setGlobalData } = useFormData();
-  const { errors, validateEmailField, clearError, setErrors } = useFormValidation();
+  const { errors, validateInput, validateEmailField, setErrors } = useFormValidation();
 
-  const areasSeleccionadas = formData.estudiante?.areasSeleccionadas || [];
-
-  const validateInput = (value, fieldName, regex) => {
-    if (!value) {
-      setErrors((prev) => ({ ...prev, [fieldName]: "Campo obligatorio." }));
-      return false;
-    }
-    if (regex && !regex.test(value)) {
-      setErrors((prev) => ({ ...prev, [fieldName]: "Formato inválido." }));
-      return false;
-    }
-    setErrors((prev) => ({ ...prev, [fieldName]: "" }));
-    return true;
-  };
-
-  const validateEmail = (email) => {
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    return validateInput(email, "correo", emailRegex);
-  };
+  const rolesDisponibles = ["Padre", "Madre", "Tutor Legal"];
 
   const handleSubmitAndNext = async () => {
-    // Validar todos los campos
     const isRolValid = validateInput(
       formData.legal?.correoPertenece,
       "correoPertenece"
     );
+
     const isApellidoPaternoValid = validateInput(
       formData.legal?.apellidoPaterno,
       "apellidoPaterno",
       /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
     );
+
     const isApellidoMaternoValid = validateInput(
       formData.legal?.apellidoMaterno,
       "apellidoMaterno",
       /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
     );
+
     const isNombresValid = validateInput(
       formData.legal?.nombres,
       "nombres",
       /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
     );
+
     const isCIValid = validateInput(formData.legal?.ci, "ci", /^[0-9]*$/);
+
     const isTelefonoValid = validateInput(
       formData.legal?.telefono,
       "telefono",
       /^[0-9]*$/
     );
-    const isCorreoValid = validateEmail(formData.legal?.correo);
+
+    const isCorreoValid = validateEmailField(
+      formData.legal?.correo,
+      "correo"
+    );
 
     if (
       !isRolValid ||
@@ -78,7 +68,6 @@ export default function InscripcionTutorLegal({
     setIsSubmitting(true);
 
     try {
-      // Actualizar datos en el objeto JSON global
       const updatedData = {
         ...globalData,
         tutor_legal: {
@@ -92,28 +81,21 @@ export default function InscripcionTutorLegal({
         },
       };
 
-      // Guardar en el contexto global
       setGlobalData(updatedData);
       console.log("Datos del tutor legal actualizados en JSON:", updatedData);
+
       handleInputChange("legal", "isComplete", true);
       handleNext();
     } catch (error) {
       console.error("Error al procesar los datos:", error);
-      setErrors({ general: "Hubo un error al procesar los datos." });
+      setErrors({
+        general: "Hubo un error al procesar los datos.",
+      });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleValidatedChange = (namespace, field, value, regex) => {
-    if (value.startsWith(" ")) return;
-    if (regex.test(value) || value === "") {
-      handleInputChange(namespace, field, value);
-      setErrors((prev) => ({ ...prev, [field]: "" }));
-    }
-  };
-
-  // Verificar si el formulario es válido para habilitar el botón
   const isFormValid =
     formData.legal?.apellidoPaterno &&
     formData.legal?.apellidoMaterno &&
@@ -126,7 +108,7 @@ export default function InscripcionTutorLegal({
     formData.legal?.nombres.length >= 2 &&
     formData.legal?.apellidoMaterno.length >= 2 &&
     formData.legal?.apellidoPaterno.length >= 2 &&
-    formData.legal?.telefono.length == 8 &&
+    formData.legal?.telefono.length === 8 &&
     formData.legal?.nombres.split(" ").length <= 2 &&
     !isSubmitting;
 
@@ -142,7 +124,7 @@ export default function InscripcionTutorLegal({
           </p>
         </div>
 
-        <div className="mb-6">
+        <div className="mb-6 text-center">
           <h3 className="text-md font-semibold mb-2">Rol del Tutor</h3>
           <RadioGroupField
             name="correoPertenece"
@@ -157,16 +139,23 @@ export default function InscripcionTutorLegal({
         </div>
 
         <div className="space-y-4">
-          {/* Apellido Paterno y Materno */}
+          <TextField
+            label="Carnet de Identidad"
+            icon={<FaIdCard className="text-black" />}
+            name="ci"
+            placeholder="Número de Carnet de Identidad"
+            value={formData.legal?.ci || ""}
+            onChange={(value) => handleInputChange("legal", "ci", value)}
+            error={errors.ci}
+            maxLength="8"
+            regex={/^[0-9]*$/}
+          />
           <div className="flex flex-col md:flex-row gap-4">
-            
             <div className="w-full">
-              <label className="flex items-center gap-2">
-                <FaUser className="text-black" /> Apellido Paterno
-              </label>
-              <input
-                type="text"
-                className="mt-1 p-2 w-full border rounded-md"
+              <TextField
+                label="Apellido Paterno"
+                icon={<FaUser className="text-black" />}
+                name="apellidoPaterno"
                 placeholder="Apellido Paterno"
                 value={formData.legal?.apellidoPaterno || ""}
                 onChange={(value) =>
@@ -179,12 +168,10 @@ export default function InscripcionTutorLegal({
               />
             </div>
             <div className="w-full">
-              <label className="flex items-center gap-2">
-                <FaUser className="text-black" /> Apellido Materno
-              </label>
-              <input
-                type="text"
-                className="mt-1 p-2 w-full border rounded-md"
+              <TextField
+                label="Apellido Materno"
+                icon={<FaUser className="text-black" />}
+                name="apellidoMaterno"
                 placeholder="Apellido Materno"
                 value={formData.legal?.apellidoMaterno || ""}
                 onChange={(value) =>
@@ -198,94 +185,43 @@ export default function InscripcionTutorLegal({
             </div>
           </div>
 
-          {/* Nombres */}
-          <div>
-            <label className="flex items-center gap-2">
-              <FaUser className="text-black" /> Nombres
-            </label>
-            <input
-              type="text"
-              className="mt-1 p-2 w-full border rounded-md"
-              placeholder="Nombres"
-              value={formData.legal?.nombres || ""}
-              onChange={(e) =>
-                handleValidatedChange(
-                  "legal",
-                  "nombres",
-                  e.target.value.toUpperCase(),
-                  /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
-                )
-              }
-              maxLength="30"
-            />
-            {errors.nombres && (
-              <p className="text-red-500 text-sm mt-1">{errors.nombres}</p>
-            )}
-          </div>
+          <TextField
+            label="Nombres"
+            icon={<FaUser className="text-black" />}
+            name="nombres"
+            placeholder="Nombres"
+            value={formData.legal?.nombres || ""}
+            onChange={(value) => handleInputChange("legal", "nombres", value)}
+            error={errors.nombres}
+            maxLength="30"
+            regex={/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/}
+            transform={(value) => value.toUpperCase()}
+          />
 
-          {/* CI */}
-          <div>
-            <label className="flex items-center gap-2">
-              <FaIdCard className="text-black" /> Carnet de Identidad
-            </label>
-            <input
-              type="text"
-              className="mt-1 p-2 w-full border rounded-md"
-              placeholder="CI"
-              value={formData.legal?.ci || ""}
-              onChange={(e) =>
-                handleValidatedChange("legal", "ci", e.target.value, /^[0-9]*$/)
-              }
-              maxLength="8"
-            />
-            {errors.ci && (
-              <p className="text-red-500 text-sm mt-1">{errors.ci}</p>
-            )}
-          </div>
+          <TextField
+            label="Correo Electrónico"
+            icon={<FaEnvelope className="text-black" />}
+            name="correo"
+            type="email"
+            placeholder="Correo Electrónico"
+            value={formData.legal?.correo || ""}
+            onChange={(value) => handleInputChange("legal", "correo", value)}
+            error={errors.correo}
+          />
 
-          {/* Correo */}
-          <div>
-            <label className="flex items-center gap-2">
-              <FaEnvelope className="text-black" /> Correo Electrónico
-            </label>
-            <input
-              type="email"
-              className="mt-1 p-2 w-full border rounded-md"
-              placeholder="Correo Electrónico"
-              value={formData.legal?.correo || ""}
-              onChange={(e) =>
-                handleInputChange("legal", "correo", e.target.value)
-              }
-            />
-            {errors.correo && (
-              <p className="text-red-500 text-sm mt-1">{errors.correo}</p>
-            )}
-          </div>
-
-          {/* Teléfono */}
-          <div>
-            <label className="flex items-center gap-2">
-              <FaPhoneAlt className="text-black" /> Teléfono/Celular
-            </label>
-            <input
-              type="text"
-              className="mt-1 p-2 w-full border rounded-md"
-              placeholder="Teléfono/Celular"
-              value={formData.legal?.telefono || ""}
-              onChange={(e) =>
-                handleValidatedChange(
-                  "legal",
-                  "telefono",
-                  e.target.value,
-                  /^[0-9]*$/
-                )
-              }
-              maxLength="8"
-            />
-            {errors.telefono && (
-              <p className="text-red-500 text-sm mt-1">{errors.telefono}</p>
-            )}
-          </div>
+          <TextField
+            label="Teléfono/Celular"
+            icon={<FaPhoneAlt className="text-black" />}
+            name="telefono"
+            placeholder="Número de Teléfono/Celular"
+            value={formData.legal?.telefono || ""}
+            onChange={(value) =>
+              handleInputChange("legal", "telefono", value)
+            }
+            error={errors.telefono}
+            maxLength="8"
+            regex={/^[0-9]*$/}
+          />
         </div>
 
         {errors.general && (
@@ -297,7 +233,7 @@ export default function InscripcionTutorLegal({
         <div className="flex justify-center mt-8 gap-4">
           <button
             type="button"
-            className="px-6 py-2 text-white rounded-md bg-gray-500 hover:bg-gray-600"
+            className="px-6 py-2 transition duration-300 ease-in-out text-white rounded-md shadow-md bg-gray-500 hover:-translate-y-1 hover:scale-105 hover:bg-gray-600"
             onClick={handleBack}
             disabled={isSubmitting}
           >
@@ -306,38 +242,10 @@ export default function InscripcionTutorLegal({
           <button
             type="button"
             onClick={handleSubmitAndNext}
-            disabled={
-              isSubmitting ||
-              !formData.legal?.apellidoPaterno ||
-              !formData.legal?.apellidoMaterno ||
-              !formData.legal?.nombres ||
-              !formData.legal?.ci ||
-              !formData.legal?.correo ||
-              !formData.legal?.telefono ||
-              !formData.legal?.correoPertenece ||
-              formData.legal?.ci.length < 7 ||
-              formData.legal?.nombres.length < 2 ||
-              formData.legal?.apellidoMaterno.length < 2 ||
-              formData.legal?.apellidoPaterno.length < 2 ||
-              formData.legal?.telefono.length != 8 ||
-              formData.legal?.nombres.split(" ").length > 2
-            }
-            className={`px-6 py-2 text-white rounded-md shadow-md ${
-              !isSubmitting &&
-              formData.legal?.apellidoPaterno &&
-              formData.legal?.apellidoMaterno &&
-              formData.legal?.nombres &&
-              formData.legal?.ci &&
-              formData.legal?.correo &&
-              formData.legal?.telefono &&
-              formData.legal?.correoPertenece &&
-              formData.legal?.ci.length >= 7 &&
-              formData.legal?.nombres.length >= 2 &&
-              formData.legal?.apellidoMaterno.length >= 2 &&
-              formData.legal?.apellidoPaterno.length >= 2 &&
-              formData.legal?.telefono.length == 8 &&
-              formData.legal?.nombres.split(" ").length <= 2
-                ? "bg-blue-500 hover:bg-indigo-500"
+            disabled={!isFormValid}
+            className={`px-6 py-2 transition duration-300 ease-in-out text-white rounded-md shadow-md ${
+              isFormValid
+                ? "bg-blue-500 hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500"
                 : "bg-gray-400 cursor-not-allowed"
             }`}
           >
