@@ -10,10 +10,9 @@ export default function InscripcionTutorLegal({
   handleNext,
   handleBack,
 }) {
-  const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { globalData, setGlobalData } = useFormData();
-  const { errors, validateInput, validateEmailField, clearError, setErrors } = useFormValidation();
+  const { errors, validateEmailField, clearError, setErrors } = useFormValidation();
 
   const areasSeleccionadas = formData.estudiante?.areasSeleccionadas || [];
 
@@ -321,13 +320,13 @@ export default function InscripcionTutorLegal({
               formData.legal?.apellidoMaterno.length < 2 ||
               formData.legal?.apellidoPaterno.length < 2 ||
               formData.legal?.telefono.length != 8 ||
+              !formData.legal?.correoPertenece ||
               formData.legal?.nombres.split(" ").length > 2
             }
-            className={`px-6 py-2 text-white rounded-md shadow-md ${
-              !isSubmitting &&
+            className={`px-6 py-2 transition duration-300 ease-in-out text-white rounded-md shadow-md ${
+              formData.legal?.nombres &&
               formData.legal?.apellidoPaterno &&
               formData.legal?.apellidoMaterno &&
-              formData.legal?.nombres &&
               formData.legal?.ci &&
               formData.legal?.correo &&
               formData.legal?.telefono &&
@@ -337,8 +336,9 @@ export default function InscripcionTutorLegal({
               formData.legal?.apellidoMaterno.length >= 2 &&
               formData.legal?.apellidoPaterno.length >= 2 &&
               formData.legal?.telefono.length == 8 &&
-              formData.legal?.nombres.split(" ").length <= 2
-                ? "bg-blue-500 hover:bg-indigo-500"
+              formData.legal?.nombres.split(" ").length <= 2 &&
+              !isSubmitting
+                ? "bg-blue-500 hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500"
                 : "bg-gray-400 cursor-not-allowed"
             }`}
           >
