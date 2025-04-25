@@ -1,539 +1,468 @@
 import React, { useState, useEffect } from "react";
-import { FaUser, FaIdCard, FaEnvelope, FaPhoneAlt } from "react-icons/fa";
-import ModalConfirmacion from "./modales/ModalConfirmacion";
+import { FaUser, FaIdCard, FaEnvelope, FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { useFormData } from "./form-data-context";
 
-export default function IncripcionTutorAcademico({
+export default function FormularioTutoresAcademicos({
   formData,
   handleInputChange,
   handleNext,
   handleBack,
 }) {
-  const [showModal, setShowModal] = useState(false);
+  const { globalData, setGlobalData } = useFormData();
+  const [tutoresPorArea, setTutoresPorArea] = useState({});
+  const [expandedAreas, setExpandedAreas] = useState({});
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { globalData, setGlobalData } = useFormData();
-  const [editingIndex, setEditingIndex] = useState(-1);
-  const [tutoresToShow, setTutoresToShow] = useState([]);
-
-  const areaCompetencia =
-    formData.profesor?.areaCompetencia || "[AREA DE COMPETENCIA]";
-  const areasConProfesor = formData.profesores?.areasRegistradas || [];
-  const areasRestantes = formData.flow?.pendingAreas || [];
-
+  
+  // Obtener las áreas del contexto global
+  const areasCompetencia = globalData.areas_competencia || [];
+  
+  // Inicializar el estado cuando se cargan las áreas
   useEffect(() => {
+    const initialState = {};
+    areasCompetencia.forEach(area => {
+      initialState[area.nombre_area] = false;
+    });
+    setExpandedAreas(initialState);
+    
+    // Si estamos en modo edición, cargar los tutores existentes
     if (formData.flow?.editingTutores && globalData.tutores_academicos) {
-      console.log(
-        "Iniciando modo edición. Tutores existentes:",
-        globalData.tutores_academicos.length
-      );
-
-      handleInputChange("flow", "pendingAreas", []);
-
-      if (globalData.tutores_academicos.length > 0) {
-        setEditingIndex(0);
-        const primerTutor = globalData.tutores_academicos[0];
-
-        // Cargar los datos del primer tutor en el formulario
-        handleInputChange(
-          "profesor",
-          "areaCompetencia",
-          primerTutor.nombre_area
-        );
-        handleInputChange(
-          "profesor",
-          "apellidoPaterno",
-          primerTutor.tutor?.apellido_pa || ""
-        );
-        handleInputChange(
-          "profesor",
-          "apellidoMaterno",
-          primerTutor.tutor?.apellido_ma || ""
-        );
-        handleInputChange(
-          "profesor",
-          "nombres",
-          primerTutor.tutor?.nombre || ""
-        );
-        handleInputChange("profesor", "ci", primerTutor.tutor?.ci || "");
-        handleInputChange(
-          "profesor",
-          "correo",
-          primerTutor.tutor?.correo || ""
-        );
+      const tutoresState = {};
+      globalData.tutores_academicos.forEach(tutor => {
+        tutoresState[tutor.nombre_area] = {
+          apellidoPaterno: tutor.tutor?.apellido_pa || "",
+          apellidoMaterno: tutor.tutor?.apellido_ma || "",
+          nombres: tutor.tutor?.nombre || "",
+          ci: tutor.tutor?.ci || "",
+          correo: tutor.tutor?.correo || "",
+          seleccionado: true
+        };
+        // Expandir áreas con tutores ya registrados
+        setExpandedAreas(prev => ({...prev, [tutor.nombre_area]: true}));
+      });
+      setTutoresPorArea(tutoresState);
+    }
+  }, [areasCompetencia, formData.flow?.editingTutores, globalData.tutores_academicos]);
+  
+  const toggleArea = (area) => {
+    // Solo expandir/colapsar si el área está seleccionada
+    if (tutoresPorArea[area]?.seleccionado) {
+      setExpandedAreas(prev => ({
+        ...prev,
+        [area]: !prev[area]
+      }));
+    }
+  };
+  
+  const handleCheckboxChange = (area) => {
+    const nuevoEstado = !tutoresPorArea[area]?.seleccionado;
+    
+    setTutoresPorArea(prev => ({
+      ...prev,
+      [area]: {
+        ...prev[area] || {
+          apellidoPaterno: "",
+          apellidoMaterno: "",
+          nombres: "",
+          ci: "",
+          correo: ""
+        },
+        seleccionado: nuevoEstado
       }
-    }
-  }, [formData.flow?.editingTutores]);
-  useEffect(() => {
-    if (formData.flow?.skipProfesor === true) {
-      // Si no se eligieron tutores académicos, usar los datos del estudiante
-      const estudiante = globalData.estudiante || {};
-
-      // Crear entradas para tutores académicos basadas en las áreas seleccionadas
-      const tutoresAcademicos = (globalData.areas_competencia || []).map(
-        (area) => ({
-          nombre_area: area.nombre_area,
-          tutor: {
-            nombre: estudiante.nombre,
-            apellido_pa: estudiante.apellido_pa,
-            apellido_ma: estudiante.apellido_ma,
-            ci: estudiante.ci,
-            correo: estudiante.correo,
-          },
-        })
-      );
-      const updatedData = {
-        ...globalData,
-        tutores_academicos: tutoresAcademicos,
-      };
-
-      setGlobalData(updatedData);
-      console.log(
-        "Sin tutores académicos, usando datos del estudiante:",
-        updatedData
-      );
-
-      handleNext();
-    }
-  }, []);
-
-  useEffect(() => {
-    if (formData.flow?.showNextAreaModal && areasRestantes.length > 0) {
-      setShowModal(true);
-      handleInputChange("flow", "showNextAreaModal", false);
-    }
-  }, [formData.flow?.showNextAreaModal]);
-
-  const validateInput = (value, fieldName, regex) => {
-    if (!value) {
-      setErrors((prev) => ({ ...prev, [fieldName]: "Campo obligatorio." }));
-      return false;
-    }
-
-    if (regex && !regex.test(value)) {
-      setErrors((prev) => ({ ...prev, [fieldName]: "Formato inválido." }));
-      return false;
-    }
-
-    setErrors((prev) => ({ ...prev, [fieldName]: "" }));
-    return true;
+    }));
+    
+    // Si se selecciona, expandir; si se deselecciona, colapsar
+    setExpandedAreas(prev => ({
+      ...prev,
+      [area]: nuevoEstado
+    }));
   };
-
-  const validateEmail = (email) => {
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    return validateInput(email, "correo", emailRegex);
-  };
-
-  const handleProfesorNext = () => {
-    const isApellidoPaternoValid = validateInput(
-      formData.profesor?.apellidoPaterno,
-      "apellidoPaterno",
-      /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
-    );
-
-    const isApellidoMaternoValid = validateInput(
-      formData.profesor?.apellidoMaterno,
-      "apellidoMaterno",
-      /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
-    );
-
-    const isNombresValid = validateInput(
-      formData.profesor?.nombres,
-      "nombres",
-      /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
-    );
-
-    const isCIValid = validateInput(formData.profesor?.ci, "ci", /^[0-9]*$/);
-
-    const isCorreoValid = validateEmail(formData.profesor?.correo);
-    if (
-      !isApellidoPaternoValid ||
-      !isApellidoMaternoValid ||
-      !isNombresValid ||
-      !isCIValid ||
-      !isCorreoValid
-    ) {
+  
+  const handleFormChange = (area, field, value, regex) => {
+    // Validar el valor según el regex si se proporciona
+    if (regex && !regex.test(value) && value !== "") {
       return;
     }
-
+    
+    setTutoresPorArea(prev => ({
+      ...prev,
+      [area]: {
+        ...prev[area],
+        [field]: value
+      }
+    }));
+    
+    // Limpiar error del campo
+    setErrors(prev => ({
+      ...prev,
+      [`${area}-${field}`]: ""
+    }));
+  };
+  
+  const validateInput = (area, field, value, regex) => {
+    const errorKey = `${area}-${field}`;
+    
+    if (!value) {
+      setErrors(prev => ({ ...prev, [errorKey]: "Campo obligatorio." }));
+      return false;
+    }
+    
+    if (regex && !regex.test(value)) {
+      setErrors(prev => ({ ...prev, [errorKey]: "Formato inválido." }));
+      return false;
+    }
+    
+    setErrors(prev => ({ ...prev, [errorKey]: "" }));
+    return true;
+  };
+  
+  const validateEmail = (area, email) => {
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return validateInput(area, "correo", email, emailRegex);
+  };
+  
+  const validateArea = (area) => {
+    const tutor = tutoresPorArea[area];
+    
+    if (!tutor || !tutor.seleccionado) {
+      return true; // Si no está seleccionada, no validamos
+    }
+    
+    const isApellidoPaternoValid = validateInput(
+      area,
+      "apellidoPaterno",
+      tutor.apellidoPaterno,
+      /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
+    );
+    
+    const isApellidoMaternoValid = validateInput(
+      area,
+      "apellidoMaterno",
+      tutor.apellidoMaterno,
+      /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
+    );
+    
+    const isNombresValid = validateInput(
+      area,
+      "nombres",
+      tutor.nombres,
+      /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
+    );
+    
+    const isCIValid = validateInput(
+      area,
+      "ci",
+      tutor.ci,
+      /^[0-9]*$/
+    );
+    
+    const isCorreoValid = validateEmail(area, tutor.correo);
+    
+    return isApellidoPaternoValid && isApellidoMaternoValid && isNombresValid && isCIValid && isCorreoValid;
+  };
+  
+  const handleSubmit = () => {
     setIsSubmitting(true);
-
-    try {
-      if (formData.flow?.editingTutores && editingIndex >= 0) {
-        const tutoresActualizados = [...globalData.tutores_academicos];
-
-        tutoresActualizados[editingIndex] = {
-          nombre_area: formData.profesor?.areaCompetencia,
-          tutor: {
-            nombre: formData.profesor?.nombres,
-            apellido_pa: formData.profesor?.apellidoPaterno,
-            apellido_ma: formData.profesor?.apellidoMaterno,
-            ci: formData.profesor?.ci,
-            correo: formData.profesor?.correo,
-          },
-        };
-
-        const updatedData = {
-          ...globalData,
-          tutores_academicos: tutoresActualizados,
-        };
-
-        setGlobalData(updatedData);
-        console.log("Tutor académico actualizado:", updatedData);
-
-        // Verificar si hay más tutores para editar
-        if (editingIndex < tutoresActualizados.length - 1) {
-          // Pasar al siguiente tutor
-          const siguienteTutor = tutoresActualizados[editingIndex + 1];
-          setEditingIndex(editingIndex + 1);
-
-          // Cargar los datos del siguiente tutor
-          handleInputChange(
-            "profesor",
-            "areaCompetencia",
-            siguienteTutor.nombre_area
-          );
-          handleInputChange(
-            "profesor",
-            "apellidoPaterno",
-            siguienteTutor.tutor?.apellido_pa || ""
-          );
-          handleInputChange(
-            "profesor",
-            "apellidoMaterno",
-            siguienteTutor.tutor?.apellido_ma || ""
-          );
-          handleInputChange(
-            "profesor",
-            "nombres",
-            siguienteTutor.tutor?.nombre || ""
-          );
-          handleInputChange("profesor", "ci", siguienteTutor.tutor?.ci || "");
-          handleInputChange(
-            "profesor",
-            "correo",
-            siguienteTutor.tutor?.correo || ""
-          );
-
-          return; // No avanzar al siguiente paso todavía
-        } else {
-          // Si ya no hay más tutores, ir al paso de confirmación
-          handleNextToConfirmation();
-        }
-      } else {
-        // Verificar si este tutor ya ha sido registrado para prevenir duplicidad
-        const tutoresExistentes = globalData.tutores_academicos || [];
-        const tutorYaExiste = tutoresExistentes.some(
-          (t) =>
-            t.nombre_area === areaCompetencia &&
-            t.tutor.ci === formData.profesor?.ci
-        );
-
-        // Solo agregar el tutor si no existe ya
-        if (!tutorYaExiste) {
-          const nuevoTutor = {
-            nombre_area: areaCompetencia,
-            tutor: {
-              nombre: formData.profesor?.nombres,
-              apellido_pa: formData.profesor?.apellidoPaterno,
-              apellido_ma: formData.profesor?.apellidoMaterno,
-              ci: formData.profesor?.ci,
-              correo: formData.profesor?.correo,
-            },
-          };
-
-          const tutoresActualizados = [...tutoresExistentes, nuevoTutor];
-
-          const updatedData = {
-            ...globalData,
-            tutores_academicos: tutoresActualizados,
-          };
-
-          setGlobalData(updatedData);
-          console.log(
-            "Tutor académico añadido para",
-            areaCompetencia,
-            ":",
-            updatedData
-          );
-        } else {
-          console.log(
-            "Tutor ya registrado, evitando duplicidad:",
-            areaCompetencia
-          );
-        }
-
-        handleInputChange("profesor", "isComplete", true);
-
-        // Marcamos explícitamente que no queremos redirigir de nuevo al formulario de profesor
-        handleInputChange("flow", "redirectToProfesor", false);
-
-        // Si estamos en el último área, marcar skipProfesor como true para ir directo al paso final
-        if (areasRestantes.length === 0) {
-          handleInputChange("flow", "skipProfesor", true);
-          handleNext(); // Avanzar al siguiente paso directamente
-        } else {
-          // Mostrar el modal solo si hay más áreas pendientes
-          setShowModal(true);
+    let formValid = true;
+    
+    // Validar todas las áreas seleccionadas
+    Object.keys(tutoresPorArea).forEach(area => {
+      if (tutoresPorArea[area]?.seleccionado) {
+        if (!validateArea(area)) {
+          formValid = false;
         }
       }
+    });
+    
+    if (!formValid) {
+      setIsSubmitting(false);
+      return;
+    }
+    
+    try {
+      // Construir el array de tutores académicos
+      const tutoresAcademicos = [];
+      
+      // Procesar áreas seleccionadas primero
+      areasCompetencia.forEach(areaObj => {
+        const area = areaObj.nombre_area;
+        const tutor = tutoresPorArea[area];
+        
+        if (tutor?.seleccionado) {
+          // Para áreas con tutor seleccionado
+          tutoresAcademicos.push({
+            nombre_area: area,
+            tutor: {
+              nombre: tutor.nombres,
+              apellido_pa: tutor.apellidoPaterno,
+              apellido_ma: tutor.apellidoMaterno,
+              ci: tutor.ci,
+              correo: tutor.correo
+            }
+          });
+        } else {
+          // Para áreas no seleccionadas, usar datos del estudiante
+          tutoresAcademicos.push({
+            nombre_area: area,
+            tutor: {
+              nombre: globalData.estudiante?.nombre || "",
+              apellido_pa: globalData.estudiante?.apellido_pa || "",
+              apellido_ma: globalData.estudiante?.apellido_ma || "",
+              ci: globalData.estudiante?.ci || "",
+              correo: globalData.estudiante?.correo || ""
+            }
+          });
+        }
+      });
+      
+      // Actualizar el contexto global
+      const updatedData = {
+        ...globalData,
+        tutores_academicos: tutoresAcademicos
+      };
+      
+      setGlobalData(updatedData);
+      console.log("Tutores académicos actualizados:", updatedData);
+      
+      // Desactivar el modo de edición y limpiar estado relacionado
+      handleInputChange("flow", "editingTutores", false);
+      
+      // Avanzar al siguiente paso
+      handleNext();
+      
     } catch (error) {
-      console.error("Error al procesar los datos del tutor académico:", error);
+      console.error("Error al procesar los datos de tutores académicos:", error);
       setErrors({
-        general: "Hubo un error al procesar los datos.",
+        general: "Hubo un error al procesar los datos."
       });
     } finally {
       setIsSubmitting(false);
     }
   };
-
-  const handleValidatedChange = (namespace, field, value, regex) => {
-    if (value.startsWith(" ")) return;
-    if (regex.test(value) || value === "") {
-      handleInputChange(namespace, field, value);
-      setErrors((prev) => ({ ...prev, [field]: "" }));
-    }
-  };
-
-  const handleSiProfesor = () => {
-    const siguienteArea = areasRestantes[0];
-
-    handleInputChange("profesor", "areaCompetencia", siguienteArea);
-
-    handleInputChange("profesor", "apellidoPaterno", "");
-    handleInputChange("profesor", "apellidoMaterno", "");
-    handleInputChange("profesor", "nombres", "");
-    handleInputChange("profesor", "ci", "");
-    handleInputChange("profesor", "correo", "");
-
-    const nuevasAreasConProfesor = [...areasConProfesor, siguienteArea];
-    handleInputChange("profesores", "areasRegistradas", nuevasAreasConProfesor);
-
-    const nuevasAreasPendientes = areasRestantes.filter(
-      (area) => area !== siguienteArea
+  
+  const isFormValid = () => {
+    // Verificar si hay algún área seleccionada
+    const areasSeleccionadas = Object.keys(tutoresPorArea).filter(
+      area => tutoresPorArea[area]?.seleccionado
     );
-    handleInputChange("flow", "pendingAreas", nuevasAreasPendientes);
-
-    setShowModal(false);
-
-    handleInputChange("flow", "redirectToProfesor", true);
-    handleNext();
-  };
-
-  const handleNoProfesor = () => {
-    const estudiante = globalData.estudiante || {};
-    const siguienteArea = areasRestantes[0];
-
-    const tutoresExistentes = globalData.tutores_academicos || [];
-
-    // Crear el tutor con datos del estudiante
-    const tutorEstudiante = {
-      nombre_area: siguienteArea,
-      tutor: {
-        nombre: estudiante.nombre,
-        apellido_pa: estudiante.apellido_pa,
-        apellido_ma: estudiante.apellido_ma,
-        ci: estudiante.ci,
-        correo: estudiante.correo,
-      },
-    };
-
-    // Actualizar el JSON global
-    const updatedData = {
-      ...globalData,
-      tutores_academicos: [...tutoresExistentes, tutorEstudiante],
-    };
-
-    setGlobalData(updatedData);
-    console.log(
-      "Usando datos del estudiante como tutor para",
-      siguienteArea,
-      ":",
-      updatedData
-    );
-
-    const nuevasAreasPendientes = areasRestantes.slice(1);
-    handleInputChange("flow", "pendingAreas", nuevasAreasPendientes);
-
-    setShowModal(false);
-
-    if (nuevasAreasPendientes.length === 0) {
-      handleNext();
-    } else {
-      // Mostrar el siguiente modal
-      setShowModal(true);
+    
+    // Si no hay áreas seleccionadas, el formulario es válido (usará datos del estudiante)
+    if (areasSeleccionadas.length === 0) {
+      return true;
     }
+    
+    // Verificar que todas las áreas seleccionadas tengan datos válidos
+    for (const area of areasSeleccionadas) {
+      const tutor = tutoresPorArea[area];
+      
+      // Validar campos requeridos
+      if (!tutor.apellidoPaterno || !tutor.apellidoMaterno || !tutor.nombres || !tutor.ci || !tutor.correo) {
+        return false;
+      }
+      
+      // Validar longitudes mínimas
+      if (tutor.ci.length < 7 || 
+          tutor.nombres.length < 2 || 
+          tutor.apellidoMaterno.length < 2 || 
+          tutor.apellidoPaterno.length < 2) {
+        return false;
+      }
+      
+      // Validar número de nombres (máximo 2)
+      if (tutor.nombres.split(" ").length > 2) {
+        return false;
+      }
+    }
+    
+    return true;
   };
-  const handleNextToConfirmation = () => {
-    // Desactivar el modo de edición y limpiar estado relacionado con tutores antes de ir a confirmación
-    handleInputChange("flow", "editingTutores", false);
-    handleInputChange("flow", "pendingAreas", []);
-    handleInputChange("flow", "redirectToProfesor", false);
-    handleInputChange("flow", "skipProfesor", false);
-
-    // Resetear campos del profesor para el siguiente uso
-    handleInputChange("profesor", "apellidoPaterno", "");
-    handleInputChange("profesor", "apellidoMaterno", "");
-    handleInputChange("profesor", "nombres", "");
-    handleInputChange("profesor", "ci", "");
-    handleInputChange("profesor", "correo", "");
-
-    // Resetear el índice de edición
-    setEditingIndex(-1);
-
-    // Avanzar al siguiente paso
-    handleNext();
-  };
-
+  
   return (
-    <div className="flex flex-col items-center">
-      <div className="w-full max-w-2xl">
-        {/* Título */}
-        <div className="text-center mb-6">
-          <h2 className="text-lg font-semibold mb-2 text-gray-500">
-            Profesor de {areaCompetencia}
-          </h2>
-          <p className="text-sm text-gray-600">
-            Por favor, completa los datos del tutor académico.
+    <div className="container mx-auto p-4">
+      <div className="max-w-4xl mx-auto">
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-center text-gray-700 mb-6">Registro de Tutores Académicos</h2>
+          <p className="text-center text-gray-600">
+            Seleccione las áreas para las que desea registrar un tutor académico diferente al estudiante.
+            Si no selecciona ninguna, se utilizarán los datos del estudiante como tutores académicos.
           </p>
         </div>
-
-        {/* Datos del profesor */}
-        <div className="space-y-4">
-        <div>
-            <label className="flex items-center gap-2">
-              <FaIdCard className="text-black" /> Carnet de Identidad
-            </label>
-            <input
-              type="text"
-              name="ci"
-              className="mt-1 p-2 w-full border rounded-md"
-              placeholder="Número de Carnet de Identidad"
-              value={formData.profesor?.ci || ""}
-              onChange={(e) =>
-                handleValidatedChange(
-                  "profesor",
-                  "ci",
-                  e.target.value,
-                  /^[0-9]*$/
-                )
-              }
-              maxLength="8"
-            />
-            {errors.ci && (
-              <p className="text-red-500 text-sm mt-1">{errors.ci}</p>
-            )}
-          </div>
-          <div className="flex gap-4">
-            <div className="w-full">
-              <label className="flex items-center gap-2">
-                <FaUser className="text-black" /> Apellido Paterno
-              </label>
-              <input
-                type="text"
-                name="apellidoPaterno"
-                className="mt-1 p-2 w-full border rounded-md"
-                placeholder="Apellido Paterno"
-                value={formData.profesor?.apellidoPaterno || ""}
-                onChange={(e) =>
-                  handleValidatedChange(
-                    "profesor",
-                    "apellidoPaterno",
-                    e.target.value.toUpperCase(),
-                    /^[A-Za-zÁÉÍÓÚáéíóúÑñ]*$/
-                  )
-                }
-                maxLength="15"
-              />
-              {errors.apellidoPaterno && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.apellidoPaterno}
-                </p>
-              )}
+        
+        {/* Mapeo de cada área de competencia */}
+        {areasCompetencia.map((area, index) => (
+          <div key={index} className="mb-6 border rounded-lg shadow-sm overflow-hidden">
+            <div 
+              className="bg-gray-100 p-4 flex items-center justify-between cursor-pointer"
+              onClick={() => toggleArea(area.nombre_area)}
+            >
+              <div className="flex-1">
+                <label htmlFor={`checkbox-${index}`} className="text-lg font-medium cursor-pointer">
+                  ¿Desea registrar un tutor académico para {area.nombre_area}?
+                </label>
+              </div>
+              <div className="flex items-center">
+                {tutoresPorArea[area.nombre_area]?.seleccionado && (
+                  expandedAreas[area.nombre_area] ? 
+                    <FaChevronUp className="text-gray-500 mr-3" /> : 
+                    <FaChevronDown className="text-gray-500 mr-3" />
+                )}
+                <input
+                  type="checkbox"
+                  id={`checkbox-${index}`}
+                  checked={tutoresPorArea[area.nombre_area]?.seleccionado || false}
+                  onChange={() => handleCheckboxChange(area.nombre_area)}
+                  className="h-5 w-5"
+                  onClick={(e) => e.stopPropagation()}
+                />
+              </div>
             </div>
-
-            <div className="w-full">
-              <label className="flex items-center gap-2">
-                <FaUser className="text-black" /> Apellido Materno
-              </label>
-              <input
-                type="text"
-                name="apellidoMaterno"
-                className="mt-1 p-2 w-full border rounded-md"
-                placeholder="Apellido Materno"
-                value={formData.profesor?.apellidoMaterno || ""}
-                onChange={(e) =>
-                  handleValidatedChange(
-                    "profesor",
-                    "apellidoMaterno",
-                    e.target.value.toUpperCase(),
-                    /^[A-Za-zÁÉÍÓÚáéíóúÑñ]*$/
-                  )
-                }
-                maxLength="15"
-              />
-              {errors.apellidoMaterno && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.apellidoMaterno}
-                </p>
-              )}
-            </div>
-          </div>
-
-          <div>
-            <label className="flex items-center gap-2">
-              <FaUser className="text-black" /> Nombres
-            </label>
-            <input
-              type="text"
-              name="nombres"
-              className="mt-1 p-2 w-full border rounded-md"
-              placeholder="Nombres"
-              value={formData.profesor?.nombres || ""}
-              onChange={(e) =>
-                handleValidatedChange(
-                  "profesor",
-                  "nombres",
-                  e.target.value.toUpperCase(),
-                  /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
-                )
-              }
-              maxLength="30"
-            />
-            {errors.nombres && (
-              <p className="text-red-500 text-sm mt-1">{errors.nombres}</p>
+            
+            {tutoresPorArea[area.nombre_area]?.seleccionado && expandedAreas[area.nombre_area] && (
+              <div className="p-6 border-t bg-white">
+                <div className="text-center mb-6">
+                  <h3 className="text-lg font-semibold mb-2 text-gray-500">
+                    Profesor de {area.nombre_area}
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    Por favor, completa los datos del tutor académico.
+                  </p>
+                </div>
+                
+                <div className="space-y-4">
+                  <div className="flex gap-4">
+                    <div className="w-full">
+                      <label className="flex items-center gap-2">
+                        <FaUser className="text-black" /> Apellido Paterno
+                      </label>
+                      <input
+                        type="text"
+                        className="mt-1 p-2 w-full border rounded-md"
+                        placeholder="Apellido Paterno"
+                        value={tutoresPorArea[area.nombre_area]?.apellidoPaterno || ""}
+                        onChange={(e) => handleFormChange(
+                          area.nombre_area,
+                          "apellidoPaterno",
+                          e.target.value.toUpperCase(),
+                          /^[A-Za-zÁÉÍÓÚáéíóúÑñ]*$/
+                        )}
+                        maxLength="15"
+                      />
+                      {errors[`${area.nombre_area}-apellidoPaterno`] && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors[`${area.nombre_area}-apellidoPaterno`]}
+                        </p>
+                      )}
+                    </div>
+                    
+                    <div className="w-full">
+                      <label className="flex items-center gap-2">
+                        <FaUser className="text-black" /> Apellido Materno
+                      </label>
+                      <input
+                        type="text"
+                        className="mt-1 p-2 w-full border rounded-md"
+                        placeholder="Apellido Materno"
+                        value={tutoresPorArea[area.nombre_area]?.apellidoMaterno || ""}
+                        onChange={(e) => handleFormChange(
+                          area.nombre_area,
+                          "apellidoMaterno",
+                          e.target.value.toUpperCase(),
+                          /^[A-Za-zÁÉÍÓÚáéíóúÑñ]*$/
+                        )}
+                        maxLength="15"
+                      />
+                      {errors[`${area.nombre_area}-apellidoMaterno`] && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors[`${area.nombre_area}-apellidoMaterno`]}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className="flex items-center gap-2">
+                      <FaUser className="text-black" /> Nombres
+                    </label>
+                    <input
+                      type="text"
+                      className="mt-1 p-2 w-full border rounded-md"
+                      placeholder="Nombres"
+                      value={tutoresPorArea[area.nombre_area]?.nombres || ""}
+                      onChange={(e) => handleFormChange(
+                        area.nombre_area,
+                        "nombres",
+                        e.target.value.toUpperCase(),
+                        /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
+                      )}
+                      maxLength="30"
+                    />
+                    {errors[`${area.nombre_area}-nombres`] && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors[`${area.nombre_area}-nombres`]}
+                      </p>
+                    )}
+                  </div>
+                  
+                  <div>
+                    <label className="flex items-center gap-2">
+                      <FaIdCard className="text-black" /> Carnet de Identidad
+                    </label>
+                    <input
+                      type="text"
+                      className="mt-1 p-2 w-full border rounded-md"
+                      placeholder="Número de Carnet de Identidad"
+                      value={tutoresPorArea[area.nombre_area]?.ci || ""}
+                      onChange={(e) => handleFormChange(
+                        area.nombre_area,
+                        "ci",
+                        e.target.value,
+                        /^[0-9]*$/
+                      )}
+                      maxLength="8"
+                    />
+                    {errors[`${area.nombre_area}-ci`] && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors[`${area.nombre_area}-ci`]}
+                      </p>
+                    )}
+                  </div>
+                  
+                  <div>
+                    <label className="flex items-center gap-2">
+                      <FaEnvelope className="text-black" /> Correo Electrónico
+                    </label>
+                    <input
+                      type="email"
+                      className="mt-1 p-2 w-full border rounded-md"
+                      placeholder="Correo Electrónico"
+                      value={tutoresPorArea[area.nombre_area]?.correo || ""}
+                      onChange={(e) => handleFormChange(
+                        area.nombre_area,
+                        "correo",
+                        e.target.value
+                      )}
+                    />
+                    {errors[`${area.nombre_area}-correo`] && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors[`${area.nombre_area}-correo`]}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
             )}
           </div>
-
-          <div>
-            <label className="flex items-center gap-2">
-              <FaEnvelope className="text-black" /> Correo Electrónico
-            </label>
-            <input
-              type="email"
-              name="correo"
-              className="mt-1 p-2 w-full border rounded-md"
-              placeholder="Correo Electrónico"
-              value={formData.profesor?.correo || ""}
-              onChange={(e) =>
-                handleInputChange("profesor", "correo", e.target.value)
-              }
-            />
-            {errors.correo && (
-              <p className="text-red-500 text-sm mt-1">{errors.correo}</p>
-            )}
-          </div>
-        </div>
-
+        ))}
+        
         {/* Mensaje de error general */}
         {errors.general && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mt-4">
             {errors.general}
           </div>
         )}
-
+        
         {/* Botones de Navegación */}
-        <div className="flex justify-end mt-4 gap-2">
+        <div className="flex justify-between mt-6">
           <button
             type="button"
             className="bg-[#4C8EDA] text-white py-2 px-4 rounded-md hover:bg-[#2e4f96]"
@@ -544,54 +473,17 @@ export default function IncripcionTutorAcademico({
           </button>
           <button
             type="button"
-            onClick={handleProfesorNext}
-            disabled={
-              isSubmitting ||
-              !formData.profesor?.apellidoPaterno ||
-              !formData.profesor?.apellidoMaterno ||
-              !formData.profesor?.nombres ||
-              !formData.profesor?.ci ||
-              !formData.profesor?.correo ||
-              formData.profesor?.ci.length < 7 ||
-              formData.profesor?.nombres.length < 2 ||
-              formData.profesor?.apellidoMaterno.length < 2 ||
-              formData.profesor?.apellidoPaterno.length < 2 ||
-              formData.profesor?.nombres.split(" ").length > 2
-            }
+            onClick={handleSubmit}
+            disabled={isSubmitting || !isFormValid()}
             className={`px-6 py-2 transition duration-300 ease-in-out text-white rounded-md shadow-md ${
-              formData.profesor?.apellidoPaterno &&
-              formData.profesor?.apellidoMaterno &&
-              formData.profesor?.nombres &&
-              formData.profesor?.ci &&
-              formData.profesor?.correo &&
-              formData.profesor?.ci.length >= 7 &&
-              formData.profesor?.nombres.length >= 2 &&
-              formData.profesor?.apellidoMaterno.length >= 2 &&
-              formData.profesor?.apellidoPaterno.length >= 2 &&
-              formData.profesor?.nombres.split(" ").length <= 2 &&
-              !isSubmitting
+              isFormValid() && !isSubmitting
                 ? "bg-blue-500 hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500"
                 : "bg-gray-400 cursor-not-allowed"
             }`}
           >
-            {isSubmitting
-              ? "Procesando..."
-              : formData.flow?.editingTutores
-              ? editingIndex < globalData.tutores_academicos?.length - 1
-                ? "Siguiente Profesor"
-                : "Guardar y Continuar"
-              : "Siguiente"}
+            {isSubmitting ? "Procesando..." : "Siguiente"}
           </button>
         </div>
-
-        {/* Modal para siguiente área */}
-        {showModal && (
-          <ModalConfirmacion
-            area={areasRestantes[0]}
-            onConfirm={handleSiProfesor}
-            onCancel={handleNoProfesor}
-          />
-        )}
       </div>
     </div>
   );
