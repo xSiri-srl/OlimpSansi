@@ -24,39 +24,81 @@ export default function FormularioTutoresAcademicos({
       initialState[area.nombre_area] = false;
     });
     setExpandedAreas(initialState);
-    
-    // Si estamos en modo edición, cargar los tutores existentes
-    if (formData.flow?.editingTutores && globalData.tutores_academicos) {
-      const tutoresState = {};
-      globalData.tutores_academicos.forEach(tutor => {
-        tutoresState[tutor.nombre_area] = {
-          apellidoPaterno: tutor.tutor?.apellido_pa || "",
-          apellidoMaterno: tutor.tutor?.apellido_ma || "",
-          nombres: tutor.tutor?.nombre || "",
-          ci: tutor.tutor?.ci || "",
-          correo: tutor.tutor?.correo || "",
-          seleccionado: true
+
+    // Inicializar tutoresPorArea con los datos guardados o valores por defecto
+    const tutoresState = {};
+    areasCompetencia.forEach(area => {
+      const areaName = area.nombre_area;
+      
+      // Buscar el tutor guardado para esta área
+      const tutorGuardado = globalData.tutores_academicos?.find(
+        tutor => tutor.nombre_area === areaName
+      );
+      
+      // Verificar si existe información guardada para este área
+      if (tutorGuardado) {
+        tutoresState[areaName] = {
+          apellidoPaterno: tutorGuardado.tutor?.apellido_pa || "",
+          apellidoMaterno: tutorGuardado.tutor?.apellido_ma || "",
+          nombres: tutorGuardado.tutor?.nombre || "",
+          ci: tutorGuardado.tutor?.ci || "",
+          correo: tutorGuardado.tutor?.correo || "",
+          // Usar el estado checkbox guardado o false por defecto
+          seleccionado: tutorGuardado.checkbox_activo || false,
+          // Mantener el estado expandido según el checkbox
+          expanded: tutorGuardado.checkbox_expanded || false
         };
-        // Expandir áreas con tutores ya registrados
-        setExpandedAreas(prev => ({...prev, [tutor.nombre_area]: true}));
-      });
-      setTutoresPorArea(tutoresState);
-    }
-  }, [areasCompetencia, formData.flow?.editingTutores, globalData.tutores_academicos]);
+        
+        // Actualizar el estado expandido según lo guardado
+        if (tutorGuardado.checkbox_activo) {
+          setExpandedAreas(prev => ({
+            ...prev,
+            [areaName]: tutorGuardado.checkbox_expanded
+          }));
+        }
+      } else {
+        // Inicializar con valores por defecto
+        tutoresState[areaName] = {
+          apellidoPaterno: "",
+          apellidoMaterno: "",
+          nombres: "",
+          ci: "",
+          correo: "",
+          seleccionado: false,
+          expanded: false
+        };
+      }
+    });
+    
+    setTutoresPorArea(tutoresState);
+    
+  }, [areasCompetencia, globalData.tutores_academicos]);
   
   const toggleArea = (area) => {
-    // Solo expandir/colapsar si el área está seleccionada
     if (tutoresPorArea[area]?.seleccionado) {
+      const newExpandedState = !expandedAreas[area];
+      
       setExpandedAreas(prev => ({
         ...prev,
-        [area]: !prev[area]
+        [area]: newExpandedState
+      }));
+      
+      // Actualizar también el estado expanded en tutoresPorArea
+      setTutoresPorArea(prev => ({
+        ...prev,
+        [area]: {
+          ...prev[area],
+          expanded: newExpandedState
+        }
       }));
     }
   };
+
   
   const handleCheckboxChange = (area) => {
     const nuevoEstado = !tutoresPorArea[area]?.seleccionado;
-    
+    const nuevoExpandido = nuevoEstado; // Expandir automáticamente al activar
+
     setTutoresPorArea(prev => ({
       ...prev,
       [area]: {
@@ -67,23 +109,21 @@ export default function FormularioTutoresAcademicos({
           ci: "",
           correo: ""
         },
-        seleccionado: nuevoEstado
+        seleccionado: nuevoEstado,
+        expanded: nuevoExpandido
       }
     }));
-    
-    // Si se selecciona, expandir; si se deselecciona, colapsar
+
     setExpandedAreas(prev => ({
       ...prev,
-      [area]: nuevoEstado
+      [area]: nuevoExpandido
     }));
   };
+
   
   const handleFormChange = (area, field, value, regex) => {
-    // Validar el valor según el regex si se proporciona
-    if (regex && !regex.test(value) && value !== "") {
-      return;
-    }
-    
+    if (regex && !regex.test(value) && value !== "") return;
+
     setTutoresPorArea(prev => ({
       ...prev,
       [area]: {
@@ -91,8 +131,7 @@ export default function FormularioTutoresAcademicos({
         [field]: value
       }
     }));
-    
-    // Limpiar error del campo
+
     setErrors(prev => ({
       ...prev,
       [`${area}-${field}`]: ""
@@ -101,17 +140,17 @@ export default function FormularioTutoresAcademicos({
   
   const validateInput = (area, field, value, regex) => {
     const errorKey = `${area}-${field}`;
-    
+
     if (!value) {
       setErrors(prev => ({ ...prev, [errorKey]: "Campo obligatorio." }));
       return false;
     }
-    
+
     if (regex && !regex.test(value)) {
       setErrors(prev => ({ ...prev, [errorKey]: "Formato inválido." }));
       return false;
     }
-    
+
     setErrors(prev => ({ ...prev, [errorKey]: "" }));
     return true;
   };
@@ -120,121 +159,73 @@ export default function FormularioTutoresAcademicos({
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return validateInput(area, "correo", email, emailRegex);
   };
-  
+
   const validateArea = (area) => {
     const tutor = tutoresPorArea[area];
-    
-    if (!tutor || !tutor.seleccionado) {
-      return true; // Si no está seleccionada, no validamos
-    }
-    
-    const isApellidoPaternoValid = validateInput(
-      area,
-      "apellidoPaterno",
-      tutor.apellidoPaterno,
-      /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
-    );
-    
-    const isApellidoMaternoValid = validateInput(
-      area,
-      "apellidoMaterno",
-      tutor.apellidoMaterno,
-      /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
-    );
-    
-    const isNombresValid = validateInput(
-      area,
-      "nombres",
-      tutor.nombres,
-      /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
-    );
-    
-    const isCIValid = validateInput(
-      area,
-      "ci",
-      tutor.ci,
-      /^[0-9]*$/
-    );
-    
-    const isCorreoValid = validateEmail(area, tutor.correo);
-    
-    return isApellidoPaternoValid && isApellidoMaternoValid && isNombresValid && isCIValid && isCorreoValid;
+    if (!tutor || !tutor.seleccionado) return true;
+
+    const valid = [
+      validateInput(area, "apellidoPaterno", tutor.apellidoPaterno, /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/),
+      validateInput(area, "apellidoMaterno", tutor.apellidoMaterno, /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/),
+      validateInput(area, "nombres", tutor.nombres, /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/),
+      validateInput(area, "ci", tutor.ci, /^[0-9]*$/),
+      validateEmail(area, tutor.correo)
+    ];
+
+    return valid.every(Boolean);
   };
   
   const handleSubmit = () => {
     setIsSubmitting(true);
     let formValid = true;
-    
-    // Validar todas las áreas seleccionadas
+
     Object.keys(tutoresPorArea).forEach(area => {
-      if (tutoresPorArea[area]?.seleccionado) {
-        if (!validateArea(area)) {
-          formValid = false;
-        }
+      if (tutoresPorArea[area]?.seleccionado && !validateArea(area)) {
+        formValid = false;
       }
     });
-    
+
     if (!formValid) {
       setIsSubmitting(false);
       return;
     }
-    
+
     try {
-      // Construir el array de tutores académicos
-      const tutoresAcademicos = [];
-      
-      // Procesar áreas seleccionadas primero
-      areasCompetencia.forEach(areaObj => {
+      const tutoresAcademicos = areasCompetencia.map(areaObj => {
         const area = areaObj.nombre_area;
         const tutor = tutoresPorArea[area];
-        
-        if (tutor?.seleccionado) {
-          // Para áreas con tutor seleccionado
-          tutoresAcademicos.push({
-            nombre_area: area,
-            tutor: {
+        const seleccionado = tutor?.seleccionado;
+
+        return {
+          nombre_area: area,
+          // Guardar los estados del checkbox
+          checkbox_activo: seleccionado || false,
+          checkbox_expanded: expandedAreas[area] || false,
+          // Si no está seleccionado, guardar datos vacíos en lugar de los datos del estudiante
+          tutor: seleccionado ? 
+            {
               nombre: tutor.nombres,
               apellido_pa: tutor.apellidoPaterno,
               apellido_ma: tutor.apellidoMaterno,
               ci: tutor.ci,
               correo: tutor.correo
+            } : 
+            {
+              nombre: "",
+              apellido_pa: "",
+              apellido_ma: "",
+              ci: "",
+              correo: ""
             }
-          });
-        } else {
-          // Para áreas no seleccionadas, usar datos del estudiante
-          tutoresAcademicos.push({
-            nombre_area: area,
-            tutor: {
-              nombre: globalData.estudiante?.nombre || "",
-              apellido_pa: globalData.estudiante?.apellido_pa || "",
-              apellido_ma: globalData.estudiante?.apellido_ma || "",
-              ci: globalData.estudiante?.ci || "",
-              correo: globalData.estudiante?.correo || ""
-            }
-          });
-        }
+        };
       });
-      
-      // Actualizar el contexto global
-      const updatedData = {
-        ...globalData,
-        tutores_academicos: tutoresAcademicos
-      };
-      
-      setGlobalData(updatedData);
-      console.log("Tutores académicos actualizados:", updatedData);
-      
-      // Desactivar el modo de edición y limpiar estado relacionado
+
+      setGlobalData({ ...globalData, tutores_academicos: tutoresAcademicos });
       handleInputChange("flow", "editingTutores", false);
-      
-      // Avanzar al siguiente paso
       handleNext();
-      
     } catch (error) {
       console.error("Error al procesar los datos de tutores académicos:", error);
-      setErrors({
-        general: "Hubo un error al procesar los datos."
-      });
+      setErrors({ general: "Hubo un error al procesar los datos." });
     } finally {
       setIsSubmitting(false);
     }
@@ -246,7 +237,7 @@ export default function FormularioTutoresAcademicos({
       area => tutoresPorArea[area]?.seleccionado
     );
     
-    // Si no hay áreas seleccionadas, el formulario es válido (usará datos del estudiante)
+    // Si no hay áreas seleccionadas, el formulario es válido (ahora guardará datos vacíos)
     if (areasSeleccionadas.length === 0) {
       return true;
     }
@@ -284,7 +275,7 @@ export default function FormularioTutoresAcademicos({
           <h2 className="text-2xl font-bold text-center text-gray-700 mb-6">Registro de Tutores Académicos</h2>
           <p className="text-center text-gray-600">
             Seleccione las áreas para las que desea registrar un tutor académico diferente al estudiante.
-            Si no selecciona ninguna, se utilizarán los datos del estudiante como tutores académicos.
+            Si no selecciona ninguna, no se registrarán tutores académicos para estas áreas.
           </p>
         </div>
         
