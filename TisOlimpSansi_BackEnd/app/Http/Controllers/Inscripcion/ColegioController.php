@@ -136,4 +136,30 @@ class ColegioController extends Controller
             'cantidad_estudiantes' => $cantidad
         ]);
     }
+
+
+
+    public function filtrarPorCategoriaArea(Request $request)
+    {
+        $nombreArea = $request->input('nombre_area');
+    
+        if (!$nombreArea) {
+            return response()->json(['error' => 'Debe proporcionar el nombre del área.'], 400);
+        }
+    
+        $cantidad = DB::table('inscripcion_categoria')
+            ->join('inscripcion', 'inscripcion.id', '=', 'inscripcion_categoria.id_inscripcion')
+            ->join('estudiante', 'estudiante.id', '=', 'inscripcion.id_estudiante')
+            ->join('categoria', 'categoria.id', '=', 'inscripcion_categoria.id_categoria')
+            ->join('area', 'area.id', '=', 'categoria.id_area')
+            ->where('area.nombre_area', $nombreArea)
+            ->distinct('estudiante.id')
+            ->count('estudiante.id');
+    
+        return response()->json([
+            'nombre_area' => $nombreArea,
+            'cantidad_estudiantes' => $cantidad
+        ]);
+    }
+    
 }

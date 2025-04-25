@@ -146,3 +146,4 @@ Route::post('/colegios/filtro', [ColegioController::class, 'getByFiltro']);
 Route::post('/estudiantes/bydepartamento', [ColegioController::class, 'contarPorDepartamento']);
 Route::post('/estudiantes/byColegio', [ColegioController::class, 'contarPorColegio']);
 Route::post('/estudiantes/byGrado', [ColegioController::class, 'contarPorGrado']);
+Route::post('/estudiantes/byCategoriaArea', [ColegioController::class, 'filtrarPorCategoriaArea']);
