@@ -18,5 +18,7 @@ class CategoriaModel extends Model
     public function area(){
         return $this->belongsTo(AreaModel::class, 'id_area', 'id');
     }
-    
+    public function inscripcionCategoria(){
+        return $this->belongsToMany(InscripcionModel::class, 'inscripcion_area', 'id_categoria', 'id_inscripcion');
+    }
 }

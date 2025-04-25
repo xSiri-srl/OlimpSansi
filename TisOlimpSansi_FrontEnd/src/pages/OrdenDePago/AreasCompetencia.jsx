@@ -2,16 +2,16 @@ import { FaCheck } from "react-icons/fa";
 import { useFormData } from "./form-data-context";
 
 const primeraFila = [
-  { nombre: "Matemáticas", imgSrc: "/images/matematicaas.png" },
-  { nombre: "Física", imgSrc: "/images/fisica.png" },
-  { nombre: "Química", imgSrc: "/images/quimica.png" },
+  { nombre: "Matemáticas", imgSrc: "/images/mate.jpg" },
+  { nombre: "Física", imgSrc: "/images/fisi.jpg" },
+  { nombre: "Química", imgSrc: "/images/quimi.jpeg" },
 ];
 
 const segundaFila = [
-  { nombre: "Biología", imgSrc: "/images/biologia.png" },
-  { nombre: "Informática", imgSrc: "/images/informatica.png" },
-  { nombre: "Robótica", imgSrc: "/images/robotica.png" },
-  { nombre: "Astronomía y Astrofísica", imgSrc: "/images/astronomia.png" },
+  { nombre: "Biología", imgSrc: "/images/bio.jpg" },
+  { nombre: "Informática", imgSrc: "/images/info.jpg" },
+  { nombre: "Robótica", imgSrc: "/images/robo.jpg" },
+  { nombre: "Astronomía y Astrofísica", imgSrc: "/images/astro.jpeg" },
 ];
 
 export default function AreasCompetencia({
@@ -114,7 +114,7 @@ export default function AreasCompetencia({
       <div
         key={index}
         className={`w-40 p-4 rounded-lg text-center shadow-md relative ${
-          estaSeleccionada ? "bg-gray-400" : "bg-gray-300"
+          estaSeleccionada ? "bg-gray-300" : "bg-gray-200"
         }`}
       >
         {/* Selector circular */}
