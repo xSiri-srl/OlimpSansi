@@ -196,7 +196,7 @@ const [cargandoExcel, setCargandoExcel] = useState(false);
               value={area}
               onChange={(e) => setArea(e.target.value)}
             >
-              <option value="">Todo</option>
+              <option value="">Ver todo</option>
               {Object.keys(datos).map((key) => (
                 <option key={key} value={key}>
                   {key.charAt(0).toUpperCase() + key.slice(1)}
@@ -220,7 +220,7 @@ const [cargandoExcel, setCargandoExcel] = useState(false);
               onChange={(e) => setCurso(e.target.value)}
               className="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm text-gray-700"
             >
-              <option value="">Todo</option>
+              <option value="">Ver todo</option>
               {[...new Set(categorias.map((cat) => cat.split(" - ")[1]))].map(
                 (curso, index) => (
                   <option key={index} value={curso}>
@@ -246,7 +246,7 @@ const [cargandoExcel, setCargandoExcel] = useState(false);
               value={categoria}
               onChange={(e) => setCategoria(e.target.value)}
             >
-              <option value="">Todo</option>
+              <option value="">Ver todo</option>
               {categorias.map((cat, index) => (
                 <option key={index} value={cat.split(" - ")[0]}>
                   {cat.split(" - ")[0]}
@@ -270,7 +270,7 @@ const [cargandoExcel, setCargandoExcel] = useState(false);
               value={colegio}
               onChange={(e) => setColegio(e.target.value)}
             >
-              <option value="">Todo</option>
+              <option value="">Ver todo</option>
               {[...new Set(inscritos.map((item) => item.colegio))].map(
                 (colegioName, idx) => (
                   <option key={idx} value={colegioName}>
@@ -299,7 +299,7 @@ const [cargandoExcel, setCargandoExcel] = useState(false);
               }}
               className="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm text-gray-700"
             >
-              <option value="">-- Selecciona --</option>
+              <option value="">Ver todo</option>
               {departamentosDisponibles.map((dep) => (
                 <option key={dep} value={dep}>
                   {dep}
@@ -323,7 +323,7 @@ const [cargandoExcel, setCargandoExcel] = useState(false);
               onChange={(e) => setProvinciaSeleccionada(e.target.value)}
               className="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm text-gray-700"
             >
-              <option value="">-- Selecciona --</option>
+              <option value="">Ver todo</option>
               {provinciasDisponibles.map((prov) => (
                 <option key={prov} value={prov}>
                   {prov}
@@ -342,7 +342,7 @@ const [cargandoExcel, setCargandoExcel] = useState(false);
     <p className="text-xl font-semibold text-blue-600">{inscritos.length}</p>
   </div>
   <div className="bg-gray-100 px-4 py-2 rounded-lg shadow-sm">
-    <p className="text-sm font-medium">Con filtros aplicados:</p>
+    <p className="text-sm font-medium">Total con filtros aplicados:</p>
     <p className="text-xl font-semibold text-green-600">{resultadosFiltrados.length}</p>
   </div>
   {resultadosFiltrados.length > 0 && (
@@ -434,7 +434,7 @@ const [cargandoExcel, setCargandoExcel] = useState(false);
                     Datos del tutor legal
                   </th>
                   <th
-                    colSpan="5"
+                    colSpan="6"
                     className="py-2 px-4 border border-gray-300 font-semibold bg-purple-200 text-center"
                   >
                     Datos del tutor académico
@@ -520,7 +520,20 @@ const [cargandoExcel, setCargandoExcel] = useState(false);
   ))}
 </tbody>
             </table>
-            <div className="flex justify-center items-center gap-4 my-6">
+            
+
+          </div>
+
+          
+        </div>
+        
+      ) : (
+        <p className="mt-6 text-center text-gray-600">
+          No se encontraron resultados.
+        </p>
+      )}
+{resultadosFiltrados.length > 0 && (
+<div className="flex justify-center items-center gap-4 my-6">
   <button
     onClick={() => setPaginaActual((prev) => Math.max(prev - 1, 1))}
     disabled={paginaActual === 1}
@@ -539,16 +552,7 @@ const [cargandoExcel, setCargandoExcel] = useState(false);
     Siguiente
   </button>
 </div>
-
-          </div>
-        </div>
-      ) : (
-        <p className="mt-6 text-center text-gray-600">
-          No se encontraron resultados.
-        </p>
-      )}
-
-      
+)}
     </div>
   );
 }
