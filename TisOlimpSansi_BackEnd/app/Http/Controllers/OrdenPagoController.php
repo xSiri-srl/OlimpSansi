@@ -9,59 +9,25 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Http\Request;
 use thiagoalessio\TesseractOCR\TesseractOCR;
 use Barryvdh\DomPDF\Facade\Pdf;
-
+use App\Models\Inscripcion\AreaModel;
+use App\Models\Inscripcion\CategoriaModel;
+use App\Models\Inscripcion\ColegioModel;
+use App\Models\Inscripcion\EstudianteModel;
+use App\Models\Inscripcion\GradoModel;
+use App\Models\Inscripcion\InscripcionAreaModel;
+use App\Models\Inscripcion\InscripcionCategoriaModel;
+use App\Models\Inscripcion\ResponsableInscripcionModel;
+use App\Models\Inscripcion\TutorAcademicoModel;
+use App\Models\Inscripcion\TutorLegalModel;
 
 
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 use thiagoalessio\TesseractOCR\UnsuccessfulCommandException;
 class OrdenPagoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(OrdenPago $ordenPago)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, OrdenPago $ordenPago)
-    {
-
-    }
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(OrdenPago $ordenPago)
-    {
-        //
-    }
-
-    /**
-     * Genera un código único con formato TSOL-YYYY-XXXXXX donde XXXXXX son 6 letras mayúsculas
-     * 
-     * @return string
-     */
-    
     public function generarYGuardarOrdenPagoPDF(Request $request)
     {
         $validated = $request->validate([
@@ -120,20 +86,29 @@ class OrdenPagoController extends Controller
      * Descarga la orden de pago como PDF
      */
     public function descargarOrdenPago($codigo)
-    {
-        $filename = "ordenes_pago/orden_pago_{$codigo}.pdf";
+{
+    // Buscar la orden de pago por el código
+    $ordenPago = OrdenPago::where('codigo_generado', $codigo)->first();
 
-        if (!Storage::disk('public')->exists($filename)) {
-            return response()->json(['error' => 'Archivo no encontrado'], 404);
-        }
-
-        $path = storage_path("app/public/" . $filename);
-
-        return response()->file($path, [
-            'Content-Type' => 'application/pdf',
-            'Content-Disposition' => "attachment; filename=orden_pago_{$codigo}.pdf",
-        ]);
+    if (!$ordenPago) {
+        return response()->json(['error' => 'Orden de pago no encontrada'], 404);
     }
+
+    if (is_null($ordenPago->orden_pago_url)) {
+        return response()->json(['error' => 'Aún no existe una orden de pago generada.'], 400);
+    }
+
+    $path = storage_path("app/public/" . $ordenPago->orden_pago_url);
+
+    if (!file_exists($path)) {
+        return response()->json(['error' => 'El archivo de la orden de pago no fue encontrado'], 404);
+    }
+
+    return response()->file($path, [
+        'Content-Type' => 'application/pdf',
+        'Content-Disposition' => "attachment; filename=orden_pago_{$codigo}.pdf",
+    ]);
+}
 
     public function verificarCodigo(Request $request)
     {
@@ -268,4 +243,131 @@ class OrdenPagoController extends Controller
         return response()->json($ordenPago);
     }
 
+    public function obtenerResumenPorCodigo($codigo)
+    {
+        // Buscar orden de pago
+        $ordenPago = OrdenPago::where('codigo_generado', $codigo)->first();
+    
+        if (!$ordenPago) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No se encontró una orden de pago con ese código.'
+            ], 404);
+        }
+    
+        $inscripciones = InscripcionModel::with([
+            'estudiante',
+            'responsable',
+            'inscripcionCategoria.categoria.area'
+        ])
+        ->where('id_orden_pago', $ordenPago->id)
+        ->get();
+    
+        if ($inscripciones->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No se encontraron inscripciones asociadas a esta orden de pago.'
+            ], 404);
+        }
+    
+        $totalInscritos = $inscripciones->count();
+        $totalAreas = 0;
+    
+        $datosInscritos = [];
+    
+        foreach ($inscripciones as $inscripcion) {
+            $estudiante = $inscripcion->estudiante;
+    
+            foreach ($inscripcion->inscripcionCategoria as $cat) {
+                $area = $cat->categoria->area->nombre_area ?? null;
+                $categoria = $cat->categoria->nombre_categoria ?? null;
+    
+                $datosInscritos[] = [
+                    'nombre_estudiante' => $estudiante->nombre . ' ' . $estudiante->apellido_pa . ' ' . $estudiante->apellido_ma,
+                    'area' => $area,
+                    'categoria' => $categoria
+                ];
+    
+                // Contamos las áreas si existen
+                if ($area) {
+                    $totalAreas++;
+                }
+            }
+        }
+    
+        // Obtener responsable de la orden de pago desde la primera inscripción (asumiendo es el mismo)
+        $responsable = $inscripciones->first()->responsable;
+        $nombreCompleto = trim(
+            ($responsable->nombre ?? '') . ' ' .
+            ($responsable->apellido_pa ?? '') . ' ' .
+            ($responsable->apellido_ma ?? '')
+        );
+        return response()->json([
+            'success' => true,
+            'message' => 'Resumen generado correctamente.',
+            'resumen' => [
+                'codigo_generado' => $codigo,
+                'responsable' => [
+                    'nombre' => $nombreCompleto,
+                    'ci' => $responsable->ci ?? null,
+                ],
+                'total_inscritos' => $totalInscritos,
+                'total_areas' => $totalAreas,
+                'inscritos' => $datosInscritos
+            ]
+        ]);
+    }
+    
+    public function obtenerOrdenPago(){
+    $ordenesPago = OrdenPago::all();
+    return response()->json($ordenesPago);
+    }
+
+    public function obtenerOrdenesConResponsable(){
+        try {
+            //calcular la fecha de hace 7 días
+            $fechaLimite = now()->subDays(7);
+            
+            $ordenesPago = OrdenPago::where('fecha_emision', '>=', $fechaLimite)
+                ->orderBy('fecha_emision', 'desc')
+                ->get();
+                
+            $resultado = [];
+            
+            foreach ($ordenesPago as $orden) {
+                $inscripcion = InscripcionModel::where('id_orden_pago', $orden->id)
+                    ->with('responsable')
+                    ->first();
+                    
+                $responsable = $inscripcion ? $inscripcion->responsable : null;
+                
+                $nombreResponsable = 'No disponible';
+                if ($responsable) {
+                    $nombreResponsable = trim(
+                        ($responsable->nombre ?? '') . ' ' .
+                        ($responsable->apellido_pa ?? '') . ' ' .
+                        ($responsable->apellido_ma ?? '')
+                    );
+                }
+                
+                $fecha = $orden->fecha_emision ? 
+                    date('d M Y', strtotime($orden->fecha_emision)) : 
+                    'Fecha no disponible';
+                    
+                $resultado[] = [
+                    'id' => $orden->codigo_generado,
+                    'responsable' => $nombreResponsable,
+                    'fecha' => $fecha,
+                    'monto' => $orden->monto_total,
+                    'estado' => $orden->numero_comprobante ? 'pagado' : 'pendiente'
+                ];
+            }
+                
+            return response()->json($resultado);
+            
+        } catch (\Exception $e) {
+            \Log::error('Error en obtenerOrdenesConResponsable: ' . $e->getMessage());
+            return response()->json(['error' => 'Error al procesar la solicitud'], 500);
+        }
+    }
 }

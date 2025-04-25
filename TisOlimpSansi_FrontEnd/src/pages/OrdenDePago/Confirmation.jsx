@@ -6,7 +6,10 @@ import ExitoModal from "./../InscripcionLista/Modales/ExitoModal";
 const Confirmation = ({ navigate, handleBack }) => {
   const { globalData } = useFormData();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState({ success: null, message: "" });
+  const [submitStatus, setSubmitStatus] = useState({
+    success: null,
+    message: "",
+  });
   const [uploadProgress, setUploadProgress] = useState(0);
   const [showProgressBar, setShowProgressBar] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -27,7 +30,7 @@ const Confirmation = ({ navigate, handleBack }) => {
   const handleSubmit = async () => {
     setIsSubmitting(true);
     setSubmitStatus({ success: null, message: "" });
-    
+
     // Iniciar barra de progreso
     setShowProgressBar(true);
     setUploadProgress(0);
@@ -41,36 +44,42 @@ const Confirmation = ({ navigate, handleBack }) => {
         return newValue;
       });
     }, 100);
-  
+
     try {
-      const response = await axios.post("http://localhost:8000/api/inscribir", globalData);
+      const response = await axios.post(
+        "http://localhost:8000/api/inscribir",
+        globalData
+      );
       const codigoGenerado = response.data.codigo_generado;
       setCodigoGenerado(codigoGenerado);
-  
+
       // Completar la barra de progreso
       setUploadProgress(100);
       clearInterval(progressInterval);
-  
+
       setSubmitStatus({
         success: true,
         message: "Inscripción registrada correctamente.",
       });
 
-  
       // Llamar al backend para generar el PDF
-      const pdfResponse = await axios.post("http://localhost:8000/api/orden-pago/pdf", {
-        codigo_generado: codigoGenerado,
-      });
-  
-      setShowSuccessModal(true);
+      const pdfResponse = await axios.post(
+        "http://localhost:8000/api/orden-pago/pdf",
+        {
+          codigo_generado: codigoGenerado,
+        }
+      );
 
+      setShowSuccessModal(true);
     } catch (error) {
       console.error("Error al registrar los datos o generar PDF:", error);
       clearInterval(progressInterval);
       setShowProgressBar(false);
       setSubmitStatus({
         success: false,
-        message: error.response?.data?.error || "Error al registrar los datos o generar PDF.",
+        message:
+          error.response?.data?.error ||
+          "Error al registrar los datos o generar PDF.",
       });
     } finally {
       setIsSubmitting(false);
@@ -79,7 +88,7 @@ const Confirmation = ({ navigate, handleBack }) => {
   const handleSuccessModalClose = () => {
     setShowSuccessModal(false);
     setShowProgressBar(false);
-    
+
     // Navegar a la pantalla de orden de pago
     console.log(codigoGenerado);
     navigate("/ordenDePago", { state: { codigoGenerado } });
@@ -153,11 +162,13 @@ const Confirmation = ({ navigate, handleBack }) => {
         {/* Sección del colegio */}
         <div className="mb-6 border-b pb-4">
           <h3 className="text-lg font-semibold text-blue-600">
-            Datos del Colegio
+            Datos de la Unidad Educativa
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
             <div>
-              <p className="text-sm text-gray-500">Nombre del Colegio</p>
+              <p className="text-sm text-gray-500">
+                Nombre de la Unidad Educativa
+              </p>
               <p className="font-medium">
                 {globalData.colegio?.nombre_colegio || ""}
               </p>
@@ -175,7 +186,7 @@ const Confirmation = ({ navigate, handleBack }) => {
             <div>
               <p className="text-sm text-gray-500">Provincia</p>
               <p className="font-medium">
-                {globalData.colegio?.provincia || ""}
+                {globalData.colegio?.distrito || ""}
               </p>
             </div>
           </div>
@@ -287,7 +298,10 @@ const Confirmation = ({ navigate, handleBack }) => {
           <h3 className="text-lg font-semibold text-blue-600">Importe</h3>
           <div className="mt-2">
             {globalData.areas_competencia?.map((area, index) => (
-              <div key={index} className="flex justify-between py-1 border-b border-gray-100">
+              <div
+                key={index}
+                className="flex justify-between py-1 border-b border-gray-100"
+              >
                 <p className="font-medium">{area.nombre_area}</p>
                 <p className="font-medium">20 Bs.</p>
               </div>
@@ -301,44 +315,46 @@ const Confirmation = ({ navigate, handleBack }) => {
 
         <div className="mb-6">
           <p className="text-sm text-gray-500">
-            Recuerde que el pago debe ser realizado por el responsable de inscripción
+            Recuerde que el pago debe ser realizado por el responsable de
+            inscripción
           </p>
         </div>
       </div>
 
       {/* Mensaje de estado */}
       {submitStatus.success === false && (
-          <div className="mt-4 p-3 rounded-md bg-red-100 text-red-700">
-            {submitStatus.message}
-          </div>
-        )}
-
-        {/* Botones de navegación */}
-        <div className="flex justify-center mt-6 gap-4">
-          <button
-            onClick={handleGoBack}
-            disabled={isSubmitting}
-            className="bg-gray-500 text-white px-6 py-2 rounded-md transition duration-300 ease-in-out hover:bg-gray-600 shadow-md"
-          >
-            Atrás
-          </button>
-          <button
-            onClick={handleSubmit}
-            disabled={isSubmitting}
-            className={`bg-blue-600 text-white px-6 py-2 rounded-md transition duration-300 ease-in-out hover:bg-indigo-500 shadow-md ${
-              isSubmitting ? "opacity-70 cursor-not-allowed" : ""
-            }`}
-          >
-            {isSubmitting ? "Emitiendo..." : "Emitir Orden de Pago"}
-          </button>
+        <div className="mt-4 p-3 rounded-md bg-red-100 text-red-700">
+          {submitStatus.message}
         </div>
-      
+      )}
+
+      {/* Botones de navegación */}
+      <div className="flex justify-center mt-6 gap-4">
+        <button
+          onClick={handleGoBack}
+          disabled={isSubmitting}
+          className="bg-gray-500 text-white px-6 py-2 rounded-md transition duration-300 ease-in-out hover:bg-gray-600 shadow-md"
+        >
+          Atrás
+        </button>
+        <button
+          onClick={handleSubmit}
+          disabled={isSubmitting}
+          className={`bg-blue-600 text-white px-6 py-2 rounded-md transition duration-300 ease-in-out hover:bg-indigo-500 shadow-md ${
+            isSubmitting ? "opacity-70 cursor-not-allowed" : ""
+          }`}
+        >
+          {isSubmitting ? "Registrando..." : "Finalizar Registro"}
+        </button>
+      </div>
 
       {/* Barra de progreso */}
       {showProgressBar && (
         <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-40">
           <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
-            <h3 className="text-lg font-semibold mb-4 text-center">Procesando inscripción...</h3>
+            <h3 className="text-lg font-semibold mb-4 text-center">
+              Procesando registro...
+            </h3>
             <div className="w-full bg-gray-200 rounded-full h-4 mb-2">
               <div
                 className="bg-blue-600 h-full rounded-full transition-all duration-150"
@@ -346,7 +362,9 @@ const Confirmation = ({ navigate, handleBack }) => {
               ></div>
             </div>
             <p className="text-center text-sm text-gray-600">
-              {uploadProgress < 100 ? "Enviando datos al servidor..." : "Completado"}
+              {uploadProgress < 100
+                ? "Enviando datos al servidor..."
+                : "Completado"}
             </p>
           </div>
         </div>
@@ -355,7 +373,7 @@ const Confirmation = ({ navigate, handleBack }) => {
       {/* Modal de éxito */}
       {showSuccessModal && (
         <ExitoModal
-          mensaje="La inscripción ha sido registrada exitosamente. Se generó su orden de pago."
+          mensaje="Su registro ha sido procesado exitosamente."
           onClose={handleSuccessModalClose}
         />
       )}
