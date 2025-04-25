@@ -1,4 +1,3 @@
-"use client";
 import { useState, useEffect } from "react";
 import { useFormData } from "../form-data-context";
 import DatosPersonalesForm from "./DatosPersonalesForm";
@@ -6,6 +5,7 @@ import DatosColegioForm from "./DatosColegioForm";
 import useFormValidation from "./hooks/useFormValidation";
 import useColegioData from "./hooks/useColegioData";
 import axios from "axios";
+import { CURSOS } from "./constants";
 
 export default function InscripcionEstudiante({
   formData,
@@ -87,10 +87,59 @@ const buscarEstudiantePorCI = async (ci) => {
           handleInputChange('estudiante', 'colegio', estudiante.colegio.nombre_colegio);
         }
         
-        if (estudiante.grado) {
-          const gradoNombre = estudiante.grado.nombre_grado;
-          handleInputChange('estudiante', 'curso', gradoNombre);
-          console.log("Grado cargado:", gradoNombre);
+        // Manejar la normalización del grado/curso en un bloque try-catch separado
+        try {
+          if (estudiante.grado && estudiante.grado.nombre_grado) {
+            const gradoNombre = estudiante.grado.nombre_grado;
+            console.log("Grado recibido del backend:", gradoNombre);
+            
+            // Normalizar el nombre del grado para que coincida con las opciones del desplegable
+            let cursoNormalizado = gradoNombre;
+            
+            // Primero verificar si ya hay una coincidencia exacta
+            if (CURSOS.includes(gradoNombre)) {
+              cursoNormalizado = gradoNombre;
+            } else {
+              // Si no hay coincidencia exacta, intentamos normalizar
+              const gradoLower = gradoNombre.toLowerCase();
+              
+              // Detectar si es primaria o secundaria
+              const esPrimaria = gradoLower.includes('primaria');
+              const esSecundaria = gradoLower.includes('secundaria');
+              
+              // Extraer el número del grado
+              const numeroMatch = gradoLower.match(/\d+/);
+              const numero = numeroMatch ? numeroMatch[0] : '';
+              
+              if (numero) {
+                // Buscar coincidencias en el array CURSOS
+                const posibleCurso = CURSOS.find(curso => {
+                  const cursoLower = curso.toLowerCase();
+                  
+                  // Verificar si coincide el nivel (primaria/secundaria) y el número
+                  if (esPrimaria && cursoLower.includes('primaria') && cursoLower.includes(numero)) {
+                    return true;
+                  }
+                  if (esSecundaria && cursoLower.includes('secundaria') && cursoLower.includes(numero)) {
+                    return true;
+                  }
+                  return false;
+                });
+                
+                if (posibleCurso) {
+                  cursoNormalizado = posibleCurso;
+                }
+              }
+            }
+            
+            console.log("Grado normalizado:", cursoNormalizado);
+            
+            // Establecer el curso normalizado en el formulario
+            handleInputChange('estudiante', 'curso', cursoNormalizado);
+          }
+        } catch (cursoError) {
+          console.error("Error al procesar el curso:", cursoError);
+          // No mostramos error al usuario para no interrumpir el flujo
         }
         
         setEstudianteFound(true);
@@ -105,11 +154,13 @@ const buscarEstudiantePorCI = async (ci) => {
         ...prev,
         ci: "Error al buscar en la base de datos. Intente de nuevo."
       }));
+      setEstudianteFound(false);
     } finally {
       setIsSearching(false);
     }
   }
 };
+
 
   const handleCIChange = (value) => {
     handleInputChange("estudiante", "ci", value);
@@ -121,6 +172,7 @@ const buscarEstudiantePorCI = async (ci) => {
       setEstudianteFound(false);
     }
   };
+
 
   useEffect(() => {
     function handleClickOutside(event) {
