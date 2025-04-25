@@ -136,6 +136,15 @@ Route::post('/inscribir-lista', [InscripcionController::class, 'registrarLista']
 Route::get('/lista-inscritos', [InscripcionController::class, 'listarInscritos']);
 
 Route::get('/ordenes-recientes', [OrdenPagoController::class, 'obtenerOrdenesConResponsable']);
+
 Route::post('/colegios/filtro', [ColegioController::class, 'getByFiltro']);
 
 Route::get('/buscarEstudiante/{ci}', [EstudianteController::class, 'buscarEstudiante']);
+
+
+
+//filtros para contar 
+Route::post('/estudiantes/bydepartamento', [ColegioController::class, 'contarPorDepartamento']);
+Route::post('/estudiantes/byColegio', [ColegioController::class, 'contarPorColegio']);
+Route::post('/estudiantes/byGrado', [ColegioController::class, 'contarPorGrado']);
+Route::post('/estudiantes/byCategoriaArea', [ColegioController::class, 'filtrarPorCategoriaArea']);
