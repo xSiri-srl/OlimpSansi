@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import { FaUser, FaIdCard, FaEnvelope, FaPhoneAlt } from "react-icons/fa";
 import { useFormData } from "./form-data-context";
-import { TextField, RadioGroupField } from "./components/FormComponents";
-import { useFormValidation } from "./hooks/useFormValidation";
 
 export default function InscripcionTutorLegal({
   formData,
@@ -35,7 +33,6 @@ export default function InscripcionTutorLegal({
   };
 
   const handleSubmitAndNext = async () => {
-    // Validar todos los campos
     const isRolValid = validateInput(
       formData.legal?.correoPertenece,
       "correoPertenece"
@@ -78,7 +75,6 @@ export default function InscripcionTutorLegal({
     setIsSubmitting(true);
 
     try {
-      // Actualizar datos en el objeto JSON global
       const updatedData = {
         ...globalData,
         tutor_legal: {
@@ -92,7 +88,6 @@ export default function InscripcionTutorLegal({
         },
       };
 
-      // Guardar en el contexto global
       setGlobalData(updatedData);
       console.log("Datos del tutor legal actualizados en JSON:", updatedData);
       handleInputChange("legal", "isComplete", true);
@@ -113,23 +108,6 @@ export default function InscripcionTutorLegal({
     }
   };
 
-  // Verificar si el formulario es válido para habilitar el botón
-  const isFormValid =
-    formData.legal?.apellidoPaterno &&
-    formData.legal?.apellidoMaterno &&
-    formData.legal?.nombres &&
-    formData.legal?.ci &&
-    formData.legal?.correo &&
-    formData.legal?.telefono &&
-    formData.legal?.correoPertenece &&
-    formData.legal?.ci.length >= 7 &&
-    formData.legal?.nombres.length >= 2 &&
-    formData.legal?.apellidoMaterno.length >= 2 &&
-    formData.legal?.apellidoPaterno.length >= 2 &&
-    formData.legal?.telefono.length == 8 &&
-    formData.legal?.nombres.split(" ").length <= 2 &&
-    !isSubmitting;
-
   return (
     <div className="flex flex-col items-center">
       <div className="w-full max-w-2xl">
@@ -144,22 +122,33 @@ export default function InscripcionTutorLegal({
 
         <div className="mb-6">
           <h3 className="text-md font-semibold mb-2">Rol del Tutor</h3>
-          <RadioGroupField
-            name="correoPertenece"
-            options={rolesDisponibles}
-            value={formData.legal?.correoPertenece || ""}
-            className="justify-center"
-            onChange={(value) =>
-              handleInputChange("legal", "correoPertenece", value)
-            }
-            error={errors.correoPertenece}
-          />
+          <div className="flex flex-wrap justify-center gap-5 mt-2">
+            {["Padre", "Madre", "Tutor Legal"].map((rol) => (
+              <label key={rol} className="inline-flex items-center">
+                <input
+                  type="radio"
+                  name="correoPertenece"
+                  value={rol}
+                  checked={formData.legal?.correoPertenece === rol}
+                  onChange={() =>
+                    handleInputChange("legal", "correoPertenece", rol)
+                  }
+                  className="mr-2"
+                />
+                {rol}
+              </label>
+            ))}
+          </div>
+          {errors.correoPertenece && (
+            <p className="text-red-500 text-sm text-center mt-2">
+              {errors.correoPertenece}
+            </p>
+          )}
         </div>
 
         <div className="space-y-4">
           {/* Apellido Paterno y Materno */}
           <div className="flex flex-col md:flex-row gap-4">
-            
             <div className="w-full">
               <label className="flex items-center gap-2">
                 <FaUser className="text-black" /> Apellido Paterno
@@ -169,14 +158,21 @@ export default function InscripcionTutorLegal({
                 className="mt-1 p-2 w-full border rounded-md"
                 placeholder="Apellido Paterno"
                 value={formData.legal?.apellidoPaterno || ""}
-                onChange={(value) =>
-                  handleInputChange("legal", "apellidoPaterno", value)
+                onChange={(e) =>
+                  handleValidatedChange(
+                    "legal",
+                    "apellidoPaterno",
+                    e.target.value.toUpperCase(),
+                    /^[A-Za-zÁÉÍÓÚáéíóúÑñ]*$/
+                  )
                 }
-                error={errors.apellidoPaterno}
                 maxLength="15"
-                regex={/^[A-Za-zÁÉÍÓÚáéíóúÑñ]*$/}
-                transform={(value) => value.toUpperCase()}
               />
+              {errors.apellidoPaterno && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.apellidoPaterno}
+                </p>
+              )}
             </div>
             <div className="w-full">
               <label className="flex items-center gap-2">
@@ -187,14 +183,21 @@ export default function InscripcionTutorLegal({
                 className="mt-1 p-2 w-full border rounded-md"
                 placeholder="Apellido Materno"
                 value={formData.legal?.apellidoMaterno || ""}
-                onChange={(value) =>
-                  handleInputChange("legal", "apellidoMaterno", value)
+                onChange={(e) =>
+                  handleValidatedChange(
+                    "legal",
+                    "apellidoMaterno",
+                    e.target.value.toUpperCase(),
+                    /^[A-Za-zÁÉÍÓÚáéíóúÑñ]*$/
+                  )
                 }
-                error={errors.apellidoMaterno}
                 maxLength="15"
-                regex={/^[A-Za-zÁÉÍÓÚáéíóúÑñ]*$/}
-                transform={(value) => value.toUpperCase()}
               />
+              {errors.apellidoMaterno && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.apellidoMaterno}
+                </p>
+              )}
             </div>
           </div>
 

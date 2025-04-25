@@ -12,8 +12,6 @@
         "laravel/framework": "^11.31",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
-        "maatwebsite/excel": "^1.1",
-        "phpoffice/phpspreadsheet": "^4.2",
         "spatie/laravel-pdf": "^1.5",
         "thiagoalessio/tesseract_ocr": "^2.13"
     },

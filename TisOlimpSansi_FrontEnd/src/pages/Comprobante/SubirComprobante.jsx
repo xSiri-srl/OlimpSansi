@@ -46,7 +46,7 @@ const SubirComprobante = () => {
     // Validar número de comprobante
     const regexNumero = /^[0-9]+$/;
     if (!regexNumero.test(numeroComprobante)) {
-      setErrorNumero("Sólo se permiten números.");
+      setErrorNumero("En este campo solo se permiten números");
       valid = false;
     } else {
       setErrorNumero("");
@@ -55,7 +55,7 @@ const SubirComprobante = () => {
     // Validar nombre del responsable
     const regexNombre = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
     if (!regexNombre.test(comprobanteNombre)) {
-      setErrorNombre("Sólo se permiten letras, acentuación y espacios en blanco.");
+      setErrorNombre("En este campo solo se permiten letras, espacios, acentos y la ñ");
       valid = false;
     } else {
       setErrorNombre("");
@@ -64,7 +64,7 @@ const SubirComprobante = () => {
     // Validar fecha (formato dd-mm-aa)
     const regexFecha = /^\d{2}-\d{2}-\d{2}$/;
     if (!regexFecha.test(fechaComprobante)) {
-      setErrorFecha("Sólo fechas con el formato dd-mm-aa");
+      setErrorFecha("Formato de fecha inválido. Usa dd-mm-aa");
       valid = false;
     } else {
       // Convertir fecha a objeto Date
@@ -81,7 +81,7 @@ const SubirComprobante = () => {
         parsedYear < currentYear || // Año pasado
         (parsedYear === currentYear && month - 1 < currentMonth) // Mes anterior
       ) {
-        setErrorFecha("Sólo se permiten comprobantes del mes y año vigentes.");
+        setErrorFecha("La fecha no puede ser de un mes o año anterior al actual.");
         valid = false;
       } else {
         setErrorFecha("");
@@ -322,11 +322,11 @@ const SubirComprobante = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-gray-300 p-4 rounded-md">
             <h3 className="text-lg font-semibold mb-2">Ejemplo:</h3>
-            <div className="bg-green-200 p-6 rounded-md flex flex-col items-center justify-center">
+            <div className="bg-gray-400 p-6 rounded-md flex flex-col items-center justify-center">
             <img
-            src="/images/codigo.png"
+            src="/images/ejeOrden.png"
             alt="Ejemplo Orden"
-            className="w-40 h-10 md:h-10 lg:h-24 w-auto border-green-500 rounded-md border-4 border-dashed" 
+            className="h-10 md:h-10 lg:h-24 w-auto"
             
           />
             </div>

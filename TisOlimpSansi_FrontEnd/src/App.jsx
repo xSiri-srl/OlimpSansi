@@ -15,22 +15,19 @@ import SubirArchivo from "./pages/InscripcionLista/SubirArchivo";
 import ListaCompetidores from "./pages/InscripcionLista/ListaCompetidores";
 import { FormProvider } from "./pages/InscripcionLista/form-context"
 import PasosInscripcion from "./pages/InscripcionLista/PasosInscripcion";
-import GenerarOrdenPago from "./pages/OrdenPago/GenerarOrdenPago";
-import PanelDatos from "./pages/Administrador/PanelDatos";
+import InicioAdmin from "./pages/Inicio/InicioAdmin";
 import DescargarListas from "./pages/Administrador/DescargarListas";
 import Propuesta from "./pages/OrdenDePago/Propuesta";
 
 export default function App() {
   return (
- <>
-    <Navbar />
-    <div className="pt-20">
+    <>
     <FormProvider>
-    
+    <Navbar />
       {/* ORDEN DE PAGO */}
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/home-admin" element={<PanelDatos />} />
+        <Route path="/home-admin" element={<InicioAdmin />} />
         <Route
           path="/inscripcion/forma-inscripcion"
           element={<FormaInscripcion />}
@@ -63,10 +60,6 @@ export default function App() {
         <Route
           path="/ordenDePago"
           element={<OrdenPago />}
-        />
-         <Route
-          path="/generar-orden-pago"
-          element={<GenerarOrdenPago />}
         />
       {/* COMPROBANTE */}
         <Route 
@@ -103,7 +96,6 @@ export default function App() {
       </Routes> 
     </FormProvider>
       
-    </div>
-    </>   
+    </>
   );
 }
