@@ -268,7 +268,38 @@ const ListaCompetidores = ({ setStep }) => {
         // Crear una copia del estudiante para manipular
         const estudianteModificado = { ...estudiante };
 
-        // Si hay áreas de competencia, verificar tutores académicos
+              // Convertir las categorías al formato original para el backend
+      if (
+        estudianteModificado.areas_competencia &&
+        estudianteModificado.areas_competencia.length > 0
+      ) {
+        estudianteModificado.areas_competencia = estudianteModificado.areas_competencia.map(area => {
+          // Si ya tiene categoria_original, la usamos
+          if (area.categoria_original) {
+            console.log(`Usando categoría original: ${area.categoria_original} en lugar de ${area.categoria}`);
+            area.categoria = area.categoria_original;
+            delete area.categoria_original;
+            return area;
+          }
+
+          // Si es informática o robótica y tiene categoría, convertir al formato original
+          if ((area.nombre_area === "Informática" || area.nombre_area === "Robótica") && area.categoria) {
+            // Verificar si la categoría ya está en formato original (mayúsculas sin comillas)
+            if (area.categoria === area.categoria.toUpperCase() && !area.categoria.includes('"')) {
+              return area;
+            }
+            
+            // Extraer el nombre de la categoría que está entre comillas
+            const match = area.categoria.match(/\"([^\"]+)\"/);
+            if (match && match[1]) {
+              const originalFormat = match[1].toUpperCase();
+              console.log(`Convirtiendo categoría: ${area.categoria} -> ${originalFormat}`);
+              area.categoria = originalFormat;
+            }
+          }
+          return area;
+        });
+      }
         if (
           estudianteModificado.areas_competencia &&
           estudianteModificado.areas_competencia.length > 0
