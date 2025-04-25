@@ -25,7 +25,7 @@ const Navbar = () => {
     setRole(newRole);
     localStorage.setItem("user", JSON.stringify({ role: newRole }));
     setShowSidebar(false);
-    navigate(newRole === "admin" ? "/home-admin" : "/");
+    navigate(newRole === "admin" ? "/admin/generar-reportes" : "/");
   };
 
   return (

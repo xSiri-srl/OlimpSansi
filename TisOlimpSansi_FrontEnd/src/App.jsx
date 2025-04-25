@@ -30,7 +30,7 @@ export default function App() {
       {/* ORDEN DE PAGO */}
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/home-admin" element={<PanelDatos />} />
+        <Route path="/admin/generar-reportes" element={<PanelDatos />} />
         <Route
           path="/inscripcion/forma-inscripcion"
           element={<FormaInscripcion />}
