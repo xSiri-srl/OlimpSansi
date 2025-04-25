@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState} from "react";
 import axios from "axios";
 import ProcesoRegistro from "./ProcesoRegistro";
 import { FaUser, FaIdCard } from "react-icons/fa";
@@ -8,6 +8,8 @@ import InscripcionTutorLegal from "./InscripcionTutorLegal";
 import InscripcionTutorAcademico from "./IncripcionTutorAcademico";
 import Confirmation from "./Confirmation";
 import { FormDataContext, useFormData } from "./form-data-context";
+import { TextField } from "./components/FormComponents";
+import { validateField, validateCI } from "./utils/validationsUtils";
 
 const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
   const [errors, setErrors] = useState({});
@@ -16,66 +18,96 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
   const [responsableFound, setResponsableFound] = useState(false);
   const { globalData, setGlobalData } = useFormData();
 
-  // Función para validar entradas con regex
+  // Función para validar campos del formulario
   const validateInput = (value, fieldName, regex, minWords = 1) => {
-    if (!value || !value.trim() === "") {
-      setErrors((prev) => ({
-        ...prev,
-        [fieldName]: "Este campo no puede estar vacío.",
-      }));
-      return false;
-    }
-
-    if (!regex.test(value)) {
-      setErrors((prev) => ({ ...prev, [fieldName]: "Formato inválido." }));
-      return false;
-    }
-
-    if (value.trim().split(/\s+/).length < minWords) {
-      setErrors((prev) => ({
-        ...prev,
-        [fieldName]: `Debe contener al menos ${minWords} palabra(s).`,
-      }));
-      return false;
-    }
-
-    setErrors((prev) => ({ ...prev, [fieldName]: "" }));
-    return true;
+    const { isValid, errorMessage } = validateField(value, regex, minWords);
+    setErrors((prev) => ({ ...prev, [fieldName]: errorMessage }));
+    return isValid;
   };
 
-  // Manejador de cambio con validación
-  const handleValidatedChange = (namespace, field, value, regex) => {
-    if (value.startsWith(" ")) return;
-    if (regex.test(value) || value === "") {
-      handleInputChange(namespace, field, value);
-      setErrors((prev) => ({ ...prev, [field]: "" }));
+  // Función para buscar un responsable por CI en la base de datos
+  const buscarResponsablePorCI = async (ci) => {
+    if (ci?.length >= 7) {
+      setIsSearching(true);
+      console.log("Buscando responsable con CI:", ci);
+      
+      try {
+        const apiUrl = `http://localhost:8000/api/buscarResponsable/${ci}`;
+        console.log("Consultando API en:", apiUrl);
+        
+        const response = await axios.get(apiUrl);
+        console.log("Respuesta recibida:", response.data);
+        
+        if (response.data.found) {
+          const responsable = response.data.responsable;
+          handleInputChange('responsable', 'nombres', responsable.nombre);
+          handleInputChange('responsable', 'apellidoPaterno', responsable.apellido_pa);
+          handleInputChange('responsable', 'apellidoMaterno', responsable.apellido_ma);
+          setResponsableFound(true);
+          
+          console.log("Responsable encontrado:", responsable);
+        } else {
+          setResponsableFound(false);
+          console.log("No se encontró responsable con ese CI");
+        }
+      } catch (error) {
+        console.error("Error al buscar responsable:", error);
+        setErrors(prev => ({
+          ...prev,
+          ci: "Error al buscar en la base de datos. Intente de nuevo."
+        }));
+      } finally {
+        setIsSearching(false);
+      }
+    }
+  };
+  
+  // Manejador para cambios en el campo CI
+  const handleCIChange = (value) => {
+    handleInputChange("responsable", "ci", value);
+    setErrors((prev) => ({ ...prev, ci: "" }));
+    
+    // Si el CI tiene 7-8 dígitos, buscar en la base de datos
+    if (value.length >= 7 && value.length <= 8) {
+      buscarResponsablePorCI(value);
+    } else if (value.length < 7) {
+      setResponsableFound(false);
     }
   };
 
+  // Manejador para enviar el formulario y avanzar
   const handleSubmitAndNext = () => {
+    // Validar todos los campos
     const isApellidoPaternoValid = validateInput(
       formData.responsable?.apellidoPaterno,
       "apellidoPaterno",
-      /^[A-Za-zÁÉÍÓÚáéíóúÑñ]+([A-Za-zÁÉÍÓÚáéíóúÑñ]+)*$/,
+      /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/,
       1
     );
 
     const isApellidoMaternoValid = validateInput(
       formData.responsable?.apellidoMaterno,
       "apellidoMaterno",
-      /^[A-Za-zÁÉÍÓÚáéíóúÑñ]+([A-Za-zÁÉÍÓÚáéíóúÑñ]+)*$/,
+      /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/,
       1
     );
 
     const isNombresValid = validateInput(
       formData.responsable?.nombres,
       "nombres",
-      /^[A-Za-zÁÉÍÓÚáéíóúÑñ]+(\s[A-Za-zÁÉÍÓÚáéíóúÑñ]+)*$/,
+      /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/,
       1
     );
 
-    const isCIValid = validateInput(formData.responsable?.ci, "ci", /^[0-9]*$/);
+    const { isValid: isCIValid } = validateCI(formData.responsable?.ci);
+    if (!isCIValid) {
+      setErrors(prev => ({
+        ...prev,
+        ci: "El CI debe tener entre 7 y 8 dígitos numéricos."
+      }));
+    }
 
+    // Si algún campo no es válido, detener el proceso
     if (
       !isApellidoPaternoValid ||
       !isApellidoMaternoValid ||
@@ -115,56 +147,19 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
       setIsSubmitting(false);
     }
   };
-  const buscarResponsablePorCI = async (ci) => {
-    if (ci?.length >= 7) {
-      setIsSearching(true);
-      console.log("Buscando responsable con CI:", ci);
-      
-      try {
-        const apiUrl = `http://localhost:8000/api/buscarResponsable/${ci}`;
-        console.log("Consultando API en:", apiUrl);
-        
-        const response = await axios.get(apiUrl);
-        console.log("Respuesta recibida:", response.data);
-        
-        if (response.data.found) {
-          const responsable = response.data.responsable;
-          handleInputChange('responsable', 'nombres', responsable.nombre);
-          handleInputChange('responsable', 'apellidoPaterno', responsable.apellido_pa);
-          handleInputChange('responsable', 'apellidoMaterno', responsable.apellido_ma);
-          setResponsableFound(true);
-          
-          console.log("Responsable encontrado:", responsable);
-        } else {
-          setResponsableFound(false);
-          console.log("No se encontró responsable con ese CI");
-        }
-      } catch (error) {
-        console.error("Error al buscar responsable:", error);
-        setErrors(prev => ({
-          ...prev,
-          ci: "Error al buscar en la base de datos. Intente de nuevo."
-        }));
-      } finally {
-        setIsSearching(false);
-      }
-    }
-  };
-  
-  const handleCIChange = (e) => {
-    const value = e.target.value;
-    if (/^[0-9]*$/.test(value) || value === "") {
-      handleInputChange("responsable", "ci", value);
-      setErrors((prev) => ({ ...prev, ci: "" }));
-      
-      // Si el CI tiene exactamente 7 dígitos, buscar en la base de datos
-      if (value.length >= 7 && value.length <= 8) {
-        buscarResponsablePorCI(value);
-      } else if (value.length < 7) {
-        setResponsableFound(false);
-      }
-    }
-  };
+
+  // Verificar si el formulario es válido para habilitar el botón
+  const isFormValid =
+    formData.responsable?.nombres &&
+    formData.responsable?.ci &&
+    formData.responsable?.apellidoPaterno &&
+    formData.responsable?.apellidoMaterno &&
+    formData.responsable?.ci?.length >= 7 &&
+    formData.responsable?.nombres?.length >= 2 &&
+    formData.responsable?.apellidoMaterno?.length >= 2 &&
+    formData.responsable?.apellidoPaterno?.length >= 2 &&
+    formData.responsable?.nombres?.split(" ").length <= 2 &&
+    !isSubmitting;
 
   return (
     <div className="flex justify-center">
@@ -182,25 +177,20 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
         {/* Formulario */}
         <div className="space-y-4">
           <div>
-            <div className="flex items-center gap-2">
-              <FaIdCard className="text-black" />
-              <label>Carnet de Identidad</label>
-            </div>
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
+              <TextField
+                label="Carnet de Identidad"
+                icon={<FaIdCard className="text-black" />}
+                name="ci"
+                placeholder="Número de Carnet de Identidad (7 a 8 dígitos)"
                 value={formData.responsable?.ci || ""}
                 onChange={handleCIChange}
-                className="w-full p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Número de Carnet de Identidad (7 a 8 dígitos)"
+                error={errors.ci}
                 maxLength="8"
+                regex={/^[0-9]*$/}
+                className="w-full"
               />
               {isSearching && <div className="ml-2 text-blue-500">Buscando...</div>}
               {responsableFound && <div className="ml-2 text-green-500">✓ Encontrado</div>}
-            </div>
-            {errors.ci && (
-              <p className="text-red-500 text-sm mt-1">{errors.ci}</p>
-            )}
           </div>
           
           {/* Mensaje informativo cuando se encuentra un responsable */}
@@ -212,83 +202,55 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
   
           <div className="flex flex-col md:flex-row gap-4">
             <div className="w-full">
-              <div className="flex items-center gap-2">
-                <FaUser className="text-black" />
-                <label>Apellido Paterno</label>
-              </div>
-              <input
-                type="text"
-                value={formData.responsable?.apellidoPaterno || ""}
-                onChange={(e) =>
-                  handleValidatedChange(
-                    "responsable",
-                    "apellidoPaterno",
-                    e.target.value.toUpperCase(),
-                    /^[A-Za-zÁÉÍÓÚáéíóúÑñ]*$/
-                  )
-                }
-                maxLength="15"
-                className="w-full p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              <TextField
+                label="Apellido Paterno"
+                icon={<FaUser className="text-black" />}
+                name="apellidoPaterno"
                 placeholder="Apellido Paterno"
+                value={formData.responsable?.apellidoPaterno || ""}
+                onChange={(value) =>
+                  handleInputChange("responsable", "apellidoPaterno", value)
+                }
+                error={errors.apellidoPaterno}
+                maxLength="15"
+                regex={/^[A-Za-zÁÉÍÓÚáéíóúÑñ]*$/}
+                transform={(value) => value.toUpperCase()}
               />
-              {errors.apellidoPaterno && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.apellidoPaterno}
-                </p>
-              )}
             </div>
             <div className="w-full">
-              <div className="flex items-center gap-2">
-                <FaUser className="text-black" />
-                <label>Apellido Materno</label>
-              </div>
-              <input
-                type="text"
-                value={formData.responsable?.apellidoMaterno || ""}
-                onChange={(e) =>
-                  handleValidatedChange(
-                    "responsable",
-                    "apellidoMaterno",
-                    e.target.value.toUpperCase(),
-                    /^[A-Za-zÁÉÍÓÚáéíóúÑñ]*$/
-                  )
-                }
-                maxLength="15"
-                className="w-full p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              <TextField
+                label="Apellido Materno"
+                icon={<FaUser className="text-black" />}
+                name="apellidoMaterno"
                 placeholder="Apellido Materno"
+                value={formData.responsable?.apellidoMaterno || ""}
+                onChange={(value) =>
+                  handleInputChange("responsable", "apellidoMaterno", value)
+                }
+                error={errors.apellidoMaterno}
+                maxLength="15"
+                regex={/^[A-Za-zÁÉÍÓÚáéíóúÑñ]*$/}
+                transform={(value) => value.toUpperCase()}
               />
-              {errors.apellidoMaterno && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.apellidoMaterno}
-                </p>
-              )}
             </div>
           </div>
+          
           <div>
-            <div className="flex items-center gap-2">
-              <FaUser className="text-black" />
-              <label>Nombres</label>
-            </div>
-            <input
-              type="text"
-              value={formData.responsable?.nombres || ""}
-              onChange={(e) =>
-                handleValidatedChange(
-                  "responsable",
-                  "nombres",
-                  e.target.value.toUpperCase(),
-                  /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
-                )
-              }
-              maxLength="30"
-              className="w-full p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            <TextField
+              label="Nombres"
+              icon={<FaUser className="text-black" />}
+              name="nombres"
               placeholder="Nombres"
+              value={formData.responsable?.nombres || ""}
+              onChange={(value) =>
+                handleInputChange("responsable", "nombres", value)
+              }
+              error={errors.nombres}
+              maxLength="30"
+              regex={/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/}
+              transform={(value) => value.toUpperCase()}
             />
-            {errors.nombres && (
-              <p className="text-red-500 text-sm mt-1">{errors.nombres}</p>
-            )}
           </div>
-
 
           {/* Mensaje de error general */}
           {errors.general && (
@@ -302,25 +264,9 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
         <div className="flex justify-center mt-8">
           <button
             onClick={handleSubmitAndNext}
-            disabled={
-              isSubmitting ||
-              !formData.responsable?.nombres ||
-              !formData.responsable?.ci ||
-              formData.responsable?.ci?.length < 7 ||
-              formData.responsable?.nombres?.length < 2 ||
-              formData.responsable?.apellidoMaterno?.length < 2 ||
-              formData.responsable?.apellidoPaterno?.length < 2 ||
-              formData.responsable?.nombres?.split(" ").length > 2
-            }
+            disabled={!isFormValid}
             className={`px-6 py-2 transition duration-300 ease-in-out text-white rounded-md shadow-md ${
-              formData.responsable?.nombres &&
-              formData.responsable?.ci &&
-              formData.responsable?.ci?.length >= 7 &&
-              formData.responsable?.nombres?.length >= 2 &&
-              formData.responsable?.apellidoMaterno?.length >= 2 &&
-              formData.responsable?.apellidoPaterno?.length >= 2 &&
-              formData.responsable?.nombres?.split(" ").length <= 2 &&
-              !isSubmitting
+              isFormValid
                 ? "bg-blue-500 hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500"
                 : "bg-gray-400 cursor-not-allowed"
             }`}
