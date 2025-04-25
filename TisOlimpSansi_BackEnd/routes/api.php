@@ -139,4 +139,10 @@ Route::get('/ordenes-recientes', [OrdenPagoController::class, 'obtenerOrdenesCon
 
 Route::post('/colegios/filtro', [ColegioController::class, 'getByFiltro']);
 
+
+
+
+//filtros para contar 
 Route::post('/estudiantes/bydepartamento', [ColegioController::class, 'contarPorDepartamento']);
+Route::post('/estudiantes/byColegio', [ColegioController::class, 'contarPorColegio']);
+Route::post('/estudiantes/byGrado', [ColegioController::class, 'contarPorGrado']);
