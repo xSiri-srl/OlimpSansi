@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 
 const Inicio = () => {
   return (
-    <div className="h-screen flex items-center justify-center bg-gradient-to-r from-blue-800 via-purple-700 to-red-700">
+    <div className="h-screen flex items-center justify-center  bg-gradient-to-r from-blue-800 via-purple-700 to-red-700">
       <motion.div
         className="flex flex-col md:flex-row items-center justify-between w-full max-w-6xl px-6"
         initial={{ opacity: 0 }}
@@ -17,7 +17,7 @@ const Inicio = () => {
             transition={{ duration: 1 }}
             className="text-5xl md:text-6xl font-extrabold drop-shadow-lg"
           >
-            Bienvenido a O! Sansi
+            Bienvenido a <br></br>O! SANSI
           </motion.h1>
 
           <motion.p

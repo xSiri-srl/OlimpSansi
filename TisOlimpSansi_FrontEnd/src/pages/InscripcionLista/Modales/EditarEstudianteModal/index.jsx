@@ -19,6 +19,7 @@ const EditarEstudianteModal = ({ estudiante, onClose, onSave }) => {
     validarDatos,
     tieneError,
     mostrarCampo,
+    campoEditable,
     validarFormatoCI,
     validarFormatoTelefono
   } = useEstudianteForm(estudiante);
@@ -69,6 +70,7 @@ const EditarEstudianteModal = ({ estudiante, onClose, onSave }) => {
               handleChange={handleChange}
               mostrarCampo={mostrarCampo}
               tieneError={tieneError}
+              campoEditable={campoEditable}
               errores={errores}
               validarFormatoCI={validarFormatoCI}
             />
@@ -82,6 +84,7 @@ const EditarEstudianteModal = ({ estudiante, onClose, onSave }) => {
                 handleDepartamentoChange={handleDepartamentoChange}
                 mostrarCampo={mostrarCampo}
                 tieneError={tieneError}
+                campoEditable={campoEditable}
                 errores={errores}
               />
             )}
@@ -97,6 +100,7 @@ const EditarEstudianteModal = ({ estudiante, onClose, onSave }) => {
                 handleChange={handleChange}
                 mostrarCampo={mostrarCampo}
                 tieneError={tieneError}
+                campoEditable={campoEditable}
                 errores={errores}
               />
             )}
@@ -108,6 +112,7 @@ const EditarEstudianteModal = ({ estudiante, onClose, onSave }) => {
                 handleChange={handleChange}
                 tieneError={tieneError}
                 errores={errores}
+                campoEditable={campoEditable}
                 validarFormatoCI={validarFormatoCI}
                 validarFormatoTelefono={validarFormatoTelefono}
               />
@@ -122,6 +127,7 @@ const EditarEstudianteModal = ({ estudiante, onClose, onSave }) => {
               areaIndex={0}
               nombreArea={areasActuales[0].nombre_area}
               tieneError={tieneError}
+              campoEditable={campoEditable}
               errores={errores}
               validarFormatoCI={validarFormatoCI}
             />
@@ -136,6 +142,7 @@ const EditarEstudianteModal = ({ estudiante, onClose, onSave }) => {
               areaIndex={1}
               nombreArea={areasActuales[1].nombre_area}
               tieneError={tieneError}
+              campoEditable={campoEditable}
               errores={errores}
               validarFormatoCI={validarFormatoCI}
             />

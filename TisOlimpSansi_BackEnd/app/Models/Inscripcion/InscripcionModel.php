@@ -29,7 +29,7 @@ class InscripcionModel extends Model
     public function ordenPago(){
         return $this->belongsTo(OrdenPago::class, 'id_orden_pago');
     }
-    public function inscripcionCategoria(){
-        return $this->belongsToMany(AreaModel::class, 'inscripcion_area', 'id_inscripcion', 'id_categoria');
+    public function inscripcionCategoria() {
+        return $this->hasMany(InscripcionCategoriaModel::class, 'id_inscripcion');
     }
 }

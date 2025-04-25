@@ -14,32 +14,29 @@ function SubirArchivo({ setStep }) {
   const [uploadProgress, setUploadProgress] = useState(0)
 
   const cabecerasEsperadas = [
-    { contenido: "Datos del colegio", fila: 0, columna: 0 },
-    { contenido: "Departamento", fila: 1, columna: 0 },
-    { contenido: "Provincia", fila: 2, columna: 0 },
-    { contenido: "Datos del competidor", fila: 3, columna: 0 },
-    { contenido: "Apellido Paterno", fila: 4, columna: 0 },
-    { contenido: "Apellido Materno", fila: 4, columna: 1 },
-    { contenido: "Nombres", fila: 4, columna: 2 },
-    { contenido: "Carnet de Identidad", fila: 4, columna: 3 },
-    { contenido: "Fecha de nacimiento", fila: 4, columna: 4 },
-    { contenido: "Correo Electronico", fila: 4, columna: 5 },
-    { contenido: "El correo pertenece a", fila: 4, columna: 6 },
-    { contenido: "Curso", fila: 4, columna: 7 },
-    { contenido: "Rol del tutor", fila: 4, columna: 8 },
-    { contenido: "Apellido Paterno", fila: 4, columna: 9 },
-    { contenido: "Apellido Materno", fila: 4, columna: 10 },
-    { contenido: "Nombres", fila: 4, columna: 11 },
-    { contenido: "Carnet de Identidad", fila: 4, columna: 12 },
-    { contenido: "Correo Electronico", fila: 4, columna: 13 },
-    { contenido: "Telefono/celular", fila: 4, columna: 14 },
-    { contenido: "Area", fila: 4, columna: 15 },
-    { contenido: "Categoria", fila: 4, columna: 16 },
-    { contenido: "Apellido Paterno", fila: 4, columna: 17 },
-    { contenido: "Apellido Materno", fila: 4, columna: 18 },
-    { contenido: "Nombres", fila: 4, columna: 19 },
-    { contenido: "Carnet de Identidad", fila: 4, columna: 20 },
-    { contenido: "Correo Electronico", fila: 4, columna: 21 },
+    { contenido: "Datos del competidor", fila: 0, columna: 0 },
+    { contenido: "Apellido Paterno", fila: 1, columna: 0 },
+    { contenido: "Apellido Materno", fila: 1, columna: 1 },
+    { contenido: "Nombres", fila: 1, columna: 2 },
+    { contenido: "Carnet de Identidad", fila: 1, columna: 3 },
+    { contenido: "Fecha de nacimiento", fila: 1, columna: 4 },
+    { contenido: "Correo Electronico", fila: 1, columna: 5 },
+    { contenido: "El correo pertenece a", fila: 1, columna: 6 },
+    { contenido: "Curso", fila: 1, columna: 7 },
+    { contenido: "Rol del tutor", fila: 1, columna: 8 },
+    { contenido: "Apellido Paterno", fila: 1, columna: 9 },
+    { contenido: "Apellido Materno", fila: 1, columna: 10 },
+    { contenido: "Nombres", fila: 1, columna: 11 },
+    { contenido: "Carnet de Identidad", fila: 1, columna: 12 },
+    { contenido: "Correo Electronico", fila: 1, columna: 13 },
+    { contenido: "Telefono/celular", fila: 1, columna: 14 },
+    { contenido: "Area", fila: 1, columna: 15 },
+    { contenido: "Categoria", fila: 1, columna: 16 },
+    { contenido: "Apellido Paterno", fila: 1, columna: 17 },
+    { contenido: "Apellido Materno", fila: 1, columna: 18 },
+    { contenido: "Nombres", fila: 1, columna: 19 },
+    { contenido: "Carnet de Identidad", fila: 1, columna: 20 },
+    { contenido: "Correo Electronico", fila: 1, columna: 21 },
   ]
   function validarCabecerasExcel(rawData) {
     const errores = []
@@ -48,7 +45,7 @@ function SubirArchivo({ setStep }) {
       const valorCelda = rawData[fila]?.[columna]?.toString().trim()
       if (valorCelda !== contenido) {
         errores.push(
-          `Error en fila ${fila + 1}, columna ${columna + 1}: se esperaba "${contenido}", pero se encontró "${valorCelda || "vacío"}"`,
+          `Error en fila ${fila }, columna ${columna }: se esperaba "${contenido}", pero se encontró "${valorCelda || "vacío"}"`,
         )
       }
     })
@@ -184,9 +181,9 @@ function SubirArchivo({ setStep }) {
   // Función para procesar el formato específico del Excel mostrado
   const processSpecificExcelFormat = (rawData, globalData) => {
     const colegio = {
-      nombre_colegio: getFirstNonEmptyInRange(rawData[0], 1, 1),
-      departamento: getFirstNonEmptyInRange(rawData[1], 1, 1),
-      provincia: getFirstNonEmptyInRange(rawData[2], 1, 1),
+      departamento: globalData.colegio?.departamento,
+      distrito: globalData.colegio?.distrito,
+      nombre_colegio: globalData.colegio?.nombre_colegio,
     }
 
     // Encontrar las filas con datos de estudiantes (a partir de la fila 7)
@@ -220,7 +217,7 @@ function SubirArchivo({ setStep }) {
     const tutorAcademicoCorreoIdx = 21
 
     // Procesar solo las filas que tienen datos significativos (a partir de la fila 5)
-    for (let i = 5; i < rawData.length; i++) {
+    for (let i = 2; i < rawData.length; i++) {
       const row = rawData[i]
 
       // Verificar si la fila tiene datos significativos en las columnas principales
@@ -242,6 +239,7 @@ function SubirArchivo({ setStep }) {
           correo: row[correoIdx] || "",
           propietario_correo: row[propietarioCorreoIdx] || "Estudiante",
         }
+        
 
         const tutorLegal = {
           nombre: row[tutorNombresIdx] || "",
@@ -267,9 +265,9 @@ function SubirArchivo({ setStep }) {
         const estudianteCompleto = {
           estudiante,
           colegio: {
-            nombre_colegio: colegio.nombre_colegio,
             departamento: colegio.departamento,
-            provincia: colegio.provincia,
+            distrito: colegio.distrito,
+            nombre_colegio: colegio.nombre_colegio,
             curso: row[cursoIdx] || "",
           },
           areas_competencia: [
@@ -354,7 +352,7 @@ function SubirArchivo({ setStep }) {
           clearInterval(interval)
           processExcelFile(selectedFile).then((success) => {
             if (success) {
-              setStep(3)
+              setStep(4)
             }
             setLoading(false)
           })
@@ -392,7 +390,7 @@ function SubirArchivo({ setStep }) {
       {error && <p className="text-red-600 text-sm mt-2">{error}</p>}
       <div className="flex justify-center mt-6 space-x-4">
         <button
-          onClick={() => setStep(1)}
+          onClick={() => setStep(2)}
           className="px-6 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition"
         >
           Atrás
