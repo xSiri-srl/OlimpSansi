@@ -57,44 +57,6 @@ const AreasCompetencia = ({
     }
   }, [areasActuales]);
 
-  // Mapping for category names from Excel to full UI names - conservamos esto intacto
-  const categoryMapping = {
-    // Informática categories
-    "GUACAMAYO": "\"Guacamayo\" 5to a 6to Primaria",
-    "GUANACO": "\"Guanaco\" 1ro a 3ro Secundaria",
-    "LONDRA": "\"Londra\" 1ro a 3ro Secundaria",
-    "BUFEO": "\"Bufeo\" 1ro a 3ro Secundaria",
-    "JUCUMARI": "\"Jucumari\" 4to a 6to Secundaria",
-    "PUMA": "\"Puma\" 4to a 6to Secundaria",
-    
-    // Robótica categories
-    "BUILDERS P": "\"Builders P\" 5to a 6to Primaria",
-    "LEGO P": "\"Lego P\" 5to a 6to Primaria",
-    "BUILDERS S": "\"Builders S\" 1ro a 6to Secundaria",
-    "LEGO S": "\"Lego S\" 1ro a 6to Secundaria"
-  };
-
-  // Normalize category names when component mounts - conservamos este useEffect intacto
-  useEffect(() => {
-    if (areasActuales?.length > 0) {
-      areasActuales.forEach((area, index) => {
-        if ((area.nombre_area === "Informática" || area.nombre_area === "Robótica") && 
-            area.categoria && !area.categoria.includes("\"")) {
-          // If the category is in short form, convert it to the full UI form
-          const upperCaseCategory = area.categoria.toUpperCase();
-          const fullCategory = Object.keys(categoryMapping).find(key => 
-            upperCaseCategory.includes(key) || key.includes(upperCaseCategory)
-          );
-          
-          if (fullCategory && categoryMapping[fullCategory]) {
-            handleChange(`area_${index}`, 'categoria', categoryMapping[fullCategory]);
-          }
-        }
-      });
-    }
-  }, [areasActuales]);
-
-  // Mantenemos esta función intacta
   const obtenerCategorias = (area, curso) => {
     if (area !== "Informática" && area !== "Robótica") {
       return [];
@@ -195,7 +157,7 @@ const AreasCompetencia = ({
             <select
               className={`mt-1 p-2 w-full border rounded-md ${tieneError('categoria_0') ? 'border-red-500 bg-red-50' : ''} ${!campoEditable('categoria_0') && !tieneError('categoria_0') ? 'bg-gray-100' : ''}`}
               value={areasActuales[0].categoria || ''}
-              onChange={(e) => handleChange('area_0', 'categoria', e.target.value)}
+              onChange={(e) => handleCategoriaChange(e, 0)}
               disabled={!campoEditable('categoria_0') && !tieneError('categoria_0')}
             >
               <option value="">Seleccione una categoría</option>
@@ -216,7 +178,7 @@ const AreasCompetencia = ({
             <select
               className={`mt-1 p-2 w-full border rounded-md ${tieneError('categoria_1') ? 'border-red-500 bg-red-50' : ''} ${!campoEditable('categoria_1') && !tieneError('categoria_1') ? 'bg-gray-100' : ''}`}
               value={areasActuales[1].categoria || ''}
-              onChange={(e) => handleChange('area_1', 'categoria', e.target.value)}
+              onChange={(e) => handleCategoriaChange(e, 1)}
               disabled={!campoEditable('categoria_1') && !tieneError('categoria_1')}
             >
               <option value="">Seleccione una categoría</option>
