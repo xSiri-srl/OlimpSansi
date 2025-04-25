@@ -92,7 +92,20 @@ class ColegioController extends Controller
         return response()->json($query->get());
     }
     
-    
+    public function contarPorDepartamento(Request $request)
+{
+    $departamento = $request->input('departamento');
+
+    $cantidad = DB::table('estudiante')
+        ->join('colegio', 'estudiante.id_unidad', '=', 'colegio.id')
+        ->where('colegio.departamento', $departamento)
+        ->count();
+
+    return response()->json([
+        'departamento' => $departamento,
+        'cantidad_estudiantes' => $cantidad
+    ]);
+}
     
     
 }
