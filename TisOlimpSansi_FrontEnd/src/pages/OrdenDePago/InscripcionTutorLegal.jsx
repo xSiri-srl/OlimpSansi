@@ -10,6 +10,8 @@ export default function InscripcionTutorLegal({
   handleNext,
   handleBack,
 }) {
+  console.log("esta vaina revisar")
+  console.log(formData)
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { globalData, setGlobalData } = useFormData();
   const { errors, validateEmailField, clearError, setErrors } = useFormValidation();
@@ -144,16 +146,28 @@ export default function InscripcionTutorLegal({
 
         <div className="mb-6">
           <h3 className="text-md font-semibold mb-2">Rol del Tutor</h3>
-          <RadioGroupField
-            name="correoPertenece"
-            options={rolesDisponibles}
-            value={formData.legal?.correoPertenece || ""}
-            className="justify-center"
-            onChange={(value) =>
-              handleInputChange("legal", "correoPertenece", value)
-            }
-            error={errors.correoPertenece}
-          />
+          <div className="flex flex-wrap justify-center gap-5 mt-2">
+            {["Padre", "Madre", "Tutor Legal"].map((rol) => (
+              <label key={rol} className="inline-flex items-center">
+                <input
+                  type="radio"
+                  name="correoPertenece"
+                  value={rol}
+                  checked={formData.legal?.correoPertenece === rol}
+                  onChange={() =>
+                    handleInputChange("legal", "correoPertenece", rol)
+                  }
+                  className="mr-2"
+                />
+                {rol}
+              </label>
+            ))}
+          </div>
+          {errors.correoPertenece && (
+            <p className="text-red-500 text-sm text-center mt-2">
+              {errors.correoPertenece}
+            </p>
+          )}
         </div>
 
         <div className="space-y-4">
@@ -168,7 +182,7 @@ export default function InscripcionTutorLegal({
                 type="text"
                 className="mt-1 p-2 w-full border rounded-md"
                 placeholder="Apellido Paterno"
-                value={formData.legal?.apellidoPaterno || ""}
+                value={formData.legal?.apellidoPaterno?.value || ""}
                 onChange={(value) =>
                   handleInputChange("legal", "apellidoPaterno", value)
                 }
@@ -186,7 +200,7 @@ export default function InscripcionTutorLegal({
                 type="text"
                 className="mt-1 p-2 w-full border rounded-md"
                 placeholder="Apellido Materno"
-                value={formData.legal?.apellidoMaterno || ""}
+                value={formData.legal?.apellidoMaterno?.value || ""}
                 onChange={(value) =>
                   handleInputChange("legal", "apellidoMaterno", value)
                 }
