@@ -164,6 +164,9 @@ export default function AreasCompetencia({
     }
   
     try {
+      const esSecundaria = cursoEstudiante.includes("Secundaria");
+      const numero = parseInt(cursoEstudiante.match(/\d+/)?.[0] || "0");
+
       const areasCompetencia = seleccionadas.map(area => {
         if (area === "Informática" || area === "Robótica") {
           const categoriaCompleta = categoriasSeleccionadas[area] || "";
@@ -178,10 +181,38 @@ export default function AreasCompetencia({
             nombre_area: area.toUpperCase(),
             categoria: nombreCategoria  
           };
-        } else {
+        } else if (area == "Matemáticas") {
+          let nombreCategoria = ""
+          if(numero == 1){
+            nombreCategoria = "Primer Nivel"
+          }else if(numero == 2){
+            nombreCategoria = "Segundo Nivel"
+          }else if(numero == 3){
+            nombreCategoria = "Tercer Nivel"
+          }else if(numero == 4){
+            nombreCategoria = "Cuarto Nivel"
+          }else if(numero == 5){
+            nombreCategoria = "Quinto Nivel"
+          }else{
+            nombreCategoria = "Sexto Nivel"
+          }
+
           return {
-            nombre_area: area.toUpperCase()
+            nombre_area: area.toUpperCase(),
+            categoria: nombreCategoria
           };
+        } else {
+          let nombreCategoria = ""
+          if(esSecundaria){
+            nombreCategoria = numero + "S"
+          }else{
+            nombreCategoria = numero + "P"
+          }
+
+          return {
+            nombre_area: area.toUpperCase(),
+            categoria: nombreCategoria
+          };          
         }
       });
   
