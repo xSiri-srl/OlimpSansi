@@ -148,3 +148,7 @@ Route::post('/estudiantes/bydepartamento', [ColegioController::class, 'contarPor
 Route::post('/estudiantes/byColegio', [ColegioController::class, 'contarPorColegio']);
 Route::post('/estudiantes/byGrado', [ColegioController::class, 'contarPorGrado']);
 Route::post('/estudiantes/byCategoriaArea', [ColegioController::class, 'filtrarPorCategoriaArea']);
+
+
+//contar preinscritos
+Route::get('/estudiantes/pre-inscritos', [InscripcionController::class, 'contarPreinscritos']);
