@@ -356,6 +356,19 @@ public function listarInscritos()
     return response()->json($resultado);
 }
 
-    
+
+    public function contarPreinscritos()
+    {
+        $cantidad = DB::table('inscripcion')
+            ->join('orden_pagos', 'inscripcion.id_orden_pago', '=', 'orden_pagos.id')
+            ->whereNull('orden_pagos.fecha_subida_imagen_comprobante')
+            ->distinct('inscripcion.id_estudiante')
+            ->count('inscripcion.id_estudiante');
+
+        return response()->json([
+            'estudiantes_no_pagados' => $cantidad
+        ]);
+    }
+        
 
 }
