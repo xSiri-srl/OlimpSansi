@@ -19,6 +19,7 @@ import GenerarOrdenPago from "./pages/OrdenPago/GenerarOrdenPago";
 import PanelDatos from "./pages/Administrador/PanelDatos";
 import DescargarListas from "./pages/Administrador/DescargarListas";
 import PreInscritos from "./pages/Administrador/PreInscritos";
+import OrdenesPago from "./pages/Administrador/OrdenesPago";
 import Propuesta from "./pages/OrdenDePago/Propuesta";
 
 export default function App() {
@@ -82,7 +83,12 @@ export default function App() {
               path="/admin/descargar_listas"
               element={<DescargarListas />}
             />
-            <Route path="/admin/preInscritos" element={<PreInscritos />} />
+            <Route path="/admin/preInscritos"
+             element={<PreInscritos />}
+              />
+            <Route path="/admin/ordenes-pago"
+             element={<OrdenesPago />}
+              />
           </Routes>
         </FormProvider>
       </div>

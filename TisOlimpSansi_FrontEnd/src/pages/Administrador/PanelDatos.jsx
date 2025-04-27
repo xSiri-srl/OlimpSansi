@@ -312,15 +312,16 @@ const PanelDatos = () => {
 
         {/* Tarjetas de estadísticas */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <StatCard
-            title="Órdenes de Pago"
-            value={stats.ordenesPago}
-            icon={<FaFileInvoiceDollar />}
-            bgColor="bg-blue-50"
-            textColor="text-blue-600"
-            darkMode={darkMode}
-          />
-
+          <Link to="/admin/ordenes-pago" className="block">
+            <StatCard
+              title="Órdenes de Pago"
+              value={stats.ordenesPago}
+              icon={<FaFileInvoiceDollar />}
+              bgColor="bg-blue-50"
+              textColor="text-blue-600"
+              darkMode={darkMode}
+            />
+          </Link>
           <Link to="/admin/preInscritos" className="block">
             <StatCard
               title="Pre-inscritos"
