@@ -370,4 +370,42 @@ class OrdenPagoController extends Controller
             return response()->json(['error' => 'Error al procesar la solicitud'], 500);
         }
     }
+
+
+
+    public function getInfOrdenesDePago()
+    {
+        try {
+            $ordenesDePago = DB::table('inscripcion')
+                ->join('responsable_inscripcion', 'inscripcion.id_responsable', '=', 'responsable_inscripcion.id')
+                ->join('orden_pagos', 'inscripcion.id_orden_pago', '=', 'orden_pagos.id')
+                ->select(
+                    'orden_pagos.codigo_generado',
+                    'orden_pagos.monto_total',
+                    'responsable_inscripcion.apellido_pa as apellido_paterno',
+                    'responsable_inscripcion.apellido_ma as apellido_materno',
+                    'responsable_inscripcion.nombre as nombre',
+                    'responsable_inscripcion.ci as carnet_identidad',
+                    DB::raw("CASE WHEN orden_pagos.comprobante_url IS NULL THEN false ELSE true END as estado_pago")
+                )
+                ->groupBy(
+                    'orden_pagos.codigo_generado',
+                    'orden_pagos.monto_total',
+                    'responsable_inscripcion.apellido_pa',
+                    'responsable_inscripcion.apellido_ma',
+                    'responsable_inscripcion.nombre',
+                    'responsable_inscripcion.ci',
+                    'orden_pagos.comprobante_url'
+                )
+                ->get();
+    
+            return response()->json([
+                'ordenes' => $ordenesDePago
+            ]);            
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error al procesar la solicitud getInfOrdenesDePago'], 500);
+        }
+    }
+    
+    
 }
