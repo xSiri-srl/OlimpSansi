@@ -57,7 +57,6 @@ const datos = {
   ],
 };
 
-
 function DescargarListas() {
   const [area, setArea] = useState("");
   const categorias = datos[area] || [];
@@ -74,13 +73,11 @@ function DescargarListas() {
   const [paginaActual, setPaginaActual] = useState(1);
 
   const [cargandoPDF, setCargandoPDF] = useState(false);
-const [cargandoExcel, setCargandoExcel] = useState(false);
+  const [cargandoExcel, setCargandoExcel] = useState(false);
 
   const departamentosDisponibles = [
     ...new Set(inscritos.map((i) => i.departamento).filter(Boolean)),
   ];
-
-
 
   const provinciasDisponibles = [
     ...new Set(
@@ -97,30 +94,37 @@ const [cargandoExcel, setCargandoExcel] = useState(false);
     });
   }, []);
 
-
-
-  
   const resultadosFiltrados = inscritos.filter((inscrito) => {
     return (
-      (area === "" || inscrito.nombre_area?.toLowerCase() === area.toLowerCase()) &&
+      (area === "" ||
+        inscrito.nombre_area?.toLowerCase() === area.toLowerCase()) &&
       (curso === "" || inscrito.curso?.toLowerCase() === curso.toLowerCase()) &&
-      (categoria === "" || inscrito.categoria?.toLowerCase() === categoria.toLowerCase()) &&
-      (colegio === "" || inscrito.colegio?.toLowerCase() === colegio.toLowerCase()) &&
+      (categoria === "" ||
+        inscrito.categoria?.toLowerCase() === categoria.toLowerCase()) &&
+      (colegio === "" ||
+        inscrito.colegio?.toLowerCase() === colegio.toLowerCase()) &&
       (fecha === "" || inscrito.fecha_nacimiento === fecha) &&
-      (departamentoSeleccionado === "" || inscrito.departamento === departamentoSeleccionado) &&
-      (provinciaSeleccionada === "" || inscrito.provincia === provinciaSeleccionada)
+      (departamentoSeleccionado === "" ||
+        inscrito.departamento === departamentoSeleccionado) &&
+      (provinciaSeleccionada === "" ||
+        inscrito.provincia === provinciaSeleccionada)
     );
   });
-  
+
   const resultadosPorPagina = 20;
-  const totalPaginas = Math.ceil(resultadosFiltrados.length / resultadosPorPagina);
+  const totalPaginas = Math.ceil(
+    resultadosFiltrados.length / resultadosPorPagina
+  );
   const indiceInicial = (paginaActual - 1) * resultadosPorPagina;
   const indiceFinal = indiceInicial + resultadosPorPagina;
-  const resultadosPaginados = resultadosFiltrados.slice(indiceInicial, indiceFinal);
+  const resultadosPaginados = resultadosFiltrados.slice(
+    indiceInicial,
+    indiceFinal
+  );
 
   const descargarPDF = () => {
     setCargandoPDF(true);
-  
+
     const doc = new jsPDF();
     doc.text("Lista de inscritos", 14, 10);
     autoTable(doc, {
@@ -133,16 +137,16 @@ const [cargandoExcel, setCargandoExcel] = useState(false);
         item.colegio,
       ]),
     });
-  
+
     setTimeout(() => {
       doc.save(generarNombreArchivo("pdf")); // Guarda el PDF
       setCargandoPDF(false); // Finaliza animación
     }, 1000);
   };
-  
+
   const descargarExcel = () => {
     setCargandoExcel(true); // Activa animación
-  
+
     const ws = XLSX.utils.json_to_sheet(resultadosFiltrados);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Estudiantes");
@@ -150,14 +154,13 @@ const [cargandoExcel, setCargandoExcel] = useState(false);
     const blob = new Blob([excelBuffer], {
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     });
-  
+
     saveAs(blob, generarNombreArchivo("xlsx"));
-  
+
     setTimeout(() => {
       setCargandoExcel(false); // Finaliza animación
     }, 1000);
   };
-  
 
   const generarNombreArchivo = (tipo) => {
     const fechaActual = new Date().toISOString().slice(0, 10); // formato YYYY-MM-DD
@@ -332,88 +335,99 @@ const [cargandoExcel, setCargandoExcel] = useState(false);
             </select>
           </div>
         </div>
-
-        
       </div>
 
       <div className="flex justify-center gap-8 mt-4 text-gray-700">
-  <div className="bg-gray-100 px-4 py-2 rounded-lg shadow-sm">
-    <p className="text-sm font-medium">Total de estudiantes:</p>
-    <p className="text-xl font-semibold text-blue-600">{inscritos.length}</p>
-  </div>
-  <div className="bg-gray-100 px-4 py-2 rounded-lg shadow-sm">
-    <p className="text-sm font-medium">Total con filtros aplicados:</p>
-    <p className="text-xl font-semibold text-green-600">{resultadosFiltrados.length}</p>
-  </div>
-  {resultadosFiltrados.length > 0 && (
-        <div className="flex justify-end mt-6 gap-2 mb-4">
-        <button
-          onClick={descargarPDF}
-          disabled={cargandoPDF}
-          className={`flex items-center gap-2 px-4 py-2 rounded text-white ${
-            cargandoPDF ? "bg-red-300 cursor-not-allowed" : "bg-red-500 hover:bg-red-600"
-          }`}
-        >
-          {cargandoPDF ? (
-            <>
-              <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24">
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                  fill="none"
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16v-4l-3 3 3 3v-4a8 8 0 01-8-8z"
-                />
-              </svg>
-              Generando PDF...
-            </>
-          ) : (
-            "Descargar PDF"
-          )}
-        </button>
-      
-        <button
-          onClick={descargarExcel}
-          disabled={cargandoExcel}
-          className={`flex items-center gap-2 px-4 py-2 rounded text-white ${
-            cargandoExcel ? "bg-green-300 cursor-not-allowed" : "bg-green-500 hover:bg-green-600"
-          }`}
-        >
-          {cargandoExcel ? (
-            <>
-              <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24">
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                  fill="none"
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16v-4l-3 3 3 3v-4a8 8 0 01-8-8z"
-                />
-              </svg>
-              Generando Excel...
-            </>
-          ) : (
-            "Descargar Excel"
-          )}
-        </button>
+        <div className="bg-gray-100 px-4 py-2 rounded-lg shadow-sm">
+          <p className="text-sm font-medium">Total de estudiantes:</p>
+          <p className="text-xl font-semibold text-blue-600">
+            {inscritos.length}
+          </p>
+        </div>
+        <div className="bg-gray-100 px-4 py-2 rounded-lg shadow-sm">
+          <p className="text-sm font-medium">Total con filtros aplicados:</p>
+          <p className="text-xl font-semibold text-green-600">
+            {resultadosFiltrados.length}
+          </p>
+        </div>
+        {resultadosFiltrados.length > 0 && (
+          <div className="flex justify-end mt-6 gap-2 mb-4">
+            <button
+              onClick={descargarPDF}
+              disabled={cargandoPDF}
+              className={`flex items-center gap-2 px-4 py-2 rounded text-white ${
+                cargandoPDF
+                  ? "bg-red-300 cursor-not-allowed"
+                  : "bg-red-500 hover:bg-red-600"
+              }`}
+            >
+              {cargandoPDF ? (
+                <>
+                  <svg
+                    className="animate-spin h-4 w-4 text-white"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                      fill="none"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16v-4l-3 3 3 3v-4a8 8 0 01-8-8z"
+                    />
+                  </svg>
+                  Generando PDF...
+                </>
+              ) : (
+                "Descargar PDF"
+              )}
+            </button>
+
+            <button
+              onClick={descargarExcel}
+              disabled={cargandoExcel}
+              className={`flex items-center gap-2 px-4 py-2 rounded text-white ${
+                cargandoExcel
+                  ? "bg-green-300 cursor-not-allowed"
+                  : "bg-green-500 hover:bg-green-600"
+              }`}
+            >
+              {cargandoExcel ? (
+                <>
+                  <svg
+                    className="animate-spin h-4 w-4 text-white"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                      fill="none"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16v-4l-3 3 3 3v-4a8 8 0 01-8-8z"
+                    />
+                  </svg>
+                  Generando Excel...
+                </>
+              ) : (
+                "Descargar Excel"
+              )}
+            </button>
+          </div>
+        )}
       </div>
-      
-      )}
-</div>
 
       {resultadosFiltrados.length > 0 ? (
         <div className="mt-6 flex justify-center">
@@ -486,73 +500,106 @@ const [cargandoExcel, setCargandoExcel] = useState(false);
                 </tr>
               </thead>
               <tbody>
-  {resultadosPaginados.map((inscritos, index) => (
-    <tr key={index} className="hover:bg-gray-50">
-      <td className="px-4 py-2 border text-center">
-        {(paginaActual - 1) * resultadosPorPagina + index + 1}
-      </td>
-      <td className="px-4 py-2 border">{inscritos.apellido_pa}</td>
-      <td className="px-4 py-2 border">{inscritos.apellido_ma}</td>
-      <td className="px-4 py-2 border">{inscritos.nombre}</td>
-      <td className="px-4 py-2 border">{inscritos.ci}</td>
-      <td className="px-4 py-2 border">{inscritos.fecha_nacimiento}</td>
-      <td className="px-4 py-2 border">{inscritos.correo}</td>
-      <td className="px-4 py-2 border">{inscritos.propietario_correo}</td>
-      <td className="px-4 py-2 border">{inscritos.curso}</td>
-      <td className="px-4 py-2 border">{inscritos.nombre_area}</td>
-      <td className="px-4 py-2 border">{inscritos.categoria}</td>
-      <td className="px-4 py-2 border">{inscritos.colegio}</td>
-      <td className="px-4 py-2 border">{inscritos.departamento}</td>
-      <td className="px-4 py-2 border">{inscritos.provincia}</td>
-      <td className="px-4 py-2 border">{inscritos.rol_tutor_legal}</td>
-      <td className="px-4 py-2 border">{inscritos.tutor_legal_apellido_pa}</td>
-      <td className="px-4 py-2 border">{inscritos.tutor_legal_apellido_ma}</td>
-      <td className="px-4 py-2 border">{inscritos.tutor_legal_nombre}</td>
-      <td className="px-4 py-2 border">{inscritos.tutor_legal_ci}</td>
-      <td className="px-4 py-2 border">{inscritos.tutor_legal_correo}</td>
-      <td className="px-4 py-2 border">{inscritos.tutor_legal_telefono}</td>
-      <td className="px-4 py-2 border">{inscritos.tutor_academico_apellido_pa}</td>
-      <td className="px-4 py-2 border">{inscritos.tutor_academico_apellido_ma}</td>
-      <td className="px-4 py-2 border">{inscritos.tutor_academico_nombre}</td>
-      <td className="px-4 py-2 border">{inscritos.tutor_academico_ci}</td>
-      <td className="px-4 py-2 border">{inscritos.tutor_academico_correo}</td>
-    </tr>
-  ))}
-</tbody>
+                {resultadosPaginados.map((inscritos, index) => (
+                  <tr key={index} className="hover:bg-gray-50">
+                    <td className="px-4 py-2 border text-center">
+                      {(paginaActual - 1) * resultadosPorPagina + index + 1}
+                    </td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.apellido_pa}
+                    </td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.apellido_ma}
+                    </td>
+                    <td className="px-4 py-2 border">{inscritos.nombre}</td>
+                    <td className="px-4 py-2 border">{inscritos.ci}</td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.fecha_nacimiento}
+                    </td>
+                    <td className="px-4 py-2 border">{inscritos.correo}</td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.propietario_correo}
+                    </td>
+                    <td className="px-4 py-2 border">{inscritos.curso}</td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.nombre_area}
+                    </td>
+                    <td className="px-4 py-2 border">{inscritos.categoria}</td>
+                    <td className="px-4 py-2 border">{inscritos.colegio}</td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.departamento}
+                    </td>
+                    <td className="px-4 py-2 border">{inscritos.provincia}</td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.rol_tutor_legal}
+                    </td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.tutor_legal_apellido_pa}
+                    </td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.tutor_legal_apellido_ma}
+                    </td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.tutor_legal_nombre}
+                    </td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.tutor_legal_ci}
+                    </td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.tutor_legal_correo}
+                    </td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.tutor_legal_telefono}
+                    </td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.tutor_academico_apellido_pa}
+                    </td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.tutor_academico_apellido_ma}
+                    </td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.tutor_academico_nombre}
+                    </td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.tutor_academico_ci}
+                    </td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.tutor_academico_correo}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
             </table>
-            
-
           </div>
-
-          
         </div>
-        
       ) : (
         <p className="mt-6 text-center text-gray-600">
           No se encontraron resultados.
         </p>
       )}
-{resultadosFiltrados.length > 0 && (
-<div className="flex justify-center items-center gap-4 my-6">
-  <button
-    onClick={() => setPaginaActual((prev) => Math.max(prev - 1, 1))}
-    disabled={paginaActual === 1}
-    className="px-3 py-1 bg-blue-500 text-white rounded disabled:opacity-50"
-  >
-    Anterior
-  </button>
-  <span className="text-sm font-semibold text-gray-700">
-    Página {paginaActual} de {totalPaginas}
-  </span>
-  <button
-    onClick={() => setPaginaActual((prev) => Math.min(prev + 1, totalPaginas))}
-    disabled={paginaActual === totalPaginas}
-    className="px-3 py-1 bg-blue-500 text-white rounded disabled:opacity-50"
-  >
-    Siguiente
-  </button>
-</div>
-)}
+      {resultadosFiltrados.length > 0 && (
+        <div className="flex justify-center items-center gap-4 my-6">
+          <button
+            onClick={() => setPaginaActual((prev) => Math.max(prev - 1, 1))}
+            disabled={paginaActual === 1}
+            className="px-3 py-1 bg-blue-500 text-white rounded disabled:opacity-50"
+          >
+            Anterior
+          </button>
+          <span className="text-sm font-semibold text-gray-700">
+            Página {paginaActual} de {totalPaginas}
+          </span>
+          <button
+            onClick={() =>
+              setPaginaActual((prev) => Math.min(prev + 1, totalPaginas))
+            }
+            disabled={paginaActual === totalPaginas}
+            className="px-3 py-1 bg-blue-500 text-white rounded disabled:opacity-50"
+          >
+            Siguiente
+          </button>
+        </div>
+      )}
     </div>
   );
 }

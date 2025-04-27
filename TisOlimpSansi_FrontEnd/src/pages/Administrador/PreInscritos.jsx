@@ -5,109 +5,56 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import axios from "axios";
 
-const datos = {
-  ASTRONOMIA_ASTROFISICA: [
-    "3P - 3RO PRIMARIA",
-    "4P - 4TO PRIMARIA",
-    "5P - 5TO PRIMARIA",
-    "6P - 6TO PRIMARIA",
-    "1S - 1RO SECUNDARIA",
-    "2S - 2DO SECUNDARIA",
-    "3S - 3RO SECUNDARIA",
-    "4S - 4TO SECUNDARIA",
-    "5S - 5TO SECUNDARIA",
-    "6S - 6TO SECUNDARIA",
-  ],
-  BIOLOGIA: [
-    "2S - 2DO SECUNDARIA",
-    "3S - 3RO SECUNDARIA",
-    "4S - 4TO SECUNDARIA",
-    "5S - 5TO SECUNDARIA",
-    "6S - 6TO SECUNDARIA",
-  ],
-  FISICA: ["4S - 4TO SECUNDARIA", "5S - 5TO SECUNDARIA", "6S - 6TO SECUNDARIA"],
-  INFORMATICA: [
-    "GUACAMAYO - 5TO A 6TO PRIMARIA",
-    "GUANACO - 1RO A 3RO SECUNDARIA",
-    "LONDRA - 1RO A 3RO SECUNDARIA",
-    "JUCUMARI - 4TO A 6TO SECUNDARIA",
-    "BUFEO - 1RO A 3RO SECUNDARIA",
-    "PUMA - 4TO A 6TO SECUNDARIA",
-  ],
-  MATEMATICAS: [
-    "PRIMER NIVEL - 1RO SECUNDARIA",
-    "SEGUNDO NIVEL - 2DO SECUNDARIA",
-    "TERCER NIVEL - 3RO SECUNDARIA",
-    "CUARTO NIVEL - 4TO SECUNDARIA",
-    "QUINTO NIVEL - 5TO SECUNDARIA",
-    "SEXTO NIVEL - 6TO SECUNDARIA",
-  ],
-  QUIMICA: [
-    "2S - 2DO SECUNDARIA",
-    "3S - 3RO SECUNDARIA",
-    "4S - 4TO SECUNDARIA",
-    "5S - 5TO SECUNDARIA",
-    "6S - 6TO SECUNDARIA",
-  ],
-  ROBOTICA: [
-    "BUILDERS P - 5TO A 6TO PRIMARIA",
-    "BUILDERS S - 1RO A 6TO SECUNDARIA",
-    "LEGO P - 5TO A 6TO PRIMARIA",
-    "LEGO S - 1RO A 6TO SECUNDARIA",
-  ],
-};
-
 function DescargarListas() {
-  const [area, setArea] = useState("");
-  const categorias = datos[area] || [];
-
-  const [curso, setCurso] = useState("");
-  const [categoria, setCategoria] = useState("");
-  const [colegio, setColegio] = useState("");
-  const [fecha, setFecha] = useState("");
+  const [nombre, setNombre] = useState("");
+  const [apellidoPaterno, setApellidoPaterno] = useState("");
+  const [apellidoMaterno, setApellidoMaterno] = useState("");
+  const [carnetIdentidad, setCarnetIdentidad] = useState("");
+  const [fechaNacimiento, setFechaNacimiento] = useState("");
+  const [correo, setCorreo] = useState("");
 
   const [inscritos, setInscritos] = useState([]);
-  const [departamentoSeleccionado, setDepartamentoSeleccionado] = useState("");
-  const [provinciaSeleccionada, setProvinciaSeleccionada] = useState("");
-
   const [paginaActual, setPaginaActual] = useState(1);
 
   const [cargandoPDF, setCargandoPDF] = useState(false);
   const [cargandoExcel, setCargandoExcel] = useState(false);
 
-  const departamentosDisponibles = [
-    ...new Set(inscritos.map((i) => i.departamento).filter(Boolean)),
-  ];
-
-  const provinciasDisponibles = [
-    ...new Set(
-      inscritos
-        .filter((i) => i.departamento === departamentoSeleccionado)
-        .map((i) => i.provincia)
-        .filter(Boolean)
-    ),
-  ];
-
   useEffect(() => {
-    axios.get("http://localhost:8000/api/lista-inscritos").then((response) => {
-      setInscritos(response.data);
-    });
+    axios
+      .get("http://localhost:8000/api/estudiantes/pre-inscritos")
+      .then((response) => {
+        if (Array.isArray(response.data.estudiantes_no_pagados)) {
+          setInscritos(response.data.estudiantes_no_pagados);
+        } else {
+          console.error("Datos no son un arreglo:", response.data);
+          setInscritos([]);
+        }
+      })
+      .catch((error) => {
+        console.error("Error al cargar inscritos:", error);
+      });
   }, []);
 
   const resultadosFiltrados = inscritos.filter((inscrito) => {
     return (
-      (area === "" ||
-        inscrito.nombre_area?.toLowerCase() === area.toLowerCase()) &&
-      (curso === "" || inscrito.curso?.toLowerCase() === curso.toLowerCase()) &&
-      (categoria === "" ||
-        inscrito.categoria?.toLowerCase() === categoria.toLowerCase()) &&
-      (colegio === "" ||
-        inscrito.colegio?.toLowerCase() === colegio.toLowerCase()) &&
-      (fecha === "" || inscrito.fecha_nacimiento === fecha) &&
-      (departamentoSeleccionado === "" ||
-        inscrito.departamento === departamentoSeleccionado) &&
-      (provinciaSeleccionada === "" ||
-        inscrito.provincia === provinciaSeleccionada)
+      (nombre === "" ||
+        inscrito.nombre?.toLowerCase().includes(nombre.toLowerCase())) &&
+      (apellidoPaterno === "" ||
+        inscrito.apellido_paterno
+          ?.toLowerCase()
+          .includes(apellidoPaterno.toLowerCase())) &&
+      (apellidoMaterno === "" ||
+        inscrito.apellido_materno
+          ?.toLowerCase()
+          .includes(apellidoMaterno.toLowerCase())) &&
+      (carnetIdentidad === "" ||
+        inscrito.carnet_identidad
+          ?.toLowerCase()
+          .includes(carnetIdentidad.toLowerCase())) &&
+      (fechaNacimiento === "" ||
+        inscrito.fecha_nacimiento === fechaNacimiento) &&
+      (correo === "" ||
+        inscrito.correo?.toLowerCase().includes(correo.toLowerCase()))
     );
   });
 
@@ -128,13 +75,25 @@ function DescargarListas() {
     const doc = new jsPDF();
     doc.text("Lista de inscritos", 14, 10);
     autoTable(doc, {
-      head: [["N°", "Nombre", "Categoría", "Curso", "Colegio"]],
+      head: [
+        [
+          "N°",
+          "Nombre",
+          "Apellido Paterno",
+          "Apellido Materno",
+          "Carnet",
+          "Fecha de Nacimiento",
+          "Correo",
+        ],
+      ],
       body: resultadosFiltrados.map((item, index) => [
         index + 1,
         item.nombre,
-        item.categoria,
-        item.curso,
-        item.colegio,
+        item.apellido_paterno,
+        item.apellido_materno,
+        item.carnet_identidad,
+        item.fecha_nacimiento,
+        item.correo,
       ]),
     });
 
@@ -164,9 +123,6 @@ function DescargarListas() {
 
   const generarNombreArchivo = (tipo) => {
     const fechaActual = new Date().toISOString().slice(0, 10); // formato YYYY-MM-DD
-    const nombreArea = area || "todas-las-areas";
-    const nombreCategoria = categoria || "todas-las-categorias";
-
     return `estudiantes_${nombreArea}_${nombreCategoria}_${fechaActual}.${tipo}`;
   };
 
@@ -182,157 +138,108 @@ function DescargarListas() {
         Descargar lista de Pre-Inscritos
       </h1>
 
-      <div className="w-full max-w-4xl mx-auto bg-sky-50 rounded-2xl shadow-lg">
+      <div className="w-full max-w-5xl mx-auto bg-sky-50 rounded-2xl shadow-lg">
         <div className="flex flex-col md:flex-row p-6 gap-4">
-          {/* Área */}
+          {/* Nombre */}
           <div className="flex-1">
             <label
-              htmlFor="area"
+              htmlFor="nombre"
               className="block mb-2 text-sm font-semibold text-gray-700"
             >
-              Área
+              Nombre
             </label>
-            <select
-              id="area"
-              name="area"
+            <input
+              id="nombre"
+              type="text"
               className="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm text-gray-700"
-              value={area}
-              onChange={(e) => setArea(e.target.value)}
-            >
-              <option value="">Ver todo</option>
-              {Object.keys(datos).map((key) => (
-                <option key={key} value={key}>
-                  {key.charAt(0).toUpperCase() + key.slice(1)}
-                </option>
-              ))}
-            </select>
+              value={nombre}
+              onChange={(e) => setNombre(e.target.value)}
+            />
           </div>
 
-          {/* Curso */}
+          {/* Apellido Paterno */}
           <div className="flex-1">
             <label
-              htmlFor="curso"
+              htmlFor="apellidoPaterno"
               className="block mb-2 text-sm font-semibold text-gray-700"
             >
-              Curso
+              Apellido Paterno
             </label>
-            <select
-              id="curso"
-              name="curso"
-              value={curso}
-              onChange={(e) => setCurso(e.target.value)}
+            <input
+              id="apellidoPaterno"
+              type="text"
               className="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm text-gray-700"
-            >
-              <option value="">Ver todo</option>
-              {[...new Set(categorias.map((cat) => cat.split(" - ")[1]))].map(
-                (curso, index) => (
-                  <option key={index} value={curso}>
-                    {curso}
-                  </option>
-                )
-              )}
-            </select>
+              value={apellidoPaterno}
+              onChange={(e) => setApellidoPaterno(e.target.value)}
+            />
           </div>
 
-          {/* Categoría */}
+          {/* Apellido Materno */}
           <div className="flex-1">
             <label
-              htmlFor="categoria"
+              htmlFor="apellidoMaterno"
               className="block mb-2 text-sm font-semibold text-gray-700"
             >
-              Categoría
+              Apellido Materno
             </label>
-            <select
-              id="categoria"
-              name="categoria"
+            <input
+              id="apellidoMaterno"
+              type="text"
               className="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm text-gray-700"
-              value={categoria}
-              onChange={(e) => setCategoria(e.target.value)}
-            >
-              <option value="">Ver todo</option>
-              {categorias.map((cat, index) => (
-                <option key={index} value={cat.split(" - ")[0]}>
-                  {cat.split(" - ")[0]}
-                </option>
-              ))}
-            </select>
+              value={apellidoMaterno}
+              onChange={(e) => setApellidoMaterno(e.target.value)}
+            />
           </div>
 
-          {/* colegio */}
+          {/* Carnet de Identidad */}
           <div className="flex-1">
             <label
-              htmlFor="colegio"
+              htmlFor="carnetIdentidad"
               className="block mb-2 text-sm font-semibold text-gray-700"
             >
-              Unidad Educativa
+              Carnet de Identidad
             </label>
-            <select
-              id="colegio"
-              name="colegio"
+            <input
+              id="carnetIdentidad"
+              type="text"
               className="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm text-gray-700"
-              value={colegio}
-              onChange={(e) => setColegio(e.target.value)}
-            >
-              <option value="">Ver todo</option>
-              {[...new Set(inscritos.map((item) => item.colegio))].map(
-                (colegioName, idx) => (
-                  <option key={idx} value={colegioName}>
-                    {colegioName}
-                  </option>
-                )
-              )}
-            </select>
+              value={carnetIdentidad}
+              onChange={(e) => setCarnetIdentidad(e.target.value)}
+            />
           </div>
 
-          {/* Departamento */}
+          {/* Fecha de Nacimiento */}
           <div className="flex-1">
             <label
-              htmlFor="departamento"
+              htmlFor="fechaNacimiento"
               className="block mb-2 text-sm font-semibold text-gray-700"
             >
-              Departamento
+              Fecha de Nacimiento
             </label>
-            <select
-              id="departamento"
-              name="departamento"
-              value={departamentoSeleccionado}
-              onChange={(e) => {
-                setDepartamentoSeleccionado(e.target.value);
-                setProvinciaSeleccionada(""); // resetea provincia si cambia departamento
-              }}
+            <input
+              id="fechaNacimiento"
+              type="date"
               className="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm text-gray-700"
-            >
-              <option value="">Ver todo</option>
-              {departamentosDisponibles.map((dep) => (
-                <option key={dep} value={dep}>
-                  {dep}
-                </option>
-              ))}
-            </select>
+              value={fechaNacimiento}
+              onChange={(e) => setFechaNacimiento(e.target.value)}
+            />
           </div>
 
-          {/* Provincia */}
+          {/* Correo */}
           <div className="flex-1">
             <label
-              htmlFor="provincia"
+              htmlFor="correo"
               className="block mb-2 text-sm font-semibold text-gray-700"
             >
-              Provincia
+              Correo
             </label>
-            <select
-              id="provincia"
-              name="provincia"
-              value={provinciaSeleccionada}
-              onChange={(e) => setProvinciaSeleccionada(e.target.value)}
+            <input
+              id="correo"
+              type="email"
               className="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm text-gray-700"
-            >
-              <option value="">Ver todo</option>
-              {provinciasDisponibles.map((prov) => (
-                <option key={prov} value={prov}>
-                  {prov}
-                </option>
-              ))}
-            </select>
+              value={correo}
+              onChange={(e) => setCorreo(e.target.value)}
+            />
           </div>
         </div>
       </div>
@@ -433,138 +340,35 @@ function DescargarListas() {
         <div className="mt-6 flex justify-center">
           <div className="overflow-x-auto w-full max-w-6xl">
             <table className="min-w-max border border-gray-300 text-sm text-left">
-              <thead>
+              <thead className="font-semibold bg-sky-100">
                 <tr>
-                  <th
-                    colSpan="13"
-                    className="py-2 px-4 border border-gray-300 font-semibold bg-green-200 text-center"
-                  >
-                    Datos del competidor
-                  </th>
-                  <th
-                    colSpan="7"
-                    className="py-2 px-4 border border-gray-300 font-semibold bg-blue-200 text-center"
-                  >
-                    Datos del tutor legal
-                  </th>
-                  <th
-                    colSpan="6"
-                    className="py-2 px-4 border border-gray-300 font-semibold bg-purple-200 text-center"
-                  >
-                    Datos del tutor académico
-                  </th>
-                </tr>
-                <tr>
-                  {[
-                    "Número",
-                    "Apellido Paterno",
-                    "Apellido Materno",
-                    "Nombres",
-                    "Carnet de Identidad",
-                    "Fecha de nacimiento",
-                    "Correo Electrónico",
-                    "El correo pertenece a",
-                    "Curso",
-                    "Área",
-                    "Categoría",
-                    "Colegio",
-                    "Departamento",
-                    "Provincia",
-                    "Rol del tutor",
-                    "Apellido Paterno",
-                    "Apellido Materno",
-                    "Nombres",
-                    "Carnet de Identidad",
-                    "Correo Electrónico",
-                    "Teléfono/Celular",
-                    "Apellido Paterno",
-                    "Apellido Materno",
-                    "Nombres",
-                    "Carnet de Identidad",
-                    "Correo Electrónico",
-                  ].map((title, idx) => {
-                    let bgColor = "";
-                    if (idx < 13) bgColor = "bg-green-100";
-                    else if (idx < 20) bgColor = "bg-blue-100";
-                    else bgColor = "bg-purple-100";
-
-                    return (
-                      <th
-                        key={idx}
-                        className={`py-2 px-4 border border-gray-300 font-medium whitespace-nowrap text-center ${bgColor}`}
-                      >
-                        {title}
-                      </th>
-                    );
-                  })}
+                  <th className="px-4 py-2 border">Nombre</th>
+                  <th className="px-4 py-2 border">Apellido Paterno</th>
+                  <th className="px-4 py-2 border">Apellido Materno</th>
+                  <th className="px-4 py-2 border">Carnet de Identidad</th>
+                  <th className="px-4 py-2 border">Fecha de Nacimiento</th>
+                  <th className="px-4 py-2 border">Correo</th>
+                  <th className="px-4 py-2 border">Propietario Correo</th>
                 </tr>
               </thead>
               <tbody>
-                {resultadosPaginados.map((inscritos, index) => (
-                  <tr key={index} className="hover:bg-gray-50">
-                    <td className="px-4 py-2 border text-center">
-                      {(paginaActual - 1) * resultadosPorPagina + index + 1}
+                {resultadosPaginados.map((item, index) => (
+                  <tr
+                    key={index}
+                    className="bg-white border-b hover:bg-gray-100"
+                  >
+                    <td className="px-4 py-2 border">{item.nombre}</td>
+                    <td className="px-4 py-2 border">{item.apellido_pa}</td>
+                    <td className="px-4 py-2 border">{item.apellido_ma}</td>
+                    <td className="px-4 py-2 border">
+                      {item.carnet_identidad}
                     </td>
                     <td className="px-4 py-2 border">
-                      {inscritos.apellido_pa}
+                      {item.fecha_nacimiento}
                     </td>
+                    <td className="px-4 py-2 border">{item.correo}</td>
                     <td className="px-4 py-2 border">
-                      {inscritos.apellido_ma}
-                    </td>
-                    <td className="px-4 py-2 border">{inscritos.nombre}</td>
-                    <td className="px-4 py-2 border">{inscritos.ci}</td>
-                    <td className="px-4 py-2 border">
-                      {inscritos.fecha_nacimiento}
-                    </td>
-                    <td className="px-4 py-2 border">{inscritos.correo}</td>
-                    <td className="px-4 py-2 border">
-                      {inscritos.propietario_correo}
-                    </td>
-                    <td className="px-4 py-2 border">{inscritos.curso}</td>
-                    <td className="px-4 py-2 border">
-                      {inscritos.nombre_area}
-                    </td>
-                    <td className="px-4 py-2 border">{inscritos.categoria}</td>
-                    <td className="px-4 py-2 border">{inscritos.colegio}</td>
-                    <td className="px-4 py-2 border">
-                      {inscritos.departamento}
-                    </td>
-                    <td className="px-4 py-2 border">{inscritos.provincia}</td>
-                    <td className="px-4 py-2 border">
-                      {inscritos.rol_tutor_legal}
-                    </td>
-                    <td className="px-4 py-2 border">
-                      {inscritos.tutor_legal_apellido_pa}
-                    </td>
-                    <td className="px-4 py-2 border">
-                      {inscritos.tutor_legal_apellido_ma}
-                    </td>
-                    <td className="px-4 py-2 border">
-                      {inscritos.tutor_legal_nombre}
-                    </td>
-                    <td className="px-4 py-2 border">
-                      {inscritos.tutor_legal_ci}
-                    </td>
-                    <td className="px-4 py-2 border">
-                      {inscritos.tutor_legal_correo}
-                    </td>
-                    <td className="px-4 py-2 border">
-                      {inscritos.tutor_legal_telefono}
-                    </td>
-                    <td className="px-4 py-2 border">
-                      {inscritos.tutor_academico_apellido_pa}
-                    </td>
-                    <td className="px-4 py-2 border">
-                      {inscritos.tutor_academico_apellido_ma}
-                    </td>
-                    <td className="px-4 py-2 border">
-                      {inscritos.tutor_academico_nombre}
-                    </td>
-                    <td className="px-4 py-2 border">
-                      {inscritos.tutor_academico_ci}
-                    </td>
-                    <td className="px-4 py-2 border">
-                      {inscritos.tutor_academico_correo}
+                      {item.propietario_correo}
                     </td>
                   </tr>
                 ))}
