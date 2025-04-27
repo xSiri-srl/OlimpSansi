@@ -184,17 +184,17 @@ export default function AreasCompetencia({
         } else if (area == "Matemáticas") {
           let nombreCategoria = ""
           if(numero == 1){
-            nombreCategoria = "Primer Nivel"
+            nombreCategoria = "PRIMER NIVEL"
           }else if(numero == 2){
-            nombreCategoria = "Segundo Nivel"
+            nombreCategoria = "SEGUNDO NIVEL"
           }else if(numero == 3){
-            nombreCategoria = "Tercer Nivel"
+            nombreCategoria = "TERCER NIVEL"
           }else if(numero == 4){
-            nombreCategoria = "Cuarto Nivel"
+            nombreCategoria = "CUARTO NIVEL"
           }else if(numero == 5){
-            nombreCategoria = "Quinto Nivel"
+            nombreCategoria = "QUINTO NIVEL"
           }else{
-            nombreCategoria = "Sexto Nivel"
+            nombreCategoria = "SEXTO NIVEL"
           }
 
           return {
