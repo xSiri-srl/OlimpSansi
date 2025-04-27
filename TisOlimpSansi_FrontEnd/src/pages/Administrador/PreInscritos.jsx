@@ -37,26 +37,22 @@ function DescargarListas() {
 
   const resultadosFiltrados = inscritos.filter((inscrito) => {
     return (
-      (nombre === "" ||
-        inscrito.nombre?.toLowerCase().includes(nombre.toLowerCase())) &&
+      (nombre === "" || inscrito.nombre?.includes(nombre)) &&
       (apellidoPaterno === "" ||
-        inscrito.apellido_paterno
-          ?.toLowerCase()
-          .includes(apellidoPaterno.toLowerCase())) &&
+        inscrito.apellido_pa?.includes(apellidoPaterno)) &&
       (apellidoMaterno === "" ||
-        inscrito.apellido_materno
-          ?.toLowerCase()
-          .includes(apellidoMaterno.toLowerCase())) &&
+        inscrito.apellido_ma?.includes(apellidoMaterno)) &&
       (carnetIdentidad === "" ||
-        inscrito.carnet_identidad
-          ?.toLowerCase()
-          .includes(carnetIdentidad.toLowerCase())) &&
+        (inscrito.carnet_identidad !== undefined &&
+          inscrito.carnet_identidad !== null &&
+          inscrito.carnet_identidad.toString().includes(carnetIdentidad))) &&
       (fechaNacimiento === "" ||
         inscrito.fecha_nacimiento === fechaNacimiento) &&
       (correo === "" ||
         inscrito.correo?.toLowerCase().includes(correo.toLowerCase()))
     );
   });
+  console.log("Resultados Filtrados:", resultadosFiltrados);
 
   const resultadosPorPagina = 20;
   const totalPaginas = Math.ceil(
@@ -123,7 +119,7 @@ function DescargarListas() {
 
   const generarNombreArchivo = (tipo) => {
     const fechaActual = new Date().toISOString().slice(0, 10); // formato YYYY-MM-DD
-    return `estudiantes_${nombreArea}_${nombreCategoria}_${fechaActual}.${tipo}`;
+    return `estudiantes_${fechaActual}.${tipo}`; // CAMBIAR JEREMIAS
   };
 
   useEffect(() => {
@@ -153,7 +149,7 @@ function DescargarListas() {
               type="text"
               className="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm text-gray-700"
               value={nombre}
-              onChange={(e) => setNombre(e.target.value)}
+              onChange={(e) => setNombre(e.target.value.toUpperCase())}
             />
           </div>
 
@@ -170,7 +166,7 @@ function DescargarListas() {
               type="text"
               className="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm text-gray-700"
               value={apellidoPaterno}
-              onChange={(e) => setApellidoPaterno(e.target.value)}
+              onChange={(e) => setApellidoPaterno(e.target.value.toUpperCase())}
             />
           </div>
 
@@ -187,7 +183,7 @@ function DescargarListas() {
               type="text"
               className="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm text-gray-700"
               value={apellidoMaterno}
-              onChange={(e) => setApellidoMaterno(e.target.value)}
+              onChange={(e) => setApellidoMaterno(e.target.value.toUpperCase())}
             />
           </div>
 
@@ -204,7 +200,10 @@ function DescargarListas() {
               type="text"
               className="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm text-gray-700"
               value={carnetIdentidad}
-              onChange={(e) => setCarnetIdentidad(e.target.value)}
+              onChange={(e) => {
+                const soloNumeros = e.target.value.replace(/\D/g, "");
+                setCarnetIdentidad(soloNumeros);
+              }}
             />
           </div>
 
