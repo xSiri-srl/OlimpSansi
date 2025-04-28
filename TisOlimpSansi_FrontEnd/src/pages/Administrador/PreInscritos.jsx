@@ -107,7 +107,7 @@ function DescargarListas() {
     saveAs(blob, generarNombreArchivo("xlsx"));
 
     setTimeout(() => {
-      setCargandoExcel(false); // Finaliza animación
+      setCargandoExcel(false);
     }, 1000);
   };
 
