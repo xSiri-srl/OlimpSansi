@@ -126,26 +126,68 @@ function DescargarListas() {
 
   const descargarPDF = () => {
     setCargandoPDF(true);
-
-    const doc = new jsPDF();
-    doc.text("Lista de inscritos", 14, 10);
-    autoTable(doc, {
-      head: [["N°", "Nombre", "Categoría", "Curso", "Colegio"]],
-      body: resultadosFiltrados.map((item, index) => [
-        index + 1,
-        item.nombre,
-        item.categoria,
-        item.curso,
-        item.colegio,
-      ]),
+  
+    const doc = new jsPDF({
+      orientation: "landscape",
+      unit: "mm",
+      format: [260, 406], // tamaño de las tablas en el doc
     });
-
+  
+    doc.text("Lista de Inscritos", 14, 10);
+  
+    const columnas = [
+      "N°",
+      "Apellido Paterno",
+      "Apellido Materno",
+      "Nombres",
+      "Carnet de Identidad",
+      "Curso",
+      "Colegio",
+      "Departamento",
+      "Provincia",
+      "Correo Electrónico",
+      "Tutor Legal Nombre",
+      "Tutor Legal CI"
+    ];
+  
+    const body = resultadosFiltrados.map((item, index) => [
+      index + 1,
+      item.apellido_pa || '',
+      item.apellido_ma || '',
+      item.nombre || '',
+      item.ci || '',
+      item.curso || '',
+      item.colegio || '',
+      item.departamento || '',
+      item.provincia || '',
+      item.correo || '',
+      item.tutor_legal_nombre || '',
+      item.tutor_legal_ci || ''
+    ]);
+  
+    autoTable(doc, {
+      head: [columnas],
+      body: body,
+      startY: 20,
+      styles: {
+        fontSize: 7,
+        overflow: 'linebreak',
+        cellWidth: 'wrap',
+      },
+      headStyles: {
+        fillColor: [41, 128, 185],
+        textColor: [255, 255, 255],
+        fontSize: 8,
+      },
+      theme: 'grid',
+    });
+  
     setTimeout(() => {
-      doc.save(generarNombreArchivo("pdf")); // Guarda el PDF
-      setCargandoPDF(false); // Finaliza animación
+      doc.save(generarNombreArchivo("pdf"));
+      setCargandoPDF(false);
     }, 1000);
   };
-
+  
   const descargarExcel = () => {
     setCargandoExcel(true); // Activa animación
 
