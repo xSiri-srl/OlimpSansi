@@ -247,54 +247,59 @@ class OrdenPagoController extends Controller
     {
         // Buscar orden de pago
         $ordenPago = OrdenPago::where('codigo_generado', $codigo)->first();
-    
+
         if (!$ordenPago) {
             return response()->json([
                 'success' => false,
                 'message' => 'No se encontró una orden de pago con ese código.'
             ], 404);
         }
-    
+
         $inscripciones = InscripcionModel::with([
-            'estudiante',
+            'estudiante',                // Estudiante con relación al grado
             'responsable',
             'inscripcionCategoria.categoria.area'
         ])
         ->where('id_orden_pago', $ordenPago->id)
         ->get();
-    
+
         if ($inscripciones->isEmpty()) {
             return response()->json([
                 'success' => false,
                 'message' => 'No se encontraron inscripciones asociadas a esta orden de pago.'
             ], 404);
         }
-    
+
         $totalInscritos = $inscripciones->count();
         $totalAreas = 0;
-    
+
         $datosInscritos = [];
-    
+
         foreach ($inscripciones as $inscripcion) {
             $estudiante = $inscripcion->estudiante;
-    
+
+            // Obtener el grado del estudiante
+            $grado = $estudiante->grado->nombre_grado ?? null; 
+
             foreach ($inscripcion->inscripcionCategoria as $cat) {
                 $area = $cat->categoria->area->nombre_area ?? null;
                 $categoria = $cat->categoria->nombre_categoria ?? null;
-    
+
+
                 $datosInscritos[] = [
                     'nombre_estudiante' => $estudiante->nombre . ' ' . $estudiante->apellido_pa . ' ' . $estudiante->apellido_ma,
                     'area' => $area,
-                    'categoria' => $categoria
+                    'categoria' => $categoria,
+                    'grado' => $grado  
                 ];
-    
+
                 // Contamos las áreas si existen
                 if ($area) {
                     $totalAreas++;
                 }
             }
         }
-    
+
         // Obtener responsable de la orden de pago desde la primera inscripción (asumiendo es el mismo)
         $responsable = $inscripciones->first()->responsable;
         $nombreCompleto = trim(
@@ -302,6 +307,7 @@ class OrdenPagoController extends Controller
             ($responsable->apellido_pa ?? '') . ' ' .
             ($responsable->apellido_ma ?? '')
         );
+
         return response()->json([
             'success' => true,
             'message' => 'Resumen generado correctamente.',
@@ -317,6 +323,7 @@ class OrdenPagoController extends Controller
             ]
         ]);
     }
+
     
     public function obtenerOrdenPago(){
     $ordenesPago = OrdenPago::all();
