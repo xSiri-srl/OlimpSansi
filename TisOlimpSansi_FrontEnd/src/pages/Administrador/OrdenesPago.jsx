@@ -16,6 +16,7 @@ function OrdenesPago() {
   const [cargandoPDF, setCargandoPDF] = useState(false);
   const [cargandoExcel, setCargandoExcel] = useState(false);
   const [busqueda, setBusqueda] = useState("");
+  const [contadorNumeracion, setContadorNumeracion] = useState(1);
 
   useEffect(() => {
     axios
@@ -127,6 +128,16 @@ function OrdenesPago() {
       setPaginaActual(1);
     }
   }, [resultadosFiltrados, paginaActual]);
+
+  const handleSiguiente = () => {
+    setPaginaActual((prevPagina) => prevPagina + 1);
+    setContadorNumeracion(contadorNumeracion + resultadosPorPagina);
+  };
+
+  const handleAnterior = () => {
+    setPaginaActual((prevPagina) => prevPagina - 1);
+    setContadorNumeracion(contadorNumeracion - resultadosPorPagina);
+  };
 
   return (
     
@@ -286,6 +297,7 @@ function OrdenesPago() {
             <table className="min-w-max border border-gray-300 text-sm text-left">
               <thead className="font-semibold bg-sky-100">
                 <tr>
+                  <th className="px-4 py-2 border">Número</th>
                   <th className="px-4 py-2 border">Codigo generado</th>
                   <th className="px-4 py-2 border">Nombre Responsable</th>
                   <th className="px-4 py-2 border">Apellido Paterno</th>
@@ -301,6 +313,9 @@ function OrdenesPago() {
                     key={index}
                     className="bg-white border-b hover:bg-gray-100"
                   >
+                    <td className="px-4 py-2 border">
+                      {contadorNumeracion + index}
+                    </td>
                     <td className="px-4 py-2 border">{item.codigo_generado}</td>
                     <td className="px-4 py-2 border">{item.nombre}</td>
                     <td className="px-4 py-2 border">{item.apellido_paterno}</td>
@@ -325,10 +340,10 @@ function OrdenesPago() {
           No se encontraron resultados.
         </p>
       )}
-      {resultadosFiltrados.length > 0 && (
+       {resultadosFiltrados.length > 0 && (
         <div className="flex justify-center items-center gap-4 my-6">
           <button
-            onClick={() => setPaginaActual((prev) => Math.max(prev - 1, 1))}
+            onClick={handleAnterior}
             disabled={paginaActual === 1}
             className="px-3 py-1 bg-blue-500 text-white rounded disabled:opacity-50"
           >
@@ -338,9 +353,7 @@ function OrdenesPago() {
             Página {paginaActual} de {totalPaginas}
           </span>
           <button
-            onClick={() =>
-              setPaginaActual((prev) => Math.min(prev + 1, totalPaginas))
-            }
+            onClick={handleSiguiente}
             disabled={paginaActual === totalPaginas}
             className="px-3 py-1 bg-blue-500 text-white rounded disabled:opacity-50"
           >
