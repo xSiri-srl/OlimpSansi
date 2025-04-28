@@ -4,6 +4,8 @@ import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { HiArrowCircleRight } from "react-icons/hi";
 
 const datos = {
   ASTRONOMIA_ASTROFISICA: [
@@ -60,7 +62,7 @@ const datos = {
 function DescargarListas() {
   const [area, setArea] = useState("");
   const categorias = datos[area] || [];
-
+  const navigate = useNavigate();
   const [curso, setCurso] = useState("");
   const [categoria, setCategoria] = useState("");
   const [colegio, setColegio] = useState("");
@@ -177,12 +179,25 @@ function DescargarListas() {
   }, [resultadosFiltrados, paginaActual]);
 
   return (
-    <div>
-      <h1 className="text-sky-950 font-bold text-3xl p-6 text-center">
-        Descargar lista de inscritos
+    <div className="relative p-6 bg-white shadow-md rounded-xl">
+      {/* Botón arriba a la derecha */}
+      <div className="absolute top-9 right-6">
+      <button
+      onClick={() => navigate(-1)}
+      className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-xl shadow-md transition duration-300"
+    >
+      Regresar
+      <HiArrowCircleRight className="w-5 h-5" />
+    </button>
+      </div>
+
+      {/* Título centrado */}
+      <h1 className="text-sky-950 font-bold text-3xl text-center">
+        Generar lista de inscritos
       </h1>
 
-      <div className="w-full max-w-4xl mx-auto bg-sky-50 rounded-2xl shadow-lg">
+
+      <div className="w-full max-w-4xl mx-auto mt-8 bg-sky-50 rounded-2xl shadow-lg">
         <div className="flex flex-col md:flex-row p-6 gap-4">
           {/* Área */}
           <div className="flex-1">
