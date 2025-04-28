@@ -137,6 +137,8 @@ Route::get('/lista-inscritos', [InscripcionController::class, 'listarInscritos']
 
 Route::get('/ordenes-recientes', [OrdenPagoController::class, 'obtenerOrdenesConResponsable']);
 
+
+
 Route::post('/colegios/filtro', [ColegioController::class, 'getByFiltro']);
 
 Route::get('/buscarEstudiante/{ci}', [EstudianteController::class, 'buscarEstudiante']);
@@ -155,3 +157,5 @@ Route::get('/estudiantes/pre-inscritos', [InscripcionController::class, 'contarP
 
 
 Route::get('/orden-de-pago/info', [OrdenPagoController::class, 'getInfOrdenesDePago']);
+
+Route::get('/orden-pago-existe/{codigo}', [OrdenPagoController::class, 'ordenPagoExiste']);

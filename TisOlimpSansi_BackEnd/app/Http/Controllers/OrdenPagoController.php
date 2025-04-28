@@ -413,6 +413,19 @@ class OrdenPagoController extends Controller
             return response()->json(['error' => 'Error al procesar la solicitud getInfOrdenesDePago'], 500);
         }
     }
+
+    public function ordenPagoExiste($codigo)
+    {
+        $ordenPago = OrdenPago::where('codigo_generado', $codigo)->first();
+    
+        if (!$ordenPago) {
+            return response()->json(['message' => 'Código no encontrado'], 404);
+        }
+    
+        $existe = !empty($ordenPago->orden_pago_url); 
+    
+        return response()->json(['existe' => $existe]);
+    }
     
     
 }
