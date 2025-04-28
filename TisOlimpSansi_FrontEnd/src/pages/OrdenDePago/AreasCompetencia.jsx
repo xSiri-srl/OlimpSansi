@@ -225,7 +225,9 @@ export default function AreasCompetencia({ formData, handleInputChange, handleBa
     }
 
     try {
-      const areasCompetencia = seleccionadas.map((area) => {
+       const esSecundaria = cursoEstudiante.includes("Secundaria");
+      const numero = parseInt(cursoEstudiante.match(/\d+/)?.[0] || "0");
+      const areasCompetencia = seleccionadas.map(area => {
         // Normalizar el nombre del área
         const nombreArea = area.toUpperCase()
         let nombreAreaNormalizado = nombreArea
@@ -235,34 +237,54 @@ export default function AreasCompetencia({ formData, handleInputChange, handleBa
 
         // Obtener la categoría automática según el área y curso
         let categoria = null
-
         if (area === "Informática" || area === "Robótica") {
-          // Para Informática y Robótica, usar la categoría seleccionada por el usuario
-          const categoriaCompleta = categoriasSeleccionadas[area] || ""
-          // Extraer el nombre entre comillas
-          const nombreCategoria = categoriaCompleta.match(/"([^"]+)"/)?.[1] || ""
-          categoria = nombreCategoria.toUpperCase()
-        } else {
-          // Para otras áreas, asignar automáticamente según la tabla
-          categoria = obtenerCategoriaAutomatica(area)
-        }
-
-        // Si no hay categoría disponible, indicarlo
-        if (categoria === null) {
+          const categoriaCompleta = categoriasSeleccionadas[area] || "";
+          
+          // Extraer el nombre entre comillas y convertirlo a mayúsculas
+          const nombreCategoria = (categoriaCompleta.match(/\"([^\"]+)\"/)?.[1] || "").toUpperCase();
+          
+          console.log(`Categoría original: ${categoriaCompleta} -> Categoría procesada: ${nombreCategoria}`);
+          console.log(`Área original: ${area} -> Área procesada: ${area.toUpperCase()}`);
+          
           return {
-            nombre_area: nombreArea,
-            categoria: "NO_DISPONIBLE",
+            nombre_area: area.toUpperCase(),
+            categoria: nombreCategoria  
+          };
+        } else if (area == "Matemáticas") {
+          let nombreCategoria = ""
+          if(numero == 1){
+            nombreCategoria = "PRIMER NIVEL"
+          }else if(numero == 2){
+            nombreCategoria = "SEGUNDO NIVEL"
+          }else if(numero == 3){
+            nombreCategoria = "TERCER NIVEL"
+          }else if(numero == 4){
+            nombreCategoria = "CUARTO NIVEL"
+          }else if(numero == 5){
+            nombreCategoria = "QUINTO NIVEL"
+          }else{
+            nombreCategoria = "SEXTO NIVEL"
           }
-        }
 
-        // Si la categoría es un array (múltiples opciones), usar la primera
-        if (Array.isArray(categoria)) {
-          categoria = categoria[0]
-        }
+          return {
+            nombre_area: area.toUpperCase(),
+            categoria: nombreCategoria
+          };
+          return {
+            nombre_area: area.toUpperCase()
+          };
+        } else {
+          let nombreCategoria = ""
+          if(esSecundaria){
+            nombreCategoria = numero + "S"
+          }else{
+            nombreCategoria = numero + "P"
+          }
 
-        return {
-          nombre_area: nombreArea,
-          categoria: categoria,
+          return {
+            nombre_area: area.toUpperCase(),
+            categoria: nombreCategoria
+          }; 
         }
       })
 

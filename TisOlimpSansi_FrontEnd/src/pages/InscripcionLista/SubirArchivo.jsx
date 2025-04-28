@@ -252,7 +252,62 @@ function SubirArchivo({ setStep }) {
         }
 
         const area = row[areaIdx] || ""
-        const categoria = row[categoriaIdx] || ""
+        const cursoCompleto = row[cursoIdx] + "" || ""
+        let nom_categoria = ""
+        if (area === "INFORMATICA" || area === "ROBOTICA") {
+          nom_categoria = row[categoriaIdx] || ""
+          if(cursoCompleto != ""){
+            if(nom_categoria == ""){
+              if(cursoCompleto.includes("PRIMARIA") && (cursoCompleto.charAt(0) == "5" || cursoCompleto.charAt(0) == "6")){
+                nom_categoria = "GUACAMAYO"
+              }else{
+                nom_categoria = "ERROR"
+              }
+            }
+          }else{
+            nom_categoria = "ERROR"
+          }
+        } else if (area == "MATEMATICAS") {
+          nom_categoria = row[categoriaIdx] || ""
+          if(cursoCompleto != ""){
+            if(nom_categoria == ""){
+              if(cursoCompleto.includes("SECUNDARIA")){
+                let curso = cursoCompleto.charAt(0);
+                if(curso == "1"){
+                  nom_categoria = "PRIMER NIVEL"
+                }else if(curso == "2"){
+                  nom_categoria = "SEGUNDO NIVEL"
+                }else if(curso == "3"){
+                  nom_categoria = "TERCER NIVEL"
+                }else if(curso == "4"){
+                  nom_categoria = "CUARTO NIVEL"
+                }else if(curso == "5"){
+                  nom_categoria = "QUINTO NIVEL"
+                }else{
+                  nom_categoria = "SEXTO NIVEL"
+                }
+              }else{
+                nom_categoria = "ERROR"
+              }
+            }
+          }else{
+            nom_categoria = "ERROR"
+          }
+        } else {
+          if(area != ""){
+            if(cursoCompleto != ""){
+              if(cursoCompleto.includes("SECUNDARIA")){
+                nom_categoria = cursoCompleto.charAt(0) + "S"
+              }else{
+                nom_categoria = cursoCompleto.charAt(0) + "P"
+              }
+            }else{
+              nom_categoria = "ERROR"
+            }
+          }else{
+            nom_categoria = "ERROR"
+          }        
+        }
 
         const tutorAcademico = {
           nombre: row[tutorAcademicoNombresIdx] || "",
@@ -273,7 +328,7 @@ function SubirArchivo({ setStep }) {
           areas_competencia: [
             {
               nombre_area: area,
-              categoria: categoria,
+              categoria: nom_categoria,
             },
           ],
           tutor_legal: tutorLegal,
