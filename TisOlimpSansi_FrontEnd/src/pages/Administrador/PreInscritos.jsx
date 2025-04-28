@@ -94,7 +94,7 @@ function DescargarListas() {
   };
 
   const descargarExcel = () => {
-    setCargandoExcel(true); // Activa animación
+    setCargandoExcel(true);
 
     const ws = XLSX.utils.json_to_sheet(resultadosFiltrados);
     const wb = XLSX.utils.book_new();
