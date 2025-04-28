@@ -89,7 +89,7 @@ function DescargarListas() {
 
     setTimeout(() => {
       doc.save(generarNombreArchivo("pdf"));
-      setCargandoPDF(false); // Finaliza animación
+      setCargandoPDF(false);
     }, 1000);
   };
 
