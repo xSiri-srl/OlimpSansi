@@ -150,6 +150,7 @@ const GenerarOrdenPago = () => {
                         <th className="px-4 py-2 border">Nombre</th>
                         <th className="px-4 py-2 border">Categoría</th>
                         <th className="px-4 py-2 border">Área</th>
+                        <th className="px-4 py-2 border">Curso</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -159,6 +160,7 @@ const GenerarOrdenPago = () => {
                           <td className="px-4 py-2 border">{inscrito.nombre_estudiante}</td>
                           <td className="px-4 py-2 border">{inscrito.categoria}</td>
                           <td className="px-4 py-2 border">{inscrito.area}</td>
+                          <td className="px-4 py-2 border">{inscrito.grado}</td>
                         </tr>
                       ))}
                     </tbody>
