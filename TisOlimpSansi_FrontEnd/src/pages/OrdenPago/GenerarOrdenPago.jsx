@@ -9,6 +9,8 @@ const GenerarOrdenPago = () => {
   const [resumen, setResumen] = useState(null);
   const [generando, setGenerando] = useState(false);
   const [descargando, setDescargando] = useState(false);
+  const [mostrarModal, setMostrarModal] = useState(false);
+const [ordenYaGenerada, setOrdenYaGenerada] = useState(false);
 
   const endpoint = "http://localhost:8000/api";
 
@@ -40,18 +42,24 @@ const GenerarOrdenPago = () => {
       setError("Error al obtener el resumen");
     }
   };
-  const handleGenerarOrden = async () => {
+  const confirmarGenerarOrden = async () => {
     setGenerando(true);
     try {
-      await axios.post(`${endpoint}/orden-pago/pdf`, {
-        codigo_generado: codigoGenerado,
-      })
-      console.log("generado bien")
-     
+      // Verificar si ya existe una orden
+      const response = await axios.get(`${endpoint}/orden-pago-existe/${codigoGenerado}`);
+      if (response.data.existe) {
+        setOrdenYaGenerada(true);
+      } else {
+        await axios.post(`${endpoint}/orden-pago/pdf`, {
+          codigo_generado: codigoGenerado,
+        });
+        console.log("Orden de pago generada correctamente");
+        setMostrarModal(false);
+      }
     } catch (error) {
-      console.error("Error al Generar una Orden de Pago:", error);
-      alert("Error al Generar una Orden de Pago");
-    } finally{
+      console.error("Error generando la orden de pago:", error);
+      alert("Error generando la orden de pago.");
+    } finally {
       setGenerando(false);
     }
   };
@@ -189,7 +197,7 @@ const GenerarOrdenPago = () => {
             </div>
             <div className="flex justify-center mt-6">
               <button
-                onClick={handleGenerarOrden}
+                onClick={() => setMostrarModal(true)}
                 disabled={generando}
                 className={`px-6 py-2 transition duration-300 ease-in-out text-white rounded-md shadow-md flex items-center gap-2 ${
                   !generando
@@ -199,6 +207,43 @@ const GenerarOrdenPago = () => {
               >
                 {generando ? "Generando..." : "Generar Orden de Pago"}
               </button>
+              {mostrarModal && (
+  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <div className="bg-white p-8 rounded shadow-lg max-w-md w-full">
+      {ordenYaGenerada ? (
+        <>
+          <h2 className="text-xl font-bold text-red-600 mb-4">¡Ya existe una orden de pago generada!</h2>
+          <div className="flex justify-end gap-4">
+            <button
+              onClick={() => setMostrarModal(false)}
+              className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
+            >
+              Cerrar
+            </button>
+          </div>
+        </>
+      ) : (
+        <>
+          <h2 className="text-xl font-bold text-gray-700 mb-4">¿Está seguro de generar una orden de pago?</h2>
+          <div className="flex justify-end gap-4">
+            <button
+              onClick={() => setMostrarModal(false)}
+              className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={confirmarGenerarOrden}
+              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            >
+              Confirmar
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  </div>
+)}
             </div>
             <div className="flex justify-center mt-6">
               <button
