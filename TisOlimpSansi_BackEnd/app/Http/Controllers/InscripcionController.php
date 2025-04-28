@@ -131,27 +131,37 @@ class InscripcionController extends Controller
                 // Crear o buscar categoría
                 $categoria = CategoriaModel::firstOrCreate([
                     'id_area' => $area->id,
-                    'nombre_categoria' => $areaData['categoria'] ?? 'General'
+                    'nombre_categoria' => $areaData['categoria']
                 ]);
-    
+                
                 // Buscar el tutor correspondiente para esta área (desde el JSON)
                 $tutorData = collect($request->tutores_academicos)
-                    ->firstWhere('nombre_area', $areaData['nombre_area'])['tutor'] ?? null;
-    
-                if ($tutorData) {
-                    // Registrar tutor académico
-                    $tutor = TutorAcademicoModel::create($tutorData);
-    
-                    // Aquí puedes guardar si deseas una relación tutor ↔ categoría
-                    // Ejemplo: guardar en `categoria_tutor_academico` si lo necesitas
-                }
-                DB::commit();
-                // Guardar inscripción-categoría
-                InscripcionCategoriaModel::create([
-                    'id_inscripcion' => $inscripcion->id,
-                    'id_categoria' => $categoria->id,
-                    'id_tutor_academico' => $tutor->id,
+                ->firstWhere('nombre_area', $areaData['nombre_area'])['tutor'] ?? null;
+            
+            $tutor = null;
+            
+            // Verificar si hay datos completos del tutor
+            if ($tutorData && !empty($tutorData['nombre']) && !empty($tutorData['apellido_pa']) && !empty($tutorData['ci']) && !empty($tutorData['correo'])) {
+                // Si los datos son completos, crear el tutor académico
+                $tutor = TutorAcademicoModel::create([
+                    'nombre' => $tutorData['nombre'],
+                    'apellido_pa' => $tutorData['apellido_pa'],
+                    'apellido_ma' => $tutorData['apellido_ma'],
+                    'ci' => $tutorData['ci'],
+                    'correo' => $tutorData['correo']
                 ]);
+            
+                // Aquí puedes guardar si deseas una relación tutor ↔ categoría
+                // Ejemplo: guardar en `categoria_tutor_academico` si lo necesitas
+            }
+            
+            // Guardar inscripción-categoría, asignando null si no hay tutor
+            InscripcionCategoriaModel::create([
+                'id_inscripcion' => $inscripcion->id,
+                'id_categoria' => $categoria->id,
+                'id_tutor_academico' => $tutor ? $tutor->id : null,
+            ]);
+            
             }
     
             DB::commit();

@@ -16,10 +16,15 @@ const Confirmation = ({ navigate, handleBack }) => {
   const [codigoGenerado, setCodigoGenerado] = useState("");
 
   useEffect(() => {
-    console.log("NUEVOOOOOOOOOO");
+  
     console.log(globalData);
-    console.log("Confirmation mounted, handleBack is:", typeof handleBack);
-  }, [handleBack]);
+    globalData.areas_competencia?.forEach((area) => {
+      console.log("Nombre del área:", area.nombre_area);
+      console.log("Categoría:", area.categoria);
+    });
+
+  }, [globalData]);
+  
 
   const handleGoBack = (e) => {
     e.preventDefault();
@@ -63,16 +68,10 @@ const Confirmation = ({ navigate, handleBack }) => {
       });
 
       // Llamar al backend para generar el PDF
-      const pdfResponse = await axios.post(
-        "http://localhost:8000/api/orden-pago/pdf",
-        {
-          codigo_generado: codigoGenerado,
-        }
-      );
-
+     
       setShowSuccessModal(true);
     } catch (error) {
-      console.error("Error al registrar los datos o generar PDF:", error);
+      console.error("Error al registrar los datos", error);
       clearInterval(progressInterval);
       setShowProgressBar(false);
       setSubmitStatus({
@@ -194,32 +193,33 @@ const Confirmation = ({ navigate, handleBack }) => {
 
         {/* Sección de áreas de competencia */}
         <div className="mb-6 border-b pb-4">
-          <h3 className="text-lg font-semibold text-blue-600">
-            Áreas de Competencia
-          </h3>
-          <div className="mt-2">
-            {globalData.areas_competencia?.map((area, index) => (
-              <div key={index} className="bg-gray-100 rounded px-3 py-2 mb-2">
-                <p className="font-medium">{area.nombre_area || ""}</p>
-                {/* Mostrar categoría solo para Robótica e Informática */}
-                {(area.nombre_area?.includes("Robótica") ||
-                  area.nombre_area?.includes("Informática")) &&
-                  area.categoria && (
-                    <div className="mt-1">
-                      <span className="text-sm text-gray-500">Categoría: </span>
-                      <span className="text-sm font-medium bg-blue-100 text-blue-800 px-2 py-0.5 rounded">
-                        {area.categoria}
-                      </span>
-                    </div>
-                  )}
-              </div>
-            )) || (
-              <p className="text-gray-500">
-                No se seleccionaron áreas de competencia
-              </p>
-            )}
-          </div>
+  <h3 className="text-lg font-semibold text-blue-600">
+    Áreas de Competencia
+  </h3>
+  <div className="mt-2">
+    {globalData.areas_competencia?.length > 0 ? (
+      globalData.areas_competencia.map((area, index) => (
+        <div key={index} className="bg-gray-100 rounded px-3 py-2 mb-2">
+          <p className="font-medium">{area.nombre_area || ""}</p>
+          {/* Mostrar categoría para todas las áreas */}
+          {area.categoria && (
+            <div className="mt-1">
+              <span className="text-sm text-gray-500">Categoría: </span>
+              <span className="text-sm font-medium bg-blue-100 text-blue-800 px-2 py-0.5 rounded">
+                {area.categoria}
+              </span>
+            </div>
+          )}
         </div>
+      ))
+    ) : (
+      <p className="text-gray-500">
+        No se seleccionaron áreas de competencia
+      </p>
+    )}
+  </div>
+</div>
+
 
         {/* Sección del tutor legal */}
         <div className="mb-6 border-b pb-4">
