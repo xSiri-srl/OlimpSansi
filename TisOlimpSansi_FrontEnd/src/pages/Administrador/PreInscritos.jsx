@@ -18,20 +18,14 @@ function DescargarListas() {
 
   const [cargandoPDF, setCargandoPDF] = useState(false);
   const [cargandoExcel, setCargandoExcel] = useState(false);
+  const [contadorNumeracion, setContadorNumeracion] = useState(1);
 
   useEffect(() => {
     axios
       .get("http://localhost:8000/api/estudiantes/pre-inscritos")
       .then((response) => {
-        if (Array.isArray(response.data.estudiantes_no_pagados)) {
-          setInscritos(response.data.estudiantes_no_pagados);
-        } else {
-          console.error("Datos no son un arreglo:", response.data);
-          setInscritos([]);
-        }
-      })
-      .catch((error) => {
-        console.error("Error al cargar inscritos:", error);
+        setInscritos(response.data.estudiantes_no_pagados);
+        console.log("Inscritos:", response.data.estudiantes_no_pagados);
       });
   }, []);
 
@@ -54,7 +48,7 @@ function DescargarListas() {
   });
   console.log("Resultados Filtrados:", resultadosFiltrados);
 
-  const resultadosPorPagina = 20;
+  const resultadosPorPagina = 10;
   const totalPaginas = Math.ceil(
     resultadosFiltrados.length / resultadosPorPagina
   );
@@ -85,8 +79,8 @@ function DescargarListas() {
       body: resultadosFiltrados.map((item, index) => [
         index + 1,
         item.nombre,
-        item.apellido_paterno,
-        item.apellido_materno,
+        item.apellido_pa,
+        item.apellido_ma,
         item.carnet_identidad,
         item.fecha_nacimiento,
         item.correo,
@@ -123,10 +117,20 @@ function DescargarListas() {
   };
 
   useEffect(() => {
-    if (resultadosFiltrados.length < 20 && paginaActual !== 1) {
+    if (resultadosFiltrados.length < 10 && paginaActual !== 1) {
       setPaginaActual(1);
     }
   }, [resultadosFiltrados, paginaActual]);
+
+  const handleSiguiente = () => {
+    setPaginaActual((prevPagina) => prevPagina + 1);
+    setContadorNumeracion(contadorNumeracion + resultadosPorPagina);
+  };
+
+  const handleAnterior = () => {
+    setPaginaActual((prevPagina) => prevPagina - 1);
+    setContadorNumeracion(contadorNumeracion - resultadosPorPagina);
+  };
 
   return (
     <div>
@@ -341,6 +345,7 @@ function DescargarListas() {
             <table className="min-w-max border border-gray-300 text-sm text-left">
               <thead className="font-semibold bg-sky-100">
                 <tr>
+                  <th className="px-4 py-2 border">Número</th>
                   <th className="px-4 py-2 border">Nombre</th>
                   <th className="px-4 py-2 border">Apellido Paterno</th>
                   <th className="px-4 py-2 border">Apellido Materno</th>
@@ -356,6 +361,9 @@ function DescargarListas() {
                     key={index}
                     className="bg-white border-b hover:bg-gray-100"
                   >
+                    <td className="px-4 py-2 border">
+                      {contadorNumeracion + index}
+                    </td>
                     <td className="px-4 py-2 border">{item.nombre}</td>
                     <td className="px-4 py-2 border">{item.apellido_pa}</td>
                     <td className="px-4 py-2 border">{item.apellido_ma}</td>
@@ -383,7 +391,7 @@ function DescargarListas() {
       {resultadosFiltrados.length > 0 && (
         <div className="flex justify-center items-center gap-4 my-6">
           <button
-            onClick={() => setPaginaActual((prev) => Math.max(prev - 1, 1))}
+            onClick={handleAnterior}
             disabled={paginaActual === 1}
             className="px-3 py-1 bg-blue-500 text-white rounded disabled:opacity-50"
           >
@@ -393,9 +401,7 @@ function DescargarListas() {
             Página {paginaActual} de {totalPaginas}
           </span>
           <button
-            onClick={() =>
-              setPaginaActual((prev) => Math.min(prev + 1, totalPaginas))
-            }
+            onClick={handleSiguiente}
             disabled={paginaActual === totalPaginas}
             className="px-3 py-1 bg-blue-500 text-white rounded disabled:opacity-50"
           >
