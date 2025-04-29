@@ -1,5 +1,5 @@
-import React from "react";
-import { ResponsiveChoropleth } from "@nivo/geo";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 const boliviaGeoFeatures = {
   type: "FeatureCollection",
@@ -62,23 +62,98 @@ const boliviaGeoFeatures = {
 };
 
 const MapaBolivia = ({ darkMode }) => {
+  const [inscripcionesPorDepartamento, setInscripcionesPorDepartamento] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   
-  const inscripcionesPorDepartamento = [
-    { id: "BOL.LA_PAZ", value: 128 },
-    { id: "BOL.COCHABAMBA", value: 93 },
-    { id: "BOL.SANTA_CRUZ", value: 143 },
-    { id: "BOL.ORURO", value: 42 },
-    { id: "BOL.POTOSI", value: 38 },
-    { id: "BOL.CHUQUISACA", value: 55 },
-    { id: "BOL.TARIJA", value: 47 },
-    { id: "BOL.BENI", value: 36 },
-    { id: "BOL.PANDO", value: 12 }
-  ];
+  const API_BASE_URL = "http://localhost:8000/api";
+  
+  useEffect(() => {
+    const fetchDepartamentoData = async () => {
+      try {
+        setLoading(true);
+        
+        // Lista de departamentos de Bolivia
+        const departamentos = [
+          "La Paz", 
+          "Cochabamba", 
+          "Santa Cruz", 
+          "Oruro", 
+          "Potosí", 
+          "Chuquisaca", 
+          "Tarija", 
+          "Beni", 
+          "Pando"
+        ];
+        
+        // Mapeo de nombres de departamentos a IDs usados en el componente
+        const departamentoToId = {
+          "La Paz": "BOL.LA_PAZ",
+          "Cochabamba": "BOL.COCHABAMBA",
+          "Santa Cruz": "BOL.SANTA_CRUZ",
+          "Oruro": "BOL.ORURO",
+          "Potosí": "BOL.POTOSI",
+          "Chuquisaca": "BOL.CHUQUISACA",
+          "Tarija": "BOL.TARIJA",
+          "Beni": "BOL.BENI",
+          "Pando": "BOL.PANDO"
+        };
+        
+        // Hacer solicitudes para cada departamento
+        const promises = departamentos.map(async (departamento) => {
+          // Ahora solicitamos específicamente estudiantes INSCRITOS por departamento (con comprobante verificado)
+          const response = await axios.post(
+            `${API_BASE_URL}/estudiantes/inscritos/bydepartamento`, 
+            { departamento }
+          );
+          
+          return {
+            id: departamentoToId[departamento],
+            value: response.data.cantidad_estudiantes
+          };
+        });
+        
+        const resultados = await Promise.all(promises);
+        setInscripcionesPorDepartamento(resultados);
+      } catch (err) {
+        console.error("Error al cargar datos de departamentos:", err);
+        setError("No se pudieron cargar los datos de inscripciones por departamento");
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchDepartamentoData();
+  }, []);
+  
+  if (loading) {
+    return (
+      <div className="h-[400px] w-full flex items-center justify-center">
+        <div className="flex flex-col items-center">
+          <div className="animate-spin rounded-full h-10 w-10 border-4 border-blue-500 border-t-transparent mb-2"></div>
+          <p className={`${darkMode ? "text-gray-300" : "text-gray-600"}`}>
+            Cargando datos departamentales...
+          </p>
+        </div>
+      </div>
+    );
+  }
+  
+  if (error) {
+    return (
+      <div className="h-[400px] w-full flex items-center justify-center">
+        <p className={`text-red-500 text-center`}>
+          {error}
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="h-[400px] w-full">
       <div className={`${darkMode ? "text-white" : "text-gray-800"} text-center mb-4`}>
         <h3 className="text-xl font-semibold">Distribución de Inscritos por Departamento</h3>
+        <p className="text-sm text-gray-500">(Estudiantes con pago verificado)</p>
       </div>
       
       {/* Mapa simplificado de Bolivia */}
@@ -87,7 +162,14 @@ const MapaBolivia = ({ darkMode }) => {
           
           const nombreDep = boliviaGeoFeatures.features.find(f => f.id === dept.id)?.properties?.name || "";
           
-          const intensity = Math.min(100, Math.max(20, (dept.value / 150) * 100));
+          // Encontrar el valor máximo para normalizar la intensidad
+          const maxValue = Math.max(...inscripcionesPorDepartamento.map(d => d.value));
+          
+          // Normalizar la intensidad basada en el valor máximo (mínimo 20%, máximo 100%)
+          const intensity = maxValue > 0 
+            ? Math.min(100, Math.max(20, (dept.value / maxValue) * 100))
+            : 20; // Valor por defecto si no hay inscritos
+            
           const bgColor = darkMode 
             ? `rgba(59, 130, 246, ${intensity/100})` 
             : `rgba(37, 99, 235, ${intensity/100})`;
