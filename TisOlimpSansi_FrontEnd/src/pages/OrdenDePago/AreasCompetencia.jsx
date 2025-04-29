@@ -28,21 +28,21 @@ const categoriasMap = {
     "3RO DE SECUNDARIA": "3S",
     "4TO DE SECUNDARIA": "4S",
     "5TO DE SECUNDARIA": "5S",
-    "6TO DE SECUNDARIA": "6S"
-},
-"BIOLOGÍA": {
+    "6TO DE SECUNDARIA": "6S",
+  },
+  BIOLOGÍA: {
     "2DO DE SECUNDARIA": "2S",
     "3RO DE SECUNDARIA": "3S",
     "4TO DE SECUNDARIA": "4S",
     "5TO DE SECUNDARIA": "5S",
-    "6TO DE SECUNDARIA": "6S"
-},
-"FÍSICA": {
+    "6TO DE SECUNDARIA": "6S",
+  },
+  FÍSICA: {
     "4TO DE SECUNDARIA": "4S",
     "5TO DE SECUNDARIA": "5S",
-    "6TO DE SECUNDARIA": "6S"
-},
-"INFORMÁTICA": {
+    "6TO DE SECUNDARIA": "6S",
+  },
+  Informática: {
     "5TO DE PRIMARIA": "Guacamayo",
     "6TO DE PRIMARIA": "Guacamayo",
     "1RO DE SECUNDARIA": ["Guanaco", "Londra", "Bufeo"],
@@ -50,24 +50,24 @@ const categoriasMap = {
     "3RO DE SECUNDARIA": ["Guanaco", "Londra", "Bufeo"],
     "4TO DE SECUNDARIA": ["Jucumari", "Puma"],
     "5TO DE SECUNDARIA": ["Jucumari", "Puma"],
-    "6TO DE SECUNDARIA": ["Jucumari", "Puma"]
-},
-"MATEMÁTICAS": {
+    "6TO DE SECUNDARIA": ["Jucumari", "Puma"],
+  },
+  MATEMÁTICAS: {
     "1RO DE SECUNDARIA": "PRIMER NIVEL",
     "2DO DE SECUNDARIA": "SEGUNDO NIVEL",
     "3RO DE SECUNDARIA": "TERCER NIVEL",
     "4TO DE SECUNDARIA": "CUARTO NIVEL",
     "5TO DE SECUNDARIA": "QUINTO NIVEL",
-    "6TO DE SECUNDARIA": "SEXTO NIVEL"
-},
-"QUÍMICA": {
+    "6TO DE SECUNDARIA": "SEXTO NIVEL",
+  },
+  QUÍMICA: {
     "2DO DE SECUNDARIA": "2S",
     "3RO DE SECUNDARIA": "3S",
     "4TO DE SECUNDARIA": "4S",
     "5TO DE SECUNDARIA": "5S",
-    "6TO DE SECUNDARIA": "6S"
-},
-"ROBÓTICA": {
+    "6TO DE SECUNDARIA": "6S",
+  },
+  ROBÓTICA: {
     "5TO DE PRIMARIA": ["BUILDERS P", "LEGO P"],
     "6TO DE PRIMARIA": ["BUILDERS P", "LEGO P"],
     "1RO DE SECUNDARIA": ["BUILDERS S", "LEGO S"],
@@ -75,8 +75,8 @@ const categoriasMap = {
     "3RO DE SECUNDARIA": ["BUILDERS S", "LEGO S"],
     "4TO DE SECUNDARIA": ["BUILDERS S", "LEGO S"],
     "5TO DE SECUNDARIA": ["BUILDERS S", "LEGO S"],
-    "6TO DE SECUNDARIA": ["BUILDERS S", "LEGO S"]
-},
+    "6TO DE SECUNDARIA": ["BUILDERS S", "LEGO S"],
+  },
 }
 
 export default function AreasCompetencia({ formData, handleInputChange, handleBack, handleNext }) {
@@ -102,13 +102,37 @@ export default function AreasCompetencia({ formData, handleInputChange, handleBa
   }
 
   const obtenerCategorias = (area) => {
+    // Verificar si el área es Informática o Robótica
     if (area !== "Informática" && area !== "Robótica") {
       return null
     }
 
+    // Verificar si tenemos datos en categoriasMap para esta área
+    const areaNormalizada = area === "Informática" ? "Informática" : "ROBÓTICA"
+
+    if (categoriasMap[areaNormalizada] && categoriasMap[areaNormalizada][cursoEstudiante]) {
+      const categorias = categoriasMap[areaNormalizada][cursoEstudiante]
+
+      // Si es un array, devolver las categorías formateadas
+      if (Array.isArray(categorias)) {
+        return categorias.map((cat) => {
+          if (area === "Informática") {
+            return `"${cat}" ${cursoEstudiante}`
+          } else {
+            // Robótica
+            return `"${cat}" ${cursoEstudiante}`
+          }
+        })
+      }
+      // Si es un string, devolver como array de un elemento
+      else {
+        return [`"${categorias}" ${cursoEstudiante}`]
+      }
+    }
+
+    // Usar la lógica existente como fallback
     const esPrimaria = cursoEstudiante.includes("Primaria")
     const esSecundaria = cursoEstudiante.includes("Secundaria")
-
     const numero = Number.parseInt(cursoEstudiante.match(/\d+/)?.[0] || "0")
 
     // Para Informática
@@ -140,7 +164,6 @@ export default function AreasCompetencia({ formData, handleInputChange, handleBa
 
     if (seleccionadas.includes(nombre)) {
       nuevasSeleccionadas = seleccionadas.filter((area) => area !== nombre)
-
       delete nuevasCategoriasSeleccionadas[nombre]
     } else {
       if (seleccionadas.length < 2) {
@@ -148,6 +171,7 @@ export default function AreasCompetencia({ formData, handleInputChange, handleBa
 
         if (nombre === "Informática" || nombre === "Robótica") {
           const categorias = obtenerCategorias(nombre)
+          console.log(`Categorías obtenidas para ${nombre}:`, categorias)
           if (categorias && categorias.length > 0) {
             nuevasCategoriasSeleccionadas[nombre] = ""
           }
@@ -158,7 +182,6 @@ export default function AreasCompetencia({ formData, handleInputChange, handleBa
     }
 
     handleInputChange("estudiante", "areasSeleccionadas", nuevasSeleccionadas)
-
     handleInputChange("estudiante", "categoriasSeleccionadas", nuevasCategoriasSeleccionadas)
   }
 
@@ -205,6 +228,7 @@ export default function AreasCompetencia({ formData, handleInputChange, handleBa
               className="w-full p-1 text-xs border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
               value={categoriaSeleccionada}
               onChange={(e) => handleCategoriaChange(area.nombre, e.target.value)}
+              required
             >
               <option value="">-- Seleccionar --</option>
               {categorias.map((cat, i) => (
@@ -225,9 +249,9 @@ export default function AreasCompetencia({ formData, handleInputChange, handleBa
     }
 
     try {
-       const esSecundaria = cursoEstudiante.includes("Secundaria");
-      const numero = parseInt(cursoEstudiante.match(/\d+/)?.[0] || "0");
-      const areasCompetencia = seleccionadas.map(area => {
+      const esSecundaria = cursoEstudiante.includes("Secundaria")
+      const numero = Number.parseInt(cursoEstudiante.match(/\d+/)?.[0] || "0")
+      const areasCompetencia = seleccionadas.map((area) => {
         // Normalizar el nombre del área
         const nombreArea = area.toUpperCase()
         let nombreAreaNormalizado = nombreArea
@@ -236,55 +260,55 @@ export default function AreasCompetencia({ formData, handleInputChange, handleBa
         }
 
         // Obtener la categoría automática según el área y curso
-        let categoria = null
+        const categoria = null
         if (area === "Informática" || area === "Robótica") {
-          const categoriaCompleta = categoriasSeleccionadas[area] || "";
-          
+          const categoriaCompleta = categoriasSeleccionadas[area] || ""
+
           // Extraer el nombre entre comillas y convertirlo a mayúsculas
-          const nombreCategoria = (categoriaCompleta.match(/\"([^\"]+)\"/)?.[1] || "").toUpperCase();
-          
-          console.log(`Categoría original: ${categoriaCompleta} -> Categoría procesada: ${nombreCategoria}`);
-          console.log(`Área original: ${area} -> Área procesada: ${area.toUpperCase()}`);
-          
+          const nombreCategoria = (categoriaCompleta.match(/"([^"]+)"/)?.[1] || "").toUpperCase()
+
+          console.log(`Categoría original: ${categoriaCompleta} -> Categoría procesada: ${nombreCategoria}`)
+          console.log(`Área original: ${area} -> Área procesada: ${area.toUpperCase()}`)
+
           return {
             nombre_area: area.toUpperCase(),
-            categoria: nombreCategoria  
-          };
+            categoria: nombreCategoria,
+          }
         } else if (area == "Matemáticas") {
           let nombreCategoria = ""
-          if(numero == 1){
+          if (numero == 1) {
             nombreCategoria = "PRIMER NIVEL"
-          }else if(numero == 2){
+          } else if (numero == 2) {
             nombreCategoria = "SEGUNDO NIVEL"
-          }else if(numero == 3){
+          } else if (numero == 3) {
             nombreCategoria = "TERCER NIVEL"
-          }else if(numero == 4){
+          } else if (numero == 4) {
             nombreCategoria = "CUARTO NIVEL"
-          }else if(numero == 5){
+          } else if (numero == 5) {
             nombreCategoria = "QUINTO NIVEL"
-          }else{
+          } else {
             nombreCategoria = "SEXTO NIVEL"
           }
 
           return {
             nombre_area: area.toUpperCase(),
-            categoria: nombreCategoria
-          };
+            categoria: nombreCategoria,
+          }
           return {
-            nombre_area: area.toUpperCase()
-          };
+            nombre_area: area.toUpperCase(),
+          }
         } else {
           let nombreCategoria = ""
-          if(esSecundaria){
+          if (esSecundaria) {
             nombreCategoria = numero + "S"
-          }else{
+          } else {
             nombreCategoria = numero + "P"
           }
 
           return {
             nombre_area: area.toUpperCase(),
-            categoria: nombreCategoria
-          }; 
+            categoria: nombreCategoria,
+          }
         }
       })
 
@@ -328,7 +352,6 @@ export default function AreasCompetencia({ formData, handleInputChange, handleBa
         // Para otras áreas, verificar si existe una categoría automática
         const categoria = obtenerCategoriaAutomatica(area)
         if (categoria === null) {
-        
           return false
         }
       }
