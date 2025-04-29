@@ -68,7 +68,7 @@ function OrdenesPago() {
     setCargandoPDF(true);
 
     const doc = new jsPDF();
-    doc.text("Lista de ordenesPago", 14, 10);
+    doc.text("Lista de ordenes de pago", 14, 10);
     autoTable(doc, {
       head: [
         [
