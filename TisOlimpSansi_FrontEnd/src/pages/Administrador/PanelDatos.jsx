@@ -357,7 +357,7 @@ const PanelDatos = () => {
             <div className="relative group">
           <Link to="/admin/descargar_listas" className="block transform transition hover:-translate-y-1 hover:shadow-lg">
             <StatCard
-              title="Total Competidores"
+              title="Total Inscritos y Pre-Inscritos"
               value={stats.totalInscritos}
               icon={<FaUserGraduate />}
               bgColor="bg-purple-50"

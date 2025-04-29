@@ -235,7 +235,7 @@ function DescargarListas() {
 
       {/* Título centrado */}
       <h1 className="text-sky-950 font-bold text-3xl text-center">
-        Generar lista de inscritos
+      Total Inscritos y Pre-Inscritos
       </h1>
 
 
@@ -499,7 +499,7 @@ function DescargarListas() {
                     Datos del competidor
                   </th>
                   <th
-                    colSpan="7"
+                    colSpan="8"
                     className="py-2 px-4 border border-gray-300 font-semibold bg-blue-200 text-center"
                   >
                     Datos del tutor legal
@@ -542,7 +542,7 @@ function DescargarListas() {
                   ].map((title, idx) => {
                     let bgColor = "";
                     if (idx < 13) bgColor = "bg-green-100";
-                    else if (idx < 20) bgColor = "bg-blue-100";
+                    else if (idx < 21) bgColor = "bg-blue-100";
                     else bgColor = "bg-purple-100";
 
                     return (

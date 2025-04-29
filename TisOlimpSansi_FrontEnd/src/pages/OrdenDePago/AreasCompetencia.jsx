@@ -19,64 +19,64 @@ const segundaFila = [
 // Mapa de categorías según área y grado
 const categoriasMap = {
   "ASTRONOMÍA - ASTROFÍSICA": {
-    "3ro de Primaria": "3P",
-    "4to de Primaria": "4P",
-    "5to de Primaria": "5P",
-    "6to de Primaria": "6P",
-    "1ro de Secundaria": "1S",
-    "2do de Secundaria": "2S",
-    "3ro de Secundaria": "3S",
-    "4to de Secundaria": "4S",
-    "5to de Secundaria": "5S",
-    "6to de Secundaria": "6S",
-  },
-  BIOLOGÍA: {
-    "2do de Secundaria": "2S",
-    "3ro de Secundaria": "3S",
-    "4to de Secundaria": "4S",
-    "5to de Secundaria": "5S",
-    "6to de Secundaria": "6S",
-  },
-  FÍSICA: {
-    "4to de Secundaria": "4S",
-    "5to de Secundaria": "5S",
-    "6to de Secundaria": "6S",
-  },
-  INFORMÁTICA: {
-    "5to de Primaria": "Guacamayo",
-    "6to de Primaria": "Guacamayo",
-    "1ro de Secundaria": ["Guanaco", "Londra", "Bufeo"],
-    "2do de Secundaria": ["Guanaco", "Londra", "Bufeo"],
-    "3ro de Secundaria": ["Guanaco", "Londra", "Bufeo"],
-    "4to de Secundaria": ["Jucumari", "Puma"],
-    "5to de Secundaria": ["Jucumari", "Puma"],
-    "6to de Secundaria": ["Jucumari", "Puma"],
-  },
-  MATEMÁTICAS: {
-    "1ro de Secundaria": "Primer Nivel",
-    "2do de Secundaria": "Segundo Nivel",
-    "3ro de Secundaria": "Tercer Nivel",
-    "4to de Secundaria": "Cuarto Nivel",
-    "5to de Secundaria": "Quinto Nivel",
-    "6to de Secundaria": "Sexto Nivel",
-  },
-  QUÍMICA: {
-    "2do de Secundaria": "2S",
-    "3ro de Secundaria": "3S",
-    "4to de Secundaria": "4S",
-    "5to de Secundaria": "5S",
-    "6to de Secundaria": "6S",
-  },
-  ROBÓTICA: {
-    "5to de Primaria": ["Builders P", "Lego P"],
-    "6to de Primaria": ["Builders P", "Lego P"],
-    "1ro de Secundaria": ["Builders S", "Lego S"],
-    "2do de Secundaria": ["Builders S", "Lego S"],
-    "3ro de Secundaria": ["Builders S", "Lego S"],
-    "4to de Secundaria": ["Builders S", "Lego S"],
-    "5to de Secundaria": ["Builders S", "Lego S"],
-    "6to de Secundaria": ["Builders S", "Lego S"],
-  },
+    "3RO DE PRIMARIA": "3P",
+    "4TO DE PRIMARIA": "4P",
+    "5TO DE PRIMARIA": "5P",
+    "6TO DE PRIMARIA": "6P",
+    "1RO DE SECUNDARIA": "1S",
+    "2DO DE SECUNDARIA": "2S",
+    "3RO DE SECUNDARIA": "3S",
+    "4TO DE SECUNDARIA": "4S",
+    "5TO DE SECUNDARIA": "5S",
+    "6TO DE SECUNDARIA": "6S"
+},
+"BIOLOGÍA": {
+    "2DO DE SECUNDARIA": "2S",
+    "3RO DE SECUNDARIA": "3S",
+    "4TO DE SECUNDARIA": "4S",
+    "5TO DE SECUNDARIA": "5S",
+    "6TO DE SECUNDARIA": "6S"
+},
+"FÍSICA": {
+    "4TO DE SECUNDARIA": "4S",
+    "5TO DE SECUNDARIA": "5S",
+    "6TO DE SECUNDARIA": "6S"
+},
+"INFORMÁTICA": {
+    "5TO DE PRIMARIA": "Guacamayo",
+    "6TO DE PRIMARIA": "Guacamayo",
+    "1RO DE SECUNDARIA": ["Guanaco", "Londra", "Bufeo"],
+    "2DO DE SECUNDARIA": ["Guanaco", "Londra", "Bufeo"],
+    "3RO DE SECUNDARIA": ["Guanaco", "Londra", "Bufeo"],
+    "4TO DE SECUNDARIA": ["Jucumari", "Puma"],
+    "5TO DE SECUNDARIA": ["Jucumari", "Puma"],
+    "6TO DE SECUNDARIA": ["Jucumari", "Puma"]
+},
+"MATEMÁTICAS": {
+    "1RO DE SECUNDARIA": "PRIMER NIVEL",
+    "2DO DE SECUNDARIA": "SEGUNDO NIVEL",
+    "3RO DE SECUNDARIA": "TERCER NIVEL",
+    "4TO DE SECUNDARIA": "CUARTO NIVEL",
+    "5TO DE SECUNDARIA": "QUINTO NIVEL",
+    "6TO DE SECUNDARIA": "SEXTO NIVEL"
+},
+"QUÍMICA": {
+    "2DO DE SECUNDARIA": "2S",
+    "3RO DE SECUNDARIA": "3S",
+    "4TO DE SECUNDARIA": "4S",
+    "5TO DE SECUNDARIA": "5S",
+    "6TO DE SECUNDARIA": "6S"
+},
+"ROBÓTICA": {
+    "5TO DE PRIMARIA": ["BUILDERS P", "LEGO P"],
+    "6TO DE PRIMARIA": ["BUILDERS P", "LEGO P"],
+    "1RO DE SECUNDARIA": ["BUILDERS S", "LEGO S"],
+    "2DO DE SECUNDARIA": ["BUILDERS S", "LEGO S"],
+    "3RO DE SECUNDARIA": ["BUILDERS S", "LEGO S"],
+    "4TO DE SECUNDARIA": ["BUILDERS S", "LEGO S"],
+    "5TO DE SECUNDARIA": ["BUILDERS S", "LEGO S"],
+    "6TO DE SECUNDARIA": ["BUILDERS S", "LEGO S"]
+},
 }
 
 export default function AreasCompetencia({ formData, handleInputChange, handleBack, handleNext }) {
