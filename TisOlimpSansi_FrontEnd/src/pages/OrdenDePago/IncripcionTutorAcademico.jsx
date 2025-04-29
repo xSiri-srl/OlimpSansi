@@ -504,6 +504,30 @@ export default function FormularioTutoresAcademicos({
                       </p>
                     )}
                   </div>
+                  
+                  {/* Campo de correo electrónico que faltaba */}
+                  <div>
+                    <label className="flex items-center gap-2">
+                      <FaEnvelope className="text-black" /> Correo Electrónico
+                    </label>
+                    <input
+                      type="email"
+                      className="mt-1 p-2 w-full border rounded-md"
+                      placeholder="ejemplo@correo.com"
+                      value={tutoresPorArea[area.nombre_area]?.correo || ""}
+                      onChange={(e) => handleFormChange(
+                        area.nombre_area,
+                        "correo",
+                        e.target.value,
+                        null
+                      )}
+                    />
+                    {errors[`${area.nombre_area}-correo`] && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors[`${area.nombre_area}-correo`]}
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
             )}
