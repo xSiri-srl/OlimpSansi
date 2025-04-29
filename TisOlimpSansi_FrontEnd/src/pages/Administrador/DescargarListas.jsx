@@ -374,7 +374,7 @@ function DescargarListas() {
               htmlFor="provincia"
               className="block mb-2 text-sm font-semibold text-gray-700"
             >
-              Provincia
+              Distrito
             </label>
             <select
               id="provincia"
