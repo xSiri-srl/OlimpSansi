@@ -13,7 +13,7 @@ const RegistroPorLista = () => {
     "Seleccionar Unidad Educativa",
     "Subir Lista",
     "Lista de Competidores",
-    "Confirmación",
+    
   ];
 
   return (
