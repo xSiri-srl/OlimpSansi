@@ -19,6 +19,7 @@ import GenerarOrdenPago from "./pages/OrdenPago/GenerarOrdenPago";
 import PanelDatos from "./pages/Administrador/PanelDatos";
 import DescargarListas from "./pages/Administrador/DescargarListas";
 import PreInscritos from "./pages/Administrador/PreInscritos";
+import InscritosVerificados from "./pages/Administrador/InscritosVerificados";
 import OrdenesPago from "./pages/Administrador/OrdenesPago";
 import Propuesta from "./pages/OrdenDePago/Propuesta";
 
@@ -85,6 +86,9 @@ export default function App() {
             />
             <Route path="/admin/preInscritos"
              element={<PreInscritos />}
+              />
+            <Route path="/admin/inscritos_verificados"
+             element={<InscritosVerificados />}
               />
             <Route path="/admin/ordenes-pago"
              element={<OrdenesPago />}

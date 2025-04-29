@@ -7,7 +7,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { HiArrowCircleRight } from "react-icons/hi";
 
-function DescargarListas() {
+function InscritosVerificados() {
   const [nombre, setNombre] = useState("");
   const [apellidoPaterno, setApellidoPaterno] = useState("");
   const [apellidoMaterno, setApellidoMaterno] = useState("");
@@ -25,10 +25,10 @@ function DescargarListas() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:8000/api/estudiantes/pre-inscritos")
+      .get("http://localhost:8000/api/estudiantes/pre-inscritos") // AQUI PONER LA LLAMADA
       .then((response) => {
-        setInscritos(response.data.estudiantes_no_pagados);
-        console.log("Inscritos:", response.data.estudiantes_no_pagados);
+        setInscritos(response.data.estudiantes_no_pagados); // CAMBIAR
+        console.log("Inscritos:", response.data.estudiantes_no_pagados); // CAMBIAR
       });
   }, []);
 
@@ -66,7 +66,7 @@ function DescargarListas() {
     setCargandoPDF(true);
 
     const doc = new jsPDF();
-    doc.text("Lista de pre-inscritos", 14, 10);
+    doc.text("Lista de inscritos verificados", 14, 10);
     autoTable(doc, {
       head: [
         [
@@ -116,41 +116,7 @@ function DescargarListas() {
 
   const generarNombreArchivo = (tipo) => {
     const fechaActual = new Date().toISOString().slice(0, 10); // formato YYYY-MM-DD
-    let nombreArchivo = "lista";
-    let filtrosActivos = false;
-  
-    // Verificar qué filtros están activos
-    if (nombre) {
-      nombreArchivo += "-nombre_" + nombre.toLowerCase();
-      filtrosActivos = true;
-    }
-    if (apellidoPaterno) {
-      nombreArchivo += "-ap_" + apellidoPaterno.toLowerCase();
-      filtrosActivos = true;
-    }
-    if (apellidoMaterno) {
-      nombreArchivo += "-am_" + apellidoMaterno.toLowerCase();
-      filtrosActivos = true;
-    }
-    if (carnetIdentidad) {
-      nombreArchivo += "-ci_" + carnetIdentidad;
-      filtrosActivos = true;
-    }
-    if (fechaNacimiento) {
-      nombreArchivo += "-fecha_" + fechaNacimiento;
-      filtrosActivos = true;
-    }
-    if (correo) {
-      nombreArchivo += "-email_" + correo.toLowerCase().replace("@", "_").replace(/\./g, "_");
-      filtrosActivos = true;
-    }
-  
-    // Si no hay filtros activos, usar "lista-completa"
-    if (!filtrosActivos) {
-      nombreArchivo = "lista-completa";
-    }
-  
-    return `${nombreArchivo}_${fechaActual}.${tipo}`;
+    return `estudiantes_${fechaActual}.${tipo}`; // CAMBIAR JEREMIAS
   };
 
   useEffect(() => {
@@ -184,7 +150,7 @@ function DescargarListas() {
 
     {/* Título centrado */}
     <h1 className="text-sky-950 font-bold text-3xl text-center">
-     Generar lista de pre-inscritos
+     Generar lista de inscritos verificados
     </h1>
 
       <div className="w-full max-w-5xl mx-auto mt-8 bg-sky-50 rounded-2xl shadow-lg">
@@ -462,4 +428,4 @@ function DescargarListas() {
   );
 }
 
-export default DescargarListas;
+export default InscritosVerificados;
