@@ -439,7 +439,7 @@ const PanelDatos = () => {
           <MapaBolivia darkMode={darkMode} />
         </div>
 
-        {/* Sección inferior con información adicional */}
+        {/* Sección inferior con información adicional 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div
             className={`${
@@ -474,7 +474,7 @@ const PanelDatos = () => {
               Aquí se mostraría una tabla con las inscripciones más recientes
             </p>
           </div>
-        </div>
+        </div>*/}
       </div>
     </div>
   );

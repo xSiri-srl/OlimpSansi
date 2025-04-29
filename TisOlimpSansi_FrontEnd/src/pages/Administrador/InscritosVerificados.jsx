@@ -25,10 +25,10 @@ function InscritosVerificados() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:8000/api/estudiantes/pre-inscritos") // AQUI PONER LA LLAMADA
+      .get("http://localhost:8000/api/estudiantes/inscritos") // AQUI PONER LA LLAMADA
       .then((response) => {
-        setInscritos(response.data.estudiantes_no_pagados); // CAMBIAR
-        console.log("Inscritos:", response.data.estudiantes_no_pagados); // CAMBIAR
+        setInscritos(response.data.estudiantes_que_pagaron); // CAMBIAR
+        console.log("Inscritos:", response.data.estudiantes_que_pagaron); // CAMBIAR
       });
   }, []);
 
@@ -150,7 +150,7 @@ function InscritosVerificados() {
 
     {/* Título centrado */}
     <h1 className="text-sky-950 font-bold text-3xl text-center">
-     Generar lista de inscritos verificados
+     Lista de Inscritos Verificados
     </h1>
 
       <div className="w-full max-w-5xl mx-auto mt-8 bg-sky-50 rounded-2xl shadow-lg">

@@ -264,7 +264,7 @@ class InscripcionController extends Controller
 
                 $categoria = CategoriaModel::firstOrCreate([
                     'id_area'          => $area->id,
-                    'nombre_categoria' => $areaData['categoria'] ?? 'General'
+                    'nombre_categoria' => $areaData['categoria']
                 ]);
 
                 $tutorInfo = collect($data['tutores_academicos'])
