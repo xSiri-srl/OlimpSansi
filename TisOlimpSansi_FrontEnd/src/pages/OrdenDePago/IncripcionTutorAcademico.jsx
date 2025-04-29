@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FaUser, FaIdCard, FaEnvelope, FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { useFormData } from "./form-data-context";
+import axios from "axios";
 
 export default function FormularioTutoresAcademicos({
   formData,
@@ -13,10 +14,68 @@ export default function FormularioTutoresAcademicos({
   const [expandedAreas, setExpandedAreas] = useState({});
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [searchingTutores, setSearchingTutores] = useState({});
+  const [tutoresEncontrados, setTutoresEncontrados] = useState({});
   
   // Obtener las áreas del contexto global
   const areasCompetencia = globalData.areas_competencia || [];
   
+  const buscarTutorPorCI = async (ci, area) => {
+    if (ci?.length >= 7) {
+      setSearchingTutores(prev => ({
+        ...prev,
+        [area]: true
+      }));
+      
+      try {
+        const apiUrl = `http://localhost:8000/api/buscarTutor/${ci}`;
+        console.log(`Buscando tutor para ${area} con CI: ${ci}`);
+        
+        const response = await axios.get(apiUrl);
+        
+        if (response.data.found) {
+          const tutor = response.data.tutor;
+          
+          // Actualizar los datos del tutor para esta área
+          setTutoresPorArea(prev => ({
+            ...prev,
+            [area]: {
+              ...prev[area],
+              apellidoPaterno: tutor.apellido_pa || "",
+              apellidoMaterno: tutor.apellido_ma || "",
+              nombres: tutor.nombre || "",
+              correo: tutor.correo || "",
+              ci: tutor.ci
+            }
+          }));
+          
+          // Marcar como encontrado
+          setTutoresEncontrados(prev => ({
+            ...prev,
+            [area]: true
+          }));
+          
+          console.log("Tutor encontrado:", tutor);
+        } else {
+          setTutoresEncontrados(prev => ({
+            ...prev,
+            [area]: false
+          }));
+        }
+      } catch (error) {   
+        console.error("Error al buscar tutor:", error);
+        setErrors(prev => ({
+          ...prev,
+          [`${area}-ci`]: "Error al buscar en la base de datos. Intente de nuevo."
+        }));
+      } finally {
+        setSearchingTutores(prev => ({
+          ...prev,
+          [area]: false
+        }));
+      }
+    }
+  };     
   // Inicializar el estado cuando se cargan las áreas
   useEffect(() => {
     const initialState = {};
@@ -136,6 +195,17 @@ export default function FormularioTutoresAcademicos({
       ...prev,
       [`${area}-${field}`]: ""
     }));
+    
+    // Si el campo es CI y tiene 7-8 dígitos, buscar en la base de datos
+    if (field === "ci" && value.length >= 7 && value.length <= 8) {
+      buscarTutorPorCI(value, area);
+    } else if (field === "ci" && value.length < 7) {
+      // Resetear estado de encontrado si el CI es demasiado corto
+      setTutoresEncontrados(prev => ({
+        ...prev,
+        [area]: false
+      }));
+    }
   };
   
   const validateInput = (area, field, value, regex) => {
@@ -320,6 +390,47 @@ export default function FormularioTutoresAcademicos({
                 </div>
                 
                 <div className="space-y-4">
+                  {/* Carnet de Identidad (Ahora es el primer campo) */}
+                  <div>
+                    <label className="flex items-center gap-2">
+                      <FaIdCard className="text-black" /> Carnet de Identidad
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        className="mt-1 p-2 w-full border rounded-md"
+                        placeholder="Número de Carnet de Identidad"
+                        value={tutoresPorArea[area.nombre_area]?.ci || ""}
+                        onChange={(e) => handleFormChange(
+                          area.nombre_area,
+                          "ci",
+                          e.target.value,
+                          /^[0-9]*$/
+                        )}
+                        maxLength="8"
+                      />
+                      <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
+                        {searchingTutores[area.nombre_area] && (
+                          <span className="text-blue-500 text-sm">Buscando...</span>
+                        )}
+                        {tutoresEncontrados[area.nombre_area] && (
+                          <span className="text-green-500 text-sm">✓ Encontrado</span>
+                        )}
+                      </div>
+                    </div>
+                    {errors[`${area.nombre_area}-ci`] && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors[`${area.nombre_area}-ci`]}
+                      </p>
+                    )}
+                    
+                    {tutoresEncontrados[area.nombre_area] && (
+                      <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded mt-2 text-sm">
+                        Tutor encontrado en el sistema. Los datos han sido cargados automáticamente.
+                      </div>
+                    )}
+                  </div>
+                  
                   <div className="flex gap-4">
                     <div className="w-full">
                       <label className="flex items-center gap-2">
@@ -390,52 +501,6 @@ export default function FormularioTutoresAcademicos({
                     {errors[`${area.nombre_area}-nombres`] && (
                       <p className="text-red-500 text-sm mt-1">
                         {errors[`${area.nombre_area}-nombres`]}
-                      </p>
-                    )}
-                  </div>
-                  
-                  <div>
-                    <label className="flex items-center gap-2">
-                      <FaIdCard className="text-black" /> Carnet de Identidad
-                    </label>
-                    <input
-                      type="text"
-                      className="mt-1 p-2 w-full border rounded-md"
-                      placeholder="Número de Carnet de Identidad"
-                      value={tutoresPorArea[area.nombre_area]?.ci || ""}
-                      onChange={(e) => handleFormChange(
-                        area.nombre_area,
-                        "ci",
-                        e.target.value,
-                        /^[0-9]*$/
-                      )}
-                      maxLength="8"
-                    />
-                    {errors[`${area.nombre_area}-ci`] && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {errors[`${area.nombre_area}-ci`]}
-                      </p>
-                    )}
-                  </div>
-                  
-                  <div>
-                    <label className="flex items-center gap-2">
-                      <FaEnvelope className="text-black" /> Correo Electrónico
-                    </label>
-                    <input
-                      type="email"
-                      className="mt-1 p-2 w-full border rounded-md"
-                      placeholder="Correo Electrónico"
-                      value={tutoresPorArea[area.nombre_area]?.correo || ""}
-                      onChange={(e) => handleFormChange(
-                        area.nombre_area,
-                        "correo",
-                        e.target.value
-                      )}
-                    />
-                    {errors[`${area.nombre_area}-correo`] && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {errors[`${area.nombre_area}-correo`]}
                       </p>
                     )}
                   </div>
