@@ -391,6 +391,28 @@ public function listarInscritos()
     }
 
 
+    public function contarInscritos()
+    {
+        $estudiantes = DB::table('inscripcion')
+            ->join('orden_pagos', 'inscripcion.id_orden_pago', '=', 'orden_pagos.id')
+            ->join('estudiante', 'inscripcion.id_estudiante', '=', 'estudiante.id')
+            ->whereNotNull('orden_pagos.fecha_subida_imagen_comprobante')
+            ->select(
+                'estudiante.nombre',
+                'estudiante.apellido_pa',
+                'estudiante.apellido_ma',
+                'estudiante.ci as carnet_identidad',
+                DB::raw("DATE(estudiante.fecha_nacimiento) as fecha_nacimiento"),
+                'estudiante.correo',
+                'estudiante.propietario_correo'
+            )
+            ->distinct()
+            ->get();
+
+        return response()->json([
+            'estudiantes_que_pagaron' => $estudiantes
+        ]);
+    }
         
 
 }
