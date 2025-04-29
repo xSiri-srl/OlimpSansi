@@ -37,13 +37,13 @@ Route::controller(ResponsableInscripcionController::class)->group(function(){
 
 //registrarTutorLegal
 Route::controller(TutorLegalController::class)->group(function(){
-
     Route::get('/tutoresLegales', [TutorLegalController::class, 'index']);
     Route::post('/agregarTutorLegal', [TutorLegalController::class, 'store']);
     Route::get('/tutorLegal/{id}', [TutorLegalController::class, 'show']);
     Route::put('/actualizarTutorLegal/{id}', [TutorLegalController::class, 'update']);
     Route::delete('/eliminarTutorLegal/{id}', [TutorLegalController::class, 'destroy']);
-});  
+    Route::get('/buscarTutorLegal/{ci}', [TutorLegalController::class, 'buscarTutorLegal']); // Añadir esta línea
+}); 
 //registrarTutorAcademico
 Route::controller(TutorAcademicoController::class)->group(function(){
 
@@ -52,7 +52,7 @@ Route::controller(TutorAcademicoController::class)->group(function(){
     Route::get('/tutorAcademico/{id}', [TutorAcademicoController::class, 'show']);
     Route::put('/actualizarTutorAcademico/{id}', [TutorAcademicoController::class, 'update']);
     Route::delete('/eliminarTutorAcademico/{id}', [TutorAcademicoController::class, 'destroy']);
-    
+    Route::get('/buscarTutor/{ci}', [TutorAcademicoController::class, 'buscarTutor']); 
 });
 
 //SeleccionarAreasCompetencia
@@ -137,6 +137,8 @@ Route::get('/lista-inscritos', [InscripcionController::class, 'listarInscritos']
 
 Route::get('/ordenes-recientes', [OrdenPagoController::class, 'obtenerOrdenesConResponsable']);
 
+
+
 Route::post('/colegios/filtro', [ColegioController::class, 'getByFiltro']);
 
 Route::get('/buscarEstudiante/{ci}', [EstudianteController::class, 'buscarEstudiante']);
@@ -155,3 +157,5 @@ Route::get('/estudiantes/pre-inscritos', [InscripcionController::class, 'contarP
 
 
 Route::get('/orden-de-pago/info', [OrdenPagoController::class, 'getInfOrdenesDePago']);
+
+Route::get('/orden-pago-existe/{codigo}', [OrdenPagoController::class, 'ordenPagoExiste']);

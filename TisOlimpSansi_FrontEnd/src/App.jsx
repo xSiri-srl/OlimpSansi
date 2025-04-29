@@ -59,7 +59,7 @@ export default function App() {
             />
             <Route path="/inscripcion/propuesta" element={<Propuesta />} />
             {/* ORDEN DE PAGO GENERADA */}
-            <Route path="/ordenDePago" element={<OrdenPago />} />
+            <Route path="/orden-pago" element={<OrdenPago />} />
             <Route path="/generar-orden-pago" element={<GenerarOrdenPago />} />
             {/* COMPROBANTE */}
             <Route path="/SubirComprobante" element={<SubirComprobante />} />

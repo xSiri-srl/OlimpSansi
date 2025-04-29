@@ -63,6 +63,24 @@ class TutorAcademicoController extends Controller
             'message' => 'Tutor academico actualizado exitosamente',
         ]);
     }
+    public function buscarTutor($ci)
+{
+    $tutor = TutorAcademicoModel::where('ci', $ci)->first();
+    
+    if ($tutor) {
+        return response()->json([
+            'status' => 200,
+            'found' => true,
+            'tutor' => $tutor
+        ]);
+    } else {
+        return response()->json([
+            'status' => 404,
+            'found' => false,
+            'message' => 'No se encontró ningún tutor académico con ese CI'
+        ]);
+    }
+}
 
     public function destroy($id)
     {

@@ -7,6 +7,12 @@ import useColegioData from "./hooks/useColegioData";
 import axios from "axios";
 import { CURSOS } from "./constants";
 
+const transformarFormatoCurso = (curso) => {
+  if (!curso) return "";
+  
+  // Convertir a mayúsculas y eliminar la palabra "DE"
+  return curso.toUpperCase().replace(/\sDE\s/i, " ");
+};
 export default function InscripcionEstudiante({
   formData,
   handleInputChange,
@@ -198,6 +204,10 @@ const buscarEstudiantePorCI = async (ci) => {
     setIsSubmitting(true);
 
     try {
+      // Transformar el formato del curso antes de guardarlo
+      const cursoFormateado = transformarFormatoCurso(formData.estudiante?.curso);
+      console.log(`Curso original: "${formData.estudiante?.curso}" → Formateado: "${cursoFormateado}"`);
+      
       const updatedData = {
         ...globalData,
         estudiante: {
@@ -213,7 +223,7 @@ const buscarEstudiantePorCI = async (ci) => {
           nombre_colegio: formData.estudiante?.colegio,
           departamento: formData.estudiante?.departamentoSeleccionado,
           distrito: formData.estudiante?.distrito,
-          curso: formData.estudiante?.curso,
+          curso: cursoFormateado, // Usar el curso formateado
           es_nuevo: colegioData.esNuevoColegio,
         },
       };
