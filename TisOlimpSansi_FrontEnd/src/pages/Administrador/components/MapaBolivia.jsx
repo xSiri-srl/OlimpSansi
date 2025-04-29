@@ -65,66 +65,71 @@ const MapaBolivia = ({ darkMode }) => {
   const [inscripcionesPorDepartamento, setInscripcionesPorDepartamento] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [tipoInscripcion, setTipoInscripcion] = useState("inscritos"); // inscritos o preinscritos
   
   const API_BASE_URL = "http://localhost:8000/api";
   
   useEffect(() => {
-    const fetchDepartamentoData = async () => {
-      try {
-        setLoading(true);
-        
-        // Lista de departamentos de Bolivia
-        const departamentos = [
-          "La Paz", 
-          "Cochabamba", 
-          "Santa Cruz", 
-          "Oruro", 
-          "Potosí", 
-          "Chuquisaca", 
-          "Tarija", 
-          "Beni", 
-          "Pando"
-        ];
-        
-        // Mapeo de nombres de departamentos a IDs usados en el componente
-        const departamentoToId = {
-          "La Paz": "BOL.LA_PAZ",
-          "Cochabamba": "BOL.COCHABAMBA",
-          "Santa Cruz": "BOL.SANTA_CRUZ",
-          "Oruro": "BOL.ORURO",
-          "Potosí": "BOL.POTOSI",
-          "Chuquisaca": "BOL.CHUQUISACA",
-          "Tarija": "BOL.TARIJA",
-          "Beni": "BOL.BENI",
-          "Pando": "BOL.PANDO"
-        };
-        
-        // Hacer solicitudes para cada departamento
-        const promises = departamentos.map(async (departamento) => {
-          // Ahora solicitamos específicamente estudiantes INSCRITOS por departamento (con comprobante verificado)
-          const response = await axios.post(
-            `${API_BASE_URL}/estudiantes/inscritos/bydepartamento`, 
-            { departamento }
-          );
-          
-          return {
-            id: departamentoToId[departamento],
-            value: response.data.cantidad_estudiantes
-          };
-        });
-        
-        const resultados = await Promise.all(promises);
-        setInscripcionesPorDepartamento(resultados);
-      } catch (err) {
-        console.error("Error al cargar datos de departamentos:", err);
-        setError("No se pudieron cargar los datos de inscripciones por departamento");
-      } finally {
-        setLoading(false);
-      }
-    };
-    
     fetchDepartamentoData();
-  }, []);
+  }, [tipoInscripcion]); // Re-fetch cuando cambia el tipo de inscripción
+  
+  const fetchDepartamentoData = async () => {
+    try {
+      setLoading(true);
+      
+      // Lista de departamentos de Bolivia
+      const departamentos = [
+        "La Paz", 
+        "Cochabamba", 
+        "Santa Cruz", 
+        "Oruro", 
+        "Potosí", 
+        "Chuquisaca", 
+        "Tarija", 
+        "Beni", 
+        "Pando"
+      ];
+      
+      // Mapeo de nombres de departamentos a IDs usados en el componente
+      const departamentoToId = {
+        "La Paz": "BOL.LA_PAZ",
+        "Cochabamba": "BOL.COCHABAMBA",
+        "Santa Cruz": "BOL.SANTA_CRUZ",
+        "Oruro": "BOL.ORURO",
+        "Potosí": "BOL.POTOSI",
+        "Chuquisaca": "BOL.CHUQUISACA",
+        "Tarija": "BOL.TARIJA",
+        "Beni": "BOL.BENI",
+        "Pando": "BOL.PANDO"
+      };
+      
+      // Seleccionar endpoint según tipo de inscripción
+      const endpoint = tipoInscripcion === "inscritos" 
+        ? "/estudiantes/inscritos/bydepartamento"
+        : "/estudiantes/preinscritos/bydepartamento";
+      
+      // Hacer solicitudes para cada departamento
+      const promises = departamentos.map(async (departamento) => {
+        const response = await axios.post(
+          `${API_BASE_URL}${endpoint}`, 
+          { departamento }
+        );
+        
+        return {
+          id: departamentoToId[departamento],
+          value: response.data.cantidad_estudiantes
+        };
+      });
+      
+      const resultados = await Promise.all(promises);
+      setInscripcionesPorDepartamento(resultados);
+    } catch (err) {
+      console.error("Error al cargar datos de departamentos:", err);
+      setError("No se pudieron cargar los datos de inscripciones por departamento");
+    } finally {
+      setLoading(false);
+    }
+  };
   
   if (loading) {
     return (
@@ -150,10 +155,41 @@ const MapaBolivia = ({ darkMode }) => {
   }
 
   return (
-    <div className="h-[400px] w-full">
+    <div className="h-[450px] w-full">
       <div className={`${darkMode ? "text-white" : "text-gray-800"} text-center mb-4`}>
-        <h3 className="text-xl font-semibold">Distribución de Inscritos por Departamento</h3>
-        <p className="text-sm text-gray-500">(Estudiantes con pago verificado)</p>
+        <h3 className="text-xl font-semibold">Distribución de Estudiantes por Departamento</h3>
+        
+        {/* Toggle para cambiar entre inscritos y pre-inscritos */}
+        <div className="flex justify-center mt-2 mb-3">
+          <div className={`inline-flex rounded-md shadow-sm ${darkMode ? "bg-gray-700" : "bg-gray-200"}`} role="group">
+            <button
+              type="button"
+              className={`px-4 py-2 text-sm font-medium rounded-l-lg focus:z-10 
+                ${tipoInscripcion === "inscritos" 
+                  ? (darkMode ? "bg-blue-600 text-white" : "bg-blue-500 text-white") 
+                  : (darkMode ? "text-gray-300 hover:bg-gray-600" : "text-gray-700 hover:bg-gray-300")}`}
+              onClick={() => setTipoInscripcion("inscritos")}
+            >
+              Inscritos
+            </button>
+            <button
+              type="button"
+              className={`px-4 py-2 text-sm font-medium rounded-r-lg focus:z-10
+                ${tipoInscripcion === "preinscritos" 
+                  ? (darkMode ? "bg-blue-600 text-white" : "bg-blue-500 text-white") 
+                  : (darkMode ? "text-gray-300 hover:bg-gray-600" : "text-gray-700 hover:bg-gray-300")}`}
+              onClick={() => setTipoInscripcion("preinscritos")}
+            >
+              Pre-inscritos
+            </button>
+          </div>
+        </div>
+        
+        <p className="text-sm text-gray-500">
+          {tipoInscripcion === "inscritos" 
+            ? "(Estudiantes con pago verificado)" 
+            : "(Estudiantes con orden de pago generada, sin pago verificado)"}
+        </p>
       </div>
       
       {/* Mapa simplificado de Bolivia */}
@@ -163,16 +199,21 @@ const MapaBolivia = ({ darkMode }) => {
           const nombreDep = boliviaGeoFeatures.features.find(f => f.id === dept.id)?.properties?.name || "";
           
           // Encontrar el valor máximo para normalizar la intensidad
-          const maxValue = Math.max(...inscripcionesPorDepartamento.map(d => d.value));
+          const maxValue = Math.max(...inscripcionesPorDepartamento.map(d => d.value), 1);
           
           // Normalizar la intensidad basada en el valor máximo (mínimo 20%, máximo 100%)
           const intensity = maxValue > 0 
             ? Math.min(100, Math.max(20, (dept.value / maxValue) * 100))
             : 20; // Valor por defecto si no hay inscritos
             
+          // Color según tipo de inscripción
+          const colorBase = tipoInscripcion === "inscritos" 
+            ? "rgba(37, 99, 235, " // Azul para inscritos
+            : "rgba(234, 88, 12, "; // Naranja para pre-inscritos
+            
           const bgColor = darkMode 
-            ? `rgba(59, 130, 246, ${intensity/100})` 
-            : `rgba(37, 99, 235, ${intensity/100})`;
+            ? (tipoInscripcion === "inscritos" ? `rgba(59, 130, 246, ${intensity/100})` : `rgba(249, 115, 22, ${intensity/100})`)
+            : (colorBase + intensity/100 + ")");
           
           return (
             <div 
@@ -187,7 +228,7 @@ const MapaBolivia = ({ darkMode }) => {
                 {dept.value}
               </p>
               <p className={`text-xs ${darkMode ? "text-gray-300" : "text-gray-600"}`}>
-                Inscritos
+                {tipoInscripcion === "inscritos" ? "Inscritos" : "Pre-inscritos"}
               </p>
             </div>
           );
@@ -196,16 +237,28 @@ const MapaBolivia = ({ darkMode }) => {
       
       <div className={`flex justify-center mt-4 ${darkMode ? "text-gray-400" : "text-gray-500"}`}>
         <div className="flex items-center">
-          <div className="w-4 h-4 bg-blue-100 mr-1"></div>
+          <div className="w-4 h-4" 
+               style={{ 
+                 backgroundColor: tipoInscripcion === "inscritos" ? "#DBEAFE" : "#FFEDD5" 
+               }}></div>
           <span className="mr-3 text-xs">Pocos</span>
           
-          <div className="w-4 h-4 bg-blue-300 mr-1"></div>
+          <div className="w-4 h-4" 
+               style={{ 
+                 backgroundColor: tipoInscripcion === "inscritos" ? "#93C5FD" : "#FED7AA" 
+               }}></div>
           <span className="mr-3 text-xs">Moderados</span>
           
-          <div className="w-4 h-4 bg-blue-500 mr-1"></div>
+          <div className="w-4 h-4" 
+               style={{ 
+                 backgroundColor: tipoInscripcion === "inscritos" ? "#3B82F6" : "#F97316" 
+               }}></div>
           <span className="mr-3 text-xs">Muchos</span>
           
-          <div className="w-4 h-4 bg-blue-700 mr-1"></div>
+          <div className="w-4 h-4" 
+               style={{ 
+                 backgroundColor: tipoInscripcion === "inscritos" ? "#1D4ED8" : "#C2410C" 
+               }}></div>
           <span className="text-xs">Máximos</span>
         </div>
       </div>
