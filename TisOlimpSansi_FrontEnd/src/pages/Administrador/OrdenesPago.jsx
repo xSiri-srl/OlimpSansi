@@ -155,7 +155,7 @@ function OrdenesPago() {
 
     {/* Título centrado */}
     <h1 className="text-sky-950 font-bold text-3xl text-center">
-    Generar órdenes de pago
+    Lista de Ordenes de Pago
     </h1>
 
       <div className="w-full max-w-5xl mx-auto mt-8 bg-sky-50 rounded-2xl shadow-lg">

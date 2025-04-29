@@ -174,7 +174,7 @@ const Confirmation = ({ navigate, handleBack }) => {
             </div>
             <div>
               <p className="text-sm text-gray-500">Curso</p>
-              <p className="font-medium">{globalData.colegio?.curso || ""}</p>
+              <p className="font-medium uppercase">{globalData.colegio?.curso || ""}</p>
             </div>
             <div>
               <p className="text-sm text-gray-500">Departamento</p>
