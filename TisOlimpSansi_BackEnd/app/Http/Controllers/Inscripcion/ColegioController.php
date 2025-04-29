@@ -177,5 +177,22 @@ class ColegioController extends Controller
         'cantidad_estudiantes' => $cantidad
     ]);
 }
+public function contarPreinscritosPorDepartamento(Request $request)
+{
+    $departamento = $request->input('departamento');
+
+    $cantidad = DB::table('estudiante')
+        ->join('colegio', 'estudiante.id_unidad', '=', 'colegio.id')
+        ->join('inscripcion', 'estudiante.id', '=', 'inscripcion.id_estudiante')
+        ->join('orden_pagos', 'inscripcion.id_orden_pago', '=', 'orden_pagos.id')
+        ->where('colegio.departamento', $departamento)
+        ->whereNull('orden_pagos.comprobante_url') // Sin comprobante
+        ->whereNotNull('orden_pagos.orden_pago_url') // Con orden de pago generada
+        ->count();
+
+    return response()->json([
+        'cantidad_estudiantes' => $cantidad
+    ]);
+}
     
 }
