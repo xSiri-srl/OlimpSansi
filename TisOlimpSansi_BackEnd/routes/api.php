@@ -154,6 +154,7 @@ Route::post('/estudiantes/byCategoriaArea', [ColegioController::class, 'filtrarP
 
 //contar preinscritos
 Route::get('/estudiantes/pre-inscritos', [InscripcionController::class, 'contarPreinscritos']);
+Route::get('/estudiantes/inscritos', [InscripcionController::class, 'contarInscritos']);
 
 
 Route::get('/orden-de-pago/info', [OrdenPagoController::class, 'getInfOrdenesDePago']);
