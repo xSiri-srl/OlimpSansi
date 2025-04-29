@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react"
-import { useLocation } from "react-router-dom"
-import { useNavigate } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom"
 import { FaDownload, FaPrint, FaMapMarkerAlt, FaCopy, FaYoutube } from "react-icons/fa"
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet"
 import axios from "axios"
@@ -11,6 +10,7 @@ import L from "leaflet"
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png"
 import markerIcon from "leaflet/dist/images/marker-icon.png"
 import markerShadow from "leaflet/dist/images/marker-shadow.png"
+
 delete L.Icon.Default.prototype._getIconUrl
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: markerIcon2x,
@@ -25,6 +25,9 @@ const OrdenPago = () => {
   const ubicacionCaja = [-17.3934698, -66.1448631]
 
   useEffect(() => {
+    // Hacer scroll al inicio de la página al cargar el componente
+    window.scrollTo({ top: 0, behavior: "smooth" })
+
     if (state?.codigoGenerado) {
       setCodigo(state.codigoGenerado)
     }
@@ -33,24 +36,6 @@ const OrdenPago = () => {
   const handleCopyCode = () => {
     navigator.clipboard.writeText(codigo)
     alert("Código copiado al portapapeles")
-  }
-
-  const handleDownload = async () => {
-    try {
-      const response = await axios.get(`http://localhost:8000/api/orden-pago/${codigo}`, {
-        responseType: "blob",
-      })
-      const url = window.URL.createObjectURL(new Blob([response.data]))
-      const link = document.createElement("a")
-      link.href = url
-      link.setAttribute("download", `orden_pago_${codigo}.pdf`)
-      document.body.appendChild(link)
-      link.click()
-      link.remove()
-    } catch (error) {
-      console.error("Error descargando PDF:", error)
-      alert("Error al descargar la orden de pago")
-    }
   }
 
   return (
@@ -65,18 +50,18 @@ const OrdenPago = () => {
 
       {/* Código generado */}
       <div className="text-center">
-        <h2 className="text-xl font-bold text-gray-800 mb-3">GUARDE ESTE CÓDIGO DE ORDEN</h2>
+        <h2 className="text-xl font-bold text-gray-800 mb-3">GUARDE Y RECUERDE ESTE CÓDIGO DE ORDEN</h2>
         <div className="inline-flex items-center space-x-3 bg-blue-100 border-2 border-blue-500 rounded-full px-6 py-3 shadow-md">
           <span className="text-lg font-mono tracking-widest text-blue-900">{codigo}</span>
           <button
             onClick={handleCopyCode}
-            className="text-blue-700 hover:text-blue-900 transition-colors"
+            className="text-gray-600 hover:text-blue-600 transition-colors"
             title="Copiar código"
           >
             <FaCopy className="text-xl" />
           </button>
         </div>
-        <p className="text-sm text-gray-500 mt-2">Lo necesitará para subir su comprobante de pago.</p>
+        <p className="text-sm text-gray-500 mt-2">Lo necesitará para generar su orden de pago y subir su comprobante de pago.</p>
       </div>
 
       {/* Instrucciones */}
@@ -84,31 +69,28 @@ const OrdenPago = () => {
         <h3 className="text-2xl font-extrabold text-yellow-800 mb-6">Siga estos pasos:</h3>
         <div className="space-y-6">
 
-        <div className="flex items-start">
-  <span className="bg-blue-500 font-bold text-white px-3 py-1 rounded-full mr-4">1</span>
-  <div className="flex-1">
-    <h4 className="font-semibold text-gray-800">Cuando ya haya copiado el codigo generado</h4>
-    <p className="text-sm text-gray-600">
-      Rediríjase a la pestaña <strong>"Generar Orden de pago"</strong>.
-    </p>
-    <div className="flex justify-center mt-4 w-full">
-      <img
-        src="/images/generar.png"
-        alt="ejemplo_Navbar"
-        className="h-25 w-auto rounded-lg shadow"
-      />
-    </div>
-  </div>
-</div>
-
+          <div className="flex items-start">
+            <span className="bg-blue-500 font-bold text-white px-3 py-1 rounded-full mr-4">1</span>
+            <div className="flex-1">
+              <h4 className="font-semibold text-gray-800">Una vez que haya copiado el código generado</h4>
+              <p className="text-sm text-gray-600">
+                Rediríjase a la pestaña <strong>"Generar Orden de pago"</strong>.
+              </p>
+              <div className="flex justify-center mt-4 w-full">
+                <img
+                  src="/images/generar.png"
+                  alt="ejemplo_Navbar"
+                  className="h-25 w-auto rounded-lg shadow"
+                />
+              </div>
+            </div>
+          </div>
 
           <div className="flex items-start">
             <span className="bg-blue-500 font-bold text-white px-3 py-1 rounded-full mr-4">2</span>
             <div>
               <h4 className="font-semibold text-gray-800">Imprima la orden de pago</h4>
               <p className="text-sm text-gray-600">Lleve el documento para realizar el pago en Caja Facultativa.</p>
-             
-              
             </div>
           </div>
 
@@ -138,22 +120,23 @@ const OrdenPago = () => {
               </p>
             </div>
           </div>
+
           <div className="flex items-start">
-  <span className="bg-blue-500 font-bold text-white px-3 py-1 rounded-full mr-4">4</span>
-  <div className="flex-1">
-    <h4 className="font-semibold text-gray-800">Cuando ya haya pagado</h4>
-    <p className="text-sm text-gray-600">
-      Rediríjase a la pestaña <strong>"Subir comprobante"</strong>.
-    </p>
-    <div className="flex justify-center mt-4 w-full">
-      <img
-        src="/images/navbar.png"
-        alt="ejemplo_Navbar"
-        className="h-25 w-auto rounded-lg shadow"
-      />
-    </div>
-  </div>
-</div>
+            <span className="bg-blue-500 font-bold text-white px-3 py-1 rounded-full mr-4">4</span>
+            <div className="flex-1">
+              <h4 className="font-semibold text-gray-800">Una vez que haya realizado el pago</h4>
+              <p className="text-sm text-gray-600">
+                Rediríjase a la pestaña <strong>"Subir comprobante"</strong>.
+              </p>
+              <div className="flex justify-center mt-4 w-full">
+                <img
+                  src="/images/navbar.png"
+                  alt="ejemplo_Navbar"
+                  className="h-25 w-auto rounded-lg shadow"
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -161,9 +144,9 @@ const OrdenPago = () => {
       <p className="text-center text-sm text-gray-500">
         Una vez realizado el pago, vuelva a esta plataforma para subir el comprobante.
       </p>
-  
-       {/* Botón para continuar */}
-       <div className="flex justify-center mt-6">
+
+      {/* Botón para continuar */}
+      <div className="flex justify-center mt-6">
         <button
           onClick={() => navigate("/")}
           className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition-all"
@@ -172,7 +155,6 @@ const OrdenPago = () => {
         </button>
       </div>
     </div>
-    
   )
 }
 
