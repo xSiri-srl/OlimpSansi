@@ -162,3 +162,5 @@ Route::get('/orden-de-pago/info', [OrdenPagoController::class, 'getInfOrdenesDeP
 Route::get('/orden-pago-existe/{codigo}', [OrdenPagoController::class, 'ordenPagoExiste']);
 Route::post('/estudiantes/inscritos/bydepartamento', [ColegioController::class, 'contarInscritosPorDepartamento']);
 Route::post('/estudiantes/preinscritos/bydepartamento', [ColegioController::class, 'contarPreinscritosPorDepartamento']);
+Route::get('/inscripciones/por-area', [InscripcionController::class, 'inscripcionesPorArea']);
+Route::get('/inscripciones/por-categoria', [InscripcionController::class, 'inscripcionesPorCategoria']);

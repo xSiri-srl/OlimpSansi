@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@nivo/bar": "^0.92.0",
     "@nivo/core": "^0.89.1",
     "@nivo/geo": "^0.89.1",
     "@nivo/line": "^0.89.1",

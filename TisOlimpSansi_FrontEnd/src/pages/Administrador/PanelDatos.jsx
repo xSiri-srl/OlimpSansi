@@ -4,6 +4,7 @@ import StatisticsCards from "./components/StatisticsCards";
 import ChartsSection from "./components/ChartSection";
 import PieChartSection from "./components/PieChartSection";
 import MapSection from "./components/MapaSection";
+import GraficoCompararInscripciones from "./components/GraficoCompararInscripciones";
 import useDashboardData from "./hooks/useDashboardData";
 
 const PanelDatos = () => {
@@ -43,6 +44,7 @@ const PanelDatos = () => {
         <ChartsSection chartData={chartData} darkMode={darkMode} />
         <PieChartSection stats={stats} darkMode={darkMode} />
         <MapSection darkMode={darkMode} />
+        <GraficoCompararInscripciones darkMode={darkMode} />
       </div>
     </div>
   );
