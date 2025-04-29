@@ -64,15 +64,15 @@ const boliviaGeoFeatures = {
 const MapaBolivia = ({ darkMode }) => {
   
   const inscripcionesPorDepartamento = [
-    { id: "BOL.LA_PAZ", value: 128 },
-    { id: "BOL.COCHABAMBA", value: 93 },
-    { id: "BOL.SANTA_CRUZ", value: 143 },
-    { id: "BOL.ORURO", value: 42 },
-    { id: "BOL.POTOSI", value: 38 },
-    { id: "BOL.CHUQUISACA", value: 55 },
-    { id: "BOL.TARIJA", value: 47 },
-    { id: "BOL.BENI", value: 36 },
-    { id: "BOL.PANDO", value: 12 }
+    { id: "BOL.LA_PAZ", value: 2 },
+    { id: "BOL.COCHABAMBA", value: 12 },
+    { id: "BOL.SANTA_CRUZ", value: 10 },
+    { id: "BOL.ORURO", value: 0 },
+    { id: "BOL.POTOSI", value: 10 },
+    { id: "BOL.CHUQUISACA", value: 0 },
+    { id: "BOL.TARIJA", value: 0 },
+    { id: "BOL.BENI", value: 0 },
+    { id: "BOL.PANDO", value: 0 }
   ];
 
   return (
