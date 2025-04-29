@@ -413,6 +413,72 @@ public function listarInscritos()
             'estudiantes_que_pagaron' => $estudiantes
         ]);
     }
+
+public function inscripcionesPorArea()
+{
+    $areas = AreaModel::all();
+    $resultado = [];
+
+    foreach ($areas as $area) {
+        // Contar inscritos (con comprobante)
+        $inscritos = DB::table('inscripcion_area')
+            ->join('inscripcion', 'inscripcion_area.id_inscripcion', '=', 'inscripcion.id')
+            ->join('orden_pagos', 'inscripcion.id_orden_pago', '=', 'orden_pagos.id')
+            ->where('inscripcion_area.id_area', $area->id)
+            ->whereNotNull('orden_pagos.comprobante_url')
+            ->count();
+            
+        // Contar preinscritos (sin comprobante pero con orden de pago)
+        $preinscritos = DB::table('inscripcion_area')
+            ->join('inscripcion', 'inscripcion_area.id_inscripcion', '=', 'inscripcion.id')
+            ->join('orden_pagos', 'inscripcion.id_orden_pago', '=', 'orden_pagos.id')
+            ->where('inscripcion_area.id_area', $area->id)
+            ->whereNull('orden_pagos.comprobante_url')
+            ->whereNotNull('orden_pagos.orden_pago_url')
+            ->count();
+            
+        $resultado[] = [
+            'area' => $area->nombre_area,
+            'inscritos' => $inscritos,
+            'preinscritos' => $preinscritos
+        ];
+    }
+    
+    return response()->json($resultado);
+}
+
+public function inscripcionesPorCategoria()
+{
+    $categorias = CategoriaModel::with('area')->get();
+    $resultado = [];
+
+    foreach ($categorias as $categoria) {
+        // Contar inscritos (con comprobante)
+        $inscritos = DB::table('inscripcion_categoria')
+            ->join('inscripcion', 'inscripcion_categoria.id_inscripcion', '=', 'inscripcion.id')
+            ->join('orden_pagos', 'inscripcion.id_orden_pago', '=', 'orden_pagos.id')
+            ->where('inscripcion_categoria.id_categoria', $categoria->id)
+            ->whereNotNull('orden_pagos.comprobante_url')
+            ->count();
+            
+        // Contar preinscritos (sin comprobante pero con orden de pago)
+        $preinscritos = DB::table('inscripcion_categoria')
+            ->join('inscripcion', 'inscripcion_categoria.id_inscripcion', '=', 'inscripcion.id')
+            ->join('orden_pagos', 'inscripcion.id_orden_pago', '=', 'orden_pagos.id')
+            ->where('inscripcion_categoria.id_categoria', $categoria->id)
+            ->whereNull('orden_pagos.comprobante_url')
+            ->whereNotNull('orden_pagos.orden_pago_url')
+            ->count();
+            
+        $resultado[] = [
+            'categoria' => $categoria->nombre_categoria . ' (' . $categoria->area->nombre_area . ')',
+            'inscritos' => $inscritos,
+            'preinscritos' => $preinscritos
+        ];
+    }
+    
+    return response()->json($resultado);
+}
         
 
 }
