@@ -25,10 +25,10 @@ function InscritosVerificados() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:8000/api/estudiantes/pre-inscritos") // AQUI PONER LA LLAMADA
+      .get("http://localhost:8000/api/estudiantes/inscritos") // AQUI PONER LA LLAMADA
       .then((response) => {
-        setInscritos(response.data.estudiantes_no_pagados); // CAMBIAR
-        console.log("Inscritos:", response.data.estudiantes_no_pagados); // CAMBIAR
+        setInscritos(response.data.estudiantes_que_pagaron); // CAMBIAR
+        console.log("Inscritos:", response.data.estudiantes_que_pagaron); // CAMBIAR
       });
   }, []);
 
