@@ -88,4 +88,22 @@ class TutorLegalController extends Controller
             'message' => 'Tutor legal eliminado exitosamente',
         ]);
     }
+    public function buscarTutorLegal($ci)
+{
+    $tutorLegal = TutorLegalModel::where('ci', $ci)->first();
+    
+    if ($tutorLegal) {
+        return response()->json([
+            'status' => 200,
+            'found' => true,
+            'tutorLegal' => $tutorLegal
+        ]);
+    } else {
+        return response()->json([
+            'status' => 404,
+            'found' => false,
+            'message' => 'No se encontró ningún tutor legal con ese CI'
+        ]);
+    }
+}
 }
