@@ -65,10 +65,10 @@ const SubirConvocatoria = () => {
               <option value="">Selecciona un área</option>
               <option value="fisica">Física</option>
               <option value="quimica">Química</option>
-              <option value="quimica">Robotica</option>
-              <option value="quimica">Astronomia_Astrofisica</option>
+              <option value="quimica">Robótica</option>
+              <option value="quimica">Astronomia_Astrofísica</option>
               <option value="biologia">Biología</option>
-              <option value="biologia">Matematicas</option>
+              <option value="biologia">Matemáticas</option>
               <option value="informatica">Informática</option>
             </select>
           </div>
