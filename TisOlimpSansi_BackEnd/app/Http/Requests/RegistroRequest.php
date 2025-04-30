@@ -23,7 +23,7 @@ class RegistroRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string'],
-            'email' => ['required', 'email', 'unique:users,email'],
+            'email' => ['required', 'unique:users,email'],
             'password' => ['required']
         ];
     }
