@@ -1,64 +1,59 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
-const ProcesoRegistro = ({ 
-  steps, 
-  initialStep = 1, 
-  nextRoute, 
+const ProcesoRegistro = ({
+  steps,
+  initialStep = 1,
+  nextRoute,
   backRoute,
-  children 
+  children,
 }) => {
   const navigate = useNavigate();
   const [step, setStep] = useState(initialStep);
   const [hasFormData, setHasFormData] = useState(false);
 
   const [formData, setFormData] = useState({
-    flow: { 
+    flow: {
       redirectToProfesor: false,
       currentAreaIndex: 0,
       pendingAreas: [],
-      skipProfesor: false      
+      skipProfesor: false,
     },
-    profesores: { areasRegistradas: [] }
+    profesores: { areasRegistradas: [] },
   });
 
-  // Verificar si hay datos en el formulario para mostrar advertencia
   useEffect(() => {
     const checkFormData = () => {
-      const hasData = 
+      const hasData =
         formData.profesores.areasRegistradas.length > 0 ||
-        Object.values(formData.flow).some(val => {
-          if (typeof val === 'boolean' && val === true) return true;
-          if (typeof val === 'number' && val > 0) return true;
+        Object.values(formData.flow).some((val) => {
+          if (typeof val === "boolean" && val === true) return true;
+          if (typeof val === "number" && val > 0) return true;
           if (Array.isArray(val) && val.length > 0) return true;
           return false;
         });
-      
+
       setHasFormData(hasData);
     };
 
     checkFormData();
   }, [formData]);
 
-  // Configurar advertencia antes de recargar/cerrar
   useEffect(() => {
     const handleBeforeUnload = (e) => {
       if (hasFormData) {
         e.preventDefault();
-        e.returnValue = '¿Estás seguro? Los datos del formulario no se guardarán si sales de esta página.';
+        e.returnValue =
+          "¿Estás seguro? Los datos del formulario no se guardarán si sales de esta página.";
         return e.returnValue;
       }
     };
 
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [hasFormData]);
 
   const handleNext = () => {
-    // Simplificar la lógica de navegación
     if (step < steps.length) {
       setStep(step + 1);
     } else if (step === steps.length) {
@@ -85,48 +80,31 @@ const ProcesoRegistro = ({
   };
 
   return (
-    <div className="p-4 md:p-10">
-      <div className="max-w-4xl mx-auto bg-gray-200 p-4 md:p-7 shadow-lg rounded-lg">
-        {/* Stepper responsive */}
-        <div className="relative mb-8">
-          <div className="hidden sm:block absolute top-4 left-0 right-0 h-0.5 bg-gray-300">
-            <div 
-              className="h-full bg-blue-500 transition-all duration-300"
-              style={{ width: `${((step - 1) / (steps.length - 1)) * 100}%` }}
-            ></div>
-          </div>
-          
-          <div className="overflow-x-auto">
-            <div className="flex items-center justify-between min-w-max sm:min-w-0 sm:w-full px-2">
-              {steps.map((stepLabel, index) => (
-                <div key={index} className="flex flex-col items-center relative px-2 sm:px-0">
-                  <div
-                    className={`w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-full border-2 transition-all
-                      ${index + 1 < step 
-                        ? "bg-blue-500 text-white border-blue-500"
-                        : index + 1 === step
-                          ? "bg-blue-600 text-white border-blue-600"
-                          : "bg-white border-gray-400 text-gray-400"}
-                    `}
-                  >
-                    {index + 1}
-                  </div>
-                  
-                  <span
-                    className={`text-xs mt-2 text-center w-16 sm:w-20 md:w-24 transition-all
-                      ${index + 1 < step 
-                        ? "text-blue-500"
-                        : index + 1 === step
-                          ? "text-blue-600 font-medium"
-                          : "text-gray-400"}
-                    `}
-                  >
-                    {stepLabel}
-                  </span>
-                </div>
-              ))}
+    <div className="p-10">
+      <div className="max-w-4xl mx-auto bg-gray-200 p-9 shadow-lg rounded-lg">
+        <div className="flex items-center justify-between mb-6">
+          {steps.map((stepLabel, index) => (
+            <div key={index} className="flex flex-col items-center">
+              <div
+                className={`w-8 h-8 flex items-center justify-center rounded-full border-2 transition-all duration-300 ${
+                  index + 1 < step
+                    ? "bg-blue-500 text-white border-blue-500"
+                    : index + 1 === step
+                    ? "bg-blue-600 text-white border-blue-600"
+                    : "border-gray-400 text-gray-400 bg-gray"
+                }`}
+              >
+                {index + 1}
+              </div>
+              <span
+                className={`text-xs mt-2 text-center ${
+                  index + 1 === step ? "text-blue-600" : "text-gray-400"
+                }`}
+              >
+                {stepLabel}
+              </span>
             </div>
-          </div>
+          ))}
         </div>
 
         {React.Children.map(children, (child, index) => {
@@ -136,7 +114,7 @@ const ProcesoRegistro = ({
               handleInputChange,
               handleNext,
               handleBack,
-              navigate
+              navigate,
             });
           }
           return null;

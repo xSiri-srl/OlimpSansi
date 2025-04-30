@@ -4,26 +4,29 @@ import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { HiArrowCircleRight } from "react-icons/hi";
 
 function OrdenesPago() {
   const [estado, setEstado] = useState("");
 
   const [ordenesPago, setOrdenesPago] = useState([]);
   const [paginaActual, setPaginaActual] = useState(1);
-
+  const navigate = useNavigate();
   const [cargandoPDF, setCargandoPDF] = useState(false);
   const [cargandoExcel, setCargandoExcel] = useState(false);
   const [busqueda, setBusqueda] = useState("");
+  const [contadorNumeracion, setContadorNumeracion] = useState(1);
 
   useEffect(() => {
     axios
       .get("http://localhost:8000/api/orden-de-pago/info")
       .then((response) => {
         if (Array.isArray(response.data.ordenes)) {
-            setOrdenesPago(response.data.ordenes);
+          setOrdenesPago(response.data.ordenes);
         } else {
           console.error("Datos no son un arreglo:", response.data);
-            setOrdenesPago([]);
+          setOrdenesPago([]);
         }
       })
       .catch((error) => {
@@ -35,16 +38,18 @@ function OrdenesPago() {
       orden.nombre?.toLowerCase().includes(busqueda.toLowerCase()) ||
       orden.apellido_paterno?.toLowerCase().includes(busqueda.toLowerCase()) ||
       orden.apellido_materno?.toLowerCase().includes(busqueda.toLowerCase()) ||
-      String(orden.carnet_identidad)?.toLowerCase().includes(busqueda.toLowerCase()) ||
+      String(orden.carnet_identidad)
+        ?.toLowerCase()
+        .includes(busqueda.toLowerCase()) ||
       orden.codigo_generado?.toLowerCase().includes(busqueda.toLowerCase());
-  
+
     const coincideEstado =
       estado === "pagado"
         ? orden.estado_pago === 1
         : estado === "no_pagado"
         ? orden.estado_pago === 0
         : true; // Si estado no se ha seleccionado, mostrar todo
-  
+
     return coincideBusqueda && coincideEstado;
   });
 
@@ -59,13 +64,11 @@ function OrdenesPago() {
     indiceFinal
   );
 
-  
-
   const descargarPDF = () => {
     setCargandoPDF(true);
 
     const doc = new jsPDF();
-    doc.text("Lista de ordenesPago", 14, 10);
+    doc.text("Lista de ordenes de pago", 14, 10);
     autoTable(doc, {
       head: [
         [
@@ -87,18 +90,18 @@ function OrdenesPago() {
         item.apellido_materno,
         item.carnet_identidad,
         item.monto_total,
-        item.estado_pago === 1 ? "Pagado" : "No pagado"
+        item.estado_pago === 1 ? "Pagado" : "No pagado",
       ]),
     });
 
     setTimeout(() => {
-      doc.save(generarNombreArchivo("pdf")); 
-      setCargandoPDF(false); 
+      doc.save(generarNombreArchivo("pdf"));
+      setCargandoPDF(false);
     }, 1000);
   };
 
   const descargarExcel = () => {
-    setCargandoExcel(true); 
+    setCargandoExcel(true);
 
     const ws = XLSX.utils.json_to_sheet(resultadosFiltrados);
     const wb = XLSX.utils.book_new();
@@ -111,7 +114,7 @@ function OrdenesPago() {
     saveAs(blob, generarNombreArchivo("xlsx"));
 
     setTimeout(() => {
-      setCargandoExcel(false); 
+      setCargandoExcel(false);
     }, 1000);
   };
 
@@ -126,38 +129,60 @@ function OrdenesPago() {
     }
   }, [resultadosFiltrados, paginaActual]);
 
+  const handleSiguiente = () => {
+    setPaginaActual((prevPagina) => prevPagina + 1);
+    setContadorNumeracion(contadorNumeracion + resultadosPorPagina);
+  };
+
+  const handleAnterior = () => {
+    setPaginaActual((prevPagina) => prevPagina - 1);
+    setContadorNumeracion(contadorNumeracion - resultadosPorPagina);
+  };
+
   return (
-    <div>
-      <h1 className="text-sky-950 font-bold text-3xl p-6 text-center">
-        Generar ordenes de pago
+    <div className="relative p-6 bg-white shadow-md rounded-xl">
+      {/* Botón arriba a la derecha */}
+      <div className="absolute top-9 right-6">
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-xl shadow-md transition duration-300"
+        >
+          Regresar
+          <HiArrowCircleRight className="w-5 h-5" />
+        </button>
+      </div>
+
+      {/* Título centrado */}
+      <h1 className="text-sky-950 font-bold text-3xl text-center">
+        Lista de Ordenes de Pago
       </h1>
 
-      <div className="w-full max-w-5xl mx-auto bg-sky-50 rounded-2xl shadow-lg">
+      <div className="w-full max-w-5xl mx-auto mt-8 bg-sky-50 rounded-2xl shadow-lg">
         <div className="flex flex-col md:flex-row p-6 gap-4">
-            {/* buscador */}
-        <div className="flex-1">
+          {/* buscador */}
+          <div className="flex-1">
             <label
-                htmlFor="busqueda"
-                className="block mb-2 text-sm font-semibold text-gray-700"
+              htmlFor="busqueda"
+              className="block mb-2 text-sm font-semibold text-gray-700"
             >
-                Buscar por nombre, apellidos, carnet o código
+              Buscar por nombre, apellidos, carnet o código
             </label>
             <input
-                id="busqueda"
-                type="text"
-                className="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm text-gray-700"
-                value={busqueda}
-                onChange={(e) => setBusqueda(e.target.value)}
+              id="busqueda"
+              type="text"
+              className="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm text-gray-700"
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
             />
-            </div>
+          </div>
 
           {/* Estado */}
-            <div className="flex-1">
+          <div className="flex-1">
             <label
-                htmlFor="estado"
-                className="block mb-2 text-sm font-semibold text-gray-700"
+              htmlFor="estado"
+              className="block mb-2 text-sm font-semibold text-gray-700"
             >
-                Estado
+              Estado
             </label>
             <select
               id="estado"
@@ -169,7 +194,7 @@ function OrdenesPago() {
               <option value="pagado">Pagado</option>
               <option value="no_pagado">No pagado</option>
             </select>
-            </div>
+          </div>
         </div>
       </div>
 
@@ -271,6 +296,7 @@ function OrdenesPago() {
             <table className="min-w-max border border-gray-300 text-sm text-left">
               <thead className="font-semibold bg-sky-100">
                 <tr>
+                  <th className="px-4 py-2 border">Número</th>
                   <th className="px-4 py-2 border">Codigo generado</th>
                   <th className="px-4 py-2 border">Nombre Responsable</th>
                   <th className="px-4 py-2 border">Apellido Paterno</th>
@@ -286,18 +312,23 @@ function OrdenesPago() {
                     key={index}
                     className="bg-white border-b hover:bg-gray-100"
                   >
+                    <td className="px-4 py-2 border">
+                      {contadorNumeracion + index}
+                    </td>
                     <td className="px-4 py-2 border">{item.codigo_generado}</td>
                     <td className="px-4 py-2 border">{item.nombre}</td>
-                    <td className="px-4 py-2 border">{item.apellido_paterno}</td>
-                    <td className="px-4 py-2 border">{item.apellido_materno}</td>
+                    <td className="px-4 py-2 border">
+                      {item.apellido_paterno}
+                    </td>
+                    <td className="px-4 py-2 border">
+                      {item.apellido_materno}
+                    </td>
                     <td className="px-4 py-2 border">
                       {item.carnet_identidad}
                     </td>
+                    <td className="px-4 py-2 border">{item.monto_total}</td>
                     <td className="px-4 py-2 border">
-                      {item.monto_total}
-                    </td>
-                    <td className="px-4 py-2 border">
-                    {item.estado_pago === 1 ? "Pagado" : "No pagado"}
+                      {item.estado_pago === 1 ? "Pagado" : "No pagado"}
                     </td>
                   </tr>
                 ))}
@@ -313,7 +344,7 @@ function OrdenesPago() {
       {resultadosFiltrados.length > 0 && (
         <div className="flex justify-center items-center gap-4 my-6">
           <button
-            onClick={() => setPaginaActual((prev) => Math.max(prev - 1, 1))}
+            onClick={handleAnterior}
             disabled={paginaActual === 1}
             className="px-3 py-1 bg-blue-500 text-white rounded disabled:opacity-50"
           >
@@ -323,9 +354,7 @@ function OrdenesPago() {
             Página {paginaActual} de {totalPaginas}
           </span>
           <button
-            onClick={() =>
-              setPaginaActual((prev) => Math.min(prev + 1, totalPaginas))
-            }
+            onClick={handleSiguiente}
             disabled={paginaActual === totalPaginas}
             className="px-3 py-1 bg-blue-500 text-white rounded disabled:opacity-50"
           >

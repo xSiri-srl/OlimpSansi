@@ -4,6 +4,8 @@ import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { HiArrowCircleRight } from "react-icons/hi";
 
 const datos = {
   ASTRONOMIA_ASTROFISICA: [
@@ -60,7 +62,7 @@ const datos = {
 function DescargarListas() {
   const [area, setArea] = useState("");
   const categorias = datos[area] || [];
-
+  const navigate = useNavigate();
   const [curso, setCurso] = useState("");
   const [categoria, setCategoria] = useState("");
   const [colegio, setColegio] = useState("");
@@ -125,22 +127,64 @@ function DescargarListas() {
   const descargarPDF = () => {
     setCargandoPDF(true);
 
-    const doc = new jsPDF();
-    doc.text("Lista de inscritos", 14, 10);
+    const doc = new jsPDF({
+      orientation: "landscape",
+      unit: "mm",
+      format: [260, 406], // tamaño de las tablas en el doc
+    });
+
+    doc.text("Lista de Inscritos", 14, 10);
+
+    const columnas = [
+      "N°",
+      "Apellido Paterno",
+      "Apellido Materno",
+      "Nombres",
+      "Carnet de Identidad",
+      "Curso",
+      "Colegio",
+      "Departamento",
+      "Provincia",
+      "Correo Electrónico",
+      "Tutor Legal Nombre",
+      "Tutor Legal CI",
+    ];
+
+    const body = resultadosFiltrados.map((item, index) => [
+      index + 1,
+      item.apellido_pa || "",
+      item.apellido_ma || "",
+      item.nombre || "",
+      item.ci || "",
+      item.curso || "",
+      item.colegio || "",
+      item.departamento || "",
+      item.provincia || "",
+      item.correo || "",
+      item.tutor_legal_nombre || "",
+      item.tutor_legal_ci || "",
+    ]);
+
     autoTable(doc, {
-      head: [["N°", "Nombre", "Categoría", "Curso", "Colegio"]],
-      body: resultadosFiltrados.map((item, index) => [
-        index + 1,
-        item.nombre,
-        item.categoria,
-        item.curso,
-        item.colegio,
-      ]),
+      head: [columnas],
+      body: body,
+      startY: 20,
+      styles: {
+        fontSize: 7,
+        overflow: "linebreak",
+        cellWidth: "wrap",
+      },
+      headStyles: {
+        fillColor: [41, 128, 185],
+        textColor: [255, 255, 255],
+        fontSize: 8,
+      },
+      theme: "grid",
     });
 
     setTimeout(() => {
-      doc.save(generarNombreArchivo("pdf")); // Guarda el PDF
-      setCargandoPDF(false); // Finaliza animación
+      doc.save(generarNombreArchivo("pdf"));
+      setCargandoPDF(false);
     }, 1000);
   };
 
@@ -177,12 +221,24 @@ function DescargarListas() {
   }, [resultadosFiltrados, paginaActual]);
 
   return (
-    <div>
-      <h1 className="text-sky-950 font-bold text-3xl p-6 text-center">
-        Descargar lista de inscritos
+    <div className="relative p-6 bg-white shadow-md rounded-xl">
+      {/* Botón arriba a la derecha */}
+      <div className="absolute top-9 right-6">
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-xl shadow-md transition duration-300"
+        >
+          Regresar
+          <HiArrowCircleRight className="w-5 h-5" />
+        </button>
+      </div>
+
+      {/* Título centrado */}
+      <h1 className="text-sky-950 font-bold text-3xl text-center">
+        Total Inscritos y Pre-Inscritos
       </h1>
 
-      <div className="w-full max-w-4xl mx-auto bg-sky-50 rounded-2xl shadow-lg">
+      <div className="w-full max-w-4xl mx-auto mt-8 bg-sky-50 rounded-2xl shadow-lg">
         <div className="flex flex-col md:flex-row p-6 gap-4">
           {/* Área */}
           <div className="flex-1">
@@ -317,7 +373,7 @@ function DescargarListas() {
               htmlFor="provincia"
               className="block mb-2 text-sm font-semibold text-gray-700"
             >
-              Provincia
+              Distrito
             </label>
             <select
               id="provincia"
@@ -442,7 +498,7 @@ function DescargarListas() {
                     Datos del competidor
                   </th>
                   <th
-                    colSpan="7"
+                    colSpan="8"
                     className="py-2 px-4 border border-gray-300 font-semibold bg-blue-200 text-center"
                   >
                     Datos del tutor legal
@@ -485,7 +541,7 @@ function DescargarListas() {
                   ].map((title, idx) => {
                     let bgColor = "";
                     if (idx < 13) bgColor = "bg-green-100";
-                    else if (idx < 20) bgColor = "bg-blue-100";
+                    else if (idx < 21) bgColor = "bg-blue-100";
                     else bgColor = "bg-purple-100";
 
                     return (
