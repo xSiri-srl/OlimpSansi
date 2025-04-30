@@ -22,7 +22,17 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'email' => ['required', 'email', 'exists:usuarios,email'],
+            'password' => 'required'
+        ];
+    }
+
+    public function messages(){
+        return [
+            'email.required' => 'El email es obligatorio',
+            'email.email' => 'El email no es válido',
+            'email.exists' => 'La cuenta no existe',
+            'password' => "El password es obligatorio"
         ];
     }
 }
