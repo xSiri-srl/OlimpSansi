@@ -167,8 +167,13 @@ Route::get('/inscripciones/por-area', [InscripcionController::class, 'inscripcio
 Route::get('/inscripciones/por-categoria', [InscripcionController::class, 'inscripcionesPorCategoria']);
 
 //Autenticacion todo lo que va dentor de esto son funciones para usuarios autenticados
-Route::middleware('auth:sanctum')->get('/user', function (Request $request){
-    return $request->user();
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/user', function (Request $request) {
+        return $request->user();
+    });
+
+    Route::post('/logout', [AuthController::class, 'logout']);
 });
 Route::post('/registro', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
