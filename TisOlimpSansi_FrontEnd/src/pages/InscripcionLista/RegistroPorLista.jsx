@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import RegistroResponsable from "./RegistroResponsable";
 import SubirArchivo from "./SubirArchivo";
 import ListaCompetidores from "./ListaCompetidores";
-import PasosInscripcion from "./PasosInscripcion";
+import ConfirmationLista from "./confirmationLista";
 import RegistroColegio from "./RegistroColegio";
 
 const RegistroPorLista = () => {
@@ -13,7 +13,7 @@ const RegistroPorLista = () => {
     "Seleccionar Unidad Educativa",
     "Subir Lista",
     "Lista de Competidores",
-    "Confirmación",
+    "Confirmacion",
   ];
 
   return (
@@ -48,7 +48,7 @@ const RegistroPorLista = () => {
         {step === 2 && <RegistroColegio setStep={setStep} />}
         {step === 3 && <SubirArchivo setStep={setStep} />}
         {step === 4 && <ListaCompetidores setStep={setStep} />}
-        {step === 5 && <PasosInscripcion setStep={setStep} />}
+        {step === 5 && <ConfirmationLista setStep={setStep} />}
       </div>
     </div>
   );

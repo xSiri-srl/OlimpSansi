@@ -3,6 +3,7 @@ import { FaUser, FaIdCard, FaEnvelope, FaPhoneAlt } from "react-icons/fa";
 import { useFormData } from "./form-data-context";
 import { TextField, RadioGroupField } from "./components/FormComponents";
 import { useFormValidation } from "./hooks/useFormValidation";
+import axios from "axios";
 
 export default function InscripcionTutorLegal({
   formData,
@@ -12,10 +13,110 @@ export default function InscripcionTutorLegal({
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { globalData, setGlobalData } = useFormData();
-  const { errors, validateInput, validateEmailField, setErrors } = useFormValidation();
-
+  const { errors, validateInput, validateEmailField, setErrors } =
+    useFormValidation();
+  const validateAllFields = () => {
+    validateInput(formData.legal?.correoPertenece, "correoPertenece");
+    validateInput(
+      formData.legal?.apellidoPaterno,
+      "apellidoPaterno",
+      /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
+    );
+    validateInput(
+      formData.legal?.apellidoMaterno,
+      "apellidoMaterno",
+      /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
+    );
+    validateInput(
+      formData.legal?.nombres,
+      "nombres",
+      /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
+    );
+    validateInput(formData.legal?.ci, "ci", /^[0-9]*$/);
+    validateInput(formData.legal?.telefono, "telefono", /^[0-9]*$/);
+    validateEmailField(formData.legal?.correo, "correo");
+  };
+  const [isSearching, setIsSearching] = useState(false);
+  const [tutorLegalFound, setTutorLegalFound] = useState(false);
   const rolesDisponibles = ["Padre", "Madre", "Tutor Legal"];
+  const buscarTutorLegalPorCI = async (ci) => {
+    if (ci?.length >= 7) {
+      setIsSearching(true);
+      console.log("Buscando tutor legal con CI:", ci);
 
+      try {
+        const apiUrl = `http://localhost:8000/api/buscarTutorLegal/${ci}`;
+        console.log("Consultando API en:", apiUrl);
+
+        const response = await axios.get(apiUrl);
+        console.log("Respuesta recibida:", response.data);
+
+        if (response.data.found) {
+          const tutorLegal = response.data.tutorLegal;
+
+          // Convertir valores a string para asegurar compatibilidad
+          handleInputChange(
+            "legal",
+            "nombres",
+            String(tutorLegal.nombre || "")
+          );
+          handleInputChange(
+            "legal",
+            "apellidoPaterno",
+            String(tutorLegal.apellido_pa || "")
+          );
+          handleInputChange(
+            "legal",
+            "apellidoMaterno",
+            String(tutorLegal.apellido_ma || "")
+          );
+          handleInputChange("legal", "correo", String(tutorLegal.correo || ""));
+          handleInputChange(
+            "legal",
+            "telefono",
+            String(tutorLegal.numero_celular || "")
+          );
+
+          // Asegurarse de que el rol esté establecido
+          const rol = tutorLegal.tipo || "Tutor Legal";
+          handleInputChange("legal", "correoPertenece", rol);
+
+          // Limpiar todos los errores - AÑADIR ESTA LÍNEA
+          setErrors({});
+
+          setTutorLegalFound(true);
+          console.log("Tutor legal encontrado:", tutorLegal);
+
+          // ELIMINAR o COMENTAR estas líneas
+          // setTimeout(() => {
+          //   validateAllFields();
+          // }, 100);
+        } else {
+          setTutorLegalFound(false);
+          console.log("No se encontró tutor legal con ese CI");
+        }
+      } catch (error) {
+        console.error("Error al buscar tutor legal:", error);
+        setErrors((prev) => ({
+          ...prev,
+          ci: "Error al buscar en la base de datos. Intente de nuevo.",
+        }));
+      } finally {
+        setIsSearching(false);
+      }
+    }
+  };
+  const handleCIChange = (value) => {
+    handleInputChange("legal", "ci", value);
+    setErrors((prev) => ({ ...prev, ci: "" }));
+
+    // Si el CI tiene 7-8 dígitos, buscar en la base de datos
+    if (value.length >= 7 && value.length <= 8) {
+      buscarTutorLegalPorCI(value);
+    } else if (value.length < 7) {
+      setTutorLegalFound(false);
+    }
+  };
   const handleSubmitAndNext = async () => {
     const isRolValid = validateInput(
       formData.legal?.correoPertenece,
@@ -48,10 +149,7 @@ export default function InscripcionTutorLegal({
       /^[0-9]*$/
     );
 
-    const isCorreoValid = validateEmailField(
-      formData.legal?.correo,
-      "correo"
-    );
+    const isCorreoValid = validateEmailField(formData.legal?.correo, "correo");
 
     if (
       !isRolValid ||
@@ -97,19 +195,18 @@ export default function InscripcionTutorLegal({
   };
 
   const isFormValid =
-    formData.legal?.apellidoPaterno &&
-    formData.legal?.apellidoMaterno &&
-    formData.legal?.nombres &&
-    formData.legal?.ci &&
-    formData.legal?.correo &&
-    formData.legal?.telefono &&
-    formData.legal?.correoPertenece &&
-    formData.legal?.ci.length >= 7 &&
-    formData.legal?.nombres.length >= 2 &&
-    formData.legal?.apellidoMaterno.length >= 2 &&
-    formData.legal?.apellidoPaterno.length >= 2 &&
-    formData.legal?.telefono.length === 8 &&
-    formData.legal?.nombres.split(" ").length <= 2 &&
+    formData.legal?.apellidoPaterno?.trim() &&
+    formData.legal?.apellidoMaterno?.trim() &&
+    formData.legal?.nombres?.trim() &&
+    formData.legal?.ci?.trim() &&
+    formData.legal?.correo?.trim() &&
+    formData.legal?.telefono?.trim() &&
+    formData.legal?.correoPertenece?.trim() &&
+    formData.legal?.ci?.length >= 7 &&
+    formData.legal?.nombres?.length >= 2 &&
+    formData.legal?.apellidoMaterno?.length >= 2 &&
+    formData.legal?.apellidoPaterno?.length >= 2 &&
+    formData.legal?.telefono?.length >= 7 && // Más flexible con la longitud del teléfono
     !isSubmitting;
 
   return (
@@ -124,32 +221,53 @@ export default function InscripcionTutorLegal({
           </p>
         </div>
 
-        <div className="mb-6 text-center">
-          <h3 className="text-md font-semibold mb-2">Rol del Tutor</h3>
-          <RadioGroupField
-            name="correoPertenece"
-            options={rolesDisponibles}
-            value={formData.legal?.correoPertenece || ""}
-            className="justify-center"
-            onChange={(value) =>
-              handleInputChange("legal", "correoPertenece", value)
-            }
-            error={errors.correoPertenece}
-          />
-        </div>
-
         <div className="space-y-4">
-          <TextField
-            label="Carnet de Identidad"
-            icon={<FaIdCard className="text-black" />}
-            name="ci"
-            placeholder="Número de Carnet de Identidad"
-            value={formData.legal?.ci || ""}
-            onChange={(value) => handleInputChange("legal", "ci", value)}
-            error={errors.ci}
-            maxLength="8"
-            regex={/^[0-9]*$/}
-          />
+          {/* Campo de Carnet de Identidad como primer campo del formulario */}
+          <div className="relative">
+            <TextField
+              label="Carnet de Identidad"
+              icon={<FaIdCard className="text-black" />}
+              name="ci"
+              placeholder="Número de Carnet de Identidad"
+              value={formData.legal?.ci || ""}
+              onChange={handleCIChange}
+              error={errors.ci}
+              maxLength="8"
+              regex={/^[0-9]*$/}
+            />
+            <div className="absolute right-10 top-1/2 transform -translate-y-1/2">
+              {isSearching && (
+                <span className="text-blue-500 text-sm">Buscando...</span>
+              )}
+              {tutorLegalFound && (
+                <span className="text-green-500 text-sm">✓ Encontrado</span>
+              )}
+            </div>
+          </div>
+
+          {tutorLegalFound && (
+            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+              Tutor legal encontrado en el sistema. Los datos han sido cargados
+              automáticamente.
+            </div>
+          )}
+
+          <div className="mb-6 text-center">
+            <h3 className="text-md font-semibold mb-2">Rol del Tutor</h3>
+            <div className="flex justify-center">
+              <RadioGroupField
+                name="correoPertenece"
+                options={rolesDisponibles}
+                value={formData.legal?.correoPertenece || ""}
+                className="justify-center flex"
+                onChange={(value) =>
+                  handleInputChange("legal", "correoPertenece", value)
+                }
+                error={errors.correoPertenece}
+              />
+            </div>
+          </div>
+
           <div className="flex flex-col md:flex-row gap-4">
             <div className="w-full">
               <TextField
@@ -215,9 +333,7 @@ export default function InscripcionTutorLegal({
             name="telefono"
             placeholder="Número de Teléfono/Celular"
             value={formData.legal?.telefono || ""}
-            onChange={(value) =>
-              handleInputChange("legal", "telefono", value)
-            }
+            onChange={(value) => handleInputChange("legal", "telefono", value)}
             error={errors.telefono}
             maxLength="8"
             regex={/^[0-9]*$/}

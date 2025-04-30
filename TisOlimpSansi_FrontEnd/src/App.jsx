@@ -19,8 +19,11 @@ import GenerarOrdenPago from "./pages/OrdenPago/GenerarOrdenPago";
 import PanelDatos from "./pages/Administrador/PanelDatos";
 import DescargarListas from "./pages/Administrador/DescargarListas";
 import PreInscritos from "./pages/Administrador/PreInscritos";
+import InscritosVerificados from "./pages/Administrador/InscritosVerificados";
 import OrdenesPago from "./pages/Administrador/OrdenesPago";
 import Propuesta from "./pages/OrdenDePago/Propuesta";
+import ConvocatoriasPublicadas from "./pages/Administrador/ConvocatoriasPublicadas";
+import SubirConvocatoria from "./pages/Administrador/SubirConvocatoria";
 
 export default function App() {
   return (
@@ -58,7 +61,7 @@ export default function App() {
             />
             <Route path="/inscripcion/propuesta" element={<Propuesta />} />
             {/* ORDEN DE PAGO GENERADA */}
-            <Route path="/ordenDePago" element={<OrdenPago />} />
+            <Route path="/orden-pago" element={<OrdenPago />} />
             <Route path="/generar-orden-pago" element={<GenerarOrdenPago />} />
             {/* COMPROBANTE */}
             <Route path="/SubirComprobante" element={<SubirComprobante />} />
@@ -83,12 +86,17 @@ export default function App() {
               path="/admin/descargar_listas"
               element={<DescargarListas />}
             />
-            <Route path="/admin/preInscritos"
-             element={<PreInscritos />}
-              />
-            <Route path="/admin/ordenes-pago"
-             element={<OrdenesPago />}
-              />
+            <Route path="/admin/preInscritos" element={<PreInscritos />} />
+            <Route
+              path="/admin/inscritos_verificados"
+              element={<InscritosVerificados />}
+            />
+            <Route path="/admin/ordenes-pago" element={<OrdenesPago />} />
+            <Route
+              path="/admin/convocatoria"
+              element={<ConvocatoriasPublicadas />}
+            />
+            <Route path="/nueva-convocatoria" element={<SubirConvocatoria />} />
           </Routes>
         </FormProvider>
       </div>
