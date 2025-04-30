@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -164,3 +165,7 @@ Route::post('/estudiantes/inscritos/bydepartamento', [ColegioController::class, 
 Route::post('/estudiantes/preinscritos/bydepartamento', [ColegioController::class, 'contarPreinscritosPorDepartamento']);
 Route::get('/inscripciones/por-area', [InscripcionController::class, 'inscripcionesPorArea']);
 Route::get('/inscripciones/por-categoria', [InscripcionController::class, 'inscripcionesPorCategoria']);
+
+//Autenticacion
+Route::post('/registro', [AuthController::class, 'register']);
+
