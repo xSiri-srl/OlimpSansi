@@ -17,11 +17,13 @@ import { FormProvider } from "./pages/InscripcionLista/form-context";
 import PasosInscripcion from "./pages/InscripcionLista/PasosInscripcion";
 import GenerarOrdenPago from "./pages/OrdenPago/GenerarOrdenPago";
 import PanelDatos from "./pages/Administrador/PanelDatos";
-import DescargarListas from "./pages/Administrador/DescargarListas";
-import PreInscritos from "./pages/Administrador/PreInscritos";
-import InscritosVerificados from "./pages/Administrador/InscritosVerificados";
-import OrdenesPago from "./pages/Administrador/OrdenesPago";
+import DescargarListas from "./pages/Administrador/Reportes/DescargarListas";
+import PreInscritos from "./pages/Administrador/Reportes/PreInscritos";
+import InscritosVerificados from "./pages/Administrador/Reportes/InscritosVerificados";
+import OrdenesPago from "./pages/Administrador/Reportes/OrdenesPago";
 import Propuesta from "./pages/OrdenDePago/Propuesta";
+import ConvocatoriasPublicadas from "./pages/Administrador/Convocatorias/ConvocatoriasPublicadas";
+import SubirConvocatoria from "./pages/Administrador/Convocatorias/SubirConvocatoria";
 
 export default function App() {
   return (
@@ -84,15 +86,17 @@ export default function App() {
               path="/admin/descargar_listas"
               element={<DescargarListas />}
             />
-            <Route path="/admin/preInscritos"
-             element={<PreInscritos />}
-              />
-            <Route path="/admin/inscritos_verificados"
-             element={<InscritosVerificados />}
-              />
-            <Route path="/admin/ordenes-pago"
-             element={<OrdenesPago />}
-              />
+            <Route path="/admin/preInscritos" element={<PreInscritos />} />
+            <Route
+              path="/admin/inscritos_verificados"
+              element={<InscritosVerificados />}
+            />
+            <Route path="/admin/ordenes-pago" element={<OrdenesPago />} />
+            <Route
+              path="/admin/convocatoria"
+              element={<ConvocatoriasPublicadas />}
+            />
+            <Route path="/nueva-convocatoria" element={<SubirConvocatoria />} />
           </Routes>
         </FormProvider>
       </div>

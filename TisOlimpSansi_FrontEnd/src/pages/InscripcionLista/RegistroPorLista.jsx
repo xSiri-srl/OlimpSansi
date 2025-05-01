@@ -14,7 +14,6 @@ const RegistroPorLista = () => {
     "Subir Lista",
     "Lista de Competidores",
     "Confirmacion",
-    
   ];
 
   return (
