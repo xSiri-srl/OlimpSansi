@@ -16,15 +16,12 @@ const Confirmation = ({ navigate, handleBack }) => {
   const [codigoGenerado, setCodigoGenerado] = useState("");
 
   useEffect(() => {
-  
     console.log(globalData);
     globalData.areas_competencia?.forEach((area) => {
       console.log("Nombre del área:", area.nombre_area);
       console.log("Categoría:", area.categoria);
     });
-
   }, [globalData]);
-  
 
   const handleGoBack = (e) => {
     e.preventDefault();
@@ -68,7 +65,7 @@ const Confirmation = ({ navigate, handleBack }) => {
       });
 
       // Llamar al backend para generar el PDF
-     
+
       setShowSuccessModal(true);
     } catch (error) {
       console.error("Error al registrar los datos", error);
@@ -174,7 +171,9 @@ const Confirmation = ({ navigate, handleBack }) => {
             </div>
             <div>
               <p className="text-sm text-gray-500">Curso</p>
-              <p className="font-medium uppercase">{globalData.colegio?.curso || ""}</p>
+              <p className="font-medium uppercase">
+                {globalData.colegio?.curso || ""}
+              </p>
             </div>
             <div>
               <p className="text-sm text-gray-500">Departamento</p>
@@ -193,33 +192,32 @@ const Confirmation = ({ navigate, handleBack }) => {
 
         {/* Sección de áreas de competencia */}
         <div className="mb-6 border-b pb-4">
-  <h3 className="text-lg font-semibold text-blue-600">
-    Áreas de Competencia
-  </h3>
-  <div className="mt-2">
-    {globalData.areas_competencia?.length > 0 ? (
-      globalData.areas_competencia.map((area, index) => (
-        <div key={index} className="bg-gray-100 rounded px-3 py-2 mb-2">
-          <p className="font-medium">{area.nombre_area || ""}</p>
-          {/* Mostrar categoría para todas las áreas */}
-          {area.categoria && (
-            <div className="mt-1">
-              <span className="text-sm text-gray-500">Categoría: </span>
-              <span className="text-sm font-medium bg-blue-100 text-blue-800 px-2 py-0.5 rounded">
-                {area.categoria}
-              </span>
-            </div>
-          )}
+          <h3 className="text-lg font-semibold text-blue-600">
+            Áreas de Competencia
+          </h3>
+          <div className="mt-2">
+            {globalData.areas_competencia?.length > 0 ? (
+              globalData.areas_competencia.map((area, index) => (
+                <div key={index} className="bg-gray-100 rounded px-3 py-2 mb-2">
+                  <p className="font-medium">{area.nombre_area || ""}</p>
+                  {/* Mostrar categoría para todas las áreas */}
+                  {area.categoria && (
+                    <div className="mt-1">
+                      <span className="text-sm text-gray-500">Categoría: </span>
+                      <span className="text-sm font-medium bg-blue-100 text-blue-800 px-2 py-0.5 rounded">
+                        {area.categoria}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              ))
+            ) : (
+              <p className="text-gray-500">
+                No se seleccionaron áreas de competencia
+              </p>
+            )}
+          </div>
         </div>
-      ))
-    ) : (
-      <p className="text-gray-500">
-        No se seleccionaron áreas de competencia
-      </p>
-    )}
-  </div>
-</div>
-
 
         {/* Sección del tutor legal */}
         <div className="mb-6 border-b pb-4">
@@ -286,12 +284,16 @@ const Confirmation = ({ navigate, handleBack }) => {
                       </div>
                       <div>
                         <p className="text-sm text-gray-500">Correo</p>
-                        <p className="font-medium">{tutor.tutor?.correo || ""}</p>
+                        <p className="font-medium">
+                          {tutor.tutor?.correo || ""}
+                        </p>
                       </div>
                     </div>
                   ) : (
                     <div className="flex justify-center items-center py-4">
-                      <p className="font-bold text-center">SIN TUTOR ACADÉMICO</p>
+                      <p className="font-bold text-center">
+                        SIN TUTOR ACADÉMICO
+                      </p>
                     </div>
                   )}
                 </div>
@@ -300,7 +302,6 @@ const Confirmation = ({ navigate, handleBack }) => {
           )}
 
         {/* Sección de Desglose de Costos por Área */}
-        
 
         <div className="mb-6">
           <p className="text-sm text-gray-500">

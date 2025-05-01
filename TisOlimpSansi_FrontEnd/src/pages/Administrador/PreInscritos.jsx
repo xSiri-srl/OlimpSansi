@@ -118,7 +118,7 @@ function DescargarListas() {
     const fechaActual = new Date().toISOString().slice(0, 10); // formato YYYY-MM-DD
     let nombreArchivo = "lista";
     let filtrosActivos = false;
-  
+
     // Verificar qué filtros están activos
     if (nombre) {
       nombreArchivo += "-nombre_" + nombre.toLowerCase();
@@ -141,15 +141,16 @@ function DescargarListas() {
       filtrosActivos = true;
     }
     if (correo) {
-      nombreArchivo += "-email_" + correo.toLowerCase().replace("@", "_").replace(/\./g, "_");
+      nombreArchivo +=
+        "-email_" + correo.toLowerCase().replace("@", "_").replace(/\./g, "_");
       filtrosActivos = true;
     }
-  
+
     // Si no hay filtros activos, usar "lista-completa"
     if (!filtrosActivos) {
       nombreArchivo = "lista-completa";
     }
-  
+
     return `${nombreArchivo}_${fechaActual}.${tipo}`;
   };
 
@@ -171,21 +172,21 @@ function DescargarListas() {
 
   return (
     <div className="relative p-6 bg-white shadow-md rounded-xl">
-    {/* Botón arriba a la derecha */}
-    <div className="absolute top-9 right-6">
-    <button
-    onClick={() => navigate(-1)}
-    className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-xl shadow-md transition duration-300"
-  >
-    Regresar
-    <HiArrowCircleRight className="w-5 h-5" />
-  </button>
-    </div>
+      {/* Botón arriba a la derecha */}
+      <div className="absolute top-9 right-6">
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-xl shadow-md transition duration-300"
+        >
+          Regresar
+          <HiArrowCircleRight className="w-5 h-5" />
+        </button>
+      </div>
 
-    {/* Título centrado */}
-    <h1 className="text-sky-950 font-bold text-3xl text-center">
-     Lista de Pre-Inscritos
-    </h1>
+      {/* Título centrado */}
+      <h1 className="text-sky-950 font-bold text-3xl text-center">
+        Lista de Pre-Inscritos
+      </h1>
 
       <div className="w-full max-w-5xl mx-auto mt-8 bg-sky-50 rounded-2xl shadow-lg">
         <div className="flex flex-col md:flex-row p-6 gap-4">
