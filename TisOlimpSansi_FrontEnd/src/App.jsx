@@ -22,6 +22,8 @@ import PreInscritos from "./pages/Administrador/PreInscritos";
 import InscritosVerificados from "./pages/Administrador/InscritosVerificados";
 import OrdenesPago from "./pages/Administrador/OrdenesPago";
 import Propuesta from "./pages/OrdenDePago/Propuesta";
+import ConvocatoriasPublicadas from "./pages/Administrador/ConvocatoriasPublicadas";
+import SubirConvocatoria from "./pages/Administrador/SubirConvocatoria";
 
 export default function App() {
   return (
@@ -92,6 +94,12 @@ export default function App() {
               />
             <Route path="/admin/ordenes-pago"
              element={<OrdenesPago />}
+              />
+              <Route path="/admin/convocatoria"
+             element={<ConvocatoriasPublicadas />}
+              />
+                <Route path="/nueva-convocatoria"
+             element={<SubirConvocatoria />}
               />
           </Routes>
         </FormProvider>
