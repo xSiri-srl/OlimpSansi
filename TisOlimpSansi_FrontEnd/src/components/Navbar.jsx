@@ -26,19 +26,19 @@ const Navbar = () => {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    
+
     // Verificar credenciales
     if (username === "ohsansi" && password === "nosabemos") {
       // Credenciales correctas
       setLoginError("");
       setShowLoginModal(false);
-      
+
       // Cambiar rol a admin
       setRole("admin");
       localStorage.setItem("user", JSON.stringify({ role: "admin" }));
       setShowSidebar(false);
       navigate("/admin/generar-reportes");
-      
+
       // Limpiar el formulario
       setUsername("");
       setPassword("");
@@ -155,8 +155,10 @@ const Navbar = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
           <div className="bg-white rounded-lg p-6 w-80 md:w-96 shadow-xl">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold text-gray-800">Acceso Administrador</h2>
-              <button 
+              <h2 className="text-xl font-bold text-gray-800">
+                Acceso Administrador
+              </h2>
+              <button
                 onClick={() => {
                   setShowLoginModal(false);
                   setLoginError("");
@@ -168,10 +170,13 @@ const Navbar = () => {
                 ✕
               </button>
             </div>
-            
+
             <form onSubmit={handleLogin}>
               <div className="mb-4">
-                <label htmlFor="username" className="block text-gray-700 text-sm font-medium mb-1">
+                <label
+                  htmlFor="username"
+                  className="block text-gray-700 text-sm font-medium mb-1"
+                >
                   Usuario
                 </label>
                 <input
@@ -183,9 +188,12 @@ const Navbar = () => {
                   required
                 />
               </div>
-              
+
               <div className="mb-4">
-                <label htmlFor="password" className="block text-gray-700 text-sm font-medium mb-1">
+                <label
+                  htmlFor="password"
+                  className="block text-gray-700 text-sm font-medium mb-1"
+                >
                   Contraseña
                 </label>
                 <input
@@ -197,13 +205,11 @@ const Navbar = () => {
                   required
                 />
               </div>
-              
+
               {loginError && (
-                <div className="mb-4 text-sm text-red-600">
-                  {loginError}
-                </div>
+                <div className="mb-4 text-sm text-red-600">{loginError}</div>
               )}
-              
+
               <button
                 type="submit"
                 className="w-full bg-primary text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-300"

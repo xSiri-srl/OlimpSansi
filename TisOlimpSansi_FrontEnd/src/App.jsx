@@ -86,21 +86,17 @@ export default function App() {
               path="/admin/descargar_listas"
               element={<DescargarListas />}
             />
-            <Route path="/admin/preInscritos"
-             element={<PreInscritos />}
-              />
-            <Route path="/admin/inscritos_verificados"
-             element={<InscritosVerificados />}
-              />
-            <Route path="/admin/ordenes-pago"
-             element={<OrdenesPago />}
-              />
-              <Route path="/admin/convocatoria"
-             element={<ConvocatoriasPublicadas />}
-              />
-                <Route path="/nueva-convocatoria"
-             element={<SubirConvocatoria />}
-              />
+            <Route path="/admin/preInscritos" element={<PreInscritos />} />
+            <Route
+              path="/admin/inscritos_verificados"
+              element={<InscritosVerificados />}
+            />
+            <Route path="/admin/ordenes-pago" element={<OrdenesPago />} />
+            <Route
+              path="/admin/convocatoria"
+              element={<ConvocatoriasPublicadas />}
+            />
+            <Route path="/nueva-convocatoria" element={<SubirConvocatoria />} />
           </Routes>
         </FormProvider>
       </div>
