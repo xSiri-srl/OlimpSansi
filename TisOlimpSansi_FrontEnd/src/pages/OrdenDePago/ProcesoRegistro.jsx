@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const ProcesoRegistro = ({
   steps,
   initialStep = 1,
   nextRoute,
   backRoute,
-  children
+  children,
 }) => {
   const navigate = useNavigate();
   const [step, setStep] = useState(initialStep);
@@ -17,18 +17,18 @@ const ProcesoRegistro = ({
       redirectToProfesor: false,
       currentAreaIndex: 0,
       pendingAreas: [],
-      skipProfesor: false
+      skipProfesor: false,
     },
-    profesores: { areasRegistradas: [] }
+    profesores: { areasRegistradas: [] },
   });
 
   useEffect(() => {
     const checkFormData = () => {
       const hasData =
         formData.profesores.areasRegistradas.length > 0 ||
-        Object.values(formData.flow).some(val => {
-          if (typeof val === 'boolean' && val === true) return true;
-          if (typeof val === 'number' && val > 0) return true;
+        Object.values(formData.flow).some((val) => {
+          if (typeof val === "boolean" && val === true) return true;
+          if (typeof val === "number" && val > 0) return true;
           if (Array.isArray(val) && val.length > 0) return true;
           return false;
         });
@@ -43,13 +43,14 @@ const ProcesoRegistro = ({
     const handleBeforeUnload = (e) => {
       if (hasFormData) {
         e.preventDefault();
-        e.returnValue = '¿Estás seguro? Los datos del formulario no se guardarán si sales de esta página.';
+        e.returnValue =
+          "¿Estás seguro? Los datos del formulario no se guardarán si sales de esta página.";
         return e.returnValue;
       }
     };
 
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [hasFormData]);
 
   const handleNext = () => {
@@ -97,9 +98,7 @@ const ProcesoRegistro = ({
               </div>
               <span
                 className={`text-xs mt-2 text-center ${
-                  index + 1 === step
-                    ? "text-blue-600"
-                    : "text-gray-400"
+                  index + 1 === step ? "text-blue-600" : "text-gray-400"
                 }`}
               >
                 {stepLabel}
@@ -108,7 +107,6 @@ const ProcesoRegistro = ({
           ))}
         </div>
 
-       
         {React.Children.map(children, (child, index) => {
           if (index + 1 === step) {
             return React.cloneElement(child, {
@@ -116,7 +114,7 @@ const ProcesoRegistro = ({
               handleInputChange,
               handleNext,
               handleBack,
-              navigate
+              navigate,
             });
           }
           return null;
