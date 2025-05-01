@@ -5,8 +5,8 @@ const SubirConvocatoria = () => {
   const [descripcion, setDescripcion] = useState("");
   const [fecha, setFecha] = useState("");
   const [area, setArea] = useState("");
-  const [imagen, setImagen] = useState(null);
-  const [documento, setDocumento] = useState(null);
+  const [setImagen] = useState(null);
+  const [setDocumento] = useState(null);
 
   return (
     <div className="max-w-3xl mx-auto p-8 mt-10 bg-white rounded-2xl shadow-xl">

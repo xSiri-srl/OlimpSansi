@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import Header from "./components/Header";
-import StatisticsCards from "./components/StatisticsCards";
-import ChartsSection from "./components/ChartSection";
-import PieChartSection from "./components/PieChartSection";
-import MapSection from "./components/MapaSection";
-import GraficoCompararInscripciones from "./components/GraficoCompararInscripciones";
-import useDashboardData from "./hooks/useDashboardData";
+import Header from "./panel-components/Header";
+import StatisticsCards from "./panel-components/StatisticsCards";
+import ChartsSection from "./panel-components/ChartSection";
+import PieChartSection from "./panel-components/PieChartSection";
+import MapSection from "./panel-components/MapaSection";
+import GraficoCompararInscripciones from "./panel-components/GraficoCompararInscripciones";
+import useDashboardData from "./panel-hooks/useDashboardData";
 
 const PanelDatos = () => {
   const [darkMode, setDarkMode] = useState(false);
