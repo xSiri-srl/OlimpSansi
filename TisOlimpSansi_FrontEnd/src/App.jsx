@@ -17,10 +17,10 @@ import { FormProvider } from "./pages/InscripcionLista/form-context";
 import PasosInscripcion from "./pages/InscripcionLista/PasosInscripcion";
 import GenerarOrdenPago from "./pages/OrdenPago/GenerarOrdenPago";
 import PanelDatos from "./pages/Administrador/PanelDatos";
-import DescargarListas from "./pages/Administrador/DescargarListas";
-import PreInscritos from "./pages/Administrador/PreInscritos";
-import InscritosVerificados from "./pages/Administrador/InscritosVerificados";
-import OrdenesPago from "./pages/Administrador/OrdenesPago";
+import DescargarListas from "./pages/Administrador/Reportes/DescargarListas";
+import PreInscritos from "./pages/Administrador/Reportes/PreInscritos";
+import InscritosVerificados from "./pages/Administrador/Reportes/InscritosVerificados";
+import OrdenesPago from "./pages/Administrador/Reportes/OrdenesPago";
 import Propuesta from "./pages/OrdenDePago/Propuesta";
 import ConvocatoriasPublicadas from "./pages/Administrador/ConvocatoriasPublicadas";
 import SubirConvocatoria from "./pages/Administrador/SubirConvocatoria";
@@ -96,15 +96,15 @@ export default function App() {
             <Route path="/admin/ordenes-pago"
              element={<OrdenesPago />}
               />
-            <Route path="/admin/convocatoria"
-              element={<ConvocatoriasPublicadas />}
-            />
-            <Route path="/nueva-convocatoria"
-               element={<SubirConvocatoria />}
-            />
-            <Route path="/editar-convocatoria/:id"
-               element={<EditarConvocatoria />}
-            />
+              <Route path="/admin/convocatoria"
+             element={<ConvocatoriasPublicadas />}
+              />
+                <Route path="/nueva-convocatoria"
+             element={<SubirConvocatoria />}
+              />
+          <Route path="/editar-convocatoria/:id"
+             element={<EditarConvocatoria />}
+          />
           </Routes>
         </FormProvider>
       </div>

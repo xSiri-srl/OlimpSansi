@@ -126,15 +126,15 @@ function DescargarListas() {
 
   const descargarPDF = () => {
     setCargandoPDF(true);
-  
+
     const doc = new jsPDF({
       orientation: "landscape",
       unit: "mm",
       format: [260, 406], // tamaño de las tablas en el doc
     });
-  
+
     doc.text("Lista de Inscritos", 14, 10);
-  
+
     const columnas = [
       "N°",
       "Apellido Paterno",
@@ -147,47 +147,47 @@ function DescargarListas() {
       "Provincia",
       "Correo Electrónico",
       "Tutor Legal Nombre",
-      "Tutor Legal CI"
+      "Tutor Legal CI",
     ];
-  
+
     const body = resultadosFiltrados.map((item, index) => [
       index + 1,
-      item.apellido_pa || '',
-      item.apellido_ma || '',
-      item.nombre || '',
-      item.ci || '',
-      item.curso || '',
-      item.colegio || '',
-      item.departamento || '',
-      item.provincia || '',
-      item.correo || '',
-      item.tutor_legal_nombre || '',
-      item.tutor_legal_ci || ''
+      item.apellido_pa || "",
+      item.apellido_ma || "",
+      item.nombre || "",
+      item.ci || "",
+      item.curso || "",
+      item.colegio || "",
+      item.departamento || "",
+      item.provincia || "",
+      item.correo || "",
+      item.tutor_legal_nombre || "",
+      item.tutor_legal_ci || "",
     ]);
-  
+
     autoTable(doc, {
       head: [columnas],
       body: body,
       startY: 20,
       styles: {
         fontSize: 7,
-        overflow: 'linebreak',
-        cellWidth: 'wrap',
+        overflow: "linebreak",
+        cellWidth: "wrap",
       },
       headStyles: {
         fillColor: [41, 128, 185],
         textColor: [255, 255, 255],
         fontSize: 8,
       },
-      theme: 'grid',
+      theme: "grid",
     });
-  
+
     setTimeout(() => {
       doc.save(generarNombreArchivo("pdf"));
       setCargandoPDF(false);
     }, 1000);
   };
-  
+
   const descargarExcel = () => {
     setCargandoExcel(true); // Activa animación
 
@@ -224,20 +224,19 @@ function DescargarListas() {
     <div className="relative p-6 bg-white shadow-md rounded-xl">
       {/* Botón arriba a la derecha */}
       <div className="absolute top-9 right-6">
-      <button
-      onClick={() => navigate(-1)}
-      className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-xl shadow-md transition duration-300"
-    >
-      Regresar
-      <HiArrowCircleRight className="w-5 h-5" />
-    </button>
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-xl shadow-md transition duration-300"
+        >
+          Regresar
+          <HiArrowCircleRight className="w-5 h-5" />
+        </button>
       </div>
 
       {/* Título centrado */}
       <h1 className="text-sky-950 font-bold text-3xl text-center">
-      Total Inscritos y Pre-Inscritos
+        Total Inscritos y Pre-Inscritos
       </h1>
-
 
       <div className="w-full max-w-4xl mx-auto mt-8 bg-sky-50 rounded-2xl shadow-lg">
         <div className="flex flex-col md:flex-row p-6 gap-4">
