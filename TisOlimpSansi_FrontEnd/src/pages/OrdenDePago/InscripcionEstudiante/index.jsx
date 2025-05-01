@@ -9,7 +9,7 @@ import { CURSOS } from "./constants";
 
 const transformarFormatoCurso = (curso) => {
   if (!curso) return "";
-  
+
   // Convertir a mayúsculas y eliminar la palabra "DE"
   return curso.toUpperCase().replace(/\sDE\s/i, " ");
 };
@@ -25,160 +25,205 @@ export default function InscripcionEstudiante({
   const { globalData, setGlobalData } = useFormData();
 
   const colegioData = useColegioData(formData, handleInputChange);
-  const { errors, setErrors, isFormValid, validateAllFields } = useFormValidation(
-    formData, 
-    colegioData.esNuevoColegio
-  );
+  const { errors, setErrors, isFormValid, validateAllFields } =
+    useFormValidation(formData, colegioData.esNuevoColegio);
 
-const buscarEstudiantePorCI = async (ci) => {
-  if (ci?.length >= 7) {
-    setIsSearching(true);
-    console.log("Buscando estudiante con CI:", ci);
-    
-    try {
-      const apiUrl = `http://localhost:8000/api/buscarEstudiante/${ci}`;
-      console.log("Consultando API en:", apiUrl);
-      
-      const response = await axios.get(apiUrl);
-      console.log("Respuesta recibida:", response.data);
-      
-      if (response.data.found) {
-        const estudiante = response.data.estudiante;
-        
-        handleInputChange('estudiante', 'nombres', estudiante.nombre);
-        handleInputChange('estudiante', 'apellidoPaterno', estudiante.apellido_pa);
-        handleInputChange('estudiante', 'apellidoMaterno', estudiante.apellido_ma);
-        
-        // Formatear correctamente la fecha (yyyy-mm-dd)
-        if (estudiante.fecha_nacimiento) {
-          console.log("Fecha original recibida:", estudiante.fecha_nacimiento);
-          
-          let fechaFormateada;
-          
-          if (typeof estudiante.fecha_nacimiento === 'string') {
-            if (estudiante.fecha_nacimiento.includes('T')) {
-              fechaFormateada = estudiante.fecha_nacimiento.split('T')[0];
-            } else if (estudiante.fecha_nacimiento.includes(' ')) {
-              fechaFormateada = estudiante.fecha_nacimiento.split(' ')[0];
-            } else if (/^\d{4}-\d{2}-\d{2}$/.test(estudiante.fecha_nacimiento)) {
-              fechaFormateada = estudiante.fecha_nacimiento;
-            } else {
-              const fecha = new Date(estudiante.fecha_nacimiento);
-              if (!isNaN(fecha.getTime())) {
-                fechaFormateada = fecha.toISOString().split('T')[0];
-              }
-            }
-          } else if (estudiante.fecha_nacimiento instanceof Date) {
-            fechaFormateada = estudiante.fecha_nacimiento.toISOString().split('T')[0];
-          }
-          
-          console.log("Fecha formateada:", fechaFormateada);
-          
-          if (fechaFormateada) {
-            setTimeout(() => {
-              handleInputChange('estudiante', 'fechaNacimiento', fechaFormateada);
-              console.log("Fecha establecida en el formulario:", fechaFormateada);
-            }, 0);
-          } else {
-            console.error("No se pudo formatear la fecha:", estudiante.fecha_nacimiento);
-          }
-        }
-        
-        handleInputChange('estudiante', 'correo', estudiante.correo || '');
-        handleInputChange('estudiante', 'correoPertenece', estudiante.propietario_correo || '');
-        
-        if (estudiante.colegio) {
-          handleInputChange('estudiante', 'departamentoSeleccionado', estudiante.colegio.departamento);
-          handleInputChange('estudiante', 'distrito', estudiante.colegio.distrito);
-          handleInputChange('estudiante', 'colegio', estudiante.colegio.nombre_colegio);
-        }
-        
-        // Manejar la normalización del grado/curso en un bloque try-catch separado
-        try {
-          if (estudiante.grado && estudiante.grado.nombre_grado) {
-            const gradoNombre = estudiante.grado.nombre_grado;
-            console.log("Grado recibido del backend:", gradoNombre);
-            
-            // Normalizar el nombre del grado para que coincida con las opciones del desplegable
-            let cursoNormalizado = gradoNombre;
-            
-            // Primero verificar si ya hay una coincidencia exacta
-            if (CURSOS.includes(gradoNombre)) {
-              cursoNormalizado = gradoNombre;
-            } else {
-              // Si no hay coincidencia exacta, intentamos normalizar
-              const gradoLower = gradoNombre.toLowerCase();
-              
-              // Detectar si es primaria o secundaria
-              const esPrimaria = gradoLower.includes('primaria');
-              const esSecundaria = gradoLower.includes('secundaria');
-              
-              // Extraer el número del grado
-              const numeroMatch = gradoLower.match(/\d+/);
-              const numero = numeroMatch ? numeroMatch[0] : '';
-              
-              if (numero) {
-                // Buscar coincidencias en el array CURSOS
-                const posibleCurso = CURSOS.find(curso => {
-                  const cursoLower = curso.toLowerCase();
-                  
-                  // Verificar si coincide el nivel (primaria/secundaria) y el número
-                  if (esPrimaria && cursoLower.includes('primaria') && cursoLower.includes(numero)) {
-                    return true;
-                  }
-                  if (esSecundaria && cursoLower.includes('secundaria') && cursoLower.includes(numero)) {
-                    return true;
-                  }
-                  return false;
-                });
-                
-                if (posibleCurso) {
-                  cursoNormalizado = posibleCurso;
+  const buscarEstudiantePorCI = async (ci) => {
+    if (ci?.length >= 7) {
+      setIsSearching(true);
+      console.log("Buscando estudiante con CI:", ci);
+
+      try {
+        const apiUrl = `http://localhost:8000/api/buscarEstudiante/${ci}`;
+        console.log("Consultando API en:", apiUrl);
+
+        const response = await axios.get(apiUrl);
+        console.log("Respuesta recibida:", response.data);
+
+        if (response.data.found) {
+          const estudiante = response.data.estudiante;
+
+          handleInputChange("estudiante", "nombres", estudiante.nombre);
+          handleInputChange(
+            "estudiante",
+            "apellidoPaterno",
+            estudiante.apellido_pa
+          );
+          handleInputChange(
+            "estudiante",
+            "apellidoMaterno",
+            estudiante.apellido_ma
+          );
+
+          // Formatear correctamente la fecha (yyyy-mm-dd)
+          if (estudiante.fecha_nacimiento) {
+            console.log(
+              "Fecha original recibida:",
+              estudiante.fecha_nacimiento
+            );
+
+            let fechaFormateada;
+
+            if (typeof estudiante.fecha_nacimiento === "string") {
+              if (estudiante.fecha_nacimiento.includes("T")) {
+                fechaFormateada = estudiante.fecha_nacimiento.split("T")[0];
+              } else if (estudiante.fecha_nacimiento.includes(" ")) {
+                fechaFormateada = estudiante.fecha_nacimiento.split(" ")[0];
+              } else if (
+                /^\d{4}-\d{2}-\d{2}$/.test(estudiante.fecha_nacimiento)
+              ) {
+                fechaFormateada = estudiante.fecha_nacimiento;
+              } else {
+                const fecha = new Date(estudiante.fecha_nacimiento);
+                if (!isNaN(fecha.getTime())) {
+                  fechaFormateada = fecha.toISOString().split("T")[0];
                 }
               }
+            } else if (estudiante.fecha_nacimiento instanceof Date) {
+              fechaFormateada = estudiante.fecha_nacimiento
+                .toISOString()
+                .split("T")[0];
             }
-            
-            console.log("Grado normalizado:", cursoNormalizado);
-            
-            // Establecer el curso normalizado en el formulario
-            handleInputChange('estudiante', 'curso', cursoNormalizado);
-          }
-        } catch (cursoError) {
-          console.error("Error al procesar el curso:", cursoError);
-          // No mostramos error al usuario para no interrumpir el flujo
-        }
-        
-        setEstudianteFound(true);
-        console.log("Estudiante encontrado:", estudiante);
-      } else {
-        setEstudianteFound(false);
-        console.log("No se encontró estudiante con ese CI");
-      }
-    } catch (error) {
-      console.error("Error al buscar estudiante:", error);
-      setErrors(prev => ({
-        ...prev,
-        ci: "Error al buscar en la base de datos. Intente de nuevo."
-      }));
-      setEstudianteFound(false);
-    } finally {
-      setIsSearching(false);
-    }
-  }
-};
 
+            console.log("Fecha formateada:", fechaFormateada);
+
+            if (fechaFormateada) {
+              setTimeout(() => {
+                handleInputChange(
+                  "estudiante",
+                  "fechaNacimiento",
+                  fechaFormateada
+                );
+                console.log(
+                  "Fecha establecida en el formulario:",
+                  fechaFormateada
+                );
+              }, 0);
+            } else {
+              console.error(
+                "No se pudo formatear la fecha:",
+                estudiante.fecha_nacimiento
+              );
+            }
+          }
+
+          handleInputChange("estudiante", "correo", estudiante.correo || "");
+          handleInputChange(
+            "estudiante",
+            "correoPertenece",
+            estudiante.propietario_correo || ""
+          );
+
+          if (estudiante.colegio) {
+            handleInputChange(
+              "estudiante",
+              "departamentoSeleccionado",
+              estudiante.colegio.departamento
+            );
+            handleInputChange(
+              "estudiante",
+              "distrito",
+              estudiante.colegio.distrito
+            );
+            handleInputChange(
+              "estudiante",
+              "colegio",
+              estudiante.colegio.nombre_colegio
+            );
+          }
+
+          // Manejar la normalización del grado/curso en un bloque try-catch separado
+          try {
+            if (estudiante.grado && estudiante.grado.nombre_grado) {
+              const gradoNombre = estudiante.grado.nombre_grado;
+              console.log("Grado recibido del backend:", gradoNombre);
+
+              // Normalizar el nombre del grado para que coincida con las opciones del desplegable
+              let cursoNormalizado = gradoNombre;
+
+              // Primero verificar si ya hay una coincidencia exacta
+              if (CURSOS.includes(gradoNombre)) {
+                cursoNormalizado = gradoNombre;
+              } else {
+                // Si no hay coincidencia exacta, intentamos normalizar
+                const gradoLower = gradoNombre.toLowerCase();
+
+                // Detectar si es primaria o secundaria
+                const esPrimaria = gradoLower.includes("primaria");
+                const esSecundaria = gradoLower.includes("secundaria");
+
+                // Extraer el número del grado
+                const numeroMatch = gradoLower.match(/\d+/);
+                const numero = numeroMatch ? numeroMatch[0] : "";
+
+                if (numero) {
+                  // Buscar coincidencias en el array CURSOS
+                  const posibleCurso = CURSOS.find((curso) => {
+                    const cursoLower = curso.toLowerCase();
+
+                    // Verificar si coincide el nivel (primaria/secundaria) y el número
+                    if (
+                      esPrimaria &&
+                      cursoLower.includes("primaria") &&
+                      cursoLower.includes(numero)
+                    ) {
+                      return true;
+                    }
+                    if (
+                      esSecundaria &&
+                      cursoLower.includes("secundaria") &&
+                      cursoLower.includes(numero)
+                    ) {
+                      return true;
+                    }
+                    return false;
+                  });
+
+                  if (posibleCurso) {
+                    cursoNormalizado = posibleCurso;
+                  }
+                }
+              }
+
+              console.log("Grado normalizado:", cursoNormalizado);
+
+              // Establecer el curso normalizado en el formulario
+              handleInputChange("estudiante", "curso", cursoNormalizado);
+            }
+          } catch (cursoError) {
+            console.error("Error al procesar el curso:", cursoError);
+            // No mostramos error al usuario para no interrumpir el flujo
+          }
+
+          setEstudianteFound(true);
+          console.log("Estudiante encontrado:", estudiante);
+        } else {
+          setEstudianteFound(false);
+          console.log("No se encontró estudiante con ese CI");
+        }
+      } catch (error) {
+        console.error("Error al buscar estudiante:", error);
+        setErrors((prev) => ({
+          ...prev,
+          ci: "Error al buscar en la base de datos. Intente de nuevo.",
+        }));
+        setEstudianteFound(false);
+      } finally {
+        setIsSearching(false);
+      }
+    }
+  };
 
   const handleCIChange = (value) => {
     handleInputChange("estudiante", "ci", value);
     setErrors((prev) => ({ ...prev, ci: "" }));
-    
+
     if (value.length >= 7 && value.length <= 8) {
       buscarEstudiantePorCI(value);
     } else if (value.length < 7) {
       setEstudianteFound(false);
     }
   };
-
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -205,9 +250,13 @@ const buscarEstudiantePorCI = async (ci) => {
 
     try {
       // Transformar el formato del curso antes de guardarlo
-      const cursoFormateado = transformarFormatoCurso(formData.estudiante?.curso);
-      console.log(`Curso original: "${formData.estudiante?.curso}" → Formateado: "${cursoFormateado}"`);
-      
+      const cursoFormateado = transformarFormatoCurso(
+        formData.estudiante?.curso
+      );
+      console.log(
+        `Curso original: "${formData.estudiante?.curso}" → Formateado: "${cursoFormateado}"`
+      );
+
       const updatedData = {
         ...globalData,
         estudiante: {
@@ -249,9 +298,9 @@ const buscarEstudiantePorCI = async (ci) => {
     <div className="flex flex-col items-center">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl">
         {/* Columna 1: Datos Personales */}
-        <DatosPersonalesForm 
-          formData={formData} 
-          handleInputChange={handleInputChange} 
+        <DatosPersonalesForm
+          formData={formData}
+          handleInputChange={handleInputChange}
           handleCIChange={handleCIChange}
           errors={errors}
           isSearching={isSearching}
@@ -259,7 +308,7 @@ const buscarEstudiantePorCI = async (ci) => {
         />
 
         {/* Columna 2: Datos del Colegio */}
-        <DatosColegioForm 
+        <DatosColegioForm
           formData={formData}
           handleInputChange={handleInputChange}
           errors={errors}
