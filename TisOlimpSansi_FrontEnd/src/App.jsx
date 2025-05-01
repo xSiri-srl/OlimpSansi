@@ -22,9 +22,11 @@ import PreInscritos from "./pages/Administrador/Reportes/PreInscritos";
 import InscritosVerificados from "./pages/Administrador/Reportes/InscritosVerificados";
 import OrdenesPago from "./pages/Administrador/Reportes/OrdenesPago";
 import Propuesta from "./pages/OrdenDePago/Propuesta";
-import ConvocatoriasPublicadas from "./pages/Administrador/ConvocatoriasPublicadas";
-import SubirConvocatoria from "./pages/Administrador/SubirConvocatoria";
+
+
 import EditarConvocatoria from "./pages/Administrador/EditarConvocatoria";
+import ConvocatoriasPublicadas from "./pages/Administrador/Convocatorias/ConvocatoriasPublicadas";
+import SubirConvocatoria from "./pages/Administrador/Convocatorias/SubirConvocatoria";
 
 export default function App() {
   return (
@@ -97,10 +99,10 @@ export default function App() {
              element={<OrdenesPago />}
               />
               <Route path="/admin/convocatoria"
-             element={<ConvocatoriasPublicadas />}
+             element={<ConvocatoriasPublicadas/>}
               />
                 <Route path="/nueva-convocatoria"
-             element={<SubirConvocatoria />}
+             element={<SubirConvocatoria/>}
               />
           <Route path="/editar-convocatoria/:id"
              element={<EditarConvocatoria />}
