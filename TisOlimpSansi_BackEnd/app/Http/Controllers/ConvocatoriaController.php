@@ -70,7 +70,7 @@ class ConvocatoriaController extends Controller
             'titulo' => 'sometimes|string|max:255',
             'descripcion' => 'nullable|string',
             'id_area' => 'sometimes|integer|exists:area,id',
-            'imagen' => 'sometimes|image|mimes:jpg,jpeg,png|max:2048',
+            'imagen' => 'sometimes|image|mimes:jpg,jpeg,png|max:5120',
             'documento_pdf' => 'sometimes|file|mimes:pdf|max:5120',
         ]);
 
