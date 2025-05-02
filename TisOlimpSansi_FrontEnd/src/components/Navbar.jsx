@@ -3,6 +3,7 @@ import { navbarLinksByRole } from "../data/data";
 import { IoIosMenu } from "react-icons/io";
 import { FaUserCircle } from "react-icons/fa";
 import ResponsiveMenu from "./ResponsiveMenu";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
@@ -13,8 +14,15 @@ const Navbar = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState("");
+const [showRegister, setShowRegister] = useState(false); 
+const [newUsername, setNewUsername] = useState("");
+const [newPassword, setNewPassword] = useState("");
+const [registerError, setRegisterError] = useState("");
+
 
   const navigate = useNavigate();
+
+  const endpoint = "http://localhost:8000/api"; 
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
@@ -24,29 +32,53 @@ const Navbar = () => {
 
   const navbarLinks = navbarLinksByRole[role] || [];
 
+  const loginUser = async (username, password) => {
+    try {
+      const response = await axios.post(`${endpoint}/login`, {
+        email: username,
+        password: password,
+      }, {
+        withCredentials: true,
+      });
+  
+      return response.data;
+    } catch (error) {
+      throw error.response?.data?.message || "Error en el login";
+    }
+  };
+  const registerUser = async (username, password) => {
+    try {
+      const response = await axios.post(`${endpoint}/register`, {
+        name: username,
+        email: username,
+        password: password,
+        password_confirmation: password,
+      });
+  
+      return response.data;
+    } catch (error) {
+      throw error.response?.data?.message || "Error en el registro";
+    }
+  };
   const handleLogin = (e) => {
     e.preventDefault();
-
-    // Verificar credenciales
-    if (username === "ohsansi" && password === "nosabemos") {
-      // Credenciales correctas
+    const savedUser = JSON.parse(localStorage.getItem("adminUser"));
+  
+    if (savedUser && username === savedUser.username && password === savedUser.password) {
       setLoginError("");
       setShowLoginModal(false);
-
-      // Cambiar rol a admin
       setRole("admin");
       localStorage.setItem("user", JSON.stringify({ role: "admin" }));
       setShowSidebar(false);
       navigate("/admin/generar-reportes");
-
-      // Limpiar el formulario
       setUsername("");
       setPassword("");
     } else {
-      // Credenciales incorrectas
       setLoginError("Credenciales incorrectas. Por favor, inténtalo de nuevo.");
     }
   };
+
+
 
   const toggleRole = () => {
     if (role === "responsable") {
@@ -146,80 +178,136 @@ const Navbar = () => {
             >
               Cambiar a {role === "admin" ? "Responsable" : "Administrador"}
             </button>
+            <button
+              onClick={() => {
+                setRole("responsable");
+                localStorage.removeItem("user");
+                setShowSidebar(false);
+                navigate("/");
+              }}
+              className="mt-4 bg-primary text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+            >
+              Cerrar sesión
+            </button>
           </div>
         </div>
       )}
 
       {/* Modal de login para administrador */}
       {showLoginModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-          <div className="bg-white rounded-lg p-6 w-80 md:w-96 shadow-xl">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold text-gray-800">
-                Acceso Administrador
-              </h2>
-              <button
-                onClick={() => {
-                  setShowLoginModal(false);
-                  setLoginError("");
-                  setUsername("");
-                  setPassword("");
-                }}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                ✕
-              </button>
-            </div>
+  <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+    <div className="bg-white rounded-lg p-6 w-80 md:w-96 shadow-xl">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-bold text-gray-800">
+          {showRegister ? "Registro" : "Acceso Administrador"}
+        </h2>
+        <button
+          onClick={() => {
+            setShowLoginModal(false);
+            setLoginError("");
+            setRegisterError("");
+            setUsername("");
+            setPassword("");
+            setNewUsername("");
+            setNewPassword("");
+            setShowRegister(false);
+          }}
+          className="text-gray-500 hover:text-gray-700"
+        >
+          ✕
+        </button>
+      </div>
 
-            <form onSubmit={handleLogin}>
-              <div className="mb-4">
-                <label
-                  htmlFor="username"
-                  className="block text-gray-700 text-sm font-medium mb-1"
-                >
-                  Usuario
-                </label>
-                <input
-                  type="text"
-                  id="username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                  required
-                />
-              </div>
-
-              <div className="mb-4">
-                <label
-                  htmlFor="password"
-                  className="block text-gray-700 text-sm font-medium mb-1"
-                >
-                  Contraseña
-                </label>
-                <input
-                  type="password"
-                  id="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                  required
-                />
-              </div>
-
-              {loginError && (
-                <div className="mb-4 text-sm text-red-600">{loginError}</div>
-              )}
-
-              <button
-                type="submit"
-                className="w-full bg-primary text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-300"
-              >
-                Iniciar sesión
-              </button>
-            </form>
+      {showRegister ? (
+        <form onSubmit={(e) => {
+          e.preventDefault();
+          const existingUser = JSON.parse(localStorage.getItem("adminUser"));
+          if (existingUser?.username === newUsername) {
+            setRegisterError("El usuario ya existe.");
+          } else {
+            localStorage.setItem("adminUser", JSON.stringify({ username: newUsername, password: newPassword }));
+            setRegisterError("");
+            setShowRegister(false); // volver al login
+            alert("Usuario registrado correctamente");
+          }
+        }}>
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-medium mb-1">Nuevo usuario</label>
+            <input
+              type="text"
+              value={newUsername}
+              onChange={(e) => setNewUsername(e.target.value)}
+              className="w-full px-3 py-2 border rounded-md"
+              required
+            />
           </div>
-        </div>
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-medium mb-1">Contraseña</label>
+            <input
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              className="w-full px-3 py-2 border rounded-md"
+              required
+            />
+          </div>
+          {registerError && <p className="text-red-600 text-sm mb-2">{registerError}</p>}
+          <button type="submit" className="w-full bg-primary text-white py-2 rounded-md">
+            Registrar
+          </button>
+          <p className="text-sm text-center mt-3">
+            ¿Ya tienes cuenta?{" "}
+            <button
+              type="button"
+              onClick={() => setShowRegister(false)}
+              className="text-primary underline"
+            >
+              Inicia sesión
+            </button>
+          </p>
+        </form>
+      ) : (
+        <form onSubmit={handleLogin}>
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-medium mb-1">Usuario</label>
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="w-full px-3 py-2 border rounded-md"
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-medium mb-1">Contraseña</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-3 py-2 border rounded-md"
+              required
+            />
+          </div>
+          {loginError && <p className="text-red-600 text-sm mb-2">{loginError}</p>}
+          <button type="submit" className="w-full bg-primary text-white py-2 rounded-md">
+            Iniciar sesión
+          </button>
+          <p className="text-sm text-center mt-3">
+            ¿No tienes cuenta?{" "}
+            <button
+              type="button"
+              onClick={() => setShowRegister(true)}
+              className="text-primary underline"
+            >
+              Regístrate
+            </button>
+          </p>
+        </form>
       )}
+    </div>
+  </div>
+)}
+
     </>
   );
 };

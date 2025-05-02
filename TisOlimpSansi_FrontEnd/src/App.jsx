@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/Inicio/Inicio";
 import Navbar from "./components/Navbar";
+import { ThemeProvider } from "./ThemeContext";
 import InscripcionResponsable from "./pages/OrdenDePago/InscripcionResponsable";
 import InscripcionEstudiante from "./pages/OrdenDePago/InscripcionEstudiante";
 import InscripcionTutorLegal from "./pages/OrdenDePago/InscripcionTutorLegal";
@@ -28,6 +29,7 @@ import EditarConvocatoria from "./pages/Administrador/Convocatorias/EditarConvoc
 
 export default function App() {
   return (
+    <ThemeProvider>
     <>
       <Navbar />
       <div className="pt-20">
@@ -109,5 +111,6 @@ export default function App() {
         </FormProvider>
       </div>
     </>
+    </ThemeProvider>
   );
 }
