@@ -5,6 +5,7 @@ export default {
     "./src/**/*.{js,jsx,ts,tsx}",
     ".node_modules/leaflet/dist/leafllet.css",
   ],
+  darkMode: 'class', 
   theme: {
     extend: {
       colors:{
@@ -20,7 +21,6 @@ export default {
           xl: '5rem',
           '2xl' :'6rem'
         }
-
       }
     },
   },
