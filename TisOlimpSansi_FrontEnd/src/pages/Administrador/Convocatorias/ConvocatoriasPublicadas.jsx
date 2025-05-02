@@ -36,7 +36,6 @@ const ConvocatoriasPublicadas = () => {
   };
 
   const handleEdit = (id) => {
-    console.log("cpnvpubli",id)
     navigate(`/editar-convocatoria/${id}`);
   };
 
