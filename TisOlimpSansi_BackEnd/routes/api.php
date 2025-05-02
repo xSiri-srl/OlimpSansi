@@ -13,6 +13,7 @@ use App\Http\Controllers\Inscripcion\TutorAcademicoController;
 use App\Http\Controllers\Inscripcion\ColegioController;
 use App\Http\Controllers\Inscripcion\GradoController;
 use App\Http\Controllers\InscripcionController;
+use App\Http\Controllers\ConvocatoriaController;
 
 use App\Http\Controllers\Inscripcion\AreaController;
 use App\Http\Controllers\Inscripcion\CategoriaController;
@@ -114,6 +115,15 @@ Route::controller(GradoController::class)->group(function(){
     Route::put('/actualizarGrado/{id}', [GradoController::class, 'update']);
     Route::delete('/eliminarGrado/{id}', [GradoController::class, 'destroy']);
     
+});
+
+Route::controller(ConvocatoriaController::class)->group(function(){
+
+    Route::get('/convocatorias', [ConvocatoriaController::class, 'index']);
+    Route::post('/agregarConvocatoria', [ConvocatoriaController::class, 'store']);
+    Route::get('/convocatoria/{id}', [ConvocatoriaController::class, 'show']);
+    Route::post('/actualizarConvocatoria/{id}', [ConvocatoriaController::class, 'update']);
+    Route::delete('/eliminarConvocatoria/{id}', [ConvocatoriaController::class, 'destroy']);
 });
 
 Route::get('/orden-pago', [OrdenPagoController::class, 'obtenerOrdenPago']);
