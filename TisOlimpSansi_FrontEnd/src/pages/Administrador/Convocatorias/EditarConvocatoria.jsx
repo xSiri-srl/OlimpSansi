@@ -15,6 +15,7 @@ const areas = [
 
 const EditarConvocatoria = () => {
   const { id } = useParams(); // Obtiene el id desde la URL
+  console.log("dos",id)
   const navigate = useNavigate();
 
   // Estado para almacenar los datos de la convocatoria
@@ -35,6 +36,7 @@ const EditarConvocatoria = () => {
         const response = await axios.get(
           `http://localhost:8000/api/convocatoria/${id}`
         );
+        console.log(response)
         const data = response.data;
         const areaEncontrada = areas.find((a) => a.id === data.id_area);
         console.log(response);
@@ -95,7 +97,10 @@ const EditarConvocatoria = () => {
     }
 
     try {
-      await axios.put(
+      for (let [key, value] of formData.entries()) {
+        console.log(key, value);
+    }
+      await axios.post(
         `http://localhost:8000/api/actualizarConvocatoria/${id}`,
         formData,
         {
@@ -106,7 +111,7 @@ const EditarConvocatoria = () => {
       );
 
       alert("Convocatoria actualizada con éxito.");
-      navigate("/convocatoria");
+      navigate("/admin/convocatoria");
     } catch (error) {
       console.error("Error al actualizar la convocatoria:", error);
       alert("Hubo un error al actualizar la convocatoria.");
