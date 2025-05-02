@@ -122,7 +122,7 @@ Route::controller(ConvocatoriaController::class)->group(function(){
     Route::get('/convocatorias', [ConvocatoriaController::class, 'index']);
     Route::post('/agregarConvocatoria', [ConvocatoriaController::class, 'store']);
     Route::get('/convocatoria/{id}', [ConvocatoriaController::class, 'show']);
-    Route::put('/actualizarConvocatoria/{id}', [ConvocatoriaController::class, 'update']);
+    Route::post('/actualizarConvocatoria/{id}', [ConvocatoriaController::class, 'update']);
     Route::delete('/eliminarConvocatoria/{id}', [ConvocatoriaController::class, 'destroy']);
 });
 
