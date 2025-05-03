@@ -15,7 +15,6 @@ const areas = [
 
 const EditarConvocatoria = () => {
   const { id } = useParams(); // Obtiene el id desde la URL
-  console.log("dos",id)
   const navigate = useNavigate();
 
   // Estado para almacenar los datos de la convocatoria
@@ -33,13 +32,9 @@ const EditarConvocatoria = () => {
   useEffect(() => {
     const fetchConvocatoria = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:8000/api/convocatoria/${id}`
-        );
         console.log(response)
         const data = response.data;
         const areaEncontrada = areas.find((a) => a.id === data.id_area);
-        console.log(response);
         
         setTitulo(data.titulo);
         setDescripcion(data.descripcion);
