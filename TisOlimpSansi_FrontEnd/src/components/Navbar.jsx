@@ -256,7 +256,7 @@ const [registerError, setRegisterError] = useState("");
             Registrar
           </button>
           <p className="text-sm text-center mt-3">
-            ¿Ya tienes cuenta?{" "}
+            {" "}
             <button
               type="button"
               onClick={() => setShowRegister(false)}
