@@ -13,21 +13,24 @@ const areas = [
 
 const SubirConvocatoria = () => {
   const [titulo, setTitulo] = useState("");
-  const [descripcion, setDescripcion] = useState("");
-  const [fecha, setFecha] = useState(""); // Solo si la quieres enviar
   const [area, setArea] = useState("");
-  const [imagen, setImagen] = useState(null);
   const [documento, setDocumento] = useState(null);
-  const [fileKey, setFileKey] = useState(0); // Para forzar la recreación del input de archivo
+  const [errors, setErrors] = useState({});
+  const [fileKey, setFileKey] = useState(0);
+
+  const validarCampos = () => {
+    const nuevosErrores = {};
+    if (!titulo.trim()) nuevosErrores.titulo = "El título es obligatorio.";
+    if (!area) nuevosErrores.area = "Selecciona un área.";
+    if (!documento) nuevosErrores.documento = "El documento PDF es obligatorio.";
+    setErrors(nuevosErrores);
+    return Object.keys(nuevosErrores).length === 0;
+  };
 
   const handlePublicar = async () => {
-    if (!titulo || !area || !imagen || !documento) {
-      alert("Por favor completa todos los campos obligatorios.");
-      return;
-    }
+    if (!validarCampos()) return;
 
     const areaSeleccionada = areas.find((a) => a.nombre === area);
-    console.log(areaSeleccionada);
     if (!areaSeleccionada) {
       alert("Área no válida.");
       return;
@@ -35,9 +38,7 @@ const SubirConvocatoria = () => {
 
     const formData = new FormData();
     formData.append("titulo", titulo);
-    formData.append("descripcion", descripcion);
-    formData.append("id_area", areaSeleccionada.id);
-    formData.append("imagen", imagen);
+    formData.append("id_area", areaSeleccionada.id); // ✅ ID correcto
     formData.append("documento_pdf", documento);
 
     try {
@@ -54,19 +55,13 @@ const SubirConvocatoria = () => {
       alert("Convocatoria publicada con éxito.");
       console.log(response.data);
 
-      // Limpiar el formulario después de la publicación
+      // Limpiar formulario
       setTitulo("");
-      setDescripcion("");
-      setFecha("");
       setArea("");
-      setImagen(null);
       setDocumento(null);
-
-      // Forzar la limpieza visual de los campos de archivo
+      setErrors({});
       setFileKey((prevKey) => prevKey + 1);
-
     } catch (error) {
-      // Verificar si error.response existe
       if (error.response) {
         console.error("Error al subir la convocatoria:", error.response.data);
       } else {
@@ -88,85 +83,72 @@ const SubirConvocatoria = () => {
             Título
           </label>
           <input
-            type="text"
-            value={titulo}
-            onChange={(e) => setTitulo(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition"
-            placeholder="Ej. Convocatoria Nacional 2025"
-          />
+  type="text"
+  value={titulo}
+  onChange={(e) => setTitulo(e.target.value)}
+  maxLength={35} 
+  className={`w-full border rounded-lg px-4 py-2 transition focus:outline-none focus:ring-2 ${
+    errors.titulo
+      ? "border-red-400 focus:ring-red-400"
+      : "border-gray-300 focus:ring-cyan-500"
+  }`}
+  placeholder="Ej. Convocatoria Nacional 2025"
+/>
+
+{errors.titulo && (
+  <p className="text-red-500 text-sm mt-1">⚠️ {errors.titulo}</p>
+)}
+
         </div>
 
         <div>
           <label className="block text-sm font-medium text-cyan-800 mb-1">
-            Descripción
+            Área
           </label>
-          <textarea
-            value={descripcion}
-            onChange={(e) => setDescripcion(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2 h-28 resize-none focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition"
-            placeholder="Escribe una descripción breve..."
-          />
+          <select
+            value={area}
+            onChange={(e) => setArea(e.target.value)}
+            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition bg-white"
+          >
+            <option value="">Selecciona un área</option>
+            {areas.map((a) => (
+              <option key={a.id} value={a.nombre}>
+                {a.nombre}
+              </option>
+            ))}
+          </select>
+          {errors.area && (
+            <p className="text-red-500 text-sm mt-1">⚠️ {errors.area}</p>
+          )}
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-sm font-medium text-cyan-800 mb-1">
-              Fecha de Publicación
+        <div>
+          <label className="block text-sm font-medium text-cyan-800 mb-1">
+            Subir el documento PDF de la convocatoria
+          </label>
+          <div
+            className={`p-6 border-2 border-dashed rounded-xl text-center transition ${
+              errors.documento
+                ? "border-red-400 bg-red-50"
+                : "border-cyan-400 bg-cyan-50"
+            }`}
+          >
+            <label className="cursor-pointer flex flex-col items-center gap-2">
+              <div className="text-4xl">📄</div>
+              <span className="text-cyan-800 font-semibold">
+                {documento ? documento.name : "Haz clic o arrastra un archivo PDF aquí"}
+              </span>
+              <input
+                key={fileKey}
+                type="file"
+                accept="application/pdf"
+                onChange={(e) => setDocumento(e.target.files[0])}
+                className="hidden"
+              />
             </label>
-            <input
-              type="date"
-              value={fecha}
-              onChange={(e) => setFecha(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-cyan-800 mb-1">
-              Área
-            </label>
-            <select
-              value={area}
-              onChange={(e) => setArea(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition bg-white"
-            >
-              <option value="">Selecciona un área</option>
-              <option value="Informática">Informática</option>
-              <option value="Robótica">Robótica</option>
-              <option value="Química">Química</option>
-              <option value="Astronomía Astrofísica">Astronomía Astrofísica</option>
-              <option value="Matemáticas">Matemáticas</option>
-              <option value="Física">Física</option>
-              <option value="Biología">Biología</option>
-            </select>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-sm font-medium text-cyan-800 mb-1">
-              Imagen
-            </label>
-            <input
-              key={fileKey} // Aquí cambiamos el key para forzar la recreación
-              type="file"
-              accept="image/*"
-              onChange={(e) => setImagen(e.target.files[0])}
-              className="w-full border border-dashed border-cyan-300 p-3 bg-gray-50 rounded-lg text-sm file:cursor-pointer focus:outline-none focus:ring-2 focus:ring-cyan-500"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-cyan-800 mb-1">
-              Documento (PDF)
-            </label>
-            <input
-              key={fileKey} // Aquí también cambiamos el key para forzar la recreación
-              type="file"
-              accept="application/pdf"
-              onChange={(e) => setDocumento(e.target.files[0])}
-              className="w-full border border-dashed border-cyan-300 p-3 bg-gray-50 rounded-lg text-sm file:cursor-pointer focus:outline-none focus:ring-2 focus:ring-cyan-500"
-            />
+            {errors.documento && (
+              <p className="text-red-500 text-sm mt-2">⚠️ {errors.documento}</p>
+            )}
           </div>
         </div>
 
