@@ -1,18 +1,44 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { Tooltip } from "react-tooltip";
-
-const convocatorias = [
-  { id: 1, title: "CONVOCATORIA FÍSICA", image: "/images/geografia.png" },
-  { id: 2, title: "CONVOCATORIA DIGITAL", image: "/images/biologia.png" },
-  { id: 3, title: "CONVOCATORIA 2025", image: "/images/informatica.png" },
- 
-];
+import axios from "axios";
 
 const ConvocatoriasPublicadas = () => {
+  const [convocatorias, setConvocatorias] = useState([]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchConvocatorias = async () => {
+      try {
+        const response = await axios.get("http://localhost:8000/api/convocatorias");
+        setConvocatorias(response.data);
+        
+      } catch (error) {
+        console.error("Error al obtener convocatorias", error);
+      }
+    };
+
+    fetchConvocatorias();
+  }, []);
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("¿Estás seguro de eliminar esta convocatoria?")) return;
+  
+    try {
+      await axios.delete(`http://localhost:8000/api/eliminarConvocatoria/${id}`);
+      setConvocatorias(prev => prev.filter(c => c.id !== id));
+    } catch (error) {
+      console.error("Error al eliminar la convocatoria", error);
+      alert("Ocurrió un error al eliminar.");
+    }
+  };
+
+  const handleEdit = (id) => {
+    console.log("cpnvpubli",id)
+    navigate(`/editar-convocatoria/${id}`);
+  };
 
   return (
     <div className="px-6 py-10 min-h-screen bg-gradient-to-br from-cyan-50 to-white">
@@ -29,17 +55,19 @@ const ConvocatoriasPublicadas = () => {
             transition={{ delay: index * 0.1 }}
             className="relative bg-white w-full h-80 max-w-sm mx-auto rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-300"
           >
+            {/* Aquí usamos la imagen y título provenientes de la respuesta de la API */}
             <img
-              src={item.image}
+              src={item.imagen}
               alt="Convocatoria"
               className="w-full h-40 object-cover"
             />
             <div className="p-4">
               <h2 className="text-lg font-semibold text-gray-800 mb-2 truncate">
-                {item.title}
+                {item.titulo} {/* Mostramos el título de la convocatoria */}
               </h2>
               <div className="flex justify-end gap-3">
                 <button
+                  onClick={() => handleEdit(item.id)}
                   data-tooltip-id={`edit-${item.id}`}
                   className="text-cyan-600 hover:text-cyan-800 transition-colors"
                 >
@@ -49,6 +77,7 @@ const ConvocatoriasPublicadas = () => {
                 <button
                   data-tooltip-id={`delete-${item.id}`}
                   className="text-red-500 hover:text-red-700 transition-colors"
+                  onClick={() => handleDelete(item.id)}
                 >
                   <FaTrash />
                 </button>

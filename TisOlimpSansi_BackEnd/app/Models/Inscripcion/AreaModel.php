@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Inscripcion\CategoriaModel;
 use App\Models\Inscripcion\InscripcionModel;
+use App\Models\ConvocatoriaModel;
 
 class AreaModel extends Model
 {
@@ -17,5 +18,9 @@ class AreaModel extends Model
 
     public function categoria(){
         return $this->hasMany(CategoriaModel::class, 'id_area');
+    }
+
+    public function convocatoria(){
+        return $this->hasMany(ConvocatoriaModel::class, 'id_area');
     }
 }

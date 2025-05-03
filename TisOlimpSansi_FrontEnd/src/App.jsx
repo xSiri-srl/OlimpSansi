@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/Inicio/Inicio";
 import Navbar from "./components/Navbar";
+import { ThemeProvider } from "./ThemeContext";
 import InscripcionResponsable from "./pages/OrdenDePago/InscripcionResponsable";
 import InscripcionEstudiante from "./pages/OrdenDePago/InscripcionEstudiante";
 import InscripcionTutorLegal from "./pages/OrdenDePago/InscripcionTutorLegal";
@@ -24,9 +25,11 @@ import OrdenesPago from "./pages/Administrador/Reportes/OrdenesPago";
 import Propuesta from "./pages/OrdenDePago/Propuesta";
 import ConvocatoriasPublicadas from "./pages/Administrador/Convocatorias/ConvocatoriasPublicadas";
 import SubirConvocatoria from "./pages/Administrador/Convocatorias/SubirConvocatoria";
+import EditarConvocatoria from "./pages/Administrador/Convocatorias/EditarConvocatoria";
 
 export default function App() {
   return (
+    <ThemeProvider>
     <>
       <Navbar />
       <div className="pt-20">
@@ -86,20 +89,28 @@ export default function App() {
               path="/admin/descargar_listas"
               element={<DescargarListas />}
             />
-            <Route path="/admin/preInscritos" element={<PreInscritos />} />
-            <Route
-              path="/admin/inscritos_verificados"
-              element={<InscritosVerificados />}
-            />
-            <Route path="/admin/ordenes-pago" element={<OrdenesPago />} />
-            <Route
-              path="/admin/convocatoria"
-              element={<ConvocatoriasPublicadas />}
-            />
-            <Route path="/nueva-convocatoria" element={<SubirConvocatoria />} />
+            <Route path="/admin/preInscritos"
+             element={<PreInscritos />}
+              />
+            <Route path="/admin/inscritos_verificados"
+             element={<InscritosVerificados />}
+              />
+            <Route path="/admin/ordenes-pago"
+             element={<OrdenesPago />}
+              />
+              <Route path="/admin/convocatoria"
+             element={<ConvocatoriasPublicadas />}
+              />
+                <Route path="/nueva-convocatoria"
+             element={<SubirConvocatoria />}
+              />
+          <Route path="/editar-convocatoria/:id"
+             element={<EditarConvocatoria />}
+          />
           </Routes>
         </FormProvider>
       </div>
     </>
+    </ThemeProvider>
   );
 }
