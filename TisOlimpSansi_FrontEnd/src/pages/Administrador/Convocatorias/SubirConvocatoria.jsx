@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const areas = [
@@ -18,13 +19,45 @@ const SubirConvocatoria = () => {
   const [errors, setErrors] = useState({});
   const [fileKey, setFileKey] = useState(0);
 
+  const navigate = useNavigate();
+
   const validarCampos = () => {
     const nuevosErrores = {};
-    if (!titulo.trim()) nuevosErrores.titulo = "El título es obligatorio.";
-    if (!area) nuevosErrores.area = "Selecciona un área.";
-    if (!documento) nuevosErrores.documento = "El documento PDF es obligatorio.";
+
+    if (!titulo.trim()) {
+      nuevosErrores.titulo = "El título es obligatorio.";
+    } else if (titulo.trim().length < 5 || titulo.trim().length > 100) {
+      nuevosErrores.titulo = "El título debe tener entre 5 y 100 caracteres.";
+    }
+
+    if (!area) {
+      nuevosErrores.area = "Selecciona un área.";
+    }
+
+    if (!documento) {
+      nuevosErrores.documento = "El documento PDF es obligatorio.";
+    } else {
+      const esPDF = documento.type === "application/pdf";
+      const esMenorDe5MB = documento.size <= 5 * 1024 * 1024;
+      if (!esPDF) {
+        nuevosErrores.documento = "Solo se permiten archivos en formato PDF.";
+      } else if (!esMenorDe5MB) {
+        nuevosErrores.documento = "El archivo no debe superar los 5 MB.";
+      }
+    }
+
     setErrors(nuevosErrores);
     return Object.keys(nuevosErrores).length === 0;
+  };
+
+  const existeConvocatoria = async (id_area) => {
+    try {
+      const res = await axios.get(`http://localhost:8000/api/convocatoriaPorArea/${id_area}`);
+      return res.data?.existe || false;
+    } catch (error) {
+      console.error("Error al verificar convocatoria existente:", error);
+      return false;
+    }
   };
 
   const handlePublicar = async () => {
@@ -36,9 +69,17 @@ const SubirConvocatoria = () => {
       return;
     }
 
+    const yaExiste = await existeConvocatoria(areaSeleccionada.id);
+    if (yaExiste) {
+      const confirmar = window.confirm(
+        `Existe una convocatoria publicada para ${areaSeleccionada.nombre}. ¿Desea reemplazarla?`
+      );
+      if (!confirmar) return;
+    }
+
     const formData = new FormData();
-    formData.append("titulo", titulo);
-    formData.append("id_area", areaSeleccionada.id); // ✅ ID correcto
+    formData.append("titulo", titulo.trim());
+    formData.append("id_area", areaSeleccionada.id);
     formData.append("documento_pdf", documento);
 
     try {
@@ -46,30 +87,36 @@ const SubirConvocatoria = () => {
         "http://localhost:8000/api/agregarConvocatoria",
         formData,
         {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
+          headers: { "Content-Type": "multipart/form-data" },
         }
       );
 
       alert("Convocatoria publicada con éxito.");
       console.log(response.data);
 
-      // Limpiar formulario
+      // Resetear formulario
       setTitulo("");
       setArea("");
       setDocumento(null);
       setErrors({});
       setFileKey((prevKey) => prevKey + 1);
+
+      // Redireccionar al panel
+      navigate("/admin/convocatorias");
+
     } catch (error) {
-      if (error.response) {
-        console.error("Error al subir la convocatoria:", error.response.data);
-      } else {
-        console.error("Error al subir la convocatoria:", error.message);
-      }
+      console.error("Error al subir la convocatoria:", error.response?.data || error.message);
       alert("Hubo un error al publicar la convocatoria.");
     }
   };
+
+  const camposValidos =
+    titulo.trim().length >= 5 &&
+    titulo.trim().length <= 100 &&
+    area &&
+    documento &&
+    documento.type === "application/pdf" &&
+    documento.size <= 10 * 1024 * 1024;
 
   return (
     <div className="max-w-3xl mx-auto p-8 mt-10 bg-white rounded-2xl shadow-xl">
@@ -78,33 +125,29 @@ const SubirConvocatoria = () => {
       </h1>
 
       <div className="space-y-6">
+        {/* TÍTULO */}
         <div>
-          <label className="block text-sm font-medium text-cyan-800 mb-1">
-            Título
-          </label>
+          <label className="block text-sm font-medium text-cyan-800 mb-1">Título</label>
           <input
-  type="text"
-  value={titulo}
-  onChange={(e) => setTitulo(e.target.value)}
-  maxLength={35} 
-  className={`w-full border rounded-lg px-4 py-2 transition focus:outline-none focus:ring-2 ${
-    errors.titulo
-      ? "border-red-400 focus:ring-red-400"
-      : "border-gray-300 focus:ring-cyan-500"
-  }`}
-  placeholder="Ej. Convocatoria Nacional 2025"
-/>
-
-{errors.titulo && (
-  <p className="text-red-500 text-sm mt-1">⚠️ {errors.titulo}</p>
-)}
-
+            type="text"
+            value={titulo}
+            onChange={(e) => setTitulo(e.target.value)}
+            maxLength={100}
+            className={`w-full border rounded-lg px-4 py-2 transition focus:outline-none focus:ring-2 ${
+              errors.titulo
+                ? "border-red-400 focus:ring-red-400"
+                : "border-gray-300 focus:ring-cyan-500"
+            }`}
+            placeholder="Ej. Convocatoria Nacional 2025"
+          />
+          {errors.titulo && (
+            <p className="text-red-500 text-sm mt-1">⚠️ {errors.titulo}</p>
+          )}
         </div>
 
+        {/* ÁREA */}
         <div>
-          <label className="block text-sm font-medium text-cyan-800 mb-1">
-            Área
-          </label>
+          <label className="block text-sm font-medium text-cyan-800 mb-1">Área</label>
           <select
             value={area}
             onChange={(e) => setArea(e.target.value)}
@@ -122,6 +165,7 @@ const SubirConvocatoria = () => {
           )}
         </div>
 
+        {/* PDF */}
         <div>
           <label className="block text-sm font-medium text-cyan-800 mb-1">
             Subir el documento PDF de la convocatoria
@@ -152,9 +196,15 @@ const SubirConvocatoria = () => {
           </div>
         </div>
 
+        {/* BOTÓN */}
         <div className="flex justify-end">
           <button
-            className="bg-blue-600 text-white px-6 py-2 rounded-md transition duration-300 ease-in-out hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500 shadow-md"
+            disabled={!camposValidos}
+            className={`px-6 py-2 rounded-md transition duration-300 ease-in-out shadow-md ${
+              camposValidos
+                ? "bg-blue-600 text-white hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500"
+                : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            }`}
             onClick={handlePublicar}
           >
             Publicar
