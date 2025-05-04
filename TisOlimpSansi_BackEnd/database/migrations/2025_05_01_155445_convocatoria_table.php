@@ -14,9 +14,7 @@ return new class extends Migration
         Schema::create('convocatoria', function (Blueprint $table) {
             $table->id();
             $table->string('titulo');
-            $table->string('descripcion');
             $table->foreignId('id_area')->constrained('area')->onDelete('cascade');
-            $table->string('imagen');
             $table->string('documento_pdf');
             $table->timestamps();
         });
