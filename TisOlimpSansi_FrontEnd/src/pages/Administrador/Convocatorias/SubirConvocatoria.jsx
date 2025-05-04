@@ -102,7 +102,7 @@ const SubirConvocatoria = () => {
       setFileKey((prevKey) => prevKey + 1);
 
       // Redireccionar al panel
-      navigate("/admin/convocatorias");
+      navigate("/admin/convocatoria");
 
     } catch (error) {
       console.error("Error al subir la convocatoria:", error.response?.data || error.message);
