@@ -75,5 +75,22 @@ class ConvocatoriaController extends Controller
         Storage::disk('public')->delete($convocatoria->documento_pdf);
         $convocatoria->delete();
         return response()->json(['mensaje' => 'Convocatoria eliminada correctamente']);
-    } 
+    }
+
+    public function convocatoriaPorArea(string $id)
+    {
+        $convocatorias = ConvocatoriaModel::where('id_area', $id)->first();
+        if ($convocatorias) {
+            return response()->json([
+                'status' => 200,
+                'existe' => true,
+                'data' => $convocatorias
+            ]);
+        } else {
+            return response()->json([
+                'status' => 200,
+                'existe' => false,
+            ]);
+        }
+    }
 }

@@ -124,6 +124,7 @@ Route::controller(ConvocatoriaController::class)->group(function(){
     Route::get('/convocatoria/{id}', [ConvocatoriaController::class, 'show']);
     Route::post('/actualizarConvocatoria/{id}', [ConvocatoriaController::class, 'update']);
     Route::delete('/eliminarConvocatoria/{id}', [ConvocatoriaController::class, 'destroy']);
+    Route::get('/convocatoriaPorArea/{id}', [ConvocatoriaController::class, 'convocatoriaPorArea']);
 });
 
 Route::get('/orden-pago', [OrdenPagoController::class, 'obtenerOrdenPago']);

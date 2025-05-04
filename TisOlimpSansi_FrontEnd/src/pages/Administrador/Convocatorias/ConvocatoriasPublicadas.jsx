@@ -54,12 +54,6 @@ const ConvocatoriasPublicadas = () => {
             transition={{ delay: index * 0.1 }}
             className="relative bg-white w-full h-80 max-w-sm mx-auto rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-300"
           >
-            {/* Aquí usamos la imagen y título provenientes de la respuesta de la API */}
-            <img
-              src={item.imagen}
-              alt="Convocatoria"
-              className="w-full h-40 object-cover"
-            />
             <div className="p-4">
               <h2 className="text-lg font-semibold text-gray-800 mb-2 truncate">
                 {item.titulo} {/* Mostramos el título de la convocatoria */}
