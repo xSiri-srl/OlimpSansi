@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { FaCheckCircle } from "react-icons/fa";
+import { SiGoogledocs } from "react-icons/si";
 
 const SubirConvocatoria = () => {
   const [titulo, setTitulo] = useState("");
@@ -9,6 +11,7 @@ const SubirConvocatoria = () => {
   const [errors, setErrors] = useState({});
   const [fileKey, setFileKey] = useState(0);
   const [areas, setAreas] = useState([]);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const navigate = useNavigate();
 
@@ -62,7 +65,6 @@ const SubirConvocatoria = () => {
   const existeConvocatoria = async (id_area) => {
     try {
       const res = await axios.get(`http://localhost:8000/api/convocatoriaPorArea/${id_area}`);
-      
       return {
         existe: res.data?.existe || false,
         data: res.data?.data || null,
@@ -74,6 +76,11 @@ const SubirConvocatoria = () => {
         data: null,
       };
     }
+  };
+
+  const handleSuccessModalClose = () => {
+    setShowSuccessModal(false);
+    navigate("/admin/convocatoria");
   };
 
   const handlePublicar = async () => {
@@ -90,17 +97,16 @@ const SubirConvocatoria = () => {
       const confirmar = window.confirm(
         `Existe una convocatoria publicada para ${areaSeleccionada.nombre_area}. ¿Desea reemplazarla?`
       );
-      if(confirmar){
+      if (confirmar) {
         try {
-          const idConvocatoria = yaExiste.data.id; // ID de la convocatoria a actualizar
+          const idConvocatoria = yaExiste.data.id;
           const formData = new FormData();
           formData.append("titulo", titulo);
           formData.append("id_area", yaExiste.data.id_area);
-      
           if (documento instanceof File) {
             formData.append("documento_pdf", documento);
           }
-      
+
           await axios.post(
             `http://localhost:8000/api/actualizarConvocatoria/${idConvocatoria}`,
             formData,
@@ -110,16 +116,15 @@ const SubirConvocatoria = () => {
               },
             }
           );
-      
-          alert("Convocatoria actualizada con éxito.");
-          navigate("/admin/convocatoria");
+
+          setShowSuccessModal(true);
           return;
         } catch (error) {
           console.error("Error al actualizar convocatoria existente:", error);
           alert("Error al actualizar convocatoria existente.");
           return;
         }
-      }else{
+      } else {
         return;
       }
     }
@@ -130,7 +135,7 @@ const SubirConvocatoria = () => {
     formData.append("documento_pdf", documento);
 
     try {
-      const response = await axios.post(
+      await axios.post(
         "http://localhost:8000/api/agregarConvocatoria",
         formData,
         {
@@ -138,17 +143,13 @@ const SubirConvocatoria = () => {
         }
       );
 
-      alert("Convocatoria publicada con éxito.");
-      console.log(response.data);
-
-      // Resetear formulario
       setTitulo("");
       setArea("");
       setDocumento(null);
       setErrors({});
       setFileKey((prevKey) => prevKey + 1);
 
-      navigate("/admin/convocatoria");
+      setShowSuccessModal(true);
 
     } catch (error) {
       console.error("Error al subir la convocatoria:", error.response?.data || error.message);
@@ -171,7 +172,6 @@ const SubirConvocatoria = () => {
       </h1>
 
       <div className="space-y-6">
-        {/* TÍTULO */}
         <div>
           <label className="block text-sm font-medium text-cyan-800 mb-1">Título</label>
           <input
@@ -191,7 +191,6 @@ const SubirConvocatoria = () => {
           )}
         </div>
 
-        {/* ÁREA */}
         <div>
           <label className="block text-sm font-medium text-cyan-800 mb-1">Área</label>
           <select
@@ -211,7 +210,6 @@ const SubirConvocatoria = () => {
           )}
         </div>
 
-        {/* PDF */}
         <div>
           <label className="block text-sm font-medium text-cyan-800 mb-1">
             Subir el documento PDF de la convocatoria
@@ -224,9 +222,9 @@ const SubirConvocatoria = () => {
             }`}
           >
             <label className="cursor-pointer flex flex-col items-center gap-2">
-              <div className="text-4xl">📄</div>
+            <SiGoogledocs className="text-cyan-800 h-10 w-10"/>
               <span className="text-cyan-800 font-semibold">
-                {documento ? documento.name : "Haz clic o arrastra un archivo PDF aquí"}
+                {documento ? documento.name : "Seleccionar un archivo"}
               </span>
               <input
                 key={fileKey}
@@ -242,7 +240,6 @@ const SubirConvocatoria = () => {
           </div>
         </div>
 
-        {/* BOTÓN */}
         <div className="flex justify-end">
           <button
             disabled={!camposValidos}
@@ -257,6 +254,30 @@ const SubirConvocatoria = () => {
           </button>
         </div>
       </div>
+
+      {showSuccessModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-xl">
+            <div className="flex flex-col items-center mb-4">
+              <FaCheckCircle className="text-green-500 text-5xl mb-3" />
+              <h3 className="text-xl font-semibold text-green-600">¡Publicado correctamente!</h3>
+            </div>
+
+            <div className="text-center mb-6">
+              <p className="text-gray-700">Se publicó correctamente la convocatoria.</p>
+            </div>
+
+            <div className="flex justify-center">
+              <button
+                onClick={handleSuccessModalClose}
+                className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors shadow-md"
+              >
+                Continuar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
