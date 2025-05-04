@@ -90,7 +90,38 @@ const SubirConvocatoria = () => {
       const confirmar = window.confirm(
         `Existe una convocatoria publicada para ${areaSeleccionada.nombre_area}. ¿Desea reemplazarla?`
       );
-      if (!confirmar) return;
+      if(confirmar){
+        try {
+          const idConvocatoria = yaExiste.data.id; // ID de la convocatoria a actualizar
+          const formData = new FormData();
+          formData.append("titulo", titulo);
+          formData.append("id_area", yaExiste.data.id_area);
+      
+          if (documento instanceof File) {
+            formData.append("documento_pdf", documento);
+          }
+      
+          await axios.post(
+            `http://localhost:8000/api/actualizarConvocatoria/${idConvocatoria}`,
+            formData,
+            {
+              headers: {
+                "Content-Type": "multipart/form-data",
+              },
+            }
+          );
+      
+          alert("Convocatoria actualizada con éxito.");
+          navigate("/admin/convocatoria");
+          return;
+        } catch (error) {
+          console.error("Error al actualizar convocatoria existente:", error);
+          alert("Error al actualizar convocatoria existente.");
+          return;
+        }
+      }else{
+        return;
+      }
     }
 
     const formData = new FormData();
