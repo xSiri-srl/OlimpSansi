@@ -12,9 +12,7 @@ class ConvocatoriaModel extends Model
     protected $table = 'convocatoria';
     protected $fillable = [
         'titulo',
-        'descripcion',
         'id_area',
-        'imagen',
         'documento_pdf'
     ];
     public function areaConvocatoria(){

@@ -25,6 +25,7 @@ import OrdenesPago from "./pages/Administrador/Reportes/OrdenesPago";
 import Propuesta from "./pages/OrdenDePago/Propuesta";
 import ConvocatoriasPublicadas from "./pages/Administrador/Convocatorias/ConvocatoriasPublicadas";
 import SubirConvocatoria from "./pages/Administrador/Convocatorias/SubirConvocatoria";
+
 import EditarConvocatoria from "./pages/Administrador/Convocatorias/EditarConvocatoria";
 
 export default function App() {
@@ -99,10 +100,10 @@ export default function App() {
              element={<OrdenesPago />}
               />
               <Route path="/admin/convocatoria"
-             element={<ConvocatoriasPublicadas />}
+             element={<ConvocatoriasPublicadas/>}
               />
                 <Route path="/nueva-convocatoria"
-             element={<SubirConvocatoria />}
+             element={<SubirConvocatoria/>}
               />
           <Route path="/editar-convocatoria/:id"
              element={<EditarConvocatoria />}
