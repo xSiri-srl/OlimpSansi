@@ -1,16 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-
-const areas = [
-  { id: 1, nombre: "Informática" },
-  { id: 2, nombre: "Robótica" },
-  { id: 3, nombre: "Química" },
-  { id: 4, nombre: "Astronomía Astrofísica" },
-  { id: 5, nombre: "Matemáticas" },
-  { id: 6, nombre: "Física" },
-  { id: 7, nombre: "Biología" },
-];
 
 const SubirConvocatoria = () => {
   const [titulo, setTitulo] = useState("");
@@ -18,8 +8,27 @@ const SubirConvocatoria = () => {
   const [documento, setDocumento] = useState(null);
   const [errors, setErrors] = useState({});
   const [fileKey, setFileKey] = useState(0);
+  const [areas, setAreas] = useState([]);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchAreas = async () => {
+      try {
+        const res = await axios.get("http://localhost:8000/api/areas");
+        if (res.data && Array.isArray(res.data.data)) {
+          setAreas(res.data.data);
+        } else {
+          console.warn("Respuesta inesperada al cargar áreas:", res.data);
+        }
+      } catch (error) {
+        console.error("Error al cargar áreas:", error);
+        alert("No se pudieron cargar las áreas. Intenta más tarde.");
+      }
+    };
+
+    fetchAreas();
+  }, []);
 
   const validarCampos = () => {
     const nuevosErrores = {};
@@ -53,26 +62,33 @@ const SubirConvocatoria = () => {
   const existeConvocatoria = async (id_area) => {
     try {
       const res = await axios.get(`http://localhost:8000/api/convocatoriaPorArea/${id_area}`);
-      return res.data?.existe || false;
+      
+      return {
+        existe: res.data?.existe || false,
+        data: res.data?.data || null,
+      };
     } catch (error) {
       console.error("Error al verificar convocatoria existente:", error);
-      return false;
+      return {
+        existe: false,
+        data: null,
+      };
     }
   };
 
   const handlePublicar = async () => {
     if (!validarCampos()) return;
 
-    const areaSeleccionada = areas.find((a) => a.nombre === area);
+    const areaSeleccionada = areas.find((a) => a.nombre_area === area);
     if (!areaSeleccionada) {
       alert("Área no válida.");
       return;
     }
 
     const yaExiste = await existeConvocatoria(areaSeleccionada.id);
-    if (yaExiste) {
+    if (yaExiste.existe) {
       const confirmar = window.confirm(
-        `Existe una convocatoria publicada para ${areaSeleccionada.nombre}. ¿Desea reemplazarla?`
+        `Existe una convocatoria publicada para ${areaSeleccionada.nombre_area}. ¿Desea reemplazarla?`
       );
       if (!confirmar) return;
     }
@@ -101,7 +117,6 @@ const SubirConvocatoria = () => {
       setErrors({});
       setFileKey((prevKey) => prevKey + 1);
 
-      // Redireccionar al panel
       navigate("/admin/convocatoria");
 
     } catch (error) {
@@ -155,8 +170,8 @@ const SubirConvocatoria = () => {
           >
             <option value="">Selecciona un área</option>
             {areas.map((a) => (
-              <option key={a.id} value={a.nombre}>
-                {a.nombre}
+              <option key={a.id} value={a.nombre_area}>
+                {a.nombre_area}
               </option>
             ))}
           </select>
