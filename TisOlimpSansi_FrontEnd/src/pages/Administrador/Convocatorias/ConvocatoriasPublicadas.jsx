@@ -15,7 +15,9 @@ const ConvocatoriasPublicadas = () => {
   useEffect(() => {
     const fetchConvocatorias = async () => {
       try {
-        const response = await axios.get("http://localhost:8000/api/convocatorias");
+        const response = await axios.get(
+          "http://localhost:8000/api/convocatorias"
+        );
         setConvocatorias(response.data);
       } catch (error) {
         console.error("Error al obtener convocatorias", error);
@@ -27,8 +29,12 @@ const ConvocatoriasPublicadas = () => {
 
   const handleDelete = async () => {
     try {
-      await axios.delete(`http://localhost:8000/api/eliminarConvocatoria/${selectedConvocatoriaId}`);
-      setConvocatorias(prev => prev.filter(c => c.id !== selectedConvocatoriaId));
+      await axios.delete(
+        `http://localhost:8000/api/eliminarConvocatoria/${selectedConvocatoriaId}`
+      );
+      setConvocatorias((prev) =>
+        prev.filter((c) => c.id !== selectedConvocatoriaId)
+      );
       setShowDeleteModal(false); // Cerrar modal de eliminación
       setShowSuccessModal(true); // Mostrar modal de éxito
     } catch (error) {
@@ -52,7 +58,9 @@ const ConvocatoriasPublicadas = () => {
 
   return (
     <div className="px-6 py-10 min-h-screen bg-gradient-to-br from-cyan-50 to-white">
-      <h1 className="text-4xl font-bold text-center mb-12 text-cyan-900">Convocatorias Publicadas</h1>
+      <h1 className="text-4xl font-bold text-center mb-12 text-cyan-900">
+        Convocatorias Publicadas
+      </h1>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10">
         {convocatorias.map((item, index) => (
@@ -85,6 +93,11 @@ const ConvocatoriasPublicadas = () => {
                 </button>
                 <Tooltip id={`delete-${item.id}`} content="Eliminar" />
               </div>
+              {/* Aca una vista previa del documento, con iframe*/}
+              <iframe
+                src={item.documento_pdf}
+                className="w-full h-80 mt-3 rounded-md border"
+              ></iframe>
             </div>
           </motion.div>
         ))}
@@ -97,7 +110,9 @@ const ConvocatoriasPublicadas = () => {
           className="cursor-pointer bg-white w-full h-80 max-w-sm mx-auto rounded-xl border-2 border-dashed border-cyan-300 flex flex-col items-center justify-center h-64 text-cyan-400 hover:bg-cyan-50 transition-all duration-300"
         >
           <span className="text-6xl">+</span>
-          <span className="mt-2 text-cyan-600 font-medium">Añadir Convocatoria</span>
+          <span className="mt-2 text-cyan-600 font-medium">
+            Añadir Convocatoria
+          </span>
         </motion.div>
       </div>
 
@@ -105,7 +120,9 @@ const ConvocatoriasPublicadas = () => {
       {showDeleteModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96 max-w-xs">
-            <h2 className="text-xl font-semibold mb-4">¿Estás seguro de eliminar esta convocatoria?</h2>
+            <h2 className="text-xl font-semibold mb-4">
+              ¿Estás seguro de eliminar esta convocatoria?
+            </h2>
             <div className="flex justify-between gap-4">
               <button
                 onClick={() => setShowDeleteModal(false)}
@@ -130,9 +147,13 @@ const ConvocatoriasPublicadas = () => {
           <div className="bg-white p-6 rounded-lg shadow-lg w-96 max-w-xs">
             <div className="flex flex-col items-center mb-4">
               <FaCheckCircle className="text-green-500 text-5xl mb-3" />
-              <h3 className="text-lg font-semibold text-green-600">¡Eliminado correctamente!</h3>
+              <h3 className="text-lg font-semibold text-green-600">
+                ¡Eliminado correctamente!
+              </h3>
             </div>
-            <p className="text-gray-700 mb-4 text-center">La convocatoria se eliminó con éxito.</p>
+            <p className="text-gray-700 mb-4 text-center">
+              La convocatoria se eliminó con éxito.
+            </p>
             <div className="flex justify-center">
               <button
                 onClick={handleSuccessModalClose}
