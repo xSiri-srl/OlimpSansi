@@ -17,7 +17,8 @@ class AuthController extends Controller
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
-            'password' => bcrypt($data['password'])
+            'password' => bcrypt($data['password']),
+            'id_rol' => 1
         ]);
         return [
             'token' => $user->createToken('token')->plainTextToken,
@@ -50,10 +51,10 @@ class AuthController extends Controller
     public function getPermisos() {
         $usuario = Auth::user();
     
-        $permisos = DB::table('rol_operacion')
+        $permisos = DB::table('rol_accions')
             ->where('id_rol', $usuario->id_rol)
-            ->join('operaciones', 'rol_operacion.id_operacion', '=', 'operaciones.id')
-            ->pluck('operaciones.nombre');
+            ->join('acciones', 'rol_accions.id_accion', '=', 'acciones.id')
+            ->pluck('acciones.nombreFuncion');
     
         return response()->json(['permisos' => $permisos]);
     }
