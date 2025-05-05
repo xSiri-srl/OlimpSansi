@@ -427,5 +427,44 @@ class OrdenPagoController extends Controller
         return response()->json(['existe' => $existe]);
     }
     
+    public function dineroRecaudadoPorDepartamento()
+    {
+        // Subconsulta: obtener sumatoria total por departamento (con montos únicos)
+        $subquery = DB::table('orden_pagos')
+            ->whereNull('orden_pagos.numero_comprobante')
+            ->join('inscripcion', 'inscripcion.id_orden_pago', '=', 'orden_pagos.id')
+            ->join('estudiante', 'estudiante.id', '=', 'inscripcion.id_estudiante')
+            ->join('colegio', 'colegio.id', '=', 'estudiante.id_unidad')
+            ->groupBy('colegio.departamento')
+            ->select('colegio.departamento', DB::raw('SUM(DISTINCT orden_pagos.monto_total) as monto_total'));
     
+        // Consulta principal: mostrar todos los departamentos con su total o cero
+        $resultados = DB::table('colegio')
+            ->select('colegio.departamento', DB::raw('COALESCE(t.monto_total, 0) as total_recaudado'))
+            ->leftJoinSub($subquery, 't', 'colegio.departamento', '=', 't.departamento')
+            ->groupBy('colegio.departamento', 't.monto_total')
+            ->orderBy('colegio.departamento')
+            ->get();
+    
+        return response()->json($resultados);
+    }
+    
+    
+/*
+
+    public function dineroRecaudadoPorDepartamento()
+    {
+        $resultados = DB::table('orden_pagos')
+            ->whereNotNull('orden_pagos.numero_comprobante')
+            ->join('inscripcion', 'inscripcion.id_orden_pago', '=', 'orden_pagos.id')
+            ->join('estudiante', 'estudiante.id', '=', 'inscripcion.id_estudiante')
+            ->join('colegio', 'colegio.id', '=', 'estudiante.id_unidad')
+            ->select('colegio.departamento', DB::raw('SUM(orden_pagos.monto_total) as total_recaudado'))
+            ->groupBy('colegio.departamento')
+            ->orderBy('colegio.departamento')
+            ->get();
+    
+        return response()->json($resultados);
+    }
+        */
 }
