@@ -33,41 +33,59 @@ class ConvocatoriaController extends Controller
             'id_area' => 'required|integer|exists:area,id',
             'documento_pdf' => 'required|file|mimes:pdf|max:5120',
         ]);
-
-        $rutaPDF = $request->file('documento_pdf')->store('convocatorias/docsPDF', 'public');
-
+    
+        $archivoPDF = $request->file('documento_pdf');
+        $nombreOriginal = $archivoPDF->getClientOriginalName();
+        
+        // Guardar el archivo con el nombre original
+        $rutaPDF = $archivoPDF->storeAs('convocatorias/docsPDF', $nombreOriginal, 'public');
+    
         $convocatoria = ConvocatoriaModel::create([
             'titulo' => $request->titulo,
             'id_area' => $request->id_area,
             'documento_pdf' => $rutaPDF,
         ]);
-
+    
         return response()->json($convocatoria, 201);
     }
+    
 
     public function show(string $id)
     {
         $convocatoria = ConvocatoriaModel::with('areaConvocatoria')->findOrFail($id);
-        return response()->json($convocatoria);
+    
+        $convocatoriaConArchivo = [
+            'id' => $convocatoria->id,
+            'titulo' => $convocatoria->titulo,
+            'id_area' => $convocatoria->id_area,
+            'documento_pdf' => asset('storage/' . $convocatoria->documento_pdf),
+        ];
+    
+        return response()->json($convocatoriaConArchivo);
     }
 
     public function update(Request $request, string $id)
     {
         $convocatoria = ConvocatoriaModel::findOrFail($id);
+    
         $request->validate([
             'titulo' => 'sometimes|string|max:255',
             'id_area' => 'sometimes|integer|exists:area,id',
             'documento_pdf' => 'sometimes|file|mimes:pdf|max:5120',
         ]);
-
+    
         if ($request->hasFile('documento_pdf')) {
             Storage::disk('public')->delete($convocatoria->documento_pdf);
-            $convocatoria->documento_pdf = $request->file('documento_pdf')->store('convocatorias/docsPDF', 'public');
+            $archivoPDF = $request->file('documento_pdf');
+            $nombreOriginal = $archivoPDF->getClientOriginalName();
+            $rutaPDF = $archivoPDF->storeAs('convocatorias/docsPDF', $nombreOriginal, 'public');
+            $convocatoria->documento_pdf = $rutaPDF;
         }
-
+    
         $convocatoria->update($request->only(['titulo', 'descripcion', 'id_area']));
         return response()->json($convocatoria);
     }
+    
 
     public function destroy(string $id)
     {
