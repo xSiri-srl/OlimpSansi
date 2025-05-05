@@ -85,28 +85,25 @@ const SubirConvocatoria = () => {
 
   const handlePublicar = async () => {
     if (!validarCampos()) return;
-
-    const areaSeleccionada = areas.find((a) => a.nombre_area === area);
-    if (!areaSeleccionada) {
-      alert("Área no válida.");
-      return;
-    }
-
-    const yaExiste = await existeConvocatoria(areaSeleccionada.id);
+  
+    // Since we're now using IDs directly, we don't need to find the area
+    const id_area = area;
+    
+    const yaExiste = await existeConvocatoria(id_area);
     if (yaExiste.existe) {
       const confirmar = window.confirm(
-        `Existe una convocatoria publicada para ${areaSeleccionada.nombre_area}. ¿Desea reemplazarla?`
+        `Existe una convocatoria publicada para esta área. ¿Desea reemplazarla?`
       );
       if (confirmar) {
         try {
           const idConvocatoria = yaExiste.data.id;
           const formData = new FormData();
           formData.append("titulo", titulo);
-          formData.append("id_area", yaExiste.data.id_area);
+          formData.append("id_area", id_area); // Use id_area directly
           if (documento instanceof File) {
             formData.append("documento_pdf", documento);
           }
-
+  
           await axios.post(
             `http://localhost:8000/api/actualizarConvocatoria/${idConvocatoria}`,
             formData,
@@ -116,7 +113,7 @@ const SubirConvocatoria = () => {
               },
             }
           );
-
+  
           setShowSuccessModal(true);
           return;
         } catch (error) {
@@ -128,10 +125,10 @@ const SubirConvocatoria = () => {
         return;
       }
     }
-
+  
     const formData = new FormData();
     formData.append("titulo", titulo.trim());
-    formData.append("id_area", areaSeleccionada.id);
+    formData.append("id_area", id_area); // Use id_area directly
     formData.append("documento_pdf", documento);
 
     try {
@@ -200,7 +197,7 @@ const SubirConvocatoria = () => {
           >
             <option value="">Selecciona un área</option>
             {areas.map((a) => (
-              <option key={a.id} value={a.nombre_area}>
+              <option key={a.id} value={a.id}>
                 {a.nombre_area}
               </option>
             ))}
