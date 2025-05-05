@@ -140,6 +140,7 @@ Route::post('/guardar-comprobante', [OrdenPagoController::class, 'guardarComprob
 Route::get('/obtener-orden-pago/{codigo}', [OrdenPagoController::class, 'obtenerOrdenPagoPorCodigo']);
 
 Route::get('/resumen-orden-pago/{codigo}', [OrdenPagoController::class, 'obtenerResumenPorCodigo']);
+Route::get('/dinero-por-departamento', [OrdenPagoController::class, 'dineroRecaudadoPorDepartamento']);
 
 
 Route::post('/inscribir', [InscripcionController::class, 'registrar']);
