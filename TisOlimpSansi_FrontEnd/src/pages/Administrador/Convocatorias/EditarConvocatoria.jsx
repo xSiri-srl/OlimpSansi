@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
+import { SiGoogledocs } from "react-icons/si";
 
 const EditarConvocatoria = () => {
   const { id } = useParams();
@@ -8,17 +9,25 @@ const EditarConvocatoria = () => {
 
   const [titulo, setTitulo] = useState("");
   const [area, setArea] = useState("");
-  const [areas, setAreas] = useState([]); // ← ahora es dinámico
+  const [areas, setAreas] = useState([]);
   const [documento, setDocumento] = useState(null);
   const [documentoNombre, setDocumentoNombre] = useState("");
+  const [rutaDocumento, setRutaDocumento] = useState("");
   const [fileKey, setFileKey] = useState(0);
 
-  // Cargar áreas desde la base de datos
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+
+  const [errores, setErrores] = useState({
+    titulo: false,
+    area: false,
+    documento: false,
+  });
+
   useEffect(() => {
     const fetchAreas = async () => {
       try {
         const response = await axios.get("http://localhost:8000/api/areas");
-        console.log(response)
         setAreas(response.data?.data);
       } catch (error) {
         console.error("Error al obtener áreas:", error);
@@ -29,21 +38,19 @@ const EditarConvocatoria = () => {
     fetchAreas();
   }, []);
 
-  // Cargar datos de la convocatoria
   useEffect(() => {
     const fetchConvocatoria = async () => {
       try {
         const response = await axios.get(`http://localhost:8000/api/convocatoria/${id}`);
         const data = response.data;
         setTitulo(data.titulo);
-        setDocumento(`http://localhost:8000/${data.documento_pdf}`);
+        setArea(data.id_area);
 
         const documentoPath = data.documento_pdf || "";
-        const documentoNombreArchivo = documentoPath.split("/").pop();
-        setDocumentoNombre(documentoNombreArchivo);
-
-        // Espera a que las áreas estén cargadas antes de seleccionar
-        setArea(data.id_area); // ← guardamos directamente el ID
+        setRutaDocumento(documentoPath);
+        const nombre = documentoPath.split("/").pop();
+        setDocumentoNombre(decodeURIComponent(nombre));
+        setDocumento(null);
       } catch (error) {
         console.error("Error al obtener convocatoria:", error);
         alert("Error al cargar los datos de la convocatoria.");
@@ -53,11 +60,18 @@ const EditarConvocatoria = () => {
     fetchConvocatoria();
   }, [id]);
 
+  const validarCampos = () => {
+    const nuevosErrores = {
+      titulo: titulo.trim() === "",
+      area: area === "",
+      documento: !documentoNombre && !(documento instanceof File),
+    };
+    setErrores(nuevosErrores);
+    return !Object.values(nuevosErrores).some(Boolean);
+  };
+
   const handleEditar = async () => {
-    if (!titulo || !area) {
-      alert("Por favor completa los campos obligatorios de título y área.");
-      return;
-    }
+    if (!validarCampos()) return;
 
     const formData = new FormData();
     formData.append("titulo", titulo);
@@ -68,21 +82,16 @@ const EditarConvocatoria = () => {
     }
 
     try {
-      await axios.post(
-        `http://localhost:8000/api/actualizarConvocatoria/${id}`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      await axios.post(`http://localhost:8000/api/actualizarConvocatoria/${id}`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
-      alert("Convocatoria actualizada con éxito.");
-      navigate("/admin/convocatoria");
+      setShowSuccessModal(true);
     } catch (error) {
       console.error("Error al actualizar la convocatoria:", error);
-      alert("Hubo un error al actualizar la convocatoria.");
+      setShowErrorModal(true);
     }
   };
 
@@ -91,7 +100,13 @@ const EditarConvocatoria = () => {
       const file = e.target.files[0];
       setDocumento(file);
       setDocumentoNombre(file.name);
+      setRutaDocumento(""); // Se elimina el documento anterior
     }
+  };
+
+  const handleCloseSuccessModal = () => {
+    setShowSuccessModal(false);
+    navigate("/admin/convocatoria");
   };
 
   return (
@@ -101,63 +116,82 @@ const EditarConvocatoria = () => {
       </h1>
 
       <div className="space-y-6">
+        {/* TÍTULO */}
         <div>
-          <label className="block text-sm font-medium text-cyan-800 mb-1">
-            Título
-          </label>
+          <label className="block text-sm font-medium text-cyan-800 mb-1">Título</label>
           <input
             type="text"
             value={titulo}
             onChange={(e) => setTitulo(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition"
+            className={`w-full border px-4 py-2 rounded-lg transition focus:outline-none focus:ring-2 ${
+              errores.titulo ? "border-red-500 focus:ring-red-300" : "border-gray-300 focus:ring-cyan-500"
+            }`}
             placeholder="Ej. Convocatoria Nacional 2025"
           />
+          {errores.titulo && <p className="text-red-500 text-sm mt-1">El título es obligatorio.</p>}
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-sm font-medium text-cyan-800 mb-1">
-              Área
-            </label>
-            <select
-              value={area}
-              onChange={(e) => setArea(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition bg-white"
-            >
-              <option value="">Selecciona un área</option>
-              {areas.map((a) => (
-                <option key={a.id} value={a.id}>
-                  {a.nombre_area}
-                </option>
-              ))}
-            </select>
-          </div>
+        {/* ÁREA */}
+        <div>
+          <label className="block text-sm font-medium text-cyan-800 mb-1">Área</label>
+          <select
+            value={area}
+            onChange={(e) => setArea(e.target.value)}
+            className={`w-full border px-4 py-2 rounded-lg bg-white transition focus:outline-none focus:ring-2 ${
+              errores.area ? "border-red-500 focus:ring-red-300" : "border-gray-300 focus:ring-cyan-500"
+            }`}
+          >
+            <option value="">Selecciona un área</option>
+            {areas.map((a) => (
+              <option key={a.id} value={a.id}>
+                {a.nombre_area}
+              </option>
+            ))}
+          </select>
+          {errores.area && <p className="text-red-500 text-sm mt-1">Debes seleccionar un área.</p>}
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-sm font-medium text-cyan-800 mb-1">
-              Documento (PDF)
+        {/* DOCUMENTO */}
+        <div>
+          <label className="block text-sm font-medium text-cyan-800 mb-1">
+            Subir el documento PDF de la convocatoria
+          </label>
+          <div
+            className={`p-6 border-2 border-dashed rounded-xl text-center transition hover:bg-cyan-100 ${
+              errores.documento
+                ? "border-red-400 bg-red-50"
+                : documento instanceof File
+                ? "border-cyan-500 bg-cyan-50"
+                : "border-gray-300 bg-gray-50"
+            }`}
+          >
+            <label className="cursor-pointer flex flex-col items-center gap-2">
+              <SiGoogledocs className="text-cyan-800 h-12 w-12" />
+              <span className="text-cyan-800 font-semibold">
+                {documento instanceof File ? documento.name : "Seleccionar un archivo"}
+              </span>
+              <input
+                key={fileKey}
+                type="file"
+                accept="application/pdf"
+                onChange={handleDocumentoChange}
+                className="hidden"
+              />
             </label>
-            <input
-              key={`documento-${fileKey}`}
-              type="file"
-              accept="application/pdf"
-              onChange={handleDocumentoChange}
-              className="w-full border border-dashed border-cyan-300 p-3 bg-gray-50 rounded-lg text-sm file:cursor-pointer focus:outline-none focus:ring-2 focus:ring-cyan-500"
-            />
             <p className="text-sm text-gray-600 mt-2">
-              {documentoNombre ? (
+              {!(documento instanceof File) && documentoNombre && (
                 <span>
                   Archivo actual: <strong>{documentoNombre}</strong>
                 </span>
-              ) : (
-                "No hay documento seleccionado"
               )}
             </p>
+            {errores.documento && (
+              <p className="text-red-500 text-sm mt-1">Debes subir o mantener un documento PDF.</p>
+            )}
           </div>
         </div>
 
+        {/* BOTÓN */}
         <div className="flex justify-end">
           <button
             className="bg-blue-600 text-white px-6 py-2 rounded-md transition duration-300 ease-in-out hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500 shadow-md"
@@ -167,6 +201,40 @@ const EditarConvocatoria = () => {
           </button>
         </div>
       </div>
+
+      {/* MODAL DE ÉXITO */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-xl text-center">
+            <h2 className="text-xl font-semibold text-green-600 flex items-center justify-center gap-2">
+              ✅ ¡Convocatoria actualizada con éxito!
+            </h2>
+            <button
+              onClick={handleCloseSuccessModal}
+              className="mt-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition"
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL DE ERROR */}
+      {showErrorModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-xl text-center">
+            <h2 className="text-xl font-semibold text-red-600 flex items-center justify-center gap-2">
+              ❌ Error al actualizar la convocatoria.
+            </h2>
+            <button
+              onClick={() => setShowErrorModal(false)}
+              className="mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition"
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
