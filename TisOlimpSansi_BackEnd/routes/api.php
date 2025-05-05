@@ -19,6 +19,7 @@ use App\Http\Controllers\Inscripcion\AreaController;
 use App\Http\Controllers\Inscripcion\CategoriaController;
 
 use App\Http\Controllers\OrdenPagoController;
+use App\Http\Middleware\VerificarPermiso;
 
 Route::controller(UserPruebaController::class)->group(function(){
     Route::post('/agregarEjemplo', [UserPruebaController::class, 'store']);
@@ -187,6 +188,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 
     Route::get('/permisos',  [AuthController::class, 'getPermisos']);
+
+    //ejemplo de proteger rutas, probar despues
+    // Rutas protegidas por permisos
+    //Route::get('/orden-de-pago/info', [OrdenPagoController::class, 'getInfOrdenesDePago'])
+    //    ->middleware(VerificarPermiso::class . ':ver_orden_pago');
 });
 Route::post('/registro', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
