@@ -1,4 +1,3 @@
-"use client"
 
 import { useState, useEffect } from "react"
 import { navbarLinksByRole } from "../data/data"
@@ -19,6 +18,7 @@ const Navbar = () => {
   const [showRegister, setShowRegister] = useState(false)
   const [newUsername, setNewUsername] = useState("")
   const [newPassword, setNewPassword] = useState("")
+  const [rol, setRol] = useState(1)
   const [registerError, setRegisterError] = useState("")
 
   const navigate = useNavigate()
@@ -54,11 +54,12 @@ const Navbar = () => {
   }
   const registerUser = async (username, password) => {
     try {
-      const response = await axios.post(`${endpoint}/register`, {
+      const response = await axios.post(`${endpoint}/registro`, {
         name: username,
         email: username,
         password: password,
         password_confirmation: password,
+        id_rol: rol,
       })
 
       return response.data
@@ -66,21 +67,31 @@ const Navbar = () => {
       throw error.response?.data?.message || "Error en el registro"
     }
   }
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault()
-    const savedUser = JSON.parse(localStorage.getItem("adminUser"))
-
-    if (savedUser && username === savedUser.username && password === savedUser.password) {
+    try {
+      const data = await loginUser(username, password)
       setLoginError("")
       setShowLoginModal(false)
-      setRole("admin")
-      localStorage.setItem("user", JSON.stringify({ role: "admin" }))
+      setRole(data.role || "admin")
+      localStorage.setItem("user", JSON.stringify(data))
       setShowSidebar(false)
       navigate("/admin/generar-reportes")
-      setUsername("")
-      setPassword("")
-    } else {
-      setLoginError("Credenciales incorrectas. Por favor, inténtalo de nuevo.")
+    } catch (error) {
+      setLoginError(error)
+    }
+  }
+  const handleRegister = async (e) => {
+    e.preventDefault()
+    try {
+      const data = await registerUser(newUsername, newPassword)
+      alert("Usuario registrado correctamente")
+      setShowRegister(false)
+      setNewUsername("")
+      setNewPassword("")
+      setRegisterError("")
+    } catch (error) {
+      setRegisterError(error)
     }
   }
 
@@ -194,20 +205,7 @@ const Navbar = () => {
             </div>
 
             {showRegister ? (
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault()
-                  const existingUser = JSON.parse(localStorage.getItem("adminUser"))
-                  if (existingUser?.username === newUsername) {
-                    setRegisterError("El usuario ya existe.")
-                  } else {
-                    localStorage.setItem("adminUser", JSON.stringify({ username: newUsername, password: newPassword }))
-                    setRegisterError("")
-                    setShowRegister(false) // volver al login
-                    alert("Usuario registrado correctamente")
-                  }
-                }}
-              >
+              <form onSubmit={handleRegister}>
                 <div className="mb-4">
                   <label className="block text-gray-700 text-sm font-medium mb-1">Nuevo usuario</label>
                   <input
@@ -233,7 +231,6 @@ const Navbar = () => {
                   Registrar
                 </button>
                 <p className="text-sm text-center mt-3">
-                  {" "}
                   <button type="button" onClick={() => setShowRegister(false)} className="text-primary underline">
                     Inicia sesión
                   </button>
