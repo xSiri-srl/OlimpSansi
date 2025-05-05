@@ -9,12 +9,34 @@ import ProcesoInscripcion from "./ProcesoInscripcion";
 const VisualizadoresPdf = ({ pdfUrls }) => {
   const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [error, setError] = useState(false);
   const sliderRef = React.useRef(null);
+
+  // Add safety check
+  if (!pdfUrls || pdfUrls.length === 0) {
+    return (
+      <div className="py-12 bg-gray-100">
+        <div className="container mx-auto text-center">
+          <h2 className="text-2xl sm:text-3xl font-bold mb-4 text-gray-900">
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-600">
+              Convocatorias por Área
+            </span>
+          </h2>
+          <p className="text-lg text-gray-600 mb-8">No hay convocatorias disponibles en este momento.</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleIframeLoad = () => {
     setLoading(false);
+    setError(false);
   };
 
+  const handleIframeError = () => {
+    setLoading(false);
+    setError(true);
+  };
   // Componentes personalizados para los botones de navegación
   const NextArrow = ({ onClick }) => (
     <motion.div 
@@ -194,13 +216,31 @@ const VisualizadoresPdf = ({ pdfUrls }) => {
                 <span className="text-4xl mr-3">{pdfUrls[activeIndex].icono}</span> {pdfUrls[activeIndex].title}
               </h3>
               {loading && <IndicadorCarga />}
-
+              {error ? (
+              <div className="flex flex-col items-center justify-center h-[calc(70vh-60px)] bg-gray-50 p-6">
+                <div className="text-red-500 text-5xl mb-4">⚠️</div>
+                <h4 className="text-xl font-semibold text-red-600 mb-2">Error al cargar el documento</h4>
+                <p className="text-gray-600 text-center mb-4">
+                  No se ha podido cargar el documento PDF. Verifica que el archivo exista y sea accesible.
+                </p>
+                <a 
+                  href={pdfUrls[activeIndex].url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition"
+                >
+                  Intentar abrir en una nueva pestaña
+                </a>
+              </div>
+            ) : (
               <iframe
                 src={`${pdfUrls[activeIndex].url}#toolbar=1&scrollbar=1&zoom=50`}
                 className="w-full h-full"
                 title="PDF Viewer"
                 onLoad={handleIframeLoad}
+                onError={handleIframeError}
               ></iframe>
+            )}
             </motion.div>
             <a href={pdfUrls[activeIndex].url} download>
               <motion.button 

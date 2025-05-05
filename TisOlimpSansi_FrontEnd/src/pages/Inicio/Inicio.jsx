@@ -1,21 +1,62 @@
-import React, { useRef } from "react";
+import React, { useRef, useState, useEffect } from "react";
+import axios from "axios";
 import SeccionPrincipal from "./SeccionPrincipal";
 import VisualizadoresPdf from "./VisualizadoresPdf";
 import SeccionInformativa from "./SeccionInformativa";
 
 const Inicio = () => {
   const requisitosRef = useRef(null);
+  const [convocatorias, setConvocatorias] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const pdfUrlsPorArea = {
-    matematicas: { url: "/borrar/hSansi.pdf", title: "Matemáticas", icono: "📐" },
-    fisica: { url: "/borrar/grupal.pdf", title: "Física", icono: "⚛️" },
-    quimica: { url: "/borrar/hSansi.pdf", title: "Química", icono: "🧪" },
-    robotica: { url: "/borrar/grupal.pdf", title: "Robótica", icono: "🤖" },
-    informatica: { url: "/borrar/hSansi.pdf", title: "Informática", icono: "💻" },
-    biologia: { url: "/borrar/grupal.pdf", title: "Biología", icono: "🧬" },
-    astronomia: { url: "/borrar/hSansi.pdf", title: "Astronomía y Astrofísica", icono: "🔭" }
+  // Definición base de áreas con sus íconos
+  const areasBase = {
+    1: { title: "Matemáticas", icono: "📐", key: "matematicas" },
+    2: { title: "Física", icono: "⚛️", key: "fisica" },
+    3: { title: "Química", icono: "🧪", key: "quimica" },
+    4: { title: "Robótica", icono: "🤖", key: "robotica" },
+    5: { title: "Informática", icono: "💻", key: "informatica" },
+    6: { title: "Biología", icono: "🧬", key: "biologia" },
+    7: { title: "Astronomía y Astrofísica", icono: "🔭", key: "astronomia" }
   };
 
+  useEffect(() => {
+    const fetchConvocatorias = async () => {
+      try {
+        setIsLoading(true);
+        const response = await axios.get("http://localhost:8000/api/convocatorias");
+        setConvocatorias(response.data);
+      } catch (error) {
+        console.error("Error al cargar las convocatorias:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchConvocatorias();
+  }, []);
+
+  // Combinar las áreas base con las convocatorias reales
+  const getPdfUrls = () => {
+    // Crear una copia del objeto base
+    const pdfUrlsFinal = { ...areasBase };
+    
+    console.log("Convocatorias recibidas:", convocatorias);
+    
+    // Actualizar con las convocatorias reales
+    convocatorias.forEach(convocatoria => {
+      console.log("Procesando convocatoria:", convocatoria);
+      if (pdfUrlsFinal[convocatoria.id_area]) {
+        pdfUrlsFinal[convocatoria.id_area].url = convocatoria.documento_pdf;
+        pdfUrlsFinal[convocatoria.id_area].title = convocatoria.titulo || pdfUrlsFinal[convocatoria.id_area].title;
+        console.log(`Asignada URL ${convocatoria.documento_pdf} al área ${convocatoria.id_area}`);
+      }
+    });
+    
+    const filteredUrls = Object.values(pdfUrlsFinal).filter(area => area.url);
+    console.log("URLs filtradas:", filteredUrls);
+    return filteredUrls;
+  };
   const scrollToRequisitos = () => {
     if (requisitosRef.current) {
       const rect = requisitosRef.current.getBoundingClientRect();
@@ -32,7 +73,13 @@ const Inicio = () => {
     <div className="min-h-screen bg-white">
       <SeccionPrincipal scrollToRequisitos={scrollToRequisitos} />
       <SeccionInformativa requisitosRef={requisitosRef} />
-      <VisualizadoresPdf pdfUrls={Object.values(pdfUrlsPorArea)} />
+      {isLoading ? (
+        <div className="flex justify-center items-center py-20">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan-600"></div>
+        </div>
+      ) : (
+        <VisualizadoresPdf pdfUrls={getPdfUrls()} />
+      )}
     </div>
   );
 };
