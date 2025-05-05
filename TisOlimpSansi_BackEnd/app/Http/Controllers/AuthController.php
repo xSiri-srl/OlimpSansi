@@ -7,6 +7,7 @@ use App\Http\Requests\RegistroRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class AuthController extends Controller
 {
@@ -45,5 +46,15 @@ class AuthController extends Controller
         return [
             'user' => null
         ];
+    }
+    public function getPermisos() {
+        $usuario = Auth::user();
+    
+        $permisos = DB::table('rol_operacion')
+            ->where('id_rol', $usuario->id_rol)
+            ->join('operaciones', 'rol_operacion.id_operacion', '=', 'operaciones.id')
+            ->pluck('operaciones.nombre');
+    
+        return response()->json(['permisos' => $permisos]);
     }
 }
