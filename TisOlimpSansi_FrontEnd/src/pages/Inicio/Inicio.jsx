@@ -7,56 +7,76 @@ import SeccionInformativa from "./SeccionInformativa";
 const Inicio = () => {
   const requisitosRef = useRef(null);
   const [convocatorias, setConvocatorias] = useState([]);
+  const [areas, setAreas] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Definición base de áreas con sus íconos
-  const areasBase = {
-    1: { title: "Matemáticas", icono: "📐", key: "matematicas" },
-    2: { title: "Física", icono: "⚛️", key: "fisica" },
-    3: { title: "Química", icono: "🧪", key: "quimica" },
-    4: { title: "Robótica", icono: "🤖", key: "robotica" },
-    5: { title: "Informática", icono: "💻", key: "informatica" },
-    6: { title: "Biología", icono: "🧬", key: "biologia" },
-    7: { title: "Astronomía y Astrofísica", icono: "🔭", key: "astronomia" }
+  // Iconos para las áreas (mantenemos este mapeo)
+  const areaIcons = {
+    "Matemáticas": "📐",
+    "Física": "⚛️",
+    "Química": "🧪",
+    "Robótica": "🤖",
+    "Informática": "💻",
+    "Biología": "🧬",
+    "Astronomía y Astrofísica": "🔭"
   };
 
   useEffect(() => {
-    const fetchConvocatorias = async () => {
+    const fetchData = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get("http://localhost:8000/api/convocatorias");
-        setConvocatorias(response.data);
+        
+        // Fetch both convocatorias and areas in parallel
+        const [convocatoriasResponse, areasResponse] = await Promise.all([
+          axios.get("http://localhost:8000/api/convocatorias"),
+          axios.get("http://localhost:8000/api/areas")
+        ]);
+        
+        setConvocatorias(convocatoriasResponse.data);
+        
+        // Process areas to add icons
+        const areasData = areasResponse.data.data || [];
+        const areasWithIcons = areasData.map(area => ({
+          id: area.id,
+          title: area.nombre_area,
+          icono: areaIcons[area.nombre_area] || "📄",
+          key: area.nombre_area.toLowerCase().replace(/\s+/g, '_')
+        }));
+        
+        setAreas(areasWithIcons);
       } catch (error) {
-        console.error("Error al cargar las convocatorias:", error);
+        console.error("Error al cargar datos:", error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchConvocatorias();
+    fetchData();
   }, []);
 
-  // Combinar las áreas base con las convocatorias reales
+  // Combinar las áreas con las convocatorias reales
   const getPdfUrls = () => {
-    // Crear una copia del objeto base
-    const pdfUrlsFinal = { ...areasBase };
+    // Si no hay áreas, devolver array vacío para evitar errores
+    if (!areas.length) return [];
     
-    console.log("Convocatorias recibidas:", convocatorias);
+    // Crear una copia profunda del array de áreas
+    const pdfUrlsFinal = areas.map(area => ({...area}));
     
     // Actualizar con las convocatorias reales
-    convocatorias.forEach(convocatoria => {
-      console.log("Procesando convocatoria:", convocatoria);
-      if (pdfUrlsFinal[convocatoria.id_area]) {
-        pdfUrlsFinal[convocatoria.id_area].url = convocatoria.documento_pdf;
-        pdfUrlsFinal[convocatoria.id_area].title = convocatoria.titulo || pdfUrlsFinal[convocatoria.id_area].title;
-        console.log(`Asignada URL ${convocatoria.documento_pdf} al área ${convocatoria.id_area}`);
-      }
-    });
+    if (Array.isArray(convocatorias)) {
+      convocatorias.forEach(convocatoria => {
+        const areaIndex = pdfUrlsFinal.findIndex(area => area.id === convocatoria.id_area);
+        if (areaIndex !== -1) {
+          pdfUrlsFinal[areaIndex].url = convocatoria.documento_pdf;
+          pdfUrlsFinal[areaIndex].convocatoriaTitle = convocatoria.titulo;
+          pdfUrlsFinal[areaIndex].convocatoriaId = convocatoria.id;
+        }
+      });
+    }
     
-    const filteredUrls = Object.values(pdfUrlsFinal).filter(area => area.url);
-    console.log("URLs filtradas:", filteredUrls);
-    return filteredUrls;
+    return pdfUrlsFinal;
   };
+
   const scrollToRequisitos = () => {
     if (requisitosRef.current) {
       const rect = requisitosRef.current.getBoundingClientRect();

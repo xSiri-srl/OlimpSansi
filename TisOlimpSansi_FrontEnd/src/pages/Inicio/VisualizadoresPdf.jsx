@@ -37,6 +37,7 @@ const VisualizadoresPdf = ({ pdfUrls }) => {
     setLoading(false);
     setError(true);
   };
+  
   // Componentes personalizados para los botones de navegación
   const NextArrow = ({ onClick }) => (
     <motion.div 
@@ -189,14 +190,21 @@ const VisualizadoresPdf = ({ pdfUrls }) => {
                     </motion.div>
                     <h3 className="text-xl font-bold mb-2 text-center text-gray-800">{pdf.title}</h3>
                     <p className="text-sm text-center text-gray-600">
-                      Convocatoria oficial {new Date().getFullYear()}
+                      {pdf.url 
+                        ? `Convocatoria oficial ${new Date().getFullYear()}`
+                        : "Convocatoria no disponible"
+                      }
                     </p>
                     <motion.button 
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.95 }}
-                      className="mt-4 px-4 py-2 rounded-full text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 shadow-md"
+                      className={`mt-4 px-4 py-2 rounded-full text-white ${
+                        pdf.url 
+                          ? "bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700" 
+                          : "bg-gray-400"
+                      } transition-all duration-300 shadow-md`}
                     >
-                      Ver convocatoria
+                      {pdf.url ? "Ver convocatoria" : "No disponible"}
                     </motion.button>
                   </motion.div>
                 </div>
@@ -213,44 +221,60 @@ const VisualizadoresPdf = ({ pdfUrls }) => {
               className="relative w-full max-w-3xl h-[70vh] rounded-lg border border-gray-300 bg-white shadow-xl overflow-hidden"
             >
               <h3 className="text-2xl font-semibold p-4 text-gray-800 flex items-center">
-                <span className="text-4xl mr-3">{pdfUrls[activeIndex].icono}</span> {pdfUrls[activeIndex].title}
+                <span className="text-4xl mr-3">{pdfUrls[activeIndex].icono}</span> 
+                {pdfUrls[activeIndex].title}
+                {pdfUrls[activeIndex].convocatoriaTitle && (
+                  <span className="ml-2 text-lg text-gray-500">
+                    - {pdfUrls[activeIndex].convocatoriaTitle}
+                  </span>
+                )}
               </h3>
               {loading && <IndicadorCarga />}
-              {error ? (
-              <div className="flex flex-col items-center justify-center h-[calc(70vh-60px)] bg-gray-50 p-6">
-                <div className="text-red-500 text-5xl mb-4">⚠️</div>
-                <h4 className="text-xl font-semibold text-red-600 mb-2">Error al cargar el documento</h4>
-                <p className="text-gray-600 text-center mb-4">
-                  No se ha podido cargar el documento PDF. Verifica que el archivo exista y sea accesible.
-                </p>
-                <a 
-                  href={pdfUrls[activeIndex].url} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition"
-                >
-                  Intentar abrir en una nueva pestaña
-                </a>
-              </div>
-            ) : (
-              <iframe
-                src={`${pdfUrls[activeIndex].url}#toolbar=1&scrollbar=1&zoom=50`}
-                className="w-full h-full"
-                title="PDF Viewer"
-                onLoad={handleIframeLoad}
-                onError={handleIframeError}
-              ></iframe>
-            )}
+              {error || !pdfUrls[activeIndex].url ? (
+                <div className="flex flex-col items-center justify-center h-[calc(70vh-60px)] bg-gray-50 p-6">
+                  <div className="text-amber-500 text-5xl mb-4">📄</div>
+                  <h4 className="text-xl font-semibold text-amber-600 mb-2">
+                    {error ? "Error al cargar el documento" : "Convocatoria no disponible"}
+                  </h4>
+                  <p className="text-gray-600 text-center mb-4">
+                    {error 
+                      ? "No se ha podido cargar el documento PDF. Verifica que el archivo exista y sea accesible."
+                      : "La convocatoria para esta área aún no está disponible. Por favor revisa más tarde."}
+                  </p>
+                  {error && pdfUrls[activeIndex].url && (
+                    <a 
+                      href={pdfUrls[activeIndex].url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition"
+                    >
+                      Intentar abrir en una nueva pestaña
+                    </a>
+                  )}
+                </div>
+              ) : (
+                <iframe
+                  src={`${pdfUrls[activeIndex].url}#toolbar=1&scrollbar=1&zoom=50`}
+                  className="w-full h-full"
+                  title="PDF Viewer"
+                  onLoad={handleIframeLoad}
+                  onError={handleIframeError}
+                ></iframe>
+              )}
             </motion.div>
-            <a href={pdfUrls[activeIndex].url} download>
-              <motion.button 
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="mt-6 bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-6 rounded-lg shadow-lg transition duration-300"
-              >
-                Descargar convocatoria
-              </motion.button>
-            </a>
+            
+            {/* Botón de descarga condicionado */}
+            {pdfUrls[activeIndex].url ? (
+              <a href={pdfUrls[activeIndex].url} download>
+                <motion.button 
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="mt-6 bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-6 rounded-lg shadow-lg transition duration-300"
+                >
+                  Descargar convocatoria
+                </motion.button>
+              </a>
+            ) : null}
           </div>
         </div>
       </motion.div>
