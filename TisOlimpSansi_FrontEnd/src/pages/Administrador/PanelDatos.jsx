@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Header from "./panel-components/Header";
 import StatisticsCards from "./panel-components/StatisticsCards";
 import ChartsSection from "./panel-components/ChartSection";
@@ -10,15 +10,6 @@ import useDashboardData from "./panel-hooks/useDashboardData";
 const PanelDatos = () => {
   const [darkMode, setDarkMode] = useState(false);
   const { chartData, stats, loading, error } = useDashboardData();
-  const [userRole, setUserRole] = useState('');
-
-  useEffect(() => {
-    // Obtener el rol del usuario del localStorage
-    const user = JSON.parse(localStorage.getItem("user"));
-    if (user?.role) {
-      setUserRole(user.role);
-    }
-  }, []);
 
   const toggleDarkMode = () => {
     setDarkMode((prevMode) => !prevMode);
@@ -49,21 +40,11 @@ const PanelDatos = () => {
     >
       <div className="container mx-auto px-4 py-8">
         <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
-        
-        {/* Mostrar las estadísticas financieras para todos los roles */}
         <StatisticsCards stats={stats} darkMode={darkMode} />
-        
-        {/* Secciones relacionadas con pagos (disponibles para contador y admin) */}
         <ChartsSection chartData={chartData} darkMode={darkMode} />
         <PieChartSection stats={stats} darkMode={darkMode} />
-        
-        {/* Secciones solo disponibles para admin */}
-        {userRole !== 'contador' && (
-          <>
-            <MapSection darkMode={darkMode} />
-            <GraficoCompararInscripciones darkMode={darkMode} />
-          </>
-        )}
+        <MapSection darkMode={darkMode} />
+        <GraficoCompararInscripciones darkMode={darkMode} />
       </div>
     </div>
   );
