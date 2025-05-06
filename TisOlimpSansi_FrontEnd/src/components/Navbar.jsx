@@ -1,8 +1,8 @@
-
 import { useState, useEffect } from "react"
 import { navbarLinksByRole } from "../data/data"
 import { IoIosMenu } from "react-icons/io"
 import { FaUserCircle } from "react-icons/fa"
+import { BsCashCoin } from "react-icons/bs" // Añadir icono para contador
 import ResponsiveMenu from "./ResponsiveMenu"
 import axios from "axios"
 import { useNavigate } from "react-router-dom"
@@ -20,6 +20,7 @@ const Navbar = () => {
   const [newPassword, setNewPassword] = useState("")
   const [rol, setRol] = useState(1)
   const [registerError, setRegisterError] = useState("")
+  const [loginType, setLoginType] = useState("admin") // Add this state to track login type
 
   const navigate = useNavigate()
 
@@ -73,10 +74,21 @@ const Navbar = () => {
       const data = await loginUser(username, password)
       setLoginError("")
       setShowLoginModal(false)
-      setRole(data.role || "admin")
-      localStorage.setItem("user", JSON.stringify(data))
+      
+      // Check if the backend returned a specific role, or use the loginType
+      const userRole = data.role || loginType
+      setRole(userRole)
+      
+      // Save the role to localStorage
+      localStorage.setItem("user", JSON.stringify({...data, role: userRole}))
       setShowSidebar(false)
-      navigate("/admin/generar-reportes")
+      
+      // Navigate based on role
+      if (userRole === "admin") {
+        navigate("/admin/generar-reportes")
+      } else if (userRole === "contador") {
+        navigate("/admin/generar-reportes") 
+      }
     } catch (error) {
       setLoginError(error)
     }
@@ -153,40 +165,81 @@ const Navbar = () => {
             </button>
             <h2 className="text-xl font-bold mb-4">Perfil</h2>
             <p className="mb-2">Rol actual:</p>
-            <span className="block text-primary font-semibold capitalize mb-4">
-              {role === "admin" ? "Administrador" : "Responsable"}
+            <span className="block font-semibold capitalize mb-4 flex items-center">
+              {role === "admin" ? (
+                <span className="text-primary">Administrador</span>
+              ) : role === "contador" ? (
+                <span className="text-green-600 flex items-center gap-2">
+                  <BsCashCoin /> Contador
+                </span>
+              ) : (
+                <span className="text-primary">Responsable</span>
+              )}
             </span>
-            {role !== "admin" && (
-              <button
-                onClick={() => setShowLoginModal(true)}
-                className="bg-primary text-white px-4 py-2 rounded hover:bg-blue-700 transition w-full"
-              >
-                Iniciar sesión como Administrador
-              </button>
+            
+            {/* Conditional buttons based on role */}
+            {role === "responsable" && (
+              <div className="space-y-2">
+                <button
+                  onClick={() => {
+                    setLoginType("admin");
+                    setShowLoginModal(true);
+                  }}
+                  className="bg-primary text-white px-4 py-2 rounded hover:bg-blue-700 transition w-full"
+                >
+                  Iniciar sesión como Administrador
+                </button>
+                
+                <button
+                  onClick={() => {
+                    setLoginType("contador");
+                    setShowLoginModal(true);
+                  }}
+                  className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition w-full flex justify-center items-center gap-2"
+                >
+                  <BsCashCoin /> Iniciar sesión como Contador
+                </button>
+              </div>
             )}
-           {role === "admin" && (
-              <button
-                onClick={() => {
-                  setRole("responsable")
-                  localStorage.removeItem("user")
-                  setShowSidebar(false)
-                  navigate("/")
-                }}
-                className="mt-4 bg-primary text-white px-4 py-2 rounded hover:bg-blue-700 transition w-full"
-              >
-                Cerrar sesión
-              </button>
+            
+            {(role === "admin" || role === "contador") && (
+              <div className="space-y-4">
+                {role === "contador" && (
+                  <div className="p-3 bg-green-50 rounded-lg border border-green-200">
+                    <p className="text-sm text-green-800 mb-2 font-medium">Acceso a reportes financieros:</p>
+                    <ul className="text-xs text-green-700 list-disc pl-4 space-y-1">
+                      <li>Órdenes de pago</li>
+                      <li>Órdenes de pago recientes</li>
+                      <li>Estado de órdenes de pago</li>
+                    </ul>
+                  </div>
+                )}
+              
+                <button
+                  onClick={() => {
+                    setRole("responsable")
+                    localStorage.removeItem("user")
+                    setShowSidebar(false)
+                    navigate("/")
+                  }}
+                  className="mt-4 bg-primary text-white px-4 py-2 rounded hover:bg-blue-700 transition w-full"
+                >
+                  Cerrar sesión
+                </button>
+              </div>
             )}
           </div>
         </div>
       )}
 
-      {/* Modal de login para administrador */}
+      {/* Modal de login */}
       {showLoginModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
           <div className="bg-white rounded-lg p-6 w-80 md:w-96 shadow-xl">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold text-gray-800">{showRegister ? "Registro" : "Acceso Administrador"}</h2>
+              <h2 className="text-xl font-bold text-gray-800">
+                {showRegister ? "Registro" : loginType === "admin" ? "Acceso Administrador" : "Acceso Contador"}
+              </h2>
               <button
                 onClick={() => {
                   setShowLoginModal(false)
@@ -259,7 +312,11 @@ const Navbar = () => {
                   />
                 </div>
                 {loginError && <p className="text-red-600 text-sm mb-2">{loginError}</p>}
-                <button type="submit" className="w-full bg-primary text-white py-2 rounded-md">
+                <button 
+                  type="submit" 
+                  className={`w-full ${loginType === 'contador' ? 'bg-green-600 hover:bg-green-700' : 'bg-primary hover:bg-blue-700'} text-white py-2 rounded-md transition flex justify-center items-center gap-2`}
+                >
+                  {loginType === 'contador' && <BsCashCoin />}
                   Iniciar sesión
                 </button>
                 <p className="text-sm text-center mt-3">
