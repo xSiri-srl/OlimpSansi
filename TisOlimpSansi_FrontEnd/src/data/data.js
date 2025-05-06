@@ -13,4 +13,8 @@ export const navbarLinksByRole = {
     { id: 1, title: "Generar Reportes", link: "/admin/generar-reportes" },
     { id: 2, title: "Subir Convocatoria", link: "/admin/convocatoria" },
   ],
+  contador: [
+    { id: 1, title: "Generar Reportes", link: "/admin/generar-reportes" },
+   
+  ]
 };
