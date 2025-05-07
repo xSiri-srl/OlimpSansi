@@ -5,7 +5,8 @@ import { IoIosMenu } from "react-icons/io"
 import { FaUserCircle } from "react-icons/fa"
 import ResponsiveMenu from "./ResponsiveMenu"
 import axios from "axios"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useLocation } from "react-router-dom"
+import { Link } from "react-router-dom"
 
 const Navbar = () => {
   const [open, setOpen] = useState(false)
@@ -22,6 +23,7 @@ const Navbar = () => {
   const [registerError, setRegisterError] = useState("")
 
   const navigate = useNavigate()
+  const location = useLocation()
 
   const endpoint = "http://localhost:8000/api"
 
@@ -30,7 +32,7 @@ const Navbar = () => {
     if (user?.role) {
       setRole(user.role)
     }
-  }, [])
+  }, [location.pathname])
 
   const navbarLinks = navbarLinksByRole[role] || []
 
@@ -111,11 +113,14 @@ const Navbar = () => {
           {/* Menú escritorio */}
           <div className="hidden md:flex items-center gap-6">
             <ul className="flex items-center gap-6 text-white">
-              {navbarLinks.map((item) => (
+            {navbarLinks.map((item) => (
                 <li key={item.id}>
-                  <a href={item.link} className="hover:text-gray-300 transition duration-300">
+                  <Link 
+                    to={item.link} 
+                    className="hover:text-gray-300 transition duration-300"
+                  >
                     {item.title}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
