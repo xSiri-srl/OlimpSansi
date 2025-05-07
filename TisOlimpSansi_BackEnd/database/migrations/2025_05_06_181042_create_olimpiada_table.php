@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('olimpiada', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_user_admin')->constrained('user_admin')->onDelete('cascade');
+            $table->foreignId('id_user')->constrained('users')->onDelete('cascade');
             $table->string('titulo');
             $table->date('fecha_ini');
             $table->date('fecha_fin');
