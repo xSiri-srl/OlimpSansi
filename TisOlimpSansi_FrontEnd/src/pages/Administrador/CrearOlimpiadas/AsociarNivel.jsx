@@ -5,9 +5,11 @@ const SelectorAreaNivel = () => {
   const [combinaciones, setCombinaciones] = useState([
     { area: "", niveles: [""] },
   ]);
+  const [areasPersonalizadas, setAreasPersonalizadas] = useState([]);
+  const [nivelesPersonalizados, setNivelesPersonalizados] = useState([]);
 
-  const areas = ["Matemática", "Programación", "Física"];
-  const nivelesDisponibles = [
+  const [areas, setAreas] = useState(["Matemática", "Programación", "Física"]);
+  const [nivelesDisponibles, setNivelesDisponibles] = useState([
     "3P",
     "4P",
     "5P",
@@ -17,7 +19,7 @@ const SelectorAreaNivel = () => {
     "4S",
     "5S",
     "6S",
-  ];
+  ]);
 
   const agregarCombinacion = () => {
     setCombinaciones([...combinaciones, { area: "", niveles: [""] }]);
@@ -89,22 +91,38 @@ const SelectorAreaNivel = () => {
               {/* Área y primer nivel */}
               <div className="flex mb-2">
                 <div className="w-1/2 pr-2">
-                  <select
-                    value={combo.area}
-                    onChange={(e) => manejarCambioArea(index, e.target.value)}
-                    className="px-3 py-2 border rounded w-full"
-                  >
-                    <option value="">Seleccione un área</option>
-                    {areas.map((a) => (
-                      <option key={a} value={a}>
-                        {a}
-                      </option>
-                    ))}
-                  </select>
+                  {combo.area !== "Otra" ? (
+                    <select
+                      value={combo.area}
+                      onChange={(e) => manejarCambioArea(index, e.target.value)}
+                      className="px-3 py-2 border rounded w-full"
+                    >
+                      <option value="">Seleccione un área</option>
+                      {areas.map((a) => (
+                        <option key={a} value={a}>
+                          {a}
+                        </option>
+                      ))}
+                      <option value="Otra">Otra...</option>
+                    </select>
+                  ) : (
+                    <input
+                      type="text"
+                      placeholder="Ingrese nueva área"
+                      onBlur={(e) => {
+                        const nueva = e.target.value.trim();
+                        if (nueva && !areas.includes(nueva)) {
+                          setAreas([...areas, nueva]);
+                          manejarCambioArea(index, nueva);
+                        }
+                      }}
+                      className="px-3 py-2 border rounded w-full"
+                    />
+                  )}
                 </div>
 
-                {combo.niveles[0] !== undefined && (
-                  <div className="w-1/2 flex items-center">
+                <div className="w-1/2 flex items-center">
+                  {combo.niveles[0] !== "Otro" ? (
                     <select
                       value={combo.niveles[0]}
                       onChange={(e) =>
@@ -118,16 +136,30 @@ const SelectorAreaNivel = () => {
                           {n}
                         </option>
                       ))}
+                      <option value="Otro">Otro...</option>
                     </select>
-                    <button
-                      onClick={() => agregarNivel(index)}
-                      className="flex-shrink-0 ml-2 bg-white border rounded-full p-1 hover:bg-gray-100"
-                      title="Agregar nivel"
-                    >
-                      <FaPlus />
-                    </button>
-                  </div>
-                )}
+                  ) : (
+                    <input
+                      type="text"
+                      placeholder="Ingrese nuevo nivel"
+                      onBlur={(e) => {
+                        const nuevo = e.target.value.trim();
+                        if (nuevo && !nivelesDisponibles.includes(nuevo)) {
+                          setNivelesDisponibles([...nivelesDisponibles, nuevo]);
+                          manejarCambioNivel(index, 0, nuevo);
+                        }
+                      }}
+                      className="px-3 py-2 border rounded w-full"
+                    />
+                  )}
+                  <button
+                    onClick={() => agregarNivel(index)}
+                    className="flex-shrink-0 ml-2 bg-white border rounded-full p-1 hover:bg-gray-100"
+                    title="Agregar nivel"
+                  >
+                    <FaPlus />
+                  </button>
+                </div>
               </div>
 
               {/* Niveles adicionales */}
