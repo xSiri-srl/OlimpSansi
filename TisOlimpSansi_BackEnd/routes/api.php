@@ -14,6 +14,9 @@ use App\Http\Controllers\Inscripcion\ColegioController;
 use App\Http\Controllers\Inscripcion\GradoController;
 use App\Http\Controllers\InscripcionController;
 use App\Http\Controllers\ConvocatoriaController;
+use App\Http\Controllers\UserAdminController;
+use App\Http\Controllers\OlimpiadaController;
+use App\Http\Controllers\OlimpiadaAreaController;
 
 use App\Http\Controllers\Inscripcion\AreaController;
 use App\Http\Controllers\Inscripcion\CategoriaController;
@@ -126,6 +129,33 @@ Route::controller(ConvocatoriaController::class)->group(function(){
     Route::post('/actualizarConvocatoria/{id}', [ConvocatoriaController::class, 'update']);
     Route::delete('/eliminarConvocatoria/{id}', [ConvocatoriaController::class, 'destroy']);
     Route::get('/convocatoriaPorArea/{id}', [ConvocatoriaController::class, 'convocatoriaPorArea']);
+});
+
+Route::controller(UserAdminController::class)->group(function(){
+
+    Route::get('/admins', [UserAdminController::class, 'index']);
+    Route::post('/nuevoAdmin', [UserAdminController::class, 'store']);
+    Route::get('/admin/{id}', [UserAdminController::class, 'show']);
+    Route::post('/actualizarAdmin/{id}', [UserAdminController::class, 'update']);
+    Route::delete('/eliminarAdmin/{id}', [UserAdminController::class, 'destroy']);
+});
+
+Route::controller(OlimpiadaController::class)->group(function(){
+
+    Route::get('/olimpiadas', [OlimpiadaController::class, 'index']);
+    Route::post('/agregarOlimpiada', [OlimpiadaController::class, 'store']);
+    Route::get('/olimpiada/{id}', [OlimpiadaController::class, 'show']);
+    Route::post('/actualizarOlimpiada/{id}', [OlimpiadaController::class, 'update']);
+    Route::delete('/eliminarOlimpiada/{id}', [OlimpiadaController::class, 'destroy']);
+});
+
+Route::controller(OlimpiadaAreaController::class)->group(function(){
+
+    Route::get('/areasOlimpiadas', [OlimpiadaAreaController::class, 'index']);
+    Route::post('/agregarAreaOlimpiada', [OlimpiadaAreaController::class, 'store']);
+    Route::get('/areaOlimpiada/{id}', [OlimpiadaAreaController::class, 'show']);
+    Route::post('/actualizarAreaOlimpiada{id}', [OlimpiadaAreaController::class, 'update']);
+    Route::delete('/eliminarAreaOlimpiada/{id}', [OlimpiadaAreaController::class, 'destroy']);
 });
 
 Route::get('/orden-pago', [OrdenPagoController::class, 'obtenerOrdenPago']);

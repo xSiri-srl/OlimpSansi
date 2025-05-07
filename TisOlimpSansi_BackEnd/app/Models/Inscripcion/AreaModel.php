@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Inscripcion\CategoriaModel;
 use App\Models\Inscripcion\InscripcionModel;
 use App\Models\ConvocatoriaModel;
+use App\Models\OlimpiadaAreaModel;
 
 class AreaModel extends Model
 {
@@ -22,5 +23,8 @@ class AreaModel extends Model
 
     public function convocatoria(){
         return $this->hasMany(ConvocatoriaModel::class, 'id_area');
+    }
+    public function olimpiadaArea(){
+        return $this->hasMany(OlimpiadaAreaModel::class, 'id_area');
     }
 }
