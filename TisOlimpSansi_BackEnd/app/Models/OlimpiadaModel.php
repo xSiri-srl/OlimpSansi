@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\OlimpiadaAreaModel;
+use App\Models\Inscripciones\InscripcionModel;
 
 class OlimpiadaModel extends Model
 {
@@ -19,5 +20,8 @@ class OlimpiadaModel extends Model
     
     public function olimpiada(){
         return $this->hasMany(OlimpiadaAreaModel::class, 'id_olimpiada');
+    }
+    public function inscripciones(){
+        return $this->hasMany(InscripcionModel::class, 'id_olimpiada');
     }
 }
