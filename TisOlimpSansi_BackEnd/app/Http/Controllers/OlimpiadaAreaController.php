@@ -22,6 +22,7 @@ class OlimpiadaAreaController extends Controller
         $relacion = new OlimpiadaAreaModel();
         $relacion->id_olimpiada = $request->id_olimpiada;
         $relacion->id_area = $request->id_area;
+        $relacion->monto = $request->monto;
         $relacion->save();
 
         return response()->json([
@@ -45,6 +46,7 @@ class OlimpiadaAreaController extends Controller
         $relacion = OlimpiadaAreaModel::findOrFail($id);
         $relacion->id_olimpiada = $request->id_olimpiada;
         $relacion->id_area = $request->id_area;
+        $relacion->monto = $request->monto;
         $relacion->save();
 
         return response()->json([
