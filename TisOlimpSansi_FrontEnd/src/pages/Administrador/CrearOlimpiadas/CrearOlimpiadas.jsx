@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import axios from "axios";
 
 const CrearOlimpiadas = () => {
   const [titulo, setTitulo] = useState("");
@@ -9,7 +10,9 @@ const CrearOlimpiadas = () => {
   const [errores, setErrores] = useState({});
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
+  const endpoint = "http://localhost:8000/api";
   const years = Array.from({ length: 2030 - 2025 + 1 }, (_, i) => 2025 + i);
 
   const validarCampos = () => {
@@ -38,19 +41,60 @@ const CrearOlimpiadas = () => {
     }
   };
 
-  const confirmarCreacion = () => {
+  const confirmarCreacion = async () => {
     setShowConfirmModal(false);
     setLoading(true);
-
-    setTimeout(() => {
+    
+    try {
+      // Obtener usuario del localStorage
+      const userData = JSON.parse(localStorage.getItem("user"));
+      console.log("User from localStorage:", userData);
+      
+      // Extraer el id del usuario
+      const userId = userData?.user?.id || 1;
+      
+      // Crear objeto de olimpiada con los nombres de campo correctos
+      const olimpiadaData = {
+        id_user: userId, // Usamos id_user para que coincida con el campo en la base de datos
+        titulo: titulo,
+        fecha_ini: fechaIni,
+        fecha_fin: fechaFinal
+      };
+      
+      console.log("Sending olimpiada data:", olimpiadaData);
+      
+      // Enviar datos al backend
+      const response = await axios.post(
+        `${endpoint}/agregarOlimpiada`, 
+        olimpiadaData,
+        { withCredentials: true }
+      );
+      
+      console.log("Response:", response.data);
+      
+      // Manejo de éxito
       setLoading(false);
       setShowSuccessModal(true);
-      // Limpiar
+      setErrorMessage("");
+      
+      // Limpiar formulario
       setTitulo("");
       setPeriodoIns("");
       setFechaIni("");
       setFechaFinal("");
-    }, 1000);
+      
+    } catch (error) {
+      console.error("Full error object:", error);
+      
+      setLoading(false);
+      setErrorMessage(
+        error.response?.data?.message || 
+        error.message || 
+        "Error al crear la olimpiada"
+      );
+      setShowSuccessModal(true); // Mostrar modal de error
+      console.error("Error al crear olimpiada:", error);
+    }
   };
 
   return (
@@ -159,10 +203,22 @@ const CrearOlimpiadas = () => {
       {showSuccessModal && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg text-center w-96">
-            <h2 className="text-xl font-bold text-green-700 mb-4">¡Éxito!</h2>
-            <p className="text-gray-700 mb-6">La olimpiada fue creada correctamente.</p>
+            {errorMessage ? (
+              <>
+                <h2 className="text-xl font-bold text-red-700 mb-4">Error</h2>
+                <p className="text-gray-700 mb-6">{errorMessage}</p>
+              </>
+            ) : (
+              <>
+                <h2 className="text-xl font-bold text-green-700 mb-4">¡Éxito!</h2>
+                <p className="text-gray-700 mb-6">La olimpiada fue creada correctamente.</p>
+              </>
+            )}
             <button
-              onClick={() => setShowSuccessModal(false)}
+              onClick={() => {
+                setShowSuccessModal(false);
+                setErrorMessage("");
+              }}
               className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
             >
               Cerrar
@@ -170,6 +226,15 @@ const CrearOlimpiadas = () => {
           </div>
         </div>
       )}
+      {loading && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg text-center w-96">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
+            <h2 className="text-xl font-bold text-gray-800 mb-4">Creando olimpiada</h2>
+            <p className="text-gray-700">Espere un momento por favor...</p>
+          </div>
+        </div>
+      )}    
     </div>
   );
 };
