@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('id_olimpiada')->constrained('olimpiada')->onDelete('cascade');
             $table->foreignId('id_area')->constrained('area')->onDelete('cascade');
+            $table->decimal('monto', 10, 2);
             $table->timestamps();
         });
     }

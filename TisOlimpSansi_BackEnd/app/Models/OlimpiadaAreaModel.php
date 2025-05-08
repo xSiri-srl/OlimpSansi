@@ -14,6 +14,7 @@ class OlimpiadaAreaModel extends Model
     protected $fillable = [
         'id_olimpiada',
         'id_area',
+        'monto',
     ];
     public function olimpiadaArea(){
         return $this->belongsTo(OlimpiadaModel::class, 'id_olimpiada', 'id');
