@@ -131,15 +131,6 @@ Route::controller(ConvocatoriaController::class)->group(function(){
     Route::get('/convocatoriaPorArea/{id}', [ConvocatoriaController::class, 'convocatoriaPorArea']);
 });
 
-Route::controller(UserAdminController::class)->group(function(){
-
-    Route::get('/admins', [UserAdminController::class, 'index']);
-    Route::post('/nuevoAdmin', [UserAdminController::class, 'store']);
-    Route::get('/admin/{id}', [UserAdminController::class, 'show']);
-    Route::post('/actualizarAdmin/{id}', [UserAdminController::class, 'update']);
-    Route::delete('/eliminarAdmin/{id}', [UserAdminController::class, 'destroy']);
-});
-
 Route::controller(OlimpiadaController::class)->group(function(){
 
     Route::get('/olimpiadas', [OlimpiadaController::class, 'index']);
@@ -154,7 +145,7 @@ Route::controller(OlimpiadaAreaController::class)->group(function(){
     Route::get('/areasOlimpiadas', [OlimpiadaAreaController::class, 'index']);
     Route::post('/agregarAreaOlimpiada', [OlimpiadaAreaController::class, 'store']);
     Route::get('/areaOlimpiada/{id}', [OlimpiadaAreaController::class, 'show']);
-    Route::post('/actualizarAreaOlimpiada{id}', [OlimpiadaAreaController::class, 'update']);
+    Route::post('/actualizarAreaOlimpiada/{id}', [OlimpiadaAreaController::class, 'update']);
     Route::delete('/eliminarAreaOlimpiada/{id}', [OlimpiadaAreaController::class, 'destroy']);
 });
 
@@ -227,5 +218,6 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 Route::post('/registro', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+
 
 
