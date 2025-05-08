@@ -120,7 +120,14 @@ export default function App() {
                 path="/admin/crear-olimpiada"
                 element={<CrearOlimpiadas />}
               />
-              <Route path="/admin/asociar-nivel" element={<AsociarNivel />} />
+              <Route 
+              path="/admin/asociar-nivel" 
+              element={<AsociarNivel />} 
+              />
+              <Route 
+              path="/admin/asociar-costo" 
+              element={<AsociarNivel />} 
+              />
             </Routes>
           </FormProvider>
         </div>
