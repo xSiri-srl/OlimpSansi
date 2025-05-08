@@ -1,34 +1,25 @@
 import { useState } from "react";
 import { FaPlus, FaTrash } from "react-icons/fa";
 
-const SelectorAreaNivel = () => {
+const SelectorAreaGrado = () => {
+  const olimpiadas = [
+    "Olimpiada Nacional de Matemática",
+    "Olimpiada de Ciencia Escolar",
+    "Olimpiada de Lógica y Pensamiento",
+  ];
+  const [olimpiadaSeleccionada, setOlimpiadaSeleccionada] = useState("");
+  const [modoRango, setModoRango] = useState(false);
+
   const [combinaciones, setCombinaciones] = useState([
-    { area: "", niveles: [""] },
-  ]);
-  const [areasPersonalizadas, setAreasPersonalizadas] = useState([]);
-  const [nivelesPersonalizados, setNivelesPersonalizados] = useState([]);
-
-  const [areas, setAreas] = useState(["Matemática", "Programación", "Física"]);
-  const [nivelesDisponibles, setNivelesDisponibles] = useState([
-    "3P",
-    "4P",
-    "5P",
-    "1S",
-    "2S",
-    "3S",
-    "4S",
-    "5S",
-    "6S",
+    { area: "", niveles: [{ grado: "", categoria: "" }], rango: "", categoriaUnica: "" },
   ]);
 
-  const agregarCombinacion = () => {
-    setCombinaciones([...combinaciones, { area: "", niveles: [""] }]);
-  };
-
-  const eliminarCombinacion = (index) => {
-    const nuevaLista = combinaciones.filter((_, i) => i !== index);
-    setCombinaciones(nuevaLista);
-  };
+  const [areas] = useState(["Matemática", "Programación", "Física"]);
+  const gradosDisponibles = [
+    "3° de primaria", "4° de primaria", "5° de primaria", "6° de primaria",
+    "1° de secundaria", "2° de secundaria", "3° de secundaria",
+    "4° de secundaria", "5° de secundaria", "6° de secundaria",
+  ];
 
   const manejarCambioArea = (index, valor) => {
     const copia = [...combinaciones];
@@ -36,186 +27,190 @@ const SelectorAreaNivel = () => {
     setCombinaciones(copia);
   };
 
-  const manejarCambioNivel = (index, nivelIndex, valor) => {
+  const manejarCambioNivel = (comboIndex, nivelIndex, campo, valor) => {
     const copia = [...combinaciones];
-    copia[index].niveles[nivelIndex] = valor;
+    copia[comboIndex].niveles[nivelIndex][campo] = valor;
     setCombinaciones(copia);
   };
 
-  const agregarNivel = (index) => {
+  const manejarCambioRango = (comboIndex, campo, valor) => {
     const copia = [...combinaciones];
-    copia[index].niveles.push("");
+    copia[comboIndex][campo] = valor;
     setCombinaciones(copia);
   };
 
-  const eliminarNivel = (areaIndex, nivelIndex) => {
+  const agregarNivel = (comboIndex) => {
     const copia = [...combinaciones];
-    copia[areaIndex].niveles = copia[areaIndex].niveles.filter(
-      (_, i) => i !== nivelIndex
-    );
+    copia[comboIndex].niveles.push({ grado: "", categoria: "" });
     setCombinaciones(copia);
+  };
+
+  const agregarCombinacion = () => {
+    setCombinaciones([
+      ...combinaciones,
+      { area: "", niveles: [{ grado: "", categoria: "" }], rango: "", categoriaUnica: "" },
+    ]);
+  };
+
+  const eliminarCombinacion = (index) => {
+    const nuevaLista = combinaciones.filter((_, i) => i !== index);
+    setCombinaciones(nuevaLista);
   };
 
   return (
     <div>
       <h1 className="text-xl font-bold text-center mb-2">
-        Asociar área/nivel a la Olimpiada
+        Asociar área/grado a la Olimpiada
       </h1>
+
+      <div className="mb-4 text-center">
+        <label className="font-semibold mr-2">Seleccionar olimpiada:</label>
+        <select
+          value={olimpiadaSeleccionada}
+          onChange={(e) => setOlimpiadaSeleccionada(e.target.value)}
+          className="px-3 py-2 border rounded"
+        >
+          <option value="">-- Seleccione una olimpiada --</option>
+          {olimpiadas.map((o) => (
+            <option key={o} value={o}>
+              {o}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="text-center mb-4">
+        <label className="inline-flex items-center">
+          <input
+            type="checkbox"
+            checked={modoRango}
+            onChange={(e) => setModoRango(e.target.checked)}
+            className="mr-2"
+          />
+          Usar rango de grados y una categoría
+        </label>
+      </div>
+
       <p className="text-sm text-center mb-4">
-        Seleccione las áreas y niveles que tendrá la olimpiada -TAL-
+        Seleccione las áreas y grados que tendrá la olimpiada{" "}
+        {olimpiadaSeleccionada ? `"${olimpiadaSeleccionada}"` : "-TAL-"}
       </p>
+
       <div className="bg-gray-200 p-2 rounded w-full max-w-3xl mx-auto">
-        {combinaciones.map((combo, index) => (
-          <div key={index} className="relative bg-blue-200 p-3 rounded mb-4">
-            {/* Botón para eliminar combinación */}
+        {combinaciones.map((combo, comboIndex) => (
+          <div key={comboIndex} className="relative bg-blue-200 p-3 rounded mb-4">
             <button
-              onClick={() => eliminarCombinacion(index)}
+              onClick={() => eliminarCombinacion(comboIndex)}
               className="absolute top-2 right-2 text-red-500 hover:text-red-700"
               title="Eliminar combinación"
             >
               <FaTrash />
             </button>
 
-            {/* Tabla para alinear área y niveles */}
-            <div className="w-full">
-              {/* Cabeceras */}
-              <div className="flex mb-1">
+            <div className="mb-3">
+              <label className="block font-semibold mb-1">Área</label>
+              <select
+                value={combo.area}
+                onChange={(e) => manejarCambioArea(comboIndex, e.target.value)}
+                className="px-3 py-2 border rounded w-full"
+              >
+                <option value="">Seleccione un área</option>
+                {areas.map((a) => (
+                  <option key={a} value={a}>
+                    {a}
+                  </option>
+                ))}
+                <option value="Otra">Otra...</option>
+              </select>
+            </div>
+
+            {modoRango ? (
+              <div className="flex gap-2 items-center mb-2">
                 <div className="w-1/2">
-                  <label className="block font-semibold">Área</label>
+                  <label className="block font-semibold mb-1">Rango de grados</label>
+                  <input
+                    type="text"
+                    value={combo.rango}
+                    onChange={(e) => manejarCambioRango(comboIndex, "rango", e.target.value)}
+                    className="px-3 py-2 border rounded w-full"
+                    placeholder="Ej: 3° primaria - 6° primaria"
+                  />
                 </div>
+
                 <div className="w-1/2">
-                  <label className="block font-semibold">Nivel</label>
+                  <label className="block font-semibold mb-1">Categoría</label>
+                  <input
+                    type="text"
+                    value={combo.categoriaUnica}
+                    onChange={(e) =>
+                      manejarCambioRango(comboIndex, "categoriaUnica", e.target.value)
+                    }
+                    className="px-3 py-2 border rounded w-full"
+                    placeholder="Ej. Jukumari"
+                  />
                 </div>
               </div>
-
-              {/* Área y primer nivel */}
-              <div className="flex mb-2">
-                <div className="w-1/2 pr-2">
-                  {combo.area !== "Otra" ? (
-                    <select
-                      value={combo.area}
-                      onChange={(e) => manejarCambioArea(index, e.target.value)}
-                      className="px-3 py-2 border rounded w-full"
-                    >
-                      <option value="">Seleccione un área</option>
-                      {areas.map((a) => (
-                        <option key={a} value={a}>
-                          {a}
-                        </option>
-                      ))}
-                      <option value="Otra">Otra...</option>
-                    </select>
-                  ) : (
-                    <input
-                      type="text"
-                      placeholder="Ingrese nueva área"
-                      onBlur={(e) => {
-                        const nueva = e.target.value.trim();
-                        if (nueva && !areas.includes(nueva)) {
-                          setAreas([...areas, nueva]);
-                          manejarCambioArea(index, nueva);
+            ) : (
+              <>
+                {combo.niveles.map((nivel, nivelIndex) => (
+                  <div key={nivelIndex} className="flex gap-2 items-center mb-2">
+                    <div className="w-1/2">
+                      <label className="block font-semibold mb-1">Grado</label>
+                      <select
+                        value={nivel.grado}
+                        onChange={(e) =>
+                          manejarCambioNivel(comboIndex, nivelIndex, "grado", e.target.value)
                         }
-                      }}
-                      className="px-3 py-2 border rounded w-full"
-                    />
-                  )}
-                </div>
+                        className="px-3 py-2 border rounded w-full"
+                      >
+                        <option value="">Seleccione un grado</option>
+                        {gradosDisponibles.map((g) => (
+                          <option key={g} value={g}>
+                            {g}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
 
-                <div className="w-1/2 flex items-center">
-                  {combo.niveles[0] !== "Otro" ? (
-                    <select
-                      value={combo.niveles[0]}
-                      onChange={(e) =>
-                        manejarCambioNivel(index, 0, e.target.value)
-                      }
-                      className="px-3 py-2 border rounded w-full"
-                    >
-                      <option value="">Seleccione un nivel</option>
-                      {nivelesDisponibles.map((n) => (
-                        <option key={n} value={n}>
-                          {n}
-                        </option>
-                      ))}
-                      <option value="Otro">Otro...</option>
-                    </select>
-                  ) : (
-                    <input
-                      type="text"
-                      placeholder="Ingrese nuevo nivel"
-                      onBlur={(e) => {
-                        const nuevo = e.target.value.trim();
-                        if (nuevo && !nivelesDisponibles.includes(nuevo)) {
-                          setNivelesDisponibles([...nivelesDisponibles, nuevo]);
-                          manejarCambioNivel(index, 0, nuevo);
+                    <div className="w-1/2">
+                      <label className="block font-semibold mb-1">Categoría</label>
+                      <input
+                        type="text"
+                        value={nivel.categoria}
+                        onChange={(e) =>
+                          manejarCambioNivel(comboIndex, nivelIndex, "categoria", e.target.value)
                         }
-                      }}
-                      className="px-3 py-2 border rounded w-full"
-                    />
-                  )}
-                  <button
-                    onClick={() => agregarNivel(index)}
-                    className="flex-shrink-0 ml-2 bg-white border rounded-full p-1 hover:bg-gray-100"
-                    title="Agregar nivel"
-                  >
-                    <FaPlus />
-                  </button>
-                </div>
-              </div>
-
-              {/* Niveles adicionales */}
-              {combo.niveles.slice(1).map((nivel, nivelIndex) => (
-                <div key={nivelIndex + 1} className="flex mb-2">
-                  <div className="w-1/2 pr-2">
-                    {/* Espacio en blanco para alineación */}
-                  </div>
-                  <div className="w-1/2 flex items-center">
-                    <div className="w-full">
-                      <label className="block font-semibold mb-1">Nivel</label>
-                      <div className="flex items-center">
-                        <select
-                          value={nivel}
-                          onChange={(e) =>
-                            manejarCambioNivel(
-                              index,
-                              nivelIndex + 1,
-                              e.target.value
-                            )
-                          }
-                          className="px-3 py-2 border rounded w-full"
-                        >
-                          <option value="">Seleccione un nivel</option>
-                          {nivelesDisponibles.map((n) => (
-                            <option key={n} value={n}>
-                              {n}
-                            </option>
-                          ))}
-                        </select>
-                        <button
-                          onClick={() => eliminarNivel(index, nivelIndex + 1)}
-                          className="flex-shrink-0 ml-2 text-red-500 hover:text-red-700"
-                          title="Eliminar nivel adicional"
-                        >
-                          <FaTrash />
-                        </button>
-                      </div>
+                        className="px-3 py-2 border rounded w-full"
+                        placeholder="Ej. Jukumari, 3P"
+                      />
                     </div>
                   </div>
+                ))}
+
+                <div className="text-right">
+                  <button
+                    onClick={() => agregarNivel(comboIndex)}
+                    className="flex items-center gap-2 mt-2 bg-white border rounded-full px-3 py-1 hover:bg-gray-100"
+                    title="Agregar grado/categoría"
+                  >
+                    <FaPlus /> Añadir nivel
+                  </button>
                 </div>
-              ))}
-            </div>
+              </>
+            )}
           </div>
         ))}
 
         <button
           onClick={agregarCombinacion}
-          className="flex items-center gap-2 mx-auto mt-2 bg-white border rounded-full p-2 hover:bg-gray-100"
-          title="Agregar fila"
+          className="flex items-center gap-2 mx-auto mt-4 bg-white border rounded-full p-2 hover:bg-gray-100"
+          title="Agregar nueva combinación"
         >
-          <FaPlus />
+          <FaPlus /> Nueva combinación
         </button>
       </div>
     </div>
   );
 };
 
-export default SelectorAreaNivel;
+export default SelectorAreaGrado;

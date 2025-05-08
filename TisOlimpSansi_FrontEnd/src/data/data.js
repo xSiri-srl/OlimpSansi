@@ -12,6 +12,8 @@ export const navbarLinksByRole = {
   admin: [
     { id: 1, title: "Generar Reportes", link: "/admin/generar-reportes" },
     { id: 2, title: "Crear Olimpiada", link: "/admin/crear-olimpiada" },
+    { id: 3, title: "Asignar Area", link: "/admin/asociar-nivel" },
+    { id: 4, title: "Asignar Costo Area", link: "/admin/crear-olimpiada" },
     //{ id: 2, title: "Subir Convocatoria", link: "/admin/convocatoria" },
   ],
 };
