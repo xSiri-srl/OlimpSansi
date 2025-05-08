@@ -46,24 +46,20 @@ const CrearOlimpiadas = () => {
     setLoading(true);
     
     try {
-      // Obtener usuario del localStorage
       const userData = JSON.parse(localStorage.getItem("user"));
       console.log("User from localStorage:", userData);
       
       // Extraer el id del usuario
       const userId = userData?.user?.id || 1;
-      
-      // Crear objeto de olimpiada con los nombres de campo correctos
+
       const olimpiadaData = {
-        id_user: userId, // Usamos id_user para que coincida con el campo en la base de datos
+        id_user: userId, 
         titulo: titulo,
         fecha_ini: fechaIni,
         fecha_fin: fechaFinal
       };
       
       console.log("Sending olimpiada data:", olimpiadaData);
-      
-      // Enviar datos al backend
       const response = await axios.post(
         `${endpoint}/agregarOlimpiada`, 
         olimpiadaData,
@@ -71,13 +67,11 @@ const CrearOlimpiadas = () => {
       );
       
       console.log("Response:", response.data);
-      
-      // Manejo de éxito
+
       setLoading(false);
       setShowSuccessModal(true);
       setErrorMessage("");
-      
-      // Limpiar formulario
+
       setTitulo("");
       setPeriodoIns("");
       setFechaIni("");
@@ -92,7 +86,7 @@ const CrearOlimpiadas = () => {
         error.message || 
         "Error al crear la olimpiada"
       );
-      setShowSuccessModal(true); // Mostrar modal de error
+      setShowSuccessModal(true); 
       console.error("Error al crear olimpiada:", error);
     }
   };
