@@ -12,50 +12,56 @@ use Illuminate\Support\Facades\DB;
 class AuthController extends Controller
 {
 
-    public function register(RegistroRequest $request){
+    public function register(RegistroRequest $request)
+    {
         $data = $request->validated();
+
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => bcrypt($data['password']),
-            'id_rol' => 1
+            'id_rol' => null // o asigna uno por defecto si quieres
         ]);
-        return [
-            'token' => $user->createToken('token')->plainTextToken,
-            'user' => $user
-        ];
-    }
-    public function login(LoginRequest $request){
-        $data = $request->validated();
-        //Revisar parssword
-        if(!Auth::attempt($data)) {
-            return response([
-                'errors' => ['El email o el password son incorrectos']
-            ],422);
-        }
-        //Autenticar usuario
-        $user = Auth::user();
-        return [
-            'token' => $user->createToken('token')->plainTextToken,
-            'user' => $user
-        ];
 
+        // Iniciar sesión automáticamente después del registro
+        Auth::login($user);
+        $request->session()->regenerate();
+
+        return response()->json([
+            'user' => $user
+        ]);
     }
-    public function logout(Request $request){
-        $user = $request->user();
-        $user->currentAccessToken()->delete();
-        return [
-            'user' => null
-        ];
+    public function login(Request $request)
+    {
+        $credentials = $request->only('email', 'password');
+
+        if (!Auth::attempt($credentials)) {
+            return response()->json(['errors' => ['El email o la contraseña son incorrectos']], 422);
+        }
+
+        $request->session()->regenerate();
+
+        return response()->json([
+            'user' => Auth::user()
+        ]);
     }
-    public function getPermisos() {
+    public function logout(Request $request)
+    {
+        Auth::guard('web')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return response()->json(['message' => 'Sesión cerrada']);
+    }
+    public function getPermisos()
+    {
         $usuario = Auth::user();
-    
+
         $permisos = DB::table('rol_accions')
             ->where('id_rol', $usuario->id_rol)
             ->join('acciones', 'rol_accions.id_accion', '=', 'acciones.id')
             ->pluck('acciones.nombreFuncion');
-    
+
         return response()->json(['permisos' => $permisos]);
     }
 }

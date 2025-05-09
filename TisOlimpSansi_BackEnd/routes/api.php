@@ -131,10 +131,11 @@ Route::controller(ConvocatoriaController::class)->group(function(){
     Route::get('/convocatoriaPorArea/{id}', [ConvocatoriaController::class, 'convocatoriaPorArea']);
 });
 
+//olimpiada
 Route::controller(OlimpiadaController::class)->group(function(){
 
     Route::get('/olimpiadas', [OlimpiadaController::class, 'index']);
-    Route::post('/agregarOlimpiada', [OlimpiadaController::class, 'store']);
+    Route::post('/agregarOlimpiada', [OlimpiadaController::class, 'store'])->middleware(['auth:sanctum', 'permiso:crear_olimpiada']);;
     Route::get('/olimpiada/{id}', [OlimpiadaController::class, 'show']);
     Route::post('/actualizarOlimpiada/{id}', [OlimpiadaController::class, 'update']);
     Route::delete('/eliminarOlimpiada/{id}', [OlimpiadaController::class, 'destroy']);
@@ -207,7 +208,7 @@ Route::middleware('auth:sanctum')->group(function () {
         return $request->user();
     });
 
-    Route::post('/logout', [AuthController::class, 'logout']);
+    //Route::post('/logout', [AuthController::class, 'logout']);
 
     Route::get('/permisos',  [AuthController::class, 'getPermisos']);
 
@@ -216,8 +217,8 @@ Route::middleware('auth:sanctum')->group(function () {
     //Route::get('/orden-de-pago/info', [OrdenPagoController::class, 'getInfOrdenesDePago'])
     //    ->middleware(VerificarPermiso::class . ':ver_orden_pago');
 });
-Route::post('/registro', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
+
+//Route::post('/login', [AuthController::class, 'login']);
 
 
 
