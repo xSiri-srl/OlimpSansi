@@ -13,14 +13,12 @@ return new class extends Migration
     {
         Schema::create('orden_pagos', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('id_responsable')->constrained('responsable_inscripcion')->onDelete('cascade');
             $table->string('codigo_generado', 20);
             $table->decimal('monto_total', 10, 2); 
-            $table->string('comprobante_url', 500)->nullable();
             $table->string('orden_pago_url', 500)->nullable(); 
-            $table->string('numero_comprobante', 50)->nullable();
-            $table->string('nombre_pagador', 200)->nullable(); 
             $table->dateTime('fecha_emision'); 
-            $table->dateTime('fecha_subida_imagen_comprobante')->nullable();
+            $table->enum('estado', ['pendiente', 'pagado', 'anulado'])->default('pendiente');
             $table->timestamps();
         });
     }
