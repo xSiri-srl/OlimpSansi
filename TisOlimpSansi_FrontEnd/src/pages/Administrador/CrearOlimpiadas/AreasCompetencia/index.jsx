@@ -20,9 +20,7 @@ const AreasCompetenciaManager = () => {
     },
   ]);
 
-  // Cargar olimpiadas al inicio
   useEffect(() => {
-    // Aquí normalmente cargarías las olimpiadas desde tu API
     setOlimpiadas([
       { id: 1, titulo: "Olimpiada Nacional de Matemática 2025" },
       { id: 2, titulo: "Olimpiada de Ciencia Escolar 2025" },
@@ -30,7 +28,6 @@ const AreasCompetenciaManager = () => {
     ]);
   }, []);
 
-  // Actualizar nombre de olimpiada cuando se selecciona una
   useEffect(() => {
     if (olimpiadaSeleccionada) {
       const olimpiada = olimpiadas.find(o => o.id.toString() === olimpiadaSeleccionada);
@@ -62,13 +59,11 @@ const AreasCompetenciaManager = () => {
   };
 
   const guardarConfiguracion = async () => {
-    // Validar que la olimpiada esté seleccionada
     if (!olimpiadaSeleccionada) {
       alert("Por favor seleccione una olimpiada");
       return;
     }
 
-    // Validar que todas las áreas tengan datos completos
     let datosCompletos = true;
     let mensaje = "";
     
@@ -80,13 +75,11 @@ const AreasCompetenciaManager = () => {
 
       if (combo.modoRango) {
         let rangoValido = true;
-        // Verificar que todas las categorías en rango tengan datos completos
         combo.categoriasRango.forEach(cat => {
           if (!cat.rangoInicial || !cat.rangoFinal || !cat.nombre) {
             datosCompletos = false;
             mensaje = "Todos los campos de rango y categoría deben estar completos";
           }
-          // Validar que el rango sea válido
           if (gradosDisponibles.indexOf(cat.rangoInicial) > gradosDisponibles.indexOf(cat.rangoFinal)) {
             rangoValido = false;
           }
@@ -114,7 +107,6 @@ const AreasCompetenciaManager = () => {
     setGuardando(true);
 
     try {
-      // Preparar datos para enviar
       const datosAEnviar = combinaciones.map(combo => {
         const comboCopia = {...combo};
         if (combo.area === "Otra" && combo.areaPersonalizada) {
@@ -124,13 +116,11 @@ const AreasCompetenciaManager = () => {
         return comboCopia;
       });
       
-      // Aquí normalmente enviarías los datos a tu API
       console.log("Guardando configuración:", {
         id_olimpiada: olimpiadaSeleccionada,
         combinaciones: datosAEnviar
       });
       
-      // Simular retraso de API
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       setMensajeExito("¡Configuración guardada exitosamente!");

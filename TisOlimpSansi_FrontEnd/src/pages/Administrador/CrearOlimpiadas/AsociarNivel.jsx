@@ -63,13 +63,11 @@ const SelectorAreaGrado = () => {
   };
 
   const guardarConfiguracion = async () => {
-    // Validar que la olimpiada esté seleccionada
     if (!olimpiadaSeleccionada) {
       alert("Por favor seleccione una olimpiada");
       return;
     }
 
-    // Validar que todas las áreas tengan datos completos
     let datosCompletos = true;
     let mensaje = "";
     
@@ -81,13 +79,11 @@ const SelectorAreaGrado = () => {
 
       if (combo.modoRango) {
         let rangoValido = true;
-        // Verificar que todas las categorías en rango tengan datos completos
         combo.categoriasRango.forEach(cat => {
           if (!cat.rangoInicial || !cat.rangoFinal || !cat.nombre) {
             datosCompletos = false;
             mensaje = "Todos los campos de rango y categoría deben estar completos";
           }
-          // Validar que el rango sea válido
           if (gradosDisponibles.indexOf(cat.rangoInicial) > gradosDisponibles.indexOf(cat.rangoFinal)) {
             rangoValido = false;
           }
@@ -115,7 +111,6 @@ const SelectorAreaGrado = () => {
     setGuardando(true);
 
     try {
-      // Preparar datos para enviar
       const datosAEnviar = combinaciones.map(combo => {
         const comboCopia = {...combo};
         if (combo.area === "Otra" && combo.areaPersonalizada) {
@@ -125,13 +120,11 @@ const SelectorAreaGrado = () => {
         return comboCopia;
       });
       
-      // Aquí normalmente enviarías los datos a tu API
       console.log("Guardando configuración:", {
         id_olimpiada: olimpiadaSeleccionada,
         combinaciones: datosAEnviar
       });
       
-      // Simular retraso de API
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       setMensajeExito("¡Configuración guardada exitosamente!");
