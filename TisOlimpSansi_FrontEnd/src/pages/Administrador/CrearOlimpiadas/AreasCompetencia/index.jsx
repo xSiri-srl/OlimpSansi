@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react";
-import { FaPlus, FaSave } from "react-icons/fa";
-import HeaderSelector from "./AreasCompetencia/HeaderSelector";
-import AreaCompetencia from "./AreasCompetencia/AreaCompetencia";
-import AccionesFooter from "./AreasCompetencia/AccionesFooter";
-import { gradosDisponibles, areasDefault } from "./AreasCompetencia/constants";
+import HeaderSelector from "./HeaderSelector";
+import AreaCompetencia from "./AreaCompetencia";
+import AccionesFooter from "./AccionesFooter";
+import { gradosDisponibles, areasDefault } from "./constants";
 
-const SelectorAreaGrado = () => {
+const AreasCompetenciaManager = () => {
   const [olimpiadas, setOlimpiadas] = useState([]);
   const [olimpiadaSeleccionada, setOlimpiadaSeleccionada] = useState("");
   const [nombreOlimpiada, setNombreOlimpiada] = useState("");
@@ -17,11 +16,9 @@ const SelectorAreaGrado = () => {
       area: "", 
       modoRango: false, 
       niveles: [{ grado: "", categoria: "" }], 
-      categoriasRango: [{ rangoInicial: "", rangoFinal: "", nombre: "" }],
-      costoInscripcion: "" 
+      categoriasRango: [{ rangoInicial: "", rangoFinal: "", nombre: "" }] 
     },
   ]);
-
 
   useEffect(() => {
     setOlimpiadas([
@@ -47,8 +44,7 @@ const SelectorAreaGrado = () => {
         area: "", 
         modoRango: false, 
         niveles: [{ grado: "", categoria: "" }], 
-        categoriasRango: [{ rangoInicial: "", rangoFinal: "", nombre: "" }],
-        costoInscripcion: "" 
+        categoriasRango: [{ rangoInicial: "", rangoFinal: "", nombre: "" }] 
       },
     ]);
   };
@@ -174,4 +170,4 @@ const SelectorAreaGrado = () => {
   );
 };
 
-export default SelectorAreaGrado;
+export default AreasCompetenciaManager;
