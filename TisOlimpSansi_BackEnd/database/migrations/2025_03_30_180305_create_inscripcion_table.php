@@ -13,10 +13,9 @@ return new class extends Migration
     {
         Schema::create('inscripcion', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_responsable')->constrained('responsable_inscripcion')->onDelete('cascade');
             $table->foreignId('id_estudiante')->constrained('estudiante')->onDelete('cascade');
             $table->foreignId('id_olimpiada_area_categoria')->constrained('olimpiada_area_categoria')->onDelete('cascade');
-            $table->foreignId('id_tutor_academico')->constrained('tutor_academico')->onDelete('cascade');
+            $table->foreignId('id_tutor_academico')->nullable()->constrained('tutor_academico')->onDelete('set null');
             $table->foreignId('id_orden_pago')->nullable()->constrained('orden_pagos')->onDelete('cascade');
             $table->timestamps();
         });
