@@ -135,20 +135,20 @@ Route::controller(ConvocatoriaController::class)->group(function(){
 Route::controller(OlimpiadaController::class)->group(function(){
 
     Route::get('/olimpiadas', [OlimpiadaController::class, 'index']);
-    Route::post('/agregarOlimpiada', [OlimpiadaController::class, 'store'])->middleware(['auth:sanctum', 'permiso:crear_olimpiada']);;
+    Route::post('/agregarOlimpiada', [OlimpiadaController::class, 'store']);
     Route::get('/olimpiada/{id}', [OlimpiadaController::class, 'show']);
     Route::post('/actualizarOlimpiada/{id}', [OlimpiadaController::class, 'update']);
     Route::delete('/eliminarOlimpiada/{id}', [OlimpiadaController::class, 'destroy']);
 });
 
-Route::controller(OlimpiadaAreaController::class)->group(function(){
+// Route::controller(OlimpiadaAreaController::class)->group(function(){
 
-    Route::get('/areasOlimpiadas', [OlimpiadaAreaController::class, 'index']);
-    Route::post('/agregarAreaOlimpiada', [OlimpiadaAreaController::class, 'store']);
-    Route::get('/areaOlimpiada/{id}', [OlimpiadaAreaController::class, 'show']);
-    Route::post('/actualizarAreaOlimpiada/{id}', [OlimpiadaAreaController::class, 'update']);
-    Route::delete('/eliminarAreaOlimpiada/{id}', [OlimpiadaAreaController::class, 'destroy']);
-});
+//     Route::get('/areasOlimpiadas', [OlimpiadaAreaController::class, 'index']);
+//     Route::post('/agregarAreaOlimpiada', [OlimpiadaAreaController::class, 'store']);
+//     Route::get('/areaOlimpiada/{id}', [OlimpiadaAreaController::class, 'show']);
+//     Route::post('/actualizarAreaOlimpiada/{id}', [OlimpiadaAreaController::class, 'update']);
+//     Route::delete('/eliminarAreaOlimpiada/{id}', [OlimpiadaAreaController::class, 'destroy']);
+// });
 
 Route::get('/orden-pago', [OrdenPagoController::class, 'obtenerOrdenPago']);
 Route::post('/orden-pago/pdf', [OrdenPagoController::class, 'generarYGuardarOrdenPagoPDF']);

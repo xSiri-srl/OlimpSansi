@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-
+import Cookies from 'js-cookie';
 const CrearOlimpiadas = () => {
   const [titulo, setTitulo] = useState("");
   const [fechaIni, setFechaIni] = useState("");
@@ -12,7 +12,7 @@ const CrearOlimpiadas = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const endpoint = "http://localhost:8000/api";
+  const endpoint = "http://localhost:8000";
   const years = Array.from({ length: 2030 - 2025 + 1 }, (_, i) => 2025 + i);
 
   const validarCampos = () => {
@@ -41,55 +41,60 @@ const CrearOlimpiadas = () => {
     }
   };
 
-  const confirmarCreacion = async () => {
-    setShowConfirmModal(false);
-    setLoading(true);
-    
-    try {
-      const userData = JSON.parse(localStorage.getItem("user"));
-      console.log("User from localStorage:", userData);
-      
-      // Extraer el id del usuario
-      const userId = userData?.user?.id || 1;
 
-      const olimpiadaData = {
-        id_user: userId, 
-        titulo: titulo,
-        fecha_ini: fechaIni,
-        fecha_fin: fechaFinal
-      };
-      
-      console.log("Sending olimpiada data:", olimpiadaData);
-      const response = await axios.post(
-        `${endpoint}/agregarOlimpiada`, 
-        olimpiadaData,
-        { withCredentials: true }
-      );
-      
-      console.log("Response:", response.data);
+    const confirmarCreacion = async () => {
+      setShowConfirmModal(false);
+      setLoading(true);
 
-      setLoading(false);
-      setShowSuccessModal(true);
-      setErrorMessage("");
+      try {
+       
+        await axios.get('http://localhost:8000/sanctum/csrf-cookie', {
+          withCredentials: true,
+        });
 
-      setTitulo("");
-      setPeriodoIns("");
-      setFechaIni("");
-      setFechaFinal("");
-      
-    } catch (error) {
-      console.error("Full error object:", error);
-      
-      setLoading(false);
-      setErrorMessage(
-        error.response?.data?.message || 
-        error.message || 
-        "Error al crear la olimpiada"
-      );
-      setShowSuccessModal(true); 
-      console.error("Error al crear olimpiada:", error);
-    }
-  };
+   
+        const csrfToken = Cookies.get('XSRF-TOKEN');
+        axios.defaults.headers.common['X-XSRF-TOKEN'] = csrfToken;
+
+       
+        const userData = JSON.parse(localStorage.getItem("user"));
+        const userId = userData?.user?.id;
+
+        const olimpiadaData = {
+          id_user: userId,
+          titulo,
+          fecha_ini: fechaIni,
+          fecha_fin: fechaFinal,
+        };
+
+        const response = await axios.post(
+          'http://localhost:8000/agregarOlimpiada',
+          olimpiadaData,
+          { withCredentials: true }
+        );
+
+        // Éxito
+        setShowSuccessModal(true);
+        setErrorMessage("");
+        setTitulo("");
+        setPeriodoIns("");
+        setFechaIni("");
+        setFechaFinal("");
+      } catch (error) {
+          const mensaje = error.response?.data?.error ||  
+                          error.response?.data?.message || 
+                          error.message || 
+                          "Error desconocido";
+
+          setErrorMessage(mensaje);
+          setShowSuccessModal(true);
+          console.error("Error al crear olimpiada:", mensaje);
+
+      } finally {
+        setLoading(false);
+      }
+    };
+
 
   return (
     <div className="p-10 relative">

@@ -16,6 +16,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->prependToGroup('web', EnsureFrontendRequestsAreStateful::class);
         $middleware->prependToGroup('api', EnsureFrontendRequestsAreStateful::class);
     })
-    ->withExceptions(function (Exceptions $exceptions) {
+    ->withMiddleware(function (Middleware $middleware) {
+    $middleware->alias([
+        'permiso' => \App\Http\Middleware\VerificarPermiso::class,
+    ]);
+})->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();
