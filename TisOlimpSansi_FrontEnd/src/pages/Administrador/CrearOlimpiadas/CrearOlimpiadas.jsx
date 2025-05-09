@@ -47,7 +47,7 @@ const CrearOlimpiadas = () => {
       setLoading(true);
 
       try {
-       
+       //--------------------
         await axios.get('http://localhost:8000/sanctum/csrf-cookie', {
           withCredentials: true,
         });
@@ -55,7 +55,7 @@ const CrearOlimpiadas = () => {
    
         const csrfToken = Cookies.get('XSRF-TOKEN');
         axios.defaults.headers.common['X-XSRF-TOKEN'] = csrfToken;
-
+        //----------------------
        
         const userData = JSON.parse(localStorage.getItem("user"));
         const userId = userData?.user?.id;

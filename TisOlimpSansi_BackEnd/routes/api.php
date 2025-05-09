@@ -201,24 +201,19 @@ Route::post('/estudiantes/preinscritos/bydepartamento', [ColegioController::clas
 Route::get('/inscripciones/por-area', [InscripcionController::class, 'inscripcionesPorArea']);
 Route::get('/inscripciones/por-categoria', [InscripcionController::class, 'inscripcionesPorCategoria']);
 
-//Autenticacion todo lo que va dentor de esto son funciones para usuarios autenticados
-
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/user', function (Request $request) {
-        return $request->user();
-    });
-
-    //Route::post('/logout', [AuthController::class, 'logout']);
-
-    Route::get('/permisos',  [AuthController::class, 'getPermisos']);
-
-    //ejemplo de proteger rutas, probar despues
-    // Rutas protegidas por permisos
-    //Route::get('/orden-de-pago/info', [OrdenPagoController::class, 'getInfOrdenesDePago'])
-    //    ->middleware(VerificarPermiso::class . ':ver_orden_pago');
-});
-
-//Route::post('/login', [AuthController::class, 'login']);
 
 
+
+
+
+
+
+
+
+//inscripcion
+//devolver todas las olimpiadas disponibles desde la fecha actual hasta en un futuro, para poder realizar una inscripcion
+
+//devolver todas las areas de una olimpiada seleccionada
+
+//devolver todas las categorias de un area seleccionada
 
