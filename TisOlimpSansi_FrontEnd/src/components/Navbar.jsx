@@ -7,7 +7,7 @@ import ResponsiveMenu from "./ResponsiveMenu"
 import axios from "axios"
 import { useNavigate, useLocation } from "react-router-dom"
 import { Link } from "react-router-dom"
-
+import Cookies from 'js-cookie';
 const Navbar = () => {
   const [open, setOpen] = useState(false)
   const [showSidebar, setShowSidebar] = useState(false)
@@ -26,6 +26,7 @@ const Navbar = () => {
   const location = useLocation()
 
   const endpoint = "http://localhost:8000/api"
+  const endpoint2 = "http://localhost:8000"
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"))
@@ -37,9 +38,17 @@ const Navbar = () => {
   const navbarLinks = navbarLinksByRole[role] || []
 
   const loginUser = async (username, password) => {
+    
+    await axios.get('http://localhost:8000/sanctum/csrf-cookie', {
+      withCredentials: true
+    });
+
+
+    const csrf = Cookies.get('XSRF-TOKEN');
+    axios.defaults.headers.common['X-XSRF-TOKEN'] = csrf;
     try {
       const response = await axios.post(
-        `${endpoint}/login`,
+        `${endpoint2}/login`,
         {
           email: username,
           password: password,
@@ -54,21 +63,36 @@ const Navbar = () => {
       throw error.response?.data?.message || "Error en el login"
     }
   }
-  const registerUser = async (username, password) => {
-    try {
-      const response = await axios.post(`${endpoint}/registro`, {
-        name: username,
-        email: username,
-        password: password,
-        password_confirmation: password,
-        id_rol: rol,
-      })
+  const registerUser = async (username, password, rol) => {
 
-      return response.data
+    await axios.get('http://localhost:8000/sanctum/csrf-cookie', {
+      withCredentials: true,
+    });
+
+    // 2. Leer la cookie y forzar el header
+    const csrf = Cookies.get('XSRF-TOKEN');
+    axios.defaults.headers.common['X-XSRF-TOKEN'] = csrf;
+
+    try {
+      const response = await axios.post(
+        'http://localhost:8000/registro',
+        {
+          name: username,
+          email: username,
+          password: password,
+          password_confirmation: password,
+          id_rol: rol,
+        },
+        {
+          withCredentials: true, // <-- ESTO FALTABA
+        }
+      );
+
+      return response.data;
     } catch (error) {
-      throw error.response?.data?.message || "Error en el registro"
+      throw error.response?.data?.message || "Error en el registro";
     }
-  }
+  };
   const handleLogin = async (e) => {
     e.preventDefault()
     try {
@@ -169,14 +193,22 @@ const Navbar = () => {
                 Iniciar sesión como Administrador
               </button>
             )}
+            
            {role === "admin" && (
+              //modifciar esto esto esta mal
               <button
-                onClick={() => {
-                  setRole("responsable")
-                  localStorage.removeItem("user")
-                  setShowSidebar(false)
-                  navigate("/")
-                }}
+              onClick={async () => {
+                const csrf = Cookies.get('XSRF-TOKEN');
+                axios.defaults.headers.common['X-XSRF-TOKEN'] = csrf;
+
+                await axios.post('http://localhost:8000/logout', {}, {
+                  withCredentials: true,
+                });
+
+                localStorage.removeItem("user");
+                setShowSidebar(false);
+                navigate("/");
+              }}
                 className="mt-4 bg-primary text-white px-4 py-2 rounded hover:bg-blue-700 transition w-full"
               >
                 Cerrar sesión
