@@ -20,5 +20,8 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RolContadorSeeder::class,
         ]);
+        $this->call([
+            AreaSeeder::class,
+        ]);
     }
 }
