@@ -52,5 +52,6 @@ class RolContadorSeeder extends Seeder
                 'updated_at' => now(),
             ]);
         }
+        
     }
 }

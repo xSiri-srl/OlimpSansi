@@ -17,8 +17,21 @@ class DatabaseSeeder extends Seeder
         // $this->call([
         //     ColegioSeeder::class,
         // ]);
+        // $this->call([
+        //     RolContadorSeeder::class,
+        // ]);
         $this->call([
+            AreaSeeder::class,
+        ]);
+        $this->call([
+            CategoriaSeeder::class,
+        ]);
+
+         $this->call([
             RolContadorSeeder::class,
+        ]);
+        $this->call([
+            RolCreadorDeOlimpiadasSeeder::class,
         ]);
     }
 }
