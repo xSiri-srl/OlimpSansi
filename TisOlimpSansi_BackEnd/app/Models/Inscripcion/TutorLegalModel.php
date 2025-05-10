@@ -21,16 +21,22 @@ class TutorLegalModel extends Model
         'tipo',
     ];
 
-    public function estudiante(){
-        return $this->hasMany(EstudianteModel::class, 'id_tutor_legal');
-    }
+ public function inscripciones()
+{
+    return $this->hasMany(InscripcionModel::class, 'id_tutor_legal');
+}
 
-    public static function registrarDesdeRequest($data)
+public static function registrarDesdeRequest($data)
 {
     return self::create([
         'nombre' => $data['nombre'],
+        'apellido_pa' => $data['apellido_pa'],
+        'apellido_ma' => $data['apellido_ma'],
         'ci' => $data['ci'],
-        'parentesco' => $data['parentesco'],
+        'complemento' => $data['complemento'] ?? null,
+        'correo' => $data['correo'],
+        'numero_celular' => $data['numero_celular'],
+        'tipo' => $data['tipo'], // en lugar de 'parentesco'
     ]);
 }
 }

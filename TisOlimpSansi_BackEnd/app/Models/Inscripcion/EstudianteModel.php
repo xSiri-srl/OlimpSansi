@@ -17,7 +17,6 @@ class EstudianteModel extends Model
     protected $fillable = [
         'id_unidad',
         'id_grado',
-        'id_tutor_legal',
         'nombre',
         'apellido_pa',
         'apellido_ma',
@@ -33,17 +32,20 @@ class EstudianteModel extends Model
     public function grado(){
         return $this->belongsTo(GradoModel::class, 'id_grado', 'id');
     }
-    public function tutorLegal(){
-        return $this->belongsTo(TutorLegalModel::class, 'id_tutor_legal', 'id');
+
+    public static function registrarDesdeRequest($data, $colegio_id, $grado_id)
+    {
+        return self::create([
+            'nombre' => $data['nombre'],
+            'apellido_pa' => $data['apellido_pa'],
+            'apellido_ma' => $data['apellido_ma'],
+            'ci' => $data['ci'],
+            'fecha_nacimiento' => $data['fecha_nacimiento'],
+            'correo' => $data['correo'],
+            'propietario_correo' => $data['propietario_correo'],
+            'id_unidad' => $colegio_id,
+            'id_grado' => $grado_id,
+        ]);
     }
 
-    public static function registrarDesdeRequest($data, $colegio_id)
-{
-    return self::create([
-        'nombre' => $data['nombre'],
-        'ci' => $data['ci'],
-        'grado_id' => $data['grado_id'],
-        'colegio_id' => $colegio_id,
-    ]);
-}
 }
