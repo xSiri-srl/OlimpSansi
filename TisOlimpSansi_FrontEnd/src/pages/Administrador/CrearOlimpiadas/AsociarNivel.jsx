@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
-import { FaPlus, FaSave } from "react-icons/fa";
 import HeaderSelector from "./AreasCompetencia/HeaderSelector";
 import AreaCompetencia from "./AreasCompetencia/AreaCompetencia";
 import AccionesFooter from "./AreasCompetencia/AccionesFooter";
-import { gradosDisponibles, areasDefault } from "./AreasCompetencia/constants";
+import { gradosDisponibles } from "./AreasCompetencia/constants";
 
 const SelectorAreaGrado = () => {
   const [olimpiadas, setOlimpiadas] = useState([]);
@@ -12,46 +11,177 @@ const SelectorAreaGrado = () => {
   const [guardando, setGuardando] = useState(false);
   const [mensajeExito, setMensajeExito] = useState("");
 
+  const obtenerOpcionesPorArea = (area) => {
+    // BASE DE DATOS DETERMINADA
+    const opciones = {
+      Informática: [
+        "3ro Primaria",
+        "4to Primaria",
+        "5to Primaria",
+        "6to Primaria",
+        "1ro Secundaria",
+        "2do Secundaria",
+        "3ro Secundaria",
+        "4to Secundaria",
+        "5to Secundaria",
+        "6to Secundaria",
+      ],
+      Robótica: [
+        "3ro Primaria",
+        "4to Primaria",
+        "5to Primaria",
+        "6to Primaria",
+        "1ro Secundaria",
+        "2do Secundaria",
+        "3ro Secundaria",
+        "4to Secundaria",
+        "5to Secundaria",
+        "6to Secundaria",
+      ],
+    };
+    return opciones[area] || [];
+  };
+  // BASE DE DATOS DETERMINADA
   const [combinaciones, setCombinaciones] = useState([
-    { 
-      area: "", 
-      modoRango: false, 
-      niveles: [{ grado: "", categoria: "" }], 
-      categoriasRango: [{ rangoInicial: "", rangoFinal: "", nombre: "" }],
-      costoInscripcion: "" 
+    {
+      area: "Astronomía-Astrofísica",
+      modoRango: false,
+      niveles: [
+        { nivel: "3P", grado: "3ro Primaria" },
+        { nivel: "4P", grado: "4to Primaria" },
+        { nivel: "5P", grado: "5to Primaria" },
+        { nivel: "6P", grado: "6to Primaria" },
+        { nivel: "1S", grado: "1ro Secundaria" },
+        { nivel: "2S", grado: "2do Secundaria" },
+        { nivel: "3S", grado: "3ro Secundaria" },
+        { nivel: "4S", grado: "4to Secundaria" },
+        { nivel: "5S", grado: "5to Secundaria" },
+        { nivel: "6S", grado: "6to Secundaria" },
+      ],
+      categoriasRango: [],
+      costoInscripcion: "",
+      checkboxesNivel: Array(10).fill(true),
+    },
+    {
+      area: "Biología",
+      modoRango: false,
+      niveles: [
+        { nivel: "2S", grado: "2do Secundaria" },
+        { nivel: "3S", grado: "3ro Secundaria" },
+        { nivel: "4S", grado: "4to Secundaria" },
+        { nivel: "5S", grado: "5to Secundaria" },
+        { nivel: "6S", grado: "6to Secundaria" },
+      ],
+      categoriasRango: [],
+      costoInscripcion: "",
+      checkboxesNivel: Array(5).fill(true),
+    },
+    {
+      area: "Física",
+      modoRango: false,
+      niveles: [
+        { nivel: "4S", grado: "4to Secundaria" },
+        { nivel: "5S", grado: "5to Secundaria" },
+        { nivel: "6S", grado: "6to Secundaria" },
+      ],
+      categoriasRango: [],
+      costoInscripcion: "",
+      checkboxesNivel: Array(3).fill(true),
+    },
+    {
+      area: "Informática",
+      modoRango: false,
+      niveles: [
+        { nivel: "Guacamayo", grado: "Guacamayo" },
+        { nivel: "Guanaco", grado: "Guanaco" },
+        { nivel: "Londra", grado: "Londra" },
+        { nivel: "Jucumari", grado: "Jucumari" },
+        { nivel: "Bufeo", grado: "Bufeo" },
+        { nivel: "Puma", grado: "Puma" },
+      ],
+      rangos: [
+        { nivel: "Guacamayo", desde: "5to Primaria", hasta: "6to Primaria" },
+        { nivel: "Guanaco", desde: "1ro Secundaria", hasta: "3ro Secundaria" },
+        { nivel: "Londra", desde: "1ro Secundaria", hasta: "3ro Secundaria" },
+        { nivel: "Jucumari", desde: "4to Secundaria", hasta: "6to Secundaria" },
+        { nivel: "Bufeo", desde: "1ro Secundaria", hasta: "3ro Secundaria" },
+        { nivel: "Puma", desde: "4to Secundaria", hasta: "6to Secundaria" },
+      ],
+
+      categoriasRango: [],
+      costoInscripcion: "",
+    },
+    {
+      area: "Matemáticas",
+      modoRango: false,
+      niveles: [
+        { nivel: "Primer Nivel", grado: "1ro Secundaria" },
+        { nivel: "Segundo Nivel", grado: "2do Secundaria" },
+        { nivel: "Tercer Nivel", grado: "3ro Secundaria" },
+        { nivel: "Cuarto Nivel", grado: "4to Secundaria" },
+        { nivel: "Quinto Nivel", grado: "5to Secundaria" },
+        { nivel: "Sexto Nivel", grado: "6to Secundaria" },
+      ],
+      categoriasRango: [],
+      costoInscripcion: "",
+      checkboxesNivel: Array(7).fill(true),
+    },
+    {
+      area: "Química",
+      modoRango: false,
+      niveles: [
+        { nivel: "2S", grado: "2do Secundaria" },
+        { nivel: "3S", grado: "3ro Secundaria" },
+        { nivel: "4S", grado: "4to Secundaria" },
+        { nivel: "5S", grado: "5to Secundaria" },
+        { nivel: "6S", grado: "6to Secundaria" },
+      ],
+      categoriasRango: [],
+      costoInscripcion: "",
+      checkboxesNivel: Array(5).fill(true),
+    },
+    {
+      area: "Robótica",
+      modoRango: false,
+      niveles: [
+        { nivel: "Builders P", grado: "Builders Primaria" },
+        { nivel: "Builders S", grado: "Builders Secundaria" },
+        { nivel: "Lego P", grado: "Lego Primaria" },
+        { nivel: "Lego S", grado: "Lego Secundaria" },
+      ],
+      rangos: [
+        { nivel: "BuildersP", desde: "5to Primaria", hasta: "6to Primaria" },
+        {
+          nivel: "BuildersS",
+          desde: "1ro Secundaria",
+          hasta: "6to Secundaria",
+        },
+        { nivel: "LegoP", desde: "5to Primaria", hasta: "6to Primaria" },
+        { nivel: "LegoS", desde: "1ro Secundaria", hasta: "6to Secundaria" },
+      ],
+      categoriasRango: [],
+      costoInscripcion: "",
     },
   ]);
-
 
   useEffect(() => {
     setOlimpiadas([
       { id: 1, titulo: "Olimpiada Nacional de Matemática 2025" },
       { id: 2, titulo: "Olimpiada de Ciencia Escolar 2025" },
-      { id: 3, titulo: "Olimpiada de Lógica y Pensamiento 2025" }
+      { id: 3, titulo: "Olimpiada de Lógica y Pensamiento 2025" },
     ]);
   }, []);
 
   useEffect(() => {
     if (olimpiadaSeleccionada) {
-      const olimpiada = olimpiadas.find(o => o.id.toString() === olimpiadaSeleccionada);
+      const olimpiada = olimpiadas.find(
+        (o) => o.id.toString() === olimpiadaSeleccionada
+      );
       setNombreOlimpiada(olimpiada ? olimpiada.titulo : "");
     } else {
       setNombreOlimpiada("");
     }
   }, [olimpiadaSeleccionada, olimpiadas]);
-
-  const agregarCombinacion = () => {
-    setCombinaciones([
-      ...combinaciones,
-      { 
-        area: "", 
-        modoRango: false, 
-        niveles: [{ grado: "", categoria: "" }], 
-        categoriasRango: [{ rangoInicial: "", rangoFinal: "", nombre: "" }],
-        costoInscripcion: "" 
-      },
-    ]);
-  };
 
   const eliminarCombinacion = (index) => {
     if (combinaciones.length > 1) {
@@ -70,8 +200,8 @@ const SelectorAreaGrado = () => {
 
     let datosCompletos = true;
     let mensaje = "";
-    
-    combinaciones.forEach(combo => {
+
+    combinaciones.forEach((combo) => {
       if (!combo.area || (combo.area === "Otra" && !combo.areaPersonalizada)) {
         datosCompletos = false;
         mensaje = "Todas las áreas deben tener un nombre válido";
@@ -79,22 +209,27 @@ const SelectorAreaGrado = () => {
 
       if (combo.modoRango) {
         let rangoValido = true;
-        combo.categoriasRango.forEach(cat => {
+        combo.categoriasRango.forEach((cat) => {
           if (!cat.rangoInicial || !cat.rangoFinal || !cat.nombre) {
             datosCompletos = false;
-            mensaje = "Todos los campos de rango y categoría deben estar completos";
+            mensaje =
+              "Todos los campos de rango y categoría deben estar completos";
           }
-          if (gradosDisponibles.indexOf(cat.rangoInicial) > gradosDisponibles.indexOf(cat.rangoFinal)) {
+          if (
+            gradosDisponibles.indexOf(cat.rangoInicial) >
+            gradosDisponibles.indexOf(cat.rangoFinal)
+          ) {
             rangoValido = false;
           }
         });
-        
+
         if (!rangoValido) {
           datosCompletos = false;
-          mensaje = "El grado inicial no puede ser mayor que el grado final en alguna categoría";
+          mensaje =
+            "El grado inicial no puede ser mayor que el grado final en alguna categoría";
         }
       } else {
-        combo.niveles.forEach(nivel => {
+        combo.niveles.forEach((nivel) => {
           if (!nivel.grado || !nivel.categoria) {
             datosCompletos = false;
             mensaje = "Todos los grados y categorías deben estar completos";
@@ -111,22 +246,22 @@ const SelectorAreaGrado = () => {
     setGuardando(true);
 
     try {
-      const datosAEnviar = combinaciones.map(combo => {
-        const comboCopia = {...combo};
+      const datosAEnviar = combinaciones.map((combo) => {
+        const comboCopia = { ...combo };
         if (combo.area === "Otra" && combo.areaPersonalizada) {
           comboCopia.area = combo.areaPersonalizada;
           delete comboCopia.areaPersonalizada;
         }
         return comboCopia;
       });
-      
+
       console.log("Guardando configuración:", {
         id_olimpiada: olimpiadaSeleccionada,
-        combinaciones: datosAEnviar
+        combinaciones: datosAEnviar,
       });
-      
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       setMensajeExito("¡Configuración guardada exitosamente!");
       setTimeout(() => setMensajeExito(""), 3000);
     } catch (error) {
@@ -139,7 +274,7 @@ const SelectorAreaGrado = () => {
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
-      <HeaderSelector 
+      <HeaderSelector
         nombreOlimpiada={nombreOlimpiada}
         olimpiadas={olimpiadas}
         olimpiadaSeleccionada={olimpiadaSeleccionada}
@@ -156,14 +291,15 @@ const SelectorAreaGrado = () => {
             key={comboIndex}
             combo={combo}
             comboIndex={comboIndex}
+            gradosDisponibles={gradosDisponibles}
             combinaciones={combinaciones}
+            obtenerOpcionesPorArea={obtenerOpcionesPorArea}
             setCombinaciones={setCombinaciones}
             eliminarCombinacion={eliminarCombinacion}
           />
         ))}
 
         <AccionesFooter
-          agregarCombinacion={agregarCombinacion}
           guardarConfiguracion={guardarConfiguracion}
           olimpiadaSeleccionada={olimpiadaSeleccionada}
           guardando={guardando}
