@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\OlimpiadaModel;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class OlimpiadaController extends Controller
 {
@@ -20,6 +22,15 @@ class OlimpiadaController extends Controller
 
     public function store(Request $request)
     {
+        $request->validate([
+            'id_user' => 'required|exists:users,id',
+            'titulo' => 'required|string|max:255',
+            'fecha_ini' => 'required|date',
+            'fecha_fin' => 'required|date|after_or_equal:fecha_ini',
+        ], [
+            'id_user.exists' => 'El usuario no existe.',
+        ]);
+
         try {
             $olimpiada = new OlimpiadaModel();
             $olimpiada->id_user = $request->id_user; 
@@ -31,6 +42,7 @@ class OlimpiadaController extends Controller
             return response()->json([
                 'status' => 200,
                 'message' => 'Olimpiada creada exitosamente',
+                'data' => $olimpiada,
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -49,6 +61,7 @@ class OlimpiadaController extends Controller
             'data' => $olimpiada,
         ]);
     }
+
 
     public function update(Request $request, $id)
     {
@@ -76,4 +89,41 @@ class OlimpiadaController extends Controller
         ]);
     }
 
+    public function getOlimpiadas()
+    {
+        $olimpiadas = OlimpiadaModel::select('id', 'titulo')->get();
+
+        return response()->json([
+            'status' => 200,
+            'data' => $olimpiadas,
+        ]);
+    }
+
+    public function getOlimpiadasActuales()
+    {
+        $olimpiadas = OlimpiadaModel::select('id', 'titulo')->get();
+
+        return response()->json([
+            'status' => 200,
+            'data' => $olimpiadas,
+        ]);
+    }
+
+
+        public function getAreasPorOlimpiada(Request $request)
+    {
+        $id = $request->input('id'); // Leer el ID desde el JSON
+
+        $areas = DB::table('olimpiada_area_categorias')
+            ->join('area', 'area.id', '=', 'olimpiada_area_categorias.id_area')
+            ->where('olimpiada_area_categorias.id_olimpiada', $id)
+            ->select('area.id', 'area.nombre_area')
+            ->distinct()
+            ->get();
+
+        return response()->json([
+            'status' => 200,
+            'areas' => $areas
+        ]);
+    }
 }

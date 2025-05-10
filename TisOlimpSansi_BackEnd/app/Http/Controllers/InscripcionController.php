@@ -13,6 +13,7 @@ use App\Models\Inscripcion\InscripcionModel;
 use App\Models\Inscripcion\ResponsableInscripcionModel;
 use App\Models\Inscripcion\TutorAcademicoModel;
 use App\Models\Inscripcion\TutorLegalModel;
+use App\Models\OlimpiadaModel;
 use App\Models\OrdenPago;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -482,5 +483,9 @@ public function inscripcionesPorCategoria()
     return response()->json($resultado);
 }
         
+
+
+
+
 
 }

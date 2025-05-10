@@ -131,6 +131,7 @@ Route::controller(ConvocatoriaController::class)->group(function(){
     Route::get('/convocatoriaPorArea/{id}', [ConvocatoriaController::class, 'convocatoriaPorArea']);
 });
 
+//olimpiada
 Route::controller(OlimpiadaController::class)->group(function(){
 
     Route::get('/olimpiadas', [OlimpiadaController::class, 'index']);
@@ -140,14 +141,14 @@ Route::controller(OlimpiadaController::class)->group(function(){
     Route::delete('/eliminarOlimpiada/{id}', [OlimpiadaController::class, 'destroy']);
 });
 
-Route::controller(OlimpiadaAreaController::class)->group(function(){
+// Route::controller(OlimpiadaAreaController::class)->group(function(){
 
-    Route::get('/areasOlimpiadas', [OlimpiadaAreaController::class, 'index']);
-    Route::post('/agregarAreaOlimpiada', [OlimpiadaAreaController::class, 'store']);
-    Route::get('/areaOlimpiada/{id}', [OlimpiadaAreaController::class, 'show']);
-    Route::post('/actualizarAreaOlimpiada/{id}', [OlimpiadaAreaController::class, 'update']);
-    Route::delete('/eliminarAreaOlimpiada/{id}', [OlimpiadaAreaController::class, 'destroy']);
-});
+//     Route::get('/areasOlimpiadas', [OlimpiadaAreaController::class, 'index']);
+//     Route::post('/agregarAreaOlimpiada', [OlimpiadaAreaController::class, 'store']);
+//     Route::get('/areaOlimpiada/{id}', [OlimpiadaAreaController::class, 'show']);
+//     Route::post('/actualizarAreaOlimpiada/{id}', [OlimpiadaAreaController::class, 'update']);
+//     Route::delete('/eliminarAreaOlimpiada/{id}', [OlimpiadaAreaController::class, 'destroy']);
+// });
 
 Route::get('/orden-pago', [OrdenPagoController::class, 'obtenerOrdenPago']);
 Route::post('/orden-pago/pdf', [OrdenPagoController::class, 'generarYGuardarOrdenPagoPDF']);
@@ -200,24 +201,16 @@ Route::post('/estudiantes/preinscritos/bydepartamento', [ColegioController::clas
 Route::get('/inscripciones/por-area', [InscripcionController::class, 'inscripcionesPorArea']);
 Route::get('/inscripciones/por-categoria', [InscripcionController::class, 'inscripcionesPorCategoria']);
 
-//Autenticacion todo lo que va dentor de esto son funciones para usuarios autenticados
-
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/user', function (Request $request) {
-        return $request->user();
-    });
-
-    Route::post('/logout', [AuthController::class, 'logout']);
-
-    Route::get('/permisos',  [AuthController::class, 'getPermisos']);
-
-    //ejemplo de proteger rutas, probar despues
-    // Rutas protegidas por permisos
-    //Route::get('/orden-de-pago/info', [OrdenPagoController::class, 'getInfOrdenesDePago'])
-    //    ->middleware(VerificarPermiso::class . ':ver_orden_pago');
-});
-Route::post('/registro', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
 
 
+
+
+//inscripcion
+//obtener todas las olimpiadas esto sirve tanto para admin como para usuarios no registrados
+Route::get('/getOlimpiadasActuales', [OlimpiadaController::class, 'getOlimpiadasActuales']);
+//Route::get('/getOlimpiadaz', [OlimpiadaController::class, 'getOlimpiadas']);
+//mostrar todas las areas habilitadas para esa olimpiada
+Route::post('/olimpiadas/areas', [OlimpiadaController::class, 'getAreasPorOlimpiada']);
+
+//mostrar todas las categorias de esa materia de una olimpiada
 
