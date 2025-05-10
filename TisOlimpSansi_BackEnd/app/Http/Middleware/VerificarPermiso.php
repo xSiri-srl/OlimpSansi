@@ -13,6 +13,14 @@ class VerificarPermiso
     {
         $usuario = Auth::user();
 
+        if (!$usuario) {
+            return response()->json(
+                ['error' => 'No autenticado'],
+                401,
+                ['Content-Type' => 'application/json']
+            );
+        }
+
         $tienePermiso = DB::table('rol_accions')
             ->where('id_rol', $usuario->id_rol)
             ->join('acciones', 'rol_accions.id_accion', '=', 'acciones.id')
@@ -20,7 +28,11 @@ class VerificarPermiso
             ->exists();
 
         if (!$tienePermiso) {
-            return response()->json(['error' => 'No autorizado'], 403);
+            return response()->json(
+                ['error' => 'Usuario no autorizado'],
+                403,
+                ['Content-Type' => 'application/json']
+            );
         }
 
         return $next($request);

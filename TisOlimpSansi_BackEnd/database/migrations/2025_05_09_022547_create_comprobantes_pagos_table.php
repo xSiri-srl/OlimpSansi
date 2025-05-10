@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('inscripcion', function (Blueprint $table) {
+        Schema::create('comprobantes_pagos', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_responsable')->constrained('responsable_inscripcion')->onDelete('cascade');
-            $table->foreignId('id_estudiante')->constrained('estudiante')->onDelete('cascade');
             $table->foreignId('id_orden_pago')->constrained('orden_pagos')->onDelete('cascade');
+            $table->string('comprobante_url', 500)->nullable();
+            $table->string('numero_comprobante', 50)->nullable();
+            $table->string('nombre_pagador', 200)->nullable();
+            $table->dateTime('fecha_subida_imagen_comprobante')->nullable();
             $table->timestamps();
         });
     }
@@ -25,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('inscripcion');
+        Schema::dropIfExists('comprobantes_pagos');
     }
 };
