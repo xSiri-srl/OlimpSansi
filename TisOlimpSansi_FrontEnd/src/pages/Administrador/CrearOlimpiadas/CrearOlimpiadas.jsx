@@ -48,11 +48,10 @@ const CrearOlimpiadas = () => {
 
       try {
        //--------------------
+       //esto solo se utiliza en todo menos get
         await axios.get('http://localhost:8000/sanctum/csrf-cookie', {
           withCredentials: true,
         });
-
-   
         const csrfToken = Cookies.get('XSRF-TOKEN');
         axios.defaults.headers.common['X-XSRF-TOKEN'] = csrfToken;
         //----------------------

@@ -16,9 +16,9 @@ Route::get('/', function () {
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::post('/registro', [AuthController::class, 'register']);
-Route::get('/sanctum/csrf-cookie', function () {
-    return response()->json(['csrf' => true]);
-});
+// Route::get('/sanctum/csrf-cookie', function () {
+//     return response()->json(['csrf' => true]);
+// });
 
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -36,10 +36,16 @@ Route::middleware('auth:sanctum')->group(function () {
 
     
 Route::controller(OlimpiadaController::class)->group(function(){
+    //crear olimpiadas
     Route::post('/agregarOlimpiada', [OlimpiadaController::class, 'store'])
     ->middleware(['auth:sanctum', 'permiso:crear_olimpiada']);
+    
     //devolver todas las olimpiadas para que seleccionen una y hagan la asociacion entre area y categoria
+    Route::get('/getOlimpiadas', [OlimpiadaController::class, 'getOlimpiadas'])->middleware(['auth:sanctum', 'permiso:crear_olimpiada']);
 
+    //dado un id o nombre de olimpiada entonces asociar una lista de areas y categorias
+
+    
     //devolver todas las olimpiadas para que seleccione una y devuelva todas las areas de esta y seleccione una materia y le asigne precio
 
 });
