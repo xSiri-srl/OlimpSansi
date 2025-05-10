@@ -205,15 +205,12 @@ Route::get('/inscripciones/por-categoria', [InscripcionController::class, 'inscr
 
 
 
-
-
-
-
-
 //inscripcion
-//devolver todas las olimpiadas disponibles desde la fecha actual hasta en un futuro, para poder realizar una inscripcion
+//obtener todas las olimpiadas esto sirve tanto para admin como para usuarios no registrados
+Route::get('/getOlimpiadasActuales', [OlimpiadaController::class, 'getOlimpiadasActuales']);
+//Route::get('/getOlimpiadaz', [OlimpiadaController::class, 'getOlimpiadas']);
+//mostrar todas las areas habilitadas para esa olimpiada
+Route::post('/olimpiadas/areas', [OlimpiadaController::class, 'getAreasPorOlimpiada']);
 
-//devolver todas las areas de una olimpiada seleccionada
-
-//devolver todas las categorias de un area seleccionada
+//mostrar todas las categorias de esa materia de una olimpiada
 

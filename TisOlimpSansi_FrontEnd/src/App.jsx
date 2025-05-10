@@ -25,7 +25,7 @@ import OrdenesPago from "./pages/Administrador/Reportes/OrdenesPago";
 import Propuesta from "./pages/OrdenDePago/Propuesta";
 import ConvocatoriasPublicadas from "./pages/Administrador/Convocatorias/ConvocatoriasPublicadas";
 import SubirConvocatoria from "./pages/Administrador/Convocatorias/SubirConvocatoria";
-
+import ProbarEnd from "./pages/hacer pruebas endpoint/ProbarEnd";
 import EditarConvocatoria from "./pages/Administrador/Convocatorias/EditarConvocatoria";
 import CrearOlimpiadas from "./pages/Administrador/CrearOlimpiadas/CrearOlimpiadas";
 import AsociarNivel from "./pages/Administrador/CrearOlimpiadas/AsociarNivel";
@@ -45,6 +45,7 @@ export default function App() {
                 path="/inscripcion/forma-inscripcion"
                 element={<FormaInscripcion />}
               />
+              
               <Route
                 path="/inscripcion/responsable"
                 element={<InscripcionResponsable />}
@@ -127,6 +128,12 @@ export default function App() {
               <Route 
               path="/admin/asociar-costo" 
               element={<AsociarNivel />} 
+              />
+
+
+              <Route
+                path="/probarback"
+                element={<ProbarEnd/>}
               />
             </Routes>
           </FormProvider>
