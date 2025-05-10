@@ -17,6 +17,7 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
   const [isSearching, setIsSearching] = useState(false);
   const [responsableFound, setResponsableFound] = useState(false);
   const { globalData, setGlobalData } = useFormData();
+  const { olimpiada, setOlimpiada} = useState(1);
 
   // Función para validar campos del formulario
   const validateInput = (value, fieldName, regex, minWords = 1) => {
@@ -123,6 +124,7 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
       // Actualizar el objeto global con los datos del responsable
       const updatedData = {
         ...globalData,
+        olimpiada: { id: "1" },  
         responsable_inscripcion: {
           nombre: formData.responsable?.nombres,
           apellido_pa: formData.responsable?.apellidoPaterno,
