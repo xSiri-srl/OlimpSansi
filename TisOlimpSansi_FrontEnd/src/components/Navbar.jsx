@@ -265,7 +265,7 @@ const Navbar = () => {
                 </div>
                 {registerError && <p className="text-red-600 text-sm mb-2">{registerError}</p>}
                 <button type="submit" className="w-full bg-primary text-white py-2 rounded-md">
-                  Registrar
+                 {/*Registrar*/} 
                 </button>
                 <p className="text-sm text-center mt-3">
                   <button type="button" onClick={() => setShowRegister(false)} className="text-primary underline">
