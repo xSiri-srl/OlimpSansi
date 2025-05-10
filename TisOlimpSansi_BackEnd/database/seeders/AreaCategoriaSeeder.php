@@ -14,7 +14,7 @@ class AreaCategoriaSeeder extends Seeder
     public function run(): void
     {
         $areasCategorias = [
-            'ASTRONOMIA - ASTROFISICA' => ['3P', '4P', '5P', '6P', '1S', '2S', '3S', '4S', '5S', '6S'],
+            'ASTRONOMIA ASTROFISICA' => ['3P', '4P', '5P', '6P', '1S', '2S', '3S', '4S', '5S', '6S'],
             'BIOLOGIA' => ['2S', '3S', '4S', '5S', '6S'],
             'FISICA' => ['4S', '5S', '6S'],
             'INFORMATICA' => ['Guacamayo', 'Guanaco', 'Londra', 'Jucumari', 'Bufeo', 'Puma'],
@@ -22,18 +22,25 @@ class AreaCategoriaSeeder extends Seeder
                 'Primer Nivel', 'Segundo Nivel', 'Tercer Nivel', 
                 'Cuarto Nivel', 'Quinto Nivel', 'Sexto Nivel'
             ],
-            'QUÍMICA' => ['2S', '3S', '4S', '5S', '6S'],
-            'ROBÓTICA' => ['Builders P', 'Builders S', 'Lego P', 'Lego S'],
+            'QUIMICA' => ['2S', '3S', '4S', '5S', '6S'],
+            'ROBOTICA' => ['Builders P', 'Builders S', 'Lego P', 'Lego S'],
         ];
 
         foreach ($areasCategorias as $area => $categorias) {
             $areaModel = AreaModel::create(['nombre_area' => $area]);
 
             foreach ($categorias as $categoria) {
-                CategoriaModel::create([
-                    'id_area' => $areaModel->id,
-                    'nombre_categoria' => $categoria,
-                ]);
+                // Buscar si ya existe una categoría con el mismo nombre Y el mismo id_area
+                $exists = CategoriaModel::where('nombre_categoria', $categoria)
+                    ->where('id_area', $areaModel->id)
+                    ->exists();
+
+                if (!$exists) {
+                    CategoriaModel::create([
+                        'id_area' => $areaModel->id,
+                        'nombre_categoria' => $categoria,
+                    ]);
+                }
             }
         }
     }
