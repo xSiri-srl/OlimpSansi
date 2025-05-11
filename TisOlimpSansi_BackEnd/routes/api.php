@@ -22,6 +22,7 @@ use App\Http\Controllers\Inscripcion\AreaController;
 use App\Http\Controllers\Inscripcion\CategoriaController;
 
 use App\Http\Controllers\OrdenPagoController;
+use App\Http\Controllers\ComprobanteController;
 use App\Http\Middleware\VerificarPermiso;
 
 Route::controller(UserPruebaController::class)->group(function(){
@@ -155,13 +156,15 @@ Route::post('/orden-pago/pdf', [OrdenPagoController::class, 'generarYGuardarOrde
 Route::get('/orden-pago/{codigoGenerado}', [OrdenPagoController::class, 'descargarOrdenPago']);
 Route::post('/verificar-codigo-generado', [OrdenPagoController::class, 'verificarCodigo']);
 Route::post('/procesar-comprobanteOCR', [OrdenPagoController::class, 'procesarComprobante']);
-Route::post('/guardar-comprobante', [OrdenPagoController::class, 'guardarComprobante']);
 Route::get('/obtener-orden-pago/{codigo}', [OrdenPagoController::class, 'obtenerOrdenPagoPorCodigo']);
 Route::get('/resumen-orden-pago/{codigo}', [OrdenPagoController::class, 'obtenerResumenPorCodigo']);
 Route::get('/dinero-por-departamento', [OrdenPagoController::class, 'dineroRecaudadoPorDepartamento']);
 Route::get('/ordenes-recientes', [OrdenPagoController::class, 'obtenerOrdenesConResponsable']);
 Route::get('/orden-de-pago/info', [OrdenPagoController::class, 'getInfOrdenesDePago']);
 Route::get('/orden-pago-existe/{codigo}', [OrdenPagoController::class, 'ordenPagoExiste']);
+
+
+Route::post('/guardar-comprobante', [ComprobanteController::class, 'guardarComprobante']);
 
 
 Route::get('/inscripciones/por-area', [InscripcionController::class, 'inscripcionesPorArea']);
