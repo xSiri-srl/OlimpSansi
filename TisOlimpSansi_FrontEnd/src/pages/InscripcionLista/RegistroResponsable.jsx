@@ -165,12 +165,14 @@ function RegistroResponsable({ setStep }) {
     try {
       const updatedData = {
         ...globalData,
+        olimpiada: {"id":"1"},
         responsable_inscripcion: {
           nombre: formData.responsable?.nombres,
           apellido_pa: formData.responsable?.apellidoPaterno,
           apellido_ma: formData.responsable?.apellidoMaterno,
           ci: formData.responsable?.ci,
         },
+        
       }
 
       setGlobalData(updatedData)
