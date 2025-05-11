@@ -61,125 +61,142 @@ class InscripcionController extends Controller
     }
 
 
-    public function registrar(Request $request)
-    {
-        DB::beginTransaction();
+public function registrar(Request $request)
+{
+    DB::beginTransaction();
 
-        try {
-            $data = $request->json()->all();
+    try {
+        $data = $request->json()->all();
 
-            // RESPONSABLE_INSCRIPCION (buscar por CI)
-            $responsable = ResponsableInscripcionModel::firstOrCreate(
-                ['ci' => $data['responsable_inscripcion']['ci']],
-                $data['responsable_inscripcion']
-            );
+        // RESPONSABLE_INSCRIPCION
+        $responsable = ResponsableInscripcionModel::firstOrCreate(
+            ['ci' => $data['responsable_inscripcion']['ci']],
+            $data['responsable_inscripcion']
+        );
 
-            if (!$responsable || !$responsable->id) {
-                throw new \Exception("No se pudo registrar o recuperar el responsable de inscripción.");
-            }
+        if (!$responsable || !$responsable->id) {
+            throw new \Exception("No se pudo registrar o recuperar el responsable de inscripción.");
+        }
 
-            // COLEGIO
-            $colegio = ColegioModel::firstOrCreate(
-                ['nombre_colegio' => $data['colegio']['nombre_colegio']],
-                [
-                    'departamento' => $data['colegio']['departamento'],
-                    'distrito' => $data['colegio']['distrito'],
-                ]
-            );
-            $grado = GradoModel::where('nombre_grado', $data['colegio']['curso'])->firstOrFail();
-            // ESTUDIANTE
+        // COLEGIO y GRADO
+        $colegio = ColegioModel::firstOrCreate(
+            ['nombre_colegio' => $data['colegio']['nombre_colegio']],
+            [
+                'departamento' => $data['colegio']['departamento'],
+                'distrito' => $data['colegio']['distrito'],
+            ]
+        );
+        $grado = GradoModel::where('nombre_grado', $data['colegio']['curso'])->firstOrFail();
+
+        // ESTUDIANTE (verificar si ya existe)
+        $estudiante = EstudianteModel::where([
+            'nombre' => $data['estudiante']['nombre'],
+            'apellido_pa' => $data['estudiante']['apellido_pa'],
+            'apellido_ma' => $data['estudiante']['apellido_ma'],
+            'ci' => $data['estudiante']['ci'],
+            'id_grado' => $grado->id,
+        ])->first();
+
+        if (!$estudiante) {
             $estudiante = EstudianteModel::create([
                 ...$data['estudiante'],
                 'id_unidad' => $colegio->id,
                 'id_grado' => $grado->id,
             ]);
+        }
 
-            // TUTOR LEGAL
-            $tutorLegal = TutorLegalModel::firstOrCreate(
-                ['ci' => $data['tutor_legal']['ci']],
-                $data['tutor_legal']
-            );
-            if (!$tutorLegal || !$tutorLegal->id) {
-                throw new \Exception("No se pudo registrar o recuperar el tutor legal.");
+        // ❌ Validar si ya está inscrito en demasiadas áreas
+        $limiteAreas = 2;
+        $cantidadInscripciones = InscripcionModel::where('id_estudiante', $estudiante->id)->count();
+        if ($cantidadInscripciones + count($data['areas_competencia']) > $limiteAreas) {
+            throw new \Exception("Este estudiante ya está inscrito en el límite de áreas permitidas ($limiteAreas).");
+        }
+
+        // TUTOR LEGAL
+        $tutorLegal = TutorLegalModel::firstOrCreate(
+            ['ci' => $data['tutor_legal']['ci']],
+            $data['tutor_legal']
+        );
+
+        if (!$tutorLegal || !$tutorLegal->id) {
+            throw new \Exception("No se pudo registrar o recuperar el tutor legal.");
+        }
+
+        // ORDEN DE PAGO temporal
+        $ordenPago = OrdenPago::create([
+            'id_responsable' => $responsable->id,
+            'codigo_generado' => uniqid(),
+            'monto_total' => 0,
+            'estado' => 'pendiente',
+        ]);
+
+        $total = 0;
+        $inscripcionesPorArea = [];
+
+        foreach ($data['areas_competencia'] as $item) {
+            $area = AreaModel::where('nombre_area', $item['nombre_area'])->firstOrFail();
+            $categoria = CategoriaModel::where('nombre_categoria', $item['categoria'])->firstOrFail();
+
+            $oac = DB::table('olimpiada_area_categorias')
+                ->where([
+                    ['id_olimpiada', '=', $data['olimpiada']['id']],
+                    ['id_area', '=', $area->id],
+                    ['id_categoria', '=', $categoria->id],
+                ])
+                ->first();
+
+            if (!$oac) {
+                throw new \Exception("Combinación inválida de área/categoría para la olimpiada.");
             }
 
-            // ORDEN DE PAGO temporal
-            $ordenPago = OrdenPago::create([
-                'id_responsable' => $responsable->id,
-                'codigo_generado' => 'TEMP-' . uniqid(),
-                'monto_total' => 0,
-                'estado' => 'pendiente',
+            $inscripcion = InscripcionModel::create([
+                'id_estudiante' => $estudiante->id,
+                'id_tutor_legal' => $tutorLegal->id,
+                'id_olimpiada_area_categoria' => $oac->id,
+                'id_orden_pago' => $ordenPago->id,
+                'id_tutor_academico' => null,
             ]);
 
-            $total = 0; //por ahora
+            $inscripcionesPorArea[$area->id] = $inscripcion;
+            $total += floatval($oac->precio);
+        }
 
-            foreach ($data['areas_competencia'] as $item) {
+        $ordenPago->update([
+            'monto_total' => $total,
+            'codigo_generado' => 'ORD-' . str_pad($ordenPago->id, 6, '0', STR_PAD_LEFT),
+        ]);
+
+        foreach ($data['tutores_academicos'] as $item) {
+            if (!empty($item['checkbox_activo'])) {
                 $area = AreaModel::where('nombre_area', $item['nombre_area'])->firstOrFail();
-                $categoria = CategoriaModel::where('nombre_categoria', $item['categoria'])->firstOrFail();
 
-                // $oac = DB::table('olimpiada_area_categorias')
-                //     ->where([
-                //         ['id_olimpiada', '=', $data['olimpiada']['id']],
-                //         ['id_area', '=', $area->id],
-                //         ['id_categoria', '=', $categoria->id],
-                //     ])
-                //     ->first();
+                $tutor = TutorAcademicoModel::firstOrCreate(
+                    ['ci' => $item['tutor']['ci']],
+                    $item['tutor']
+                );
 
-                    
-                //     if (!$oac) {
-                //     throw new \Exception("Combinación inválida de área/categoría para la olimpiada.");
-                // }
-
-                InscripcionModel::create([
-                    'id_estudiante' => $estudiante->id,
-                    'id_tutor_legal' => $tutorLegal->id,
-                    //'id_olimpiada_area_categoria' => $oac->id, //igual es null por ahora
-                    'id_orden_pago' => $ordenPago->id,
-                    'id_tutor_academico' => null, // temporalmente null
-                ]);
-
-                //$total += floatval($oac->precio);
-                $total += floatval($total);
-            }
-
-            $ordenPago->update([
-                'monto_total' => $total,
-                'codigo_generado' => 'ORD-' . str_pad($ordenPago->id, 6, '0', STR_PAD_LEFT),
-            ]);
-
-            foreach ($data['tutores_academicos'] as $item) {
-                if (!empty($item['checkbox_activo'])) {
-                    $area = AreaModel::where('nombre_area', $item['nombre_area'])->firstOrFail();
-
-                    $tutor = TutorAcademicoModel::firstOrCreate(
-                        ['ci' => $item['tutor']['ci']],
-                        $item['tutor']
-                    );
-
-                    InscripcionModel::where([
-                        ['id_estudiante', $estudiante->id],
-                        ['id_orden_pago', $ordenPago->id],
-                        //['id_olimpiada_area_categoria', $oac->id],
-                    ])->update([
+                if (isset($inscripcionesPorArea[$area->id])) {
+                    $inscripcionesPorArea[$area->id]->update([
                         'id_tutor_academico' => $tutor->id,
                     ]);
                 }
             }
-
-            DB::commit();
-
-            return response()->json([
-                'status' => 200,
-                'message' => 'Inscripción registrada exitosamente.',
-            ]);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                'status' => 500,
-                'message' => $e->getMessage(),
-            ], 500);
         }
+
+        DB::commit();
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Inscripción registrada exitosamente.',
+        ]);
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json([
+            'status' => 500,
+            'message' => $e->getMessage(),
+        ], 500);
     }
+}
 
     
 
