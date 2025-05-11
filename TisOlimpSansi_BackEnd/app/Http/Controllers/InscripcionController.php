@@ -166,22 +166,25 @@ public function registrar(Request $request)
             'codigo_generado' => 'ORD-' . str_pad($ordenPago->id, 6, '0', STR_PAD_LEFT),
         ]);
 
-        foreach ($data['tutores_academicos'] as $item) {
-            if (!empty($item['checkbox_activo'])) {
-                $area = AreaModel::where('nombre_area', $item['nombre_area'])->firstOrFail();
+        if (!empty($data['tutores_academicos']) && is_array($data['tutores_academicos'])) {
+            foreach ($data['tutores_academicos'] as $item) {
+                if (!empty($item['checkbox_activo'])) {
+                    $area = AreaModel::where('nombre_area', $item['nombre_area'])->firstOrFail();
 
-                $tutor = TutorAcademicoModel::firstOrCreate(
-                    ['ci' => $item['tutor']['ci']],
-                    $item['tutor']
-                );
+                    $tutor = TutorAcademicoModel::firstOrCreate(
+                        ['ci' => $item['tutor']['ci']],
+                        $item['tutor']
+                    );
 
-                if (isset($inscripcionesPorArea[$area->id])) {
-                    $inscripcionesPorArea[$area->id]->update([
-                        'id_tutor_academico' => $tutor->id,
-                    ]);
+                    if (isset($inscripcionesPorArea[$area->id])) {
+                        $inscripcionesPorArea[$area->id]->update([
+                            'id_tutor_academico' => $tutor->id,
+                        ]);
+                    }
                 }
             }
         }
+
 
         DB::commit();
 
