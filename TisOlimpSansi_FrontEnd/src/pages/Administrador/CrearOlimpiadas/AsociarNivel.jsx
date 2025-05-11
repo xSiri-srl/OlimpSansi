@@ -282,22 +282,21 @@ const SelectorAreaGrado = () => {
       />
 
       <div className="bg-gray-100 p-4 rounded-lg shadow-md">
-        <h3 className="text-lg font-semibold mb-4 text-center">
-          Configuración de Áreas y Categorías
-        </h3>
 
-        {combinaciones.map((combo, comboIndex) => (
-          <AreaCompetencia
-            key={comboIndex}
-            combo={combo}
-            comboIndex={comboIndex}
-            gradosDisponibles={gradosDisponibles}
-            combinaciones={combinaciones}
-            obtenerOpcionesPorArea={obtenerOpcionesPorArea}
-            setCombinaciones={setCombinaciones}
-            eliminarCombinacion={eliminarCombinacion}
-          />
-        ))}
+
+          {combinaciones.map((combo, comboIndex) => (
+            <AreaCompetencia
+              key={comboIndex}
+              combo={combo}
+              comboIndex={comboIndex}
+              gradosDisponibles={gradosDisponibles}
+              combinaciones={combinaciones}
+              obtenerOpcionesPorArea={obtenerOpcionesPorArea}
+              setCombinaciones={setCombinaciones}
+              eliminarCombinacion={eliminarCombinacion}
+              olimpiadaSeleccionada={olimpiadaSeleccionada}  
+            />
+          ))}
 
         <AccionesFooter
           guardarConfiguracion={guardarConfiguracion}

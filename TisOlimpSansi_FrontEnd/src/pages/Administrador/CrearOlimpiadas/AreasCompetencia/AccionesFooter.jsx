@@ -5,6 +5,7 @@ const AccionesFooter = ({
   olimpiadaSeleccionada,
   guardando,
   mensajeExito,
+  textoBoton = "Guardar configuración"
 }) => {
   return (
     <>
@@ -18,7 +19,7 @@ const AccionesFooter = ({
               : "bg-gray-400 cursor-not-allowed"
           }`}
         >
-          <FaSave /> {guardando ? "Guardando..." : "Guardar configuración"}
+          <FaSave /> {guardando ? "Guardando..." : textoBoton}
         </button>
       </div>
 
