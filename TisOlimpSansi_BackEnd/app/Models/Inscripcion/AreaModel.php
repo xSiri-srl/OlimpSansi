@@ -16,15 +16,4 @@ class AreaModel extends Model
     protected $fillable = [
         'nombre_area',
     ];
-
-    public function categoria(){
-        return $this->hasMany(CategoriaModel::class, 'id_area');
-    }
-
-    public function convocatoria(){
-        return $this->hasMany(ConvocatoriaModel::class, 'id_area');
-    }
-    public function olimpiadaArea(){
-        return $this->hasMany(OlimpiadaAreaModel::class, 'id_area');
-    }
 }

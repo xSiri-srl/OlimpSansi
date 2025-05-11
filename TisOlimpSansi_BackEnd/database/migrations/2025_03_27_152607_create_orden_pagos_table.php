@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('codigo_generado', 20);
             $table->decimal('monto_total', 10, 2); 
             $table->string('orden_pago_url', 500)->nullable(); 
-            $table->dateTime('fecha_emision'); 
+            $table->dateTime('fecha_emision')->nullable();
             $table->enum('estado', ['pendiente', 'pagado', 'anulado'])->default('pendiente');
             $table->timestamps();
         });
