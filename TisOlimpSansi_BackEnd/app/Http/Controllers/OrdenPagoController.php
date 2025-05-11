@@ -19,6 +19,7 @@ use App\Models\Inscripcion\InscripcionCategoriaModel;
 use App\Models\Inscripcion\ResponsableInscripcionModel;
 use App\Models\Inscripcion\TutorAcademicoModel;
 use App\Models\Inscripcion\TutorLegalModel;
+use App\Models\comprobantes_pago;
 
 
 use Illuminate\Support\Facades\Log;
@@ -200,32 +201,31 @@ class OrdenPagoController extends Controller
         $validated = $request->validate([
             'numero_comprobante' => 'required|string',
             'codigo_generado' => 'required|string',
-            'comprobante' => 'required|image|mimes:jpg,png,jpeg|max:5120', 
+            'comprobante' => 'required|image|mimes:jpg,png,jpeg|max:5120',
+            'nombre_pagador' => 'required|string',
         ]);
-    
-        // Obtener el archivo de la imagen subido
+
         $imagen = $request->file('comprobante');
-        
-        // Subir la imagen a una carpeta pública 'comprobantes' y obtener la ruta de almacenamiento
-        $comprobantePath = $imagen->store('comprobantes', 'public'); 
-    
-        // Buscar la orden de pago correspondiente con el código generado
+        $comprobantePath = $imagen->store('comprobantes', 'public');
+
         $ordenPago = OrdenPago::where('codigo_generado', $validated['codigo_generado'])->first();
-    
+
         if (!$ordenPago) {
             return response()->json(['message' => 'Código no encontrado.'], 404);
         }
-    
-        // Actualizar los datos del comprobante
-        $ordenPago->numero_comprobante = $validated['numero_comprobante'];
-        $ordenPago->comprobante_url = $comprobantePath; 
-        $ordenPago->fecha_subida_imagen_comprobante = now(); 
-        $ordenPago->save(); 
-    
-        // Retornar la respuesta indicando éxito
+
+        // Crear un nuevo comprobante relacionado a la orden de pago
+        $comprobante = new comprobantes_pago();
+        $comprobante->id_orden_pago = $ordenPago->id;
+        $comprobante->numero_comprobante = $validated['numero_comprobante'];
+        $comprobante->comprobante_url = $comprobantePath;
+        $comprobante->fecha_subida_imagen_comprobante = now();
+        $comprobante->nombre_pagador = $validated['nombre_pagador'];
+        $comprobante->save();
+
         return response()->json([
             'message' => 'Comprobante guardado exitosamente',
-            'ordenPago' => $ordenPago
+            'comprobante' => $comprobante
         ]);
     }
 
