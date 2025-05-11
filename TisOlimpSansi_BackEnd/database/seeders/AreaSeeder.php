@@ -11,7 +11,7 @@ class AreaSeeder extends Seeder
     public function run(): void
     {
         $areas = [
-            'ASTRONOMIA ASTROFISICA',
+            'ASTRONOMIA Y ASTROFISICA',
             'BIOLOGIA',
             'FISICA',
             'INFORMATICA',

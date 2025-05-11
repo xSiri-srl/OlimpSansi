@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\OlimpiadaModel;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -101,7 +102,11 @@ class OlimpiadaController extends Controller
 
     public function getOlimpiadasActuales()
     {
-        $olimpiadas = OlimpiadaModel::select('id', 'titulo')->get();
+        $hoy = Carbon::now()->toDateString();
+
+        $olimpiadas = OlimpiadaModel::whereDate('fecha_inicio', '>=', $hoy)
+            ->select('id', 'titulo')
+            ->get();
 
         return response()->json([
             'status' => 200,
@@ -112,7 +117,7 @@ class OlimpiadaController extends Controller
 
         public function getAreasPorOlimpiada(Request $request)
     {
-        $id = $request->input('id'); // Leer el ID desde el JSON
+        $id = $request->input('id');
 
         $areas = DB::table('olimpiada_area_categorias')
             ->join('area', 'area.id', '=', 'olimpiada_area_categorias.id_area')
