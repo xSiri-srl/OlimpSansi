@@ -16,7 +16,7 @@ class CategoriaSeeder extends Seeder
             'PRIMER NIVEL', 'SEGUNDO NIVEL', 'TERCER NIVEL',
             'CUARTO NIVEL', 'QUINTO NIVEL', 'SEXTO NIVEL',
 
-            'GUACAMAYO', 'GUANACO', 'LONDRA', 'JCUMARI', 'BUFEO', 'PUMA',
+            'GUACAMAYO', 'GUANACO', 'LONDRA', 'JUCUMARI', 'BUFEO', 'PUMA',
 
             '3P', '4P', '5P', '6P', '1S', '2S', '3S', '4S', '5S', '6S',
         ];
