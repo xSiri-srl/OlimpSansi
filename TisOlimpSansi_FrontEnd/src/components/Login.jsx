@@ -55,7 +55,8 @@ const Login = () => {
       localStorage.setItem("user", JSON.stringify(data));
       navigate("/admin/crear-olimpiada");
     } catch (error) {
-      setLoginError(error);
+      console.error(error);
+      setLoginError(error.response?.data?.message || "Error al iniciar sesión");
     }
   };
 
@@ -69,7 +70,8 @@ const Login = () => {
       setNewPassword("");
       setRegisterError("");
     } catch (error) {
-      setRegisterError(error);
+      console.error(error);
+      setRegisterError(error.response?.data?.message || "Error al registrarse");
     }
   };
 
