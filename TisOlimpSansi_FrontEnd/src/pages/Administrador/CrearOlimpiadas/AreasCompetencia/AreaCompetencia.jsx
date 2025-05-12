@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FaCheck, FaLock } from "react-icons/fa";
+import { FaTrash, FaCheck, FaTimes } from "react-icons/fa";
 
 const AreaCompetencia = ({
   combo,
@@ -7,265 +7,163 @@ const AreaCompetencia = ({
   combinaciones,
   obtenerOpcionesPorArea,
   setCombinaciones,
+  eliminarCombinacion,
   olimpiadaSeleccionada,
 }) => {
-  const handleAreaToggle = (checked) => {
-    // No permitir cambios si no hay olimpiada seleccionada
-    if (!olimpiadaSeleccionada) return;
-    
+  const [mostrarDetalles, setMostrarDetalles] = useState(false);
+
+  // Manejar la habilitación/deshabilitación del área
+const handleAreaToggle = (checked) => {
+  // No permitir cambios si no hay olimpiada seleccionada
+  if (!olimpiadaSeleccionada) {
+    alert("Por favor seleccione una olimpiada primero");
+    return;
+  }
+  
+  console.log(`Cambiando estado del área ${combo.area} a: ${checked}`);
+  
+  const copia = [...combinaciones];
+  copia[comboIndex] = {
+    ...copia[comboIndex],
+    habilitado: checked
+  };
+  setCombinaciones(copia);
+};
+
+  // Manejar cambios en el costo de inscripción
+  const handleCostoInscripcionChange = (e) => {
     const copia = [...combinaciones];
-    if (copia[comboIndex].habilitado === undefined) {
-      copia[comboIndex].habilitado = checked;
-    } else {
-      copia[comboIndex].habilitado = checked;
-    }
+    copia[comboIndex].costoInscripcion = e.target.value;
     setCombinaciones(copia);
   };
 
-  const handleRangoChange = (comboIndex, rangoKey, nuevoRango, tipo) => {
-    setCombinaciones((prev) =>
-      prev.map((combo, i) =>
-        i === comboIndex
-          ? {
-              ...combo,
-              rangos: {
-                ...combo.rangos,
-                [rangoKey]: {
-                  ...combo.rangos[rangoKey],
-                  [tipo]: nuevoRango,
-                },
-              },
-            }
-          : combo
-      )
-    );
-  };
-
-  // Mapeo de áreas a imágenes
+  // Mapeo de áreas a imágenes (método existente)
   const getAreaImage = (area) => {
     const imageMap = {
-      "Matemáticas": "/images/matematicaas.png",
-      "Física": "/images/fisica.png",
-      "Química": "/images/quimica.png",
-      "Biología": "/images/biologia.png",
-      "Informática": "/images/informatica.png",
-      "Robótica": "/images/robotica.png",
-      "Astronomía-Astrofísica": "/images/astronomia.png",
+      "Astronomía-Astrofísica": "/img/areas/astronomia.jpg",
+      "Biología": "/img/areas/biologia.jpg",
+      "Física": "/img/areas/fisica.jpg",
+      "Informática": "/img/areas/informatica.jpg",
+      "Matemáticas": "/img/areas/matematicas.jpg",
+      "Química": "/img/areas/quimica.jpg",
+      "Robótica": "/img/areas/robotica.jpg",
     };
-    
-    return imageMap[area] || "/placeholder.svg";
+    return imageMap[area] || "/img/areas/default.jpg";
   };
 
-  const renderNivelesInformatica = () => {
+  // Renderizar los niveles según el área
+  const renderNivelesAreas = () => {
+    if (!combo.niveles || combo.niveles.length === 0) {
+      return <p className="text-gray-500">No hay niveles definidos</p>;
+    }
+
     return (
-      <div className="space-y-4">
-        {combo.rangos.map((nivel, idx) => (
-          <div key={idx} className="flex items-center mb-2 space-x-4">
-            <div className="flex items-center space-x-2">
-              <label className="w-[200px] font-medium">{nivel.nivel}</label>
-
-              <select
-                className="bg-white border border-gray-300 rounded-lg p-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={combo.rangos[nivel.nivel]?.desde || nivel.desde}
-                onChange={(e) =>
-                  handleRangoChange(
-                    comboIndex,
-                    nivel.nivel,
-                    e.target.value,
-                    "desde"
-                  )
-                }
-                disabled={!combo.habilitado}
-              >
-                {obtenerOpcionesPorArea(combo.area).map((opcion) => (
-                  <option key={opcion} value={opcion}>
-                    {opcion}
-                  </option>
-                ))}
-              </select>
-
-              <span className="mx-2">a</span>
-
-              <select
-                className="bg-white border border-gray-300 rounded-lg p-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={combo.rangos[nivel.nivel]?.hasta || nivel.hasta}
-                onChange={(e) =>
-                  handleRangoChange(
-                    comboIndex,
-                    nivel.nivel,
-                    e.target.value,
-                    "hasta"
-                  )
-                }
-                disabled={!combo.habilitado}
-              >
-                {obtenerOpcionesPorArea(combo.area).map((opcion) => (
-                  <option key={opcion} value={opcion}>
-                    {opcion}
-                  </option>
-                ))}
-              </select>
+      <div className="mt-2">
+        <h4 className="font-medium text-gray-700 mb-1">Niveles/Categorías:</h4>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+          {combo.niveles.map((nivel, index) => (
+            <div 
+              key={index} 
+              className="bg-white p-2 rounded border border-gray-200 text-sm flex items-center"
+            >
+              <span className="font-medium mr-1">{nivel.nivel}:</span> {nivel.grado}
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     );
   };
-
-  const renderNivelesRobotica = () => {
-    return (
-      <div className="space-y-4">
-        {combo.rangos.map((nivel, idx) => (
-          <div key={idx} className="flex items-center mb-2 space-x-4">
-            <div className="flex items-center space-x-2">
-              <label className="w-[200px] font-medium">{nivel.nivel}</label>
-
-              <select
-                className="bg-white border border-gray-300 rounded-lg p-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={combo.rangos[nivel.nivel]?.desde || nivel.desde}
-                onChange={(e) =>
-                  handleRangoChange(
-                    comboIndex,
-                    nivel.nivel,
-                    e.target.value,
-                    "desde"
-                  )
-                }
-                disabled={!combo.habilitado}
-              >
-                {obtenerOpcionesPorArea(combo.area).map((opcion) => (
-                  <option key={opcion} value={opcion}>
-                    {opcion}
-                  </option>
-                ))}
-              </select>
-
-              <span className="mx-2">a</span>
-
-              <select
-                className="bg-white border border-gray-300 rounded-lg p-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={combo.rangos[nivel.nivel]?.hasta || nivel.hasta}
-                onChange={(e) =>
-                  handleRangoChange(
-                    comboIndex,
-                    nivel.nivel,
-                    e.target.value,
-                    "hasta"
-                  )
-                }
-                disabled={!combo.habilitado}
-              >
-                {obtenerOpcionesPorArea(combo.area).map((opcion) => (
-                  <option key={opcion} value={opcion}>
-                    {opcion}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-        ))}
-      </div>
-    );
-  };
-
-  const renderNivelesOtrasAreas = () => {
-    return combo.niveles.map((nivel, nivelIndex) => (
-      <div key={nivelIndex} className="flex items-center mb-2 space-x-4">
-        <div className="flex items-center space-x-1 border-gray-300 rounded-lg p-2 w-[200px]">
-          <input
-            type="checkbox"
-            id={`nivel-${comboIndex}-${nivelIndex}`}
-            checked={combo.checkboxesNivel[nivelIndex]}
-            disabled={!combo.habilitado}
-            onChange={(e) => {
-              const copia = [...combinaciones];
-              copia[comboIndex].checkboxesNivel[nivelIndex] = e.target.checked;
-              setCombinaciones(copia);
-            }}
-          />
-          <label htmlFor={`nivel-${comboIndex}-${nivelIndex}`}>
-            {nivel.nivel}
-          </label>
-        </div>
-
-        <div className="flex items-center space-x-1">
-          <label htmlFor={`grado-${comboIndex}-${nivelIndex}`}>
-            {nivel.grado}
-          </label>
-        </div>
-      </div>
-    ));
-  };
-
-  const estaHabilitada = combo.habilitado || false;
-  const sePuedeHabilitar = !!olimpiadaSeleccionada;
 
   return (
-    <div className={`relative bg-white p-4 rounded-lg mb-6 shadow-md transition-all duration-300 ${
-      estaHabilitada ? 'border-l-4 border-blue-500' : 
-      !sePuedeHabilitar ? 'border-l-4 border-gray-400 opacity-60' : 
-      'border-l-4 border-gray-300 opacity-75'
-    }`}>
-      {!sePuedeHabilitar && (
-        <div className="absolute inset-0 bg-gray-100 bg-opacity-40 flex flex-col items-center justify-center z-10 backdrop-blur-[1px] rounded-lg">
-          <FaLock className="text-gray-500 text-3xl mb-2" />
-          <p className="text-gray-600 text-center font-medium px-4">
-            Seleccione una olimpiada para habilitar áreas de competencia
-          </p>
-        </div>
-      )}
-      
+    <div className={`mb-4 p-4 rounded-lg shadow-sm transition-all ${combo.habilitado ? 'bg-white border-l-4 border-green-500' : 'bg-gray-50 border-l-4 border-gray-300'}`}>
       <div className="flex items-start">
-        {/* Imagen del área y selector circular */}
-        <div className="w-40 mr-4 text-center relative">
+        {/* Imagen del área */}
+        <div className="w-20 h-20 flex-shrink-0 mr-4">
           <img 
             src={getAreaImage(combo.area)} 
             alt={combo.area} 
-            className="w-32 h-32 mx-auto mb-2 rounded-lg"
+            className={`w-full h-full object-cover rounded-lg ${!combo.habilitado && 'opacity-60 grayscale'}`}
           />
-          
-          <div
-            className={`absolute top-0 right-0 w-8 h-8 rounded-full border-2 flex items-center justify-center ${
-              sePuedeHabilitar ? 'cursor-pointer' : 'cursor-not-allowed'
-            } transition-colors ${
-              estaHabilitada ? 'border-blue-500 bg-blue-50' : 'border-gray-400 bg-white'
-            }`}
-            onClick={() => sePuedeHabilitar && handleAreaToggle(!estaHabilitada)}
-          >
-            {estaHabilitada && <FaCheck className="text-blue-600" />}
-          </div>
         </div>
 
         {/* Contenido principal */}
         <div className="flex-1">
-          {/* Título del área centrado */}
-          <div className="text-center mb-4">
-            <h2 className="text-xl font-bold text-blue-700">{combo.area}</h2>
-            <p className={`text-sm ${
-              estaHabilitada ? 'text-green-600' : 
-              !sePuedeHabilitar ? 'text-gray-400' : 
-              'text-gray-500'
-            }`}>
-              {estaHabilitada ? 
-                'Área asociada' : 
-                !sePuedeHabilitar ? 'Seleccione una olimpiada' : 
-                'Área no asociada'
-              }
-            </p>
-          </div>
-
-          {/* Niveles y rangos */}
-          <div className={`${!estaHabilitada ? 'opacity-50' : ''}`}>
-            <h3 className="font-semibold mb-3 text-gray-700 border-b pb-1">
-              Niveles y Rangos de Grados
+          <div className="flex justify-between items-center">
+            <h3 className={`text-lg font-bold ${combo.habilitado ? 'text-gray-800' : 'text-gray-500'}`}>
+              {combo.area}
             </h3>
-
-            {combo.area === "Informática"
-              ? renderNivelesInformatica()
-              : combo.area === "Robótica"
-              ? renderNivelesRobotica()
-              : renderNivelesOtrasAreas()}
+            
+            <div className="flex items-center space-x-2">
+              {/* Switch para habilitar/deshabilitar */}
+              <div className="relative inline-block w-12 mr-2 align-middle select-none">
+                <input
+                  type="checkbox"
+                  name={`toggle${comboIndex}`}
+                  id={`toggle${comboIndex}`}
+                  className="hidden"
+                  checked={combo.habilitado}
+                  onChange={(e) => handleAreaToggle(e.target.checked)}
+                  disabled={!olimpiadaSeleccionada}
+                />
+                <label
+                  htmlFor={`toggle${comboIndex}`}
+                  className={`block overflow-hidden h-6 rounded-full cursor-pointer transition-colors ${
+                    combo.habilitado ? "bg-green-500" : "bg-gray-300"
+                  } ${!olimpiadaSeleccionada ? "opacity-50 cursor-not-allowed" : ""}`}
+                >
+                  <span
+                    className={`block h-6 w-6 rounded-full transform transition-transform ${
+                      combo.habilitado ? "translate-x-6 bg-white" : "translate-x-0 bg-white"
+                    }`}
+                  ></span>
+                </label>
+              </div>
+              
+              <span className={`text-sm font-medium ${combo.habilitado ? 'text-green-600' : 'text-gray-500'}`}>
+                {combo.habilitado ? (
+                  <span className="flex items-center">
+                    <FaCheck className="mr-1" size={12} />
+                    Habilitada
+                  </span>
+                ) : (
+                  <span className="flex items-center">
+                    <FaTimes className="mr-1" size={12} />
+                    Deshabilitada
+                  </span>
+                )}
+              </span>
+            </div>
           </div>
+
+          {/* Costo de inscripción */}
+          <div className="mt-2 flex items-center">
+            <label className="text-sm font-medium text-gray-700 mr-2">
+              Costo de inscripción (Bs.):
+            </label>
+            <input
+              type="number"
+              min="0"
+              value={combo.costoInscripcion || ""}
+              onChange={handleCostoInscripcionChange}
+              className={`w-24 px-2 py-1 border rounded ${!combo.habilitado && 'bg-gray-100 text-gray-500'}`}
+              placeholder="16"
+              disabled={!combo.habilitado || !olimpiadaSeleccionada}
+            />
+          </div>
+
+          {/* Mostrar/Ocultar detalles */}
+          <div className="mt-2">
+            <button
+              type="button"
+              onClick={() => setMostrarDetalles(!mostrarDetalles)}
+              className="text-sm text-blue-600 hover:text-blue-800"
+            >
+              {mostrarDetalles ? "Ocultar detalles" : "Ver detalles"}
+            </button>
+          </div>
+
+          {/* Detalles de niveles */}
+          {mostrarDetalles && renderNivelesAreas()}
         </div>
       </div>
     </div>
