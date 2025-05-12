@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Inscripcion\ColegioModel;
 use App\Models\Inscripcion\ResponsableInscripcionModel;
+use App\Models\comprobantes_pago;
 use App\Models\Inscripcion\InscripcionModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -29,8 +30,11 @@ class OrdenPago extends Model
     {
         return $this->hasMany(InscripcionModel::class, 'id_orden_pago');
     }
-    public function responsable()
-    {
+    public function responsable(){
         return $this->belongsTo(ResponsableInscripcionModel::class, 'id_responsable', 'id');
+    }
+
+    public function comprobantePago(){
+        return $this->hasMany(comprobantes_pago::class, 'id_orden_pago');
     }
 }

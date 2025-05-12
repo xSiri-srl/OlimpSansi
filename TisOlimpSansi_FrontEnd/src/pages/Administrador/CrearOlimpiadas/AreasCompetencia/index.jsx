@@ -12,11 +12,11 @@ const AreasCompetenciaManager = () => {
   const [mensajeExito, setMensajeExito] = useState("");
 
   const [combinaciones, setCombinaciones] = useState([
-    { 
-      area: "", 
-      modoRango: false, 
-      niveles: [{ grado: "", categoria: "" }], 
-      categoriasRango: [{ rangoInicial: "", rangoFinal: "", nombre: "" }] 
+    {
+      area: "",
+      modoRango: false,
+      niveles: [{ grado: "", categoria: "" }],
+      categoriasRango: [{ rangoInicial: "", rangoFinal: "", nombre: "" }],
     },
   ]);
 
@@ -24,13 +24,15 @@ const AreasCompetenciaManager = () => {
     setOlimpiadas([
       { id: 1, titulo: "Olimpiada Nacional de Matemática 2025" },
       { id: 2, titulo: "Olimpiada de Ciencia Escolar 2025" },
-      { id: 3, titulo: "Olimpiada de Lógica y Pensamiento 2025" }
+      { id: 3, titulo: "Olimpiada de Lógica y Pensamiento 2025" },
     ]);
   }, []);
 
   useEffect(() => {
     if (olimpiadaSeleccionada) {
-      const olimpiada = olimpiadas.find(o => o.id.toString() === olimpiadaSeleccionada);
+      const olimpiada = olimpiadas.find(
+        (o) => o.id.toString() === olimpiadaSeleccionada
+      );
       setNombreOlimpiada(olimpiada ? olimpiada.titulo : "");
     } else {
       setNombreOlimpiada("");
@@ -40,11 +42,11 @@ const AreasCompetenciaManager = () => {
   const agregarCombinacion = () => {
     setCombinaciones([
       ...combinaciones,
-      { 
-        area: "", 
-        modoRango: false, 
-        niveles: [{ grado: "", categoria: "" }], 
-        categoriasRango: [{ rangoInicial: "", rangoFinal: "", nombre: "" }] 
+      {
+        area: "",
+        modoRango: false,
+        niveles: [{ grado: "", categoria: "" }],
+        categoriasRango: [{ rangoInicial: "", rangoFinal: "", nombre: "" }],
       },
     ]);
   };
@@ -66,8 +68,8 @@ const AreasCompetenciaManager = () => {
 
     let datosCompletos = true;
     let mensaje = "";
-    
-    combinaciones.forEach(combo => {
+
+    combinaciones.forEach((combo) => {
       if (!combo.area || (combo.area === "Otra" && !combo.areaPersonalizada)) {
         datosCompletos = false;
         mensaje = "Todas las áreas deben tener un nombre válido";
@@ -75,22 +77,27 @@ const AreasCompetenciaManager = () => {
 
       if (combo.modoRango) {
         let rangoValido = true;
-        combo.categoriasRango.forEach(cat => {
+        combo.categoriasRango.forEach((cat) => {
           if (!cat.rangoInicial || !cat.rangoFinal || !cat.nombre) {
             datosCompletos = false;
-            mensaje = "Todos los campos de rango y categoría deben estar completos";
+            mensaje =
+              "Todos los campos de rango y categoría deben estar completos";
           }
-          if (gradosDisponibles.indexOf(cat.rangoInicial) > gradosDisponibles.indexOf(cat.rangoFinal)) {
+          if (
+            gradosDisponibles.indexOf(cat.rangoInicial) >
+            gradosDisponibles.indexOf(cat.rangoFinal)
+          ) {
             rangoValido = false;
           }
         });
-        
+
         if (!rangoValido) {
           datosCompletos = false;
-          mensaje = "El grado inicial no puede ser mayor que el grado final en alguna categoría";
+          mensaje =
+            "El grado inicial no puede ser mayor que el grado final en alguna categoría";
         }
       } else {
-        combo.niveles.forEach(nivel => {
+        combo.niveles.forEach((nivel) => {
           if (!nivel.grado || !nivel.categoria) {
             datosCompletos = false;
             mensaje = "Todos los grados y categorías deben estar completos";
@@ -107,22 +114,22 @@ const AreasCompetenciaManager = () => {
     setGuardando(true);
 
     try {
-      const datosAEnviar = combinaciones.map(combo => {
-        const comboCopia = {...combo};
+      const datosAEnviar = combinaciones.map((combo) => {
+        const comboCopia = { ...combo };
         if (combo.area === "Otra" && combo.areaPersonalizada) {
           comboCopia.area = combo.areaPersonalizada;
           delete comboCopia.areaPersonalizada;
         }
         return comboCopia;
       });
-      
+
       console.log("Guardando configuración:", {
         id_olimpiada: olimpiadaSeleccionada,
-        combinaciones: datosAEnviar
+        combinaciones: datosAEnviar,
       });
-      
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       setMensajeExito("¡Configuración guardada exitosamente!");
       setTimeout(() => setMensajeExito(""), 3000);
     } catch (error) {
@@ -135,7 +142,7 @@ const AreasCompetenciaManager = () => {
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
-      <HeaderSelector 
+      <HeaderSelector
         nombreOlimpiada={nombreOlimpiada}
         olimpiadas={olimpiadas}
         olimpiadaSeleccionada={olimpiadaSeleccionada}

@@ -29,6 +29,7 @@ import ProbarEnd from "./pages/hacer pruebas endpoint/ProbarEnd";
 import EditarConvocatoria from "./pages/Administrador/Convocatorias/EditarConvocatoria";
 import CrearOlimpiadas from "./pages/Administrador/CrearOlimpiadas/CrearOlimpiadas";
 import AsociarNivel from "./pages/Administrador/CrearOlimpiadas/AsociarNivel";
+import AsociarCosto from "./pages/Administrador/CrearOlimpiadas/AsociarCosto";
 
 export default function App() {
   return (
@@ -127,7 +128,7 @@ export default function App() {
               />
               <Route 
               path="/admin/asociar-costo" 
-              element={<AsociarNivel />} 
+              element={<AsociarCosto />} 
               />
 
 

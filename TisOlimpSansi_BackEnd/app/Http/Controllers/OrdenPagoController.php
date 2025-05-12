@@ -19,6 +19,7 @@ use App\Models\Inscripcion\InscripcionCategoriaModel;
 use App\Models\Inscripcion\ResponsableInscripcionModel;
 use App\Models\Inscripcion\TutorAcademicoModel;
 use App\Models\Inscripcion\TutorLegalModel;
+use App\Models\comprobantes_pago;
 
 
 
@@ -187,41 +188,6 @@ class OrdenPagoController extends Controller
             'numero_comprobante' => $numeroComprobante ?: 'No se pudo extraer',
             'nombre_pagador' => $nombrePagador ?: 'No se pudo extraer',
             'fecha_comprobante' => $fechaComprobante ?: 'No se pudo extraer',
-        ]);
-    }
-
-
-    public function guardarComprobante(Request $request)
-    {
-        $validated = $request->validate([
-            'numero_comprobante' => 'required|string',
-            'codigo_generado' => 'required|string',
-            'comprobante' => 'required|image|mimes:jpg,png,jpeg|max:5120', 
-        ]);
-    
-        // Obtener el archivo de la imagen subido
-        $imagen = $request->file('comprobante');
-        
-        // Subir la imagen a una carpeta pública 'comprobantes' y obtener la ruta de almacenamiento
-        $comprobantePath = $imagen->store('comprobantes', 'public'); 
-    
-        // Buscar la orden de pago correspondiente con el código generado
-        $ordenPago = OrdenPago::where('codigo_generado', $validated['codigo_generado'])->first();
-    
-        if (!$ordenPago) {
-            return response()->json(['message' => 'Código no encontrado.'], 404);
-        }
-    
-        // Actualizar los datos del comprobante
-        $ordenPago->numero_comprobante = $validated['numero_comprobante'];
-        $ordenPago->comprobante_url = $comprobantePath; 
-        $ordenPago->fecha_subida_imagen_comprobante = now(); 
-        $ordenPago->save(); 
-    
-        // Retornar la respuesta indicando éxito
-        return response()->json([
-            'message' => 'Comprobante guardado exitosamente',
-            'ordenPago' => $ordenPago
         ]);
     }
 
