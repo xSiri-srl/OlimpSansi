@@ -17,6 +17,7 @@ const Confirmation = ({ navigate, handleBack }) => {
 
   useEffect(() => {
     console.log(globalData);
+    console.log(codigoGenerado);
     globalData.areas_competencia?.forEach((area) => {
       console.log("Nombre del área:", area.nombre_area);
       console.log("Categoría:", area.categoria);

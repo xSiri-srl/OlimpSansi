@@ -122,13 +122,13 @@ public function registrar(Request $request)
             throw new \Exception("No se pudo registrar o recuperar el tutor legal.");
         }
 
-        // ORDEN DE PAGO temporal
         $ordenPago = OrdenPago::create([
             'id_responsable' => $responsable->id,
-            'codigo_generado' => uniqid(),
+            'codigo_generado' => '',
             'monto_total' => 0,
             'estado' => 'pendiente',
         ]);
+       
 
         $total = 0;
         $inscripcionesPorArea = [];
@@ -160,10 +160,10 @@ public function registrar(Request $request)
             $inscripcionesPorArea[$area->id] = $inscripcion;
             $total += floatval($oac->precio);
         }
-
+        $year = date('Y');
         $ordenPago->update([
             'monto_total' => $total,
-            'codigo_generado' => 'ORD-' . str_pad($ordenPago->id, 6, '0', STR_PAD_LEFT),
+            'codigo_generado' => sprintf('TSOL-%s-%04d', $year, $ordenPago->id),
         ]);
 
         if (!empty($data['tutores_academicos']) && is_array($data['tutores_academicos'])) {
@@ -191,6 +191,7 @@ public function registrar(Request $request)
         return response()->json([
             'status' => 200,
             'message' => 'Inscripción registrada exitosamente.',
+            'codigo_generado' => $ordenPago->codigo_generado
         ]);
     } catch (\Exception $e) {
         DB::rollBack();
@@ -201,125 +202,138 @@ public function registrar(Request $request)
     }
 }
 
-    
-
-    public function registrarLista(Request $request)
+public function registrarLista(Request $request)
 {
     DB::beginTransaction();
 
     try {
-        // 1. Registrar responsable una sola vez
-        $responsable = ResponsableInscripcionModel::create($request->responsable_inscripcion);
+        $data = $request->all();
 
-        // 2. Calcular monto total por todas las áreas
-        $totalAreas = 0;
-        foreach ($request->inscripciones as $data) {
-            $totalAreas += count($data['areas_competencia']);
+        // Registrar Responsable (solo una vez)
+        $responsable = ResponsableInscripcionModel::firstOrCreate(
+            ['ci' => $data['responsable_inscripcion']['ci']],
+            $data['responsable_inscripcion']
+        );
+
+        if (!$responsable || !$responsable->id) {
+            throw new \Exception("No se pudo registrar o recuperar el responsable de inscripción.");
         }
 
-        $montoTotal = $totalAreas * 20;
-        $year = date('Y');
-
-        // 3. Crear una sola orden de pago
+        // Crear orden de pago (temporal)
         $ordenPago = OrdenPago::create([
-            'codigo_generado' => 'TEMP',
-            'monto_total'     => $montoTotal,
-            'fecha_emision'   => now(),
+            'id_responsable' => $responsable->id,
+            'codigo_generado' => '',
+            'monto_total'     => 0,
+            'estado'          => 'pendiente',
         ]);
 
-        $codigoGenerado = sprintf('TSOL-%s-%04d', $year, $ordenPago->id);
-        $ordenPago->codigo_generado = $codigoGenerado;
-        $ordenPago->save();
-
-        // 4. Recorrer las inscripciones
-        foreach ($request->inscripciones as $data) {
-            // Colegio
-            $colegioData = $data['colegio'];
-            $curso = $colegioData['curso'];
-            unset($colegioData['curso']);
-
-            $colegio = ColegioModel::firstOrCreate([
-                'nombre_colegio' => $colegioData['nombre_colegio'],
-                'departamento'   => $colegioData['departamento'],
-                'distrito'      => $colegioData['distrito'],
-            ]);
-
-            // Tutor legal
-            $tutorLegal = TutorLegalModel::firstOrCreate(
-                ['ci' => $data['tutor_legal']['ci']],
-                $data['tutor_legal']
-            );
-
-            // Grado
-            $grado = GradoModel::firstOrCreate([
-                'nombre_grado' => $curso
-            ]);
-
-            // Estudiante
-            $estudiante = EstudianteModel::firstOrCreate(
-                ['ci' => $data['estudiante']['ci']],
+        $total = 0;
+        foreach ($data['estudiantes'] as $item) {
+            // Colegio y Grado
+            $colegio = ColegioModel::firstOrCreate(
+                ['nombre_colegio' => $item['colegio']['nombre_colegio']],
                 [
-                    'nombre'              => $data['estudiante']['nombre'],
-                    'apellido_pa'         => $data['estudiante']['apellido_pa'],
-                    'apellido_ma'         => $data['estudiante']['apellido_ma'],
-                    'fecha_nacimiento'    => $data['estudiante']['fecha_nacimiento'],
-                    'correo'              => $data['estudiante']['correo'],
-                    'propietario_correo'  => $data['estudiante']['propietario_correo'],
-                    'id_unidad'           => $colegio->id,
-                    'id_grado'            => $grado->id,
-                    'id_tutor_legal'      => $tutorLegal->id,
+                    'departamento' => $item['colegio']['departamento'],
+                    'distrito'     => $item['colegio']['distrito'],
                 ]
             );
 
-            // Inscripción (usa la misma orden para todos)
-            $inscripcion = InscripcionModel::create([
-                'id_estudiante'   => $estudiante->id,
-                'id_responsable'  => $responsable->id,
-                'id_orden_pago'   => $ordenPago->id,
-            ]);
+            $grado = GradoModel::where('nombre_grado', $item['colegio']['curso'])->firstOrFail();
 
-            // Áreas y tutores
-            foreach ($data['areas_competencia'] as $areaData) {
-                $area = AreaModel::firstOrCreate([
-                    'nombre_area' => $areaData['nombre_area']
-                ]);
+            // Estudiante
+            $estudiante = EstudianteModel::firstOrCreate(
+                [
+                    'ci'           => $item['estudiante']['ci'],
+                ],
+                [
+                    ...$item['estudiante'],
+                    'id_unidad'    => $colegio->id,
+                    'id_grado'     => $grado->id,
+                ]
+            );
 
-                $categoria = CategoriaModel::firstOrCreate([
-                    'id_area'          => $area->id,
-                    'nombre_categoria' => $areaData['categoria']
-                ]);
+            // Validación: límite de inscripciones
+            $limiteAreas = 2;
+            $inscritas = InscripcionModel::where('id_estudiante', $estudiante->id)->count();
+            if ($inscritas + count($item['areas_competencia']) > $limiteAreas) {
+                throw new \Exception("El estudiante '{$estudiante->nombre} {$estudiante->apellido_pa}' supera el límite de áreas permitidas.");
+            }
 
-                $tutorInfo = collect($data['tutores_academicos'])
-                    ->firstWhere('nombre_area', $areaData['nombre_area']);
+            // Tutor legal
+            $tutorLegal = TutorLegalModel::firstOrCreate(
+                ['ci' => $item['tutor_legal']['ci']],
+                $item['tutor_legal']
+            );
 
-                $tutor = null;
-                if ($tutorInfo && isset($tutorInfo['tutor'])) {
-                    $tutor = TutorAcademicoModel::firstOrCreate(
-                        ['ci' => $tutorInfo['tutor']['ci']],
-                        $tutorInfo['tutor']
-                    );
+            $inscripcionesPorArea = [];
+
+            foreach ($item['areas_competencia'] as $areaItem) {
+                $area = AreaModel::where('nombre_area', $areaItem['nombre_area'])->firstOrFail();
+                $categoria = CategoriaModel::where('nombre_categoria', $areaItem['categoria'])->firstOrFail();
+
+                $oac = DB::table('olimpiada_area_categorias')
+                    ->where([
+                        ['id_olimpiada', '=', $data['olimpiada']['id']],
+                        ['id_area', '=', $area->id],
+                        ['id_categoria', '=', $categoria->id],
+                    ])
+                    ->first();
+
+                if (!$oac) {
+                    throw new \Exception("Combinación inválida de área/categoría para la olimpiada.");
                 }
 
-                InscripcionCategoriaModel::create([
-                    'id_inscripcion'    => $inscripcion->id,
-                    'id_categoria'      => $categoria->id,
-                    'id_tutor_academico'=> $tutor?->id,
+                $inscripcion = InscripcionModel::create([
+                    'id_estudiante' => $estudiante->id,
+                    'id_tutor_legal' => $tutorLegal->id,
+                    'id_olimpiada_area_categoria' => $oac->id,
+                    'id_orden_pago' => $ordenPago->id,
+                    'id_tutor_academico' => null,
                 ]);
+
+                $inscripcionesPorArea[$area->id] = $inscripcion;
+                $total += floatval($oac->precio);
+            }
+
+            // Tutores académicos
+            if (!empty($item['tutores_academicos']) && is_array($item['tutores_academicos'])) {
+                foreach ($item['tutores_academicos'] as $tutorItem) {
+                    $area = AreaModel::where('nombre_area', $tutorItem['nombre_area'])->firstOrFail();
+            
+                    $tutor = TutorAcademicoModel::firstOrCreate(
+                        ['ci' => $tutorItem['tutor']['ci']],
+                        $tutorItem['tutor']
+                    );
+            
+                    if (isset($inscripcionesPorArea[$area->id])) {
+                        $inscripcionesPorArea[$area->id]->update([
+                            'id_tutor_academico' => $tutor->id,
+                        ]);
+                    }
+                }
             }
         }
+
+        // Actualizar orden de pago final
+        $year = date('Y');
+        $ordenPago->update([
+            'monto_total' => $total,
+            'codigo_generado' => sprintf('TSOL-%s-%04d', $year, $ordenPago->id),
+        ]);
 
         DB::commit();
 
         return response()->json([
-            'message' => 'Inscripciones registradas correctamente.',
-            'codigo_generado' => $ordenPago->codigo_generado
-        ], 201);
+            'status' => 200,
+            'message' => 'Lista de inscripciones registrada exitosamente.',
+            'codigo_generado' => $ordenPago->codigo_generado,
+          ], 201);
 
     } catch (\Exception $e) {
         DB::rollBack();
         return response()->json([
-            'error'   => 'Error al registrar las inscripciones.',
-            'detalle' => $e->getMessage()
+            'status' => 500,
+            'message' => $e->getMessage(),
         ], 500);
     }
 }

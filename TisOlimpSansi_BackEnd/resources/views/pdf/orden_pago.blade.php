@@ -72,9 +72,9 @@
 
     <!-- Responsable -->
     <p><span class="section-label">Responsable:</span><br>
-        @if($inscripcion->responsable)
-            {{ $inscripcion->responsable->nombre }} {{ $inscripcion->responsable->apellido_pa }} {{ $inscripcion->responsable->apellido_ma }}
-            (CI: {{ $inscripcion->responsable->ci }}{{ $inscripcion->responsable->complemento ? ' ' . $inscripcion->responsable->complemento : '' }})
+        @if($ordenPago->responsable)
+            {{ $ordenPago->responsable->nombre }} {{ $ordenPago->responsable->apellido_pa }} {{ $ordenPago->responsable->apellido_ma }}
+            (CI: {{ $ordenPago->responsable->ci }}{{ $ordenPago->responsable->complemento ? ' ' . $ordenPago->responsable->complemento : '' }})
         @else
             No registrado
         @endif
@@ -113,7 +113,7 @@
     <div class="firma">
         <p>
             <strong>Responsable de Pago:</strong><br>
-            {{ $inscripcion->responsable->nombre ?? 'No registrado' }} {{ $inscripcion->responsable->apellido_pa ?? '' }} {{ $inscripcion->responsable->apellido_ma ?? '' }}
+            {{ $ordenPago->responsable->nombre ?? 'No registrado' }} {{ $ordenPago->responsable->apellido_pa ?? '' }} {{ $ordenPago->responsable->apellido_ma ?? '' }}
         </p>
         <p>
             <strong>Firma:</strong> ___________________________

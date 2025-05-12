@@ -17,7 +17,7 @@ class OlimpiadaAreaCategoriaSeeder extends Seeder
                     'id_olimpiada' => $id_olimpiada,
                     'id_area' => $area,
                     'id_categoria' => $categoria,
-                    'precio' => rand(20, 40),
+                    'precio' => rand(20, 20),
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);

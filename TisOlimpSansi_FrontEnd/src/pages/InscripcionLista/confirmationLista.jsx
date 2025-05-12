@@ -73,8 +73,9 @@ const ConfirmationLista = ({ setStep }) => {
 
     // Estructura el JSON que se enviará
     const datosPreparados = {
+     olimpiada: globalData.olimpiada,
       responsable_inscripcion: responsableInscripcion,
-      inscripciones: estudiantes.map((estudiante) => {
+      estudiantes: estudiantes.map((estudiante) => {
         // Crear una copia del estudiante para manipular
         const estudianteModificado = { ...estudiante }
 
@@ -135,7 +136,9 @@ const ConfirmationLista = ({ setStep }) => {
     }
 
     try {
+      console.log(datosPreparados)
       const response = await axios.post("http://localhost:8000/api/inscribir-lista", datosPreparados)
+      
 
       if (response.status === 201) {
         // Completar la barra de progreso
