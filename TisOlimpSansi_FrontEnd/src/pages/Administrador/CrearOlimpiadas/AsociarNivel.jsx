@@ -14,6 +14,7 @@ const SelectorAreaGrado = () => {
   const [mensajeExito, setMensajeExito] = useState("");
   const [cargandoOlimpiadas, setCargandoOlimpiadas] = useState(false);
   const [errorCarga, setErrorCarga] = useState("");
+  const [cargandoAreas, setCargandoAreas] = useState(false);
 
   const obtenerOpcionesPorArea = (area) => {
     // BASE DE DATOS DETERMINADA
@@ -65,6 +66,7 @@ const SelectorAreaGrado = () => {
       categoriasRango: [],
       costoInscripcion: "",
       checkboxesNivel: Array(10).fill(true),
+      habilitado: false,
     },
     {
       area: "Biología",
@@ -79,6 +81,7 @@ const SelectorAreaGrado = () => {
       categoriasRango: [],
       costoInscripcion: "",
       checkboxesNivel: Array(5).fill(true),
+      habilitado: false,
     },
     {
       area: "Física",
@@ -91,6 +94,7 @@ const SelectorAreaGrado = () => {
       categoriasRango: [],
       costoInscripcion: "",
       checkboxesNivel: Array(3).fill(true),
+      habilitado: false,
     },
     {
       area: "Informática",
@@ -114,6 +118,7 @@ const SelectorAreaGrado = () => {
 
       categoriasRango: [],
       costoInscripcion: "",
+      habilitado: false,
     },
     {
       area: "Matemáticas",
@@ -129,6 +134,7 @@ const SelectorAreaGrado = () => {
       categoriasRango: [],
       costoInscripcion: "",
       checkboxesNivel: Array(7).fill(true),
+      habilitado: false,
     },
     {
       area: "Química",
@@ -143,6 +149,7 @@ const SelectorAreaGrado = () => {
       categoriasRango: [],
       costoInscripcion: "",
       checkboxesNivel: Array(5).fill(true),
+      habilitado: false,
     },
     {
       area: "Robótica",
@@ -165,10 +172,11 @@ const SelectorAreaGrado = () => {
       ],
       categoriasRango: [],
       costoInscripcion: "",
+      habilitado: false,
     },
   ]);
 
- useEffect(() => {
+  useEffect(() => {
     const cargarOlimpiadas = async () => {
       setCargandoOlimpiadas(true);
       setErrorCarga("");
@@ -191,18 +199,15 @@ const SelectorAreaGrado = () => {
           withCredentials: true
         };
         
-        // Usar la ruta correcta según web.php
+        // Usar la ruta correcta según web.php (protegida por middleware)
         const response = await axios.get('http://localhost:8000/getOlimpiadas', config);
         
-        console.log("Respuesta del servidor:", response);
+        console.log("Respuesta de olimpiadas:", response);
         
-        // Verificar la respuesta y extraer los datos correctamente
         if (response.status === 200) {
-          // Verificar la estructura de los datos recibidos
           if (response.data && response.data.data && Array.isArray(response.data.data)) {
             setOlimpiadas(response.data.data);
           } else if (response.data && Array.isArray(response.data)) {
-            // En caso de que la respuesta sea directamente un array
             setOlimpiadas(response.data);
           } else {
             throw new Error("Formato de datos inesperado");
@@ -213,11 +218,9 @@ const SelectorAreaGrado = () => {
       } catch (error) {
         console.error("Error al cargar olimpiadas:", error);
         
-        // Mensaje de error más descriptivo
         let mensajeError = "Error al conectar con el servidor.";
         
         if (error.response) {
-          // El servidor respondió con un error
           if (error.response.status === 401) {
             mensajeError = "No tienes autorización para acceder a esta información.";
           } else if (error.response.status === 403) {
@@ -245,10 +248,109 @@ const SelectorAreaGrado = () => {
         (o) => o.id.toString() === olimpiadaSeleccionada
       );
       setNombreOlimpiada(olimpiada ? olimpiada.titulo : "");
+      
+      // Cargar áreas ya asociadas a esta olimpiada
+      cargarAreasAsociadas(olimpiadaSeleccionada);
     } else {
       setNombreOlimpiada("");
+      
+      // Restablecer todas las áreas a no habilitadas cuando no hay olimpiada seleccionada
+      setCombinaciones(prev => 
+        prev.map(combo => ({...combo, habilitado: false}))
+      );
     }
   }, [olimpiadaSeleccionada, olimpiadas]);
+
+const cargarAreasAsociadas = async (idOlimpiada) => {
+  setCargandoAreas(true);
+  
+  try {
+    // Obtener CSRF token para autenticación
+    await axios.get('http://localhost:8000/sanctum/csrf-cookie', {
+      withCredentials: true,
+    });
+    
+    const csrfToken = Cookies.get('XSRF-TOKEN');
+    
+    // Configurar headers para la solicitud
+    const config = {
+      headers: {
+        'X-XSRF-TOKEN': csrfToken,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      withCredentials: true
+    };
+    
+    const response = await axios.get(`http://localhost:8000/areas-olimpiada/${idOlimpiada}`, config);
+    
+    console.log("Áreas asociadas (raw):", response.data);
+    
+    if (response.status === 200 && response.data.data) {
+      const areasAsociadas = response.data.data;
+      
+      // Función auxiliar para normalizar nombres (elimina todo excepto letras y números)
+      const normalizarNombre = (nombre) => {
+        return nombre.toUpperCase()
+          .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Eliminar acentos
+          .replace(/[^A-Z0-9]/g, ""); // Eliminar caracteres especiales y espacios
+      };
+      
+      // Crear un mapa de áreas asociadas normalizadas para búsqueda eficiente
+      const areasNormalizadasMap = new Map();
+      
+      areasAsociadas.forEach(area => {
+        const nombreNormalizado = normalizarNombre(area.area);
+        console.log(`Área del backend normalizada: "${area.area}" -> "${nombreNormalizado}"`);
+        areasNormalizadasMap.set(nombreNormalizado, area);
+      });
+      
+      // Actualizar el estado de combinaciones
+      setCombinaciones(prev => {
+        const nuevasCombinaciones = prev.map(combo => {
+          // Normalizar el nombre del área del frontend
+          const nombreNormalizado = normalizarNombre(combo.area);
+          console.log(`Área del frontend normalizada: "${combo.area}" -> "${nombreNormalizado}"`);
+          
+          // Buscar si esta área normalizada existe en las áreas asociadas
+          const areaAsociada = areasNormalizadasMap.get(nombreNormalizado);
+          
+          if (areaAsociada) {
+            console.log(`✅ COINCIDENCIA ENCONTRADA para "${combo.area}"`);
+            return {
+              ...combo,
+              habilitado: true,
+              costoInscripcion: areaAsociada.costoInscripcion || "16"
+            };
+          } else {
+            console.log(`❌ NO HAY COINCIDENCIA para "${combo.area}"`);
+            return {
+              ...combo,
+              habilitado: false,
+              costoInscripcion: "16" // valor predeterminado
+            };
+          }
+        });
+        
+        console.log("Resultado final de áreas:", nuevasCombinaciones.map(c => ({
+          area: c.area,
+          habilitado: c.habilitado,
+          normalizado: normalizarNombre(c.area)
+        })));
+        
+        return nuevasCombinaciones;
+      });
+    }
+  } catch (error) {
+    console.error("Error al cargar áreas asociadas:", error);
+    // Si hay error, mostrar todas las áreas como no habilitadas
+    setCombinaciones(prev => 
+      prev.map(combo => ({...combo, habilitado: false, costoInscripcion: "16"}))
+    );
+  } finally {
+    setCargandoAreas(false);
+  }
+};
 
   const eliminarCombinacion = (index) => {
     if (combinaciones.length > 1) {
@@ -265,102 +367,90 @@ const SelectorAreaGrado = () => {
       return;
     }
 
-    let datosCompletos = true;
-    let mensaje = "";
-
-    combinaciones.forEach((combo) => {
-      if (!combo.area || (combo.area === "Otra" && !combo.areaPersonalizada)) {
-        datosCompletos = false;
-        mensaje = "Todas las áreas deben tener un nombre válido";
-      }
-
-      if (combo.modoRango) {
-        let rangoValido = true;
-        combo.categoriasRango.forEach((cat) => {
-          if (!cat.rangoInicial || !cat.rangoFinal || !cat.nombre) {
-            datosCompletos = false;
-            mensaje =
-              "Todos los campos de rango y categoría deben estar completos";
-          }
-          if (
-            gradosDisponibles.indexOf(cat.rangoInicial) >
-            gradosDisponibles.indexOf(cat.rangoFinal)
-          ) {
-            rangoValido = false;
-          }
-        });
-
-        if (!rangoValido) {
-          datosCompletos = false;
-          mensaje =
-            "El grado inicial no puede ser mayor que el grado final en alguna categoría";
-        }
-      } else {
-        combo.niveles.forEach((nivel) => {
-          if (!nivel.grado || !nivel.categoria) {
-            datosCompletos = false;
-            mensaje = "Todos los grados y categorías deben estar completos";
-          }
-        });
-      }
-    });
-
-    if (!datosCompletos) {
-      alert(mensaje || "Por favor complete todos los campos antes de guardar");
+    // Validar que haya al menos un área habilitada
+    const areasHabilitadas = combinaciones.filter(combo => combo.habilitado);
+    if (areasHabilitadas.length === 0) {
+      alert("Debe habilitar al menos un área de competencia");
       return;
     }
 
     setGuardando(true);
 
     try {
-      // Preparar CSRF token para Laravel
+      // Obtener CSRF token para autenticación
       await axios.get('http://localhost:8000/sanctum/csrf-cookie', {
         withCredentials: true,
       });
+      
       const csrfToken = Cookies.get('XSRF-TOKEN');
-      axios.defaults.headers.common['X-XSRF-TOKEN'] = csrfToken;
+      
+      // Configurar headers para la solicitud
+      const config = {
+        headers: {
+          'X-XSRF-TOKEN': csrfToken,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        withCredentials: true
+      };
       
       // Preparar datos para enviar
-      const datosAEnviar = combinaciones.filter(combo => combo.habilitado).map((combo) => {
-        const comboCopia = { ...combo };
-        if (combo.area === "Otra" && combo.areaPersonalizada) {
-          comboCopia.area = combo.areaPersonalizada;
-          delete comboCopia.areaPersonalizada;
-        }
-        return comboCopia;
-      });
-
-      // Aquí iría el endpoint real para guardar las áreas asociadas
-      // Por ejemplo:
-      // const response = await axios.post(
-      //   'http://localhost:8000/asociar-areas-olimpiada',
-      //   {
-      //     id_olimpiada: olimpiadaSeleccionada,
-      //     areas: datosAEnviar
-      //   },
-      //   { withCredentials: true }
-      // );
-
-      // Simulación
-      console.log("Guardando configuración:", {
+      const datosAEnviar = {
         id_olimpiada: olimpiadaSeleccionada,
-        areas: datosAEnviar,
-      });
+        areas: combinaciones.map((combo) => ({
+          area: combo.area,
+          habilitado: !!combo.habilitado,
+          costoInscripcion: combo.costoInscripcion || "16",
+          rangos: combo.rangos || [],
+          niveles: combo.niveles || []
+        }))
+      };
 
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      console.log("Guardando configuración:", datosAEnviar);
 
-      setMensajeExito("¡Configuración guardada exitosamente!");
-      setTimeout(() => setMensajeExito(""), 3000);
+      // Enviar la solicitud al servidor
+      const response = await axios.post(
+        'http://localhost:8000/asociar-areas-olimpiada',
+        datosAEnviar,
+        config
+      );
+
+      console.log("Respuesta del servidor:", response.data);
+
+      if (response.status === 200) {
+        setMensajeExito("¡Áreas asociadas exitosamente!");
+        setTimeout(() => setMensajeExito(""), 3000);
+        
+        // Recargar las áreas para mostrar el estado actualizado
+        cargarAreasAsociadas(olimpiadaSeleccionada);
+      } else {
+        throw new Error("Error al guardar la configuración");
+      }
     } catch (error) {
       console.error("Error al guardar:", error);
-      const mensaje = error.response?.data?.message || "Error al guardar la configuración";
+      
+      let mensaje = "Error al guardar la configuración";
+      
+      if (error.response) {
+        if (error.response.status === 401) {
+          mensaje = "No tienes autorización para realizar esta acción.";
+        } else if (error.response.status === 403) {
+          mensaje = "No tienes permisos suficientes para esta acción.";
+        } else if (error.response.status === 419) {
+          mensaje = "Error de validación CSRF. Por favor, recarga la página e intenta nuevamente.";
+        } else {
+          mensaje = error.response.data?.message || mensaje;
+        }
+      }
+      
       alert(mensaje);
     } finally {
       setGuardando(false);
     }
   };
 
-return (
+
+  return (
     <div className="p-6 max-w-5xl mx-auto">
       <HeaderSelector
         nombreOlimpiada={nombreOlimpiada}
@@ -372,10 +462,12 @@ return (
       />
 
       <div className="bg-gray-100 p-4 rounded-lg shadow-md">
-        {cargandoOlimpiadas ? (
+        {cargandoOlimpiadas || cargandoAreas ? (
           <div className="text-center py-8">
             <div className="animate-spin mx-auto h-8 w-8 border-t-2 border-b-2 border-blue-500 rounded-full"></div>
-            <p className="mt-2 text-gray-600">Cargando olimpiadas...</p>
+            <p className="mt-2 text-gray-600">
+              {cargandoOlimpiadas ? "Cargando olimpiadas..." : "Cargando áreas asociadas..."}
+            </p>
           </div>
         ) : errorCarga ? (
           <div className="text-center py-8 text-red-600">
@@ -415,6 +507,5 @@ return (
     </div>
   );
 };
-
 
 export default SelectorAreaGrado;

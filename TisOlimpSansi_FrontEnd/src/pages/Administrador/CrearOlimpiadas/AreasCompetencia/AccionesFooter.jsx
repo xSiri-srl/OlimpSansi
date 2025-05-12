@@ -1,34 +1,45 @@
-import { FaSave } from "react-icons/fa";
+import { FaSave, FaSpinner } from "react-icons/fa";
 
 const AccionesFooter = ({
   guardarConfiguracion,
   olimpiadaSeleccionada,
   guardando,
   mensajeExito,
-  textoBoton = "Guardar configuración"
 }) => {
   return (
-    <>
-      <div className="flex justify-between items-center mt-6">
+    <div className="mt-6 flex justify-between items-center">
+      <div></div>
+      
+      <div className="flex items-center">
+        {mensajeExito && (
+          <span className="mr-4 text-green-600 bg-green-100 px-3 py-1 rounded-full text-sm">
+            {mensajeExito}
+          </span>
+        )}
+        
         <button
           onClick={guardarConfiguracion}
           disabled={guardando || !olimpiadaSeleccionada}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-white ${
-            olimpiadaSeleccionada && !guardando
-              ? "bg-green-600 hover:bg-green-700"
-              : "bg-gray-400 cursor-not-allowed"
+          className={`flex items-center px-4 py-2 rounded shadow-sm transition-colors ${
+            olimpiadaSeleccionada
+              ? "bg-blue-600 hover:bg-blue-700 text-white"
+              : "bg-gray-300 text-gray-500 cursor-not-allowed"
           }`}
         >
-          <FaSave /> {guardando ? "Guardando..." : textoBoton}
+          {guardando ? (
+            <>
+              <FaSpinner className="animate-spin mr-2" />
+              Guardando...
+            </>
+          ) : (
+            <>
+              <FaSave className="mr-2" />
+              Guardar Cambios
+            </>
+          )}
         </button>
       </div>
-
-      {mensajeExito && (
-        <div className="mt-4 p-3 bg-green-100 text-green-700 rounded-lg text-center">
-          {mensajeExito}
-        </div>
-      )}
-    </>
+    </div>
   );
 };
 
