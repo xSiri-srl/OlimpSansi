@@ -11,7 +11,7 @@ const Login = () => {
   const [newUsername, setNewUsername] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [registerError, setRegisterError] = useState("");
-  const [rol] = useState(1); 
+  const [rolBasico] = useState(1); 
   const navigate = useNavigate();
 
   const endpoint = "http://localhost:8000";
@@ -57,7 +57,7 @@ const Login = () => {
           email: username,
           password: password,
           password_confirmation: password,
-          id_rol: 1,
+          id_rol: rol,
         },
         {
           withCredentials: true,
@@ -84,7 +84,7 @@ const Login = () => {
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      await registerUser(newUsername, newPassword, rol);
+      await registerUser(newUsername, newPassword, rolBasico);
       alert("Usuario registrado correctamente");
       setShowRegister(false);
       setNewUsername("");
