@@ -34,6 +34,9 @@ Route::middleware('auth:sanctum')->group(function () {
         
         // Obtener áreas por olimpiada
         Route::get('/areas-olimpiada/{id}', [OlimpiadaAreaController::class, 'getAreasPorOlimpiada']);
+    
+        //Actualizar costos por área
+        Route::post('/actualizar-costos-olimpiada', [OlimpiadaAreaController::class, 'actualizarCostos']);
     });
 });
     

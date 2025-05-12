@@ -156,7 +156,7 @@ public function asociarAreas(Request $request)
                             'id_olimpiada' => $idOlimpiada,
                             'id_area' => $areaModel->id,
                             'id_categoria' => $categoria->id,
-                            'precio' => $area['costoInscripcion'] ?? 16,
+                            'precio' => 0, //el costo es aparte
                             'created_at' => now(),
                             'updated_at' => now(),
                         ]);
@@ -173,7 +173,7 @@ public function asociarAreas(Request $request)
                             'id_olimpiada' => $idOlimpiada,
                             'id_area' => $areaModel->id,
                             'id_categoria' => $categoria->id,
-                            'precio' => $area['costoInscripcion'] ?? 16,
+                            'precio' => 0, //el costo es aparte
                             'created_at' => now(),
                             'updated_at' => now(),
                         ]);
@@ -194,6 +194,47 @@ public function asociarAreas(Request $request)
             'status' => 500,
             'message' => 'Error al asociar áreas a la olimpiada: ' . $e->getMessage(),
             'trace' => $e->getTraceAsString()
+        ], 500);
+    }
+}
+
+
+public function actualizarCostos(Request $request)
+{
+    $request->validate([
+        'id_olimpiada' => 'required|exists:olimpiada,id',
+        'areas' => 'required|array',
+    ]);
+
+    try {
+        $idOlimpiada = $request->id_olimpiada;
+        $areas = $request->areas;
+
+        // Iniciar transacción para mantener consistencia
+        DB::beginTransaction();
+
+        foreach ($areas as $area) {
+            // Actualizar solo el precio en la tabla olimpiada_area_categorias
+            DB::table('olimpiada_area_categorias')
+                ->where('id_olimpiada', $idOlimpiada)
+                ->where('id_area', $area['id'])
+                ->update([
+                    'precio' => $area['costoInscripcion'],
+                    'updated_at' => now()
+                ]);
+        }
+
+        DB::commit();
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Costos actualizados exitosamente',
+        ]);
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json([
+            'status' => 500,
+            'message' => 'Error al actualizar costos: ' . $e->getMessage(),
         ], 500);
     }
 }

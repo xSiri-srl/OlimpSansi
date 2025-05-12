@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import axios from "axios";
+import Cookies from 'js-cookie';
 import HeaderSelector from "./AreasCompetencia/HeaderSelector";
 import AreaCosto from "./AreasCompetencia/AreaCosto";
 import AccionesFooter from "./AreasCompetencia/AccionesFooter";
@@ -11,15 +13,68 @@ const AsociarCosto = () => {
   const [mensajeExito, setMensajeExito] = useState("");
   const [areasAsociadas, setAreasAsociadas] = useState([]);
   const [cargando, setCargando] = useState(false);
+  const [cargandoOlimpiadas, setCargandoOlimpiadas] = useState(false);
+  const [errorCarga, setErrorCarga] = useState("");
 
   // Cargar la lista de olimpiadas disponibles
   useEffect(() => {
-    // Aquí se conectaría con la API para obtener olimpiadas reales
-    setOlimpiadas([
-      { id: 1, titulo: "Olimpiada Nacional de Matemática 2025" },
-      { id: 2, titulo: "Olimpiada de Ciencia Escolar 2025" },
-      { id: 3, titulo: "Olimpiada de Lógica y Pensamiento 2025" },
-    ]);
+    const cargarOlimpiadas = async () => {
+      setCargandoOlimpiadas(true);
+      setErrorCarga("");
+      
+      try {
+        await axios.get('http://localhost:8000/sanctum/csrf-cookie', {
+          withCredentials: true,
+        });
+        
+        const csrfToken = Cookies.get('XSRF-TOKEN');
+        
+        const config = {
+          headers: {
+            'X-XSRF-TOKEN': csrfToken,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          withCredentials: true
+        };
+        
+        const response = await axios.get('http://localhost:8000/getOlimpiadas', config);
+        
+        if (response.status === 200) {
+          if (response.data && response.data.data && Array.isArray(response.data.data)) {
+            setOlimpiadas(response.data.data);
+          } else if (response.data && Array.isArray(response.data)) {
+            setOlimpiadas(response.data);
+          } else {
+            throw new Error("Formato de datos inesperado");
+          }
+        } else {
+          throw new Error("Error en la respuesta del servidor");
+        }
+      } catch (error) {
+        console.error("Error al cargar olimpiadas:", error);
+        
+        let mensajeError = "Error al conectar con el servidor.";
+        
+        if (error.response) {
+          if (error.response.status === 401) {
+            mensajeError = "No tienes autorización para acceder a esta información.";
+          } else if (error.response.status === 403) {
+            mensajeError = "No tienes permisos suficientes para ver las olimpiadas.";
+          } else {
+            mensajeError = `Error ${error.response.status}: ${error.response.data?.message || "Error del servidor"}`;
+          }
+        } else if (error.message) {
+          mensajeError = error.message;
+        }
+        
+        setErrorCarga(mensajeError);
+      } finally {
+        setCargandoOlimpiadas(false);
+      }
+    };
+
+    cargarOlimpiadas();
   }, []);
 
   // Actualizar nombre de olimpiada cuando se selecciona una
@@ -42,54 +97,36 @@ const AsociarCosto = () => {
   const cargarAreasAsociadas = async (idOlimpiada) => {
     setCargando(true);
     try {
-      // Aquí se conectaría con la API para obtener las áreas asociadas
-      // Por ahora, usamos datos de ejemplo
-      await new Promise(resolve => setTimeout(resolve, 800)); // Simular carga
-
-      // Datos de ejemplo - esto vendría de la API
-      const areasEjemplo = [
-        {
-          id: 1,
-          area: "Matemáticas",
-          habilitado: true,
-          costoInscripcion: "50",
-          niveles: [
-            { nivel: "Primer Nivel", grado: "1ro Secundaria" },
-            { nivel: "Segundo Nivel", grado: "2do Secundaria" },
-            { nivel: "Tercer Nivel", grado: "3ro Secundaria" },
-            { nivel: "Cuarto Nivel", grado: "4to Secundaria" },
-            { nivel: "Quinto Nivel", grado: "5to Secundaria" },
-            { nivel: "Sexto Nivel", grado: "6to Secundaria" },
-          ],
+      await axios.get('http://localhost:8000/sanctum/csrf-cookie', {
+        withCredentials: true,
+      });
+      
+      const csrfToken = Cookies.get('XSRF-TOKEN');
+      
+      const config = {
+        headers: {
+          'X-XSRF-TOKEN': csrfToken,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
         },
-        {
-          id: 2,
-          area: "Física",
-          habilitado: true,
-          costoInscripcion: "",
-          niveles: [
-            { nivel: "4S", grado: "4to Secundaria" },
-            { nivel: "5S", grado: "5to Secundaria" },
-            { nivel: "6S", grado: "6to Secundaria" },
-          ],
-        },
-        {
-          id: 3,
-          area: "Informática",
-          habilitado: true,
-          costoInscripcion: "70",
-          rangos: [
-            { nivel: "Guacamayo", desde: "5to Primaria", hasta: "6to Primaria" },
-            { nivel: "Guanaco", desde: "1ro Secundaria", hasta: "3ro Secundaria" },
-            { nivel: "Londra", desde: "1ro Secundaria", hasta: "3ro Secundaria" },
-            { nivel: "Jucumari", desde: "4to Secundaria", hasta: "6to Secundaria" },
-            { nivel: "Bufeo", desde: "1ro Secundaria", hasta: "3ro Secundaria" },
-            { nivel: "Puma", desde: "4to Secundaria", hasta: "6to Secundaria" },
-          ],
-        },
-      ];
-
-      setAreasAsociadas(areasEjemplo);
+        withCredentials: true
+      };
+      
+      const response = await axios.get(`http://localhost:8000/areas-olimpiada/${idOlimpiada}`, config);
+      
+      console.log("Áreas asociadas:", response.data);
+      
+      if (response.status === 200 && response.data.data) {
+        setAreasAsociadas(response.data.data.map(area => ({
+          ...area,
+          // Asegurar que costoInscripcion sea un string vacío o el valor existente
+          costoInscripcion: area.costoInscripcion !== null && area.costoInscripcion !== undefined ? 
+            area.costoInscripcion.toString() : 
+            ""
+        })));
+      } else {
+        throw new Error("Error al obtener áreas asociadas");
+      }
     } catch (error) {
       console.error("Error al cargar áreas asociadas:", error);
       alert("Error al cargar las áreas asociadas a la olimpiada");
@@ -119,7 +156,14 @@ const AsociarCosto = () => {
     setGuardando(true);
 
     try {
-      // Preparar datos para enviar
+      await axios.get('http://localhost:8000/sanctum/csrf-cookie', {
+        withCredentials: true,
+      });
+      
+      const csrfToken = Cookies.get('XSRF-TOKEN');
+      axios.defaults.headers.common['X-XSRF-TOKEN'] = csrfToken;
+      
+      // Preparar datos para enviar - solo enviamos los datos de costo
       const datosAEnviar = {
         id_olimpiada: olimpiadaSeleccionada,
         areas: areasAsociadas.map(area => ({
@@ -130,14 +174,31 @@ const AsociarCosto = () => {
 
       console.log("Guardando configuración de costos:", datosAEnviar);
 
-      // Aquí se conectaría con la API para guardar los costos
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simular guardado
+      // Endpoint específico para actualizar solo los costos
+      const response = await axios.post(
+        'http://localhost:8000/actualizar-costos-olimpiada',
+        datosAEnviar,
+        { withCredentials: true }
+      );
 
-      setMensajeExito("¡Costos asignados exitosamente!");
-      setTimeout(() => setMensajeExito(""), 3000);
+      if (response.status === 200) {
+        setMensajeExito("¡Costos asignados exitosamente!");
+        setTimeout(() => setMensajeExito(""), 3000);
+        
+        // Recargar áreas para mostrar datos actualizados
+        cargarAreasAsociadas(olimpiadaSeleccionada);
+      } else {
+        throw new Error("Error al guardar los costos");
+      }
     } catch (error) {
       console.error("Error al guardar costos:", error);
-      alert("Error al guardar la configuración de costos");
+      let mensaje = "Error al guardar la configuración de costos";
+      
+      if (error.response) {
+        mensaje = error.response.data?.message || mensaje;
+      }
+      
+      alert(mensaje);
     } finally {
       setGuardando(false);
     }
@@ -152,6 +213,8 @@ const AsociarCosto = () => {
         setOlimpiadaSeleccionada={setOlimpiadaSeleccionada}
         titulo="Asignación de Costos"
         subtitulo="Defina los costos de inscripción para las áreas de competencia"
+        cargando={cargandoOlimpiadas}
+        error={errorCarga}
       />
 
       <div className="bg-gray-100 p-4 rounded-lg shadow-md">
