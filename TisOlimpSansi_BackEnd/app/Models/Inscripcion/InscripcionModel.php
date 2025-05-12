@@ -48,6 +48,7 @@ class InscripcionModel extends Model
     {
         return $this->belongsTo(TutorAcademicoModel::class, 'id_tutor_academico');
     }
+    
 
     public function tutorAcademicos()
     {

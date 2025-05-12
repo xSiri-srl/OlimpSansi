@@ -61,7 +61,14 @@ function SubirArchivo({ setStep }) {
     }
     return ""
   }
-
+  const formatAreaNombre = (area) => {
+    if (!area) return ""
+    if (area.toUpperCase() === "ASTRONOMIA_ASTROFISICA") {
+      return "ASTRONOMIA Y ASTROFISICA"
+    }
+    return area
+  }
+  
   const handleFileChange = (e) => {
     const file = e.target.files[0]
     const allowedTypes = [
@@ -251,7 +258,7 @@ function SubirArchivo({ setStep }) {
           tipo: row[rolTutorIdx] || "Tutor Legal",
         }
 
-        const area = row[areaIdx] || ""
+        const area = formatAreaNombre(row[areaIdx] || "")
         const cursoCompleto = row[cursoIdx] + "" || ""
         let nom_categoria = ""
         if (area === "INFORMATICA" || area === "ROBOTICA") {

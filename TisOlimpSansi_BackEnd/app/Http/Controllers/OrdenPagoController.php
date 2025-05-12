@@ -21,6 +21,7 @@ use App\Models\Inscripcion\TutorAcademicoModel;
 use App\Models\Inscripcion\TutorLegalModel;
 
 
+
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
@@ -36,30 +37,25 @@ class OrdenPagoController extends Controller
     
         $ordenPago = OrdenPago::where('codigo_generado', $validated['codigo_generado'])->first();
         if (!$ordenPago) {
-            Log::error("Orden de pago no encontrada para el código: {$validated['codigo_generado']}");
             return response()->json(['message' => 'Orden de pago no encontrada'], 404);
         }
     
         $inscripcion = InscripcionModel::where('id_orden_pago', $ordenPago->id)->first();
         if (!$inscripcion) {
-            Log::error("Inscripción no encontrada para la orden de pago con código: {$ordenPago->codigo_generado}");
             return response()->json(['message' => 'Inscripción no encontrada para esta orden de pago'], 404);
         }
     
-        Log::info("Generando PDF para la orden de pago: {$ordenPago->codigo_generado}");
         // Generar el PDF con la vista 'pdf.orden_pago'
         $pdf = Pdf::loadView('pdf.orden_pago', [
             'ordenPago' => $ordenPago,
             'inscripcion' => $inscripcion,
         ]);
     
-        Log::info("PDF generado correctamente.");
     
         // Generar el nombre y guardar el PDF en disco
         $fileName = 'orden_pago_' . $ordenPago->codigo_generado . '.pdf';
         $filePath = 'ordenes_pago/' . $fileName;
     
-        Log::info("Guardando PDF en: {$filePath}");
         // Guardar el archivo en storage/app/public/ordenes_pago
         try {
             Storage::disk('public')->put($filePath, $pdf->output());
@@ -244,85 +240,80 @@ class OrdenPagoController extends Controller
     }
 
     public function obtenerResumenPorCodigo($codigo)
-    {
-        // Buscar orden de pago
-        $ordenPago = OrdenPago::where('codigo_generado', $codigo)->first();
+{
+    // Buscar la orden de pago con todas las relaciones necesarias
+    $ordenPago = OrdenPago::with([
+        'responsable', // El responsable está en la tabla orden_pago
+        'inscripcion.estudiante.grado',
+        'inscripcion.olimpiadaAreaCategoria.categoria',
+        'inscripcion.olimpiadaAreaCategoria.area'
+    ])->where('codigo_generado', $codigo)->first();
 
-        if (!$ordenPago) {
-            return response()->json([
-                'success' => false,
-                'message' => 'No se encontró una orden de pago con ese código.'
-            ], 404);
-        }
-
-        $inscripciones = InscripcionModel::with([
-            'estudiante',                // Estudiante con relación al grado
-            'responsable',
-            'inscripcionCategoria.categoria.area'
-        ])
-        ->where('id_orden_pago', $ordenPago->id)
-        ->get();
-
-        if ($inscripciones->isEmpty()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'No se encontraron inscripciones asociadas a esta orden de pago.'
-            ], 404);
-        }
-
-        $totalInscritos = $inscripciones->count();
-        $totalAreas = 0;
-
-        $datosInscritos = [];
-
-        foreach ($inscripciones as $inscripcion) {
-            $estudiante = $inscripcion->estudiante;
-
-            // Obtener el grado del estudiante
-            $grado = $estudiante->grado->nombre_grado ?? null; 
-
-            foreach ($inscripcion->inscripcionCategoria as $cat) {
-                $area = $cat->categoria->area->nombre_area ?? null;
-                $categoria = $cat->categoria->nombre_categoria ?? null;
-
-
-                $datosInscritos[] = [
-                    'nombre_estudiante' => $estudiante->nombre . ' ' . $estudiante->apellido_pa . ' ' . $estudiante->apellido_ma,
-                    'area' => $area,
-                    'categoria' => $categoria,
-                    'grado' => $grado  
-                ];
-
-                // Contamos las áreas si existen
-                if ($area) {
-                    $totalAreas++;
-                }
-            }
-        }
-
-        // Obtener responsable de la orden de pago desde la primera inscripción (asumiendo es el mismo)
-        $responsable = $inscripciones->first()->responsable;
-        $nombreCompleto = trim(
-            ($responsable->nombre ?? '') . ' ' .
-            ($responsable->apellido_pa ?? '') . ' ' .
-            ($responsable->apellido_ma ?? '')
-        );
-
+    if (!$ordenPago) {
         return response()->json([
-            'success' => true,
-            'message' => 'Resumen generado correctamente.',
-            'resumen' => [
-                'codigo_generado' => $codigo,
-                'responsable' => [
-                    'nombre' => $nombreCompleto,
-                    'ci' => $responsable->ci ?? null,
-                ],
-                'total_inscritos' => $totalInscritos,
-                'total_areas' => $totalAreas,
-                'inscritos' => $datosInscritos
-            ]
-        ]);
+            'success' => false,
+            'message' => 'No se encontró una orden de pago con ese código.'
+        ], 404);
     }
+
+    $inscripciones = $ordenPago->inscripcion;
+
+    if ($inscripciones->isEmpty()) {
+        return response()->json([
+            'success' => false,
+            'message' => 'No se encontraron inscripciones asociadas a esta orden de pago.'
+        ], 404);
+    }
+
+    $totalInscritos = $inscripciones->count();
+    $totalAreas = 0;
+    $datosInscritos = [];
+
+    foreach ($inscripciones as $inscripcion) {
+        $estudiante = $inscripcion->estudiante;
+        $grado = $estudiante->grado->nombre_grado ?? null;
+
+        $categoria = $inscripcion->olimpiadaAreaCategoria->categoria->nombre_categoria ?? null;
+        $area = $inscripcion->olimpiadaAreaCategoria->area->nombre_area ?? null;
+
+        $datosInscritos[] = [
+            'nombre_estudiante' => "{$estudiante->nombre} {$estudiante->apellido_pa} {$estudiante->apellido_ma}",
+            'area' => $area,
+            'categoria' => $categoria,
+            'grado' => $grado
+        ];
+
+        if ($area) {
+            $totalAreas++;
+        }
+    }
+
+    // Obtener el responsable desde la tabla orden_pago
+    $responsable = $ordenPago->responsable;
+    $nombreCompleto = trim(
+        ($responsable->nombre ?? '') . ' ' . 
+        ($responsable->apellido_pa ?? '') . ' ' . 
+        ($responsable->apellido_ma ?? '')
+    );
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Resumen generado correctamente.',
+        'resumen' => [
+            'codigo_generado' => $codigo,
+            'responsable' => [
+                'nombre' => $nombreCompleto,
+                'ci' => $responsable->ci ?? null,
+            ],
+            'total_inscritos' => $totalInscritos,
+            'total_areas' => $totalAreas,
+            'inscritos' => $datosInscritos
+        ]
+    ]);
+}
+
+    
+    
 
     
     public function obtenerOrdenPago(){

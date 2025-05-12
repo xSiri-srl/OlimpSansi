@@ -36,6 +36,7 @@ const OrdenPago = () => {
 
     if (state?.codigoGenerado) {
       setCodigo(state.codigoGenerado);
+      
     }
   }, [state]);
 
