@@ -207,7 +207,9 @@ const SubirComprobante = () => {
     setError(null);
 
     const formData = new FormData();
-
+    console.log(selectedFile.numero)
+    console.log(selectedFile.nombre)
+    console.log(selectedFile.fecha)
     // Asegúrate de enviar ambos recortes (número,nombre y fecha) como archivos
     formData.append("comprobante_numero", selectedFile.numero);
     formData.append("comprobante_nombre", selectedFile.nombre);
@@ -224,8 +226,10 @@ const SubirComprobante = () => {
       );
 
       if (response.status === 200) {
+        console.log("lo que me llega del back",response.data)
         const { numero_comprobante, comprobante_path, nombre_pagador,fecha_comprobante } =
           response.data;
+        console.log("datos por separao: ",numero_comprobante, nombre_pagador, fecha_comprobante, comprobantePath)
         setNumeroComprobante(numero_comprobante);
         setcomprobanteNombre(nombre_pagador);
         setfechaComprobante(fecha_comprobante);
@@ -255,6 +259,7 @@ const SubirComprobante = () => {
     formData.append("codigo_generado", codigoGenerado);
     formData.append("numero_comprobante", numeroComprobante);
     formData.append("comprobante", sinModificarFile);
+    formData.append("nombre_pagador", comprobanteNombre);
 
     // Verificar lo que se está enviando
     for (let [key, value] of formData.entries()) {

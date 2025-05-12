@@ -1,23 +1,15 @@
-import { FaPlus, FaSave } from "react-icons/fa";
+import { FaSave } from "react-icons/fa";
 
-const AccionesFooter = ({ 
-  agregarCombinacion, 
-  guardarConfiguracion, 
-  olimpiadaSeleccionada, 
+const AccionesFooter = ({
+  guardarConfiguracion,
+  olimpiadaSeleccionada,
   guardando,
-  mensajeExito
+  mensajeExito,
+  textoBoton = "Guardar configuración"
 }) => {
   return (
     <>
       <div className="flex justify-between items-center mt-6">
-        <button
-          onClick={agregarCombinacion}
-          className="flex items-center gap-2 bg-blue-50 text-blue-700 border border-blue-300 rounded-full px-4 py-2 hover:bg-blue-100"
-          title="Agregar nueva área"
-        >
-          <FaPlus /> Nueva área
-        </button>
-
         <button
           onClick={guardarConfiguracion}
           disabled={guardando || !olimpiadaSeleccionada}
@@ -27,7 +19,7 @@ const AccionesFooter = ({
               : "bg-gray-400 cursor-not-allowed"
           }`}
         >
-          <FaSave /> {guardando ? "Guardando..." : "Guardar configuración"}
+          <FaSave /> {guardando ? "Guardando..." : textoBoton}
         </button>
       </div>
 
