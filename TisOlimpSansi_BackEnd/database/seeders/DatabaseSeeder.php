@@ -13,7 +13,18 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
- 
+        $this->call([
+            RolContadorSeeder::class,
+        ]);
+        $this->call([
+            RolCreadorDeOlimpiadasSeeder::class,
+        ]);
+        $this->call([
+            UserSeeder::class,
+        ]);
+        $this->call([
+            OlimpiadaSeeder::class,
+        ]);
         $this->call([
             ColegioSeeder::class,
         ]);
@@ -25,12 +36,7 @@ class DatabaseSeeder extends Seeder
             CategoriaSeeder::class,
         ]);
 
-         $this->call([
-            RolContadorSeeder::class,
-        ]);
-        $this->call([
-            RolCreadorDeOlimpiadasSeeder::class,
-        ]);
+        
         $this->call([
             GradoSeeder::class,
         ]);
