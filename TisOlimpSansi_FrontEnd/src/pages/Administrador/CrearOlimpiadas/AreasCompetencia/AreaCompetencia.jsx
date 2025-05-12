@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FaCheck, FaLock } from "react-icons/fa";
+import { FaCheck, FaLock, FaTimes } from "react-icons/fa";
 
 const AreaCompetencia = ({
   combo,
@@ -7,19 +7,43 @@ const AreaCompetencia = ({
   combinaciones,
   obtenerOpcionesPorArea,
   setCombinaciones,
+  eliminarCombinacion,
   olimpiadaSeleccionada,
 }) => {
+  const [mostrarDetalles, setMostrarDetalles] = useState(false);
+
+  // Manejar la habilitación/deshabilitación del área
   const handleAreaToggle = (checked) => {
     // No permitir cambios si no hay olimpiada seleccionada
-    if (!olimpiadaSeleccionada) return;
+    if (!olimpiadaSeleccionada) {
+      alert("Por favor seleccione una olimpiada primero");
+      return;
+    }
+    
+    console.log(`Cambiando estado del área ${combo.area} a: ${checked}`);
     
     const copia = [...combinaciones];
-    if (copia[comboIndex].habilitado === undefined) {
-      copia[comboIndex].habilitado = checked;
-    } else {
-      copia[comboIndex].habilitado = checked;
-    }
+    copia[comboIndex] = {
+      ...copia[comboIndex],
+      habilitado: checked
+    };
     setCombinaciones(copia);
+  };
+
+
+  // Mapeo de áreas a imágenes
+  const getAreaImage = (area) => {
+    const imageMap = {
+      "Matemáticas": "/images/matematicaas.png",
+      "Física": "/images/fisica.png",
+      "Química": "/images/quimica.png",
+      "Biología": "/images/biologia.png",
+      "Informática": "/images/informatica.png",
+      "Robótica": "/images/robotica.png",
+      "Astronomía-Astrofísica": "/images/astronomia.png",
+    };
+    
+    return imageMap[area] || "/placeholder.svg";
   };
 
   const handleRangoChange = (comboIndex, rangoKey, nuevoRango, tipo) => {
@@ -41,22 +65,11 @@ const AreaCompetencia = ({
     );
   };
 
-  // Mapeo de áreas a imágenes
-  const getAreaImage = (area) => {
-    const imageMap = {
-      "Matemáticas": "/images/matematicaas.png",
-      "Física": "/images/fisica.png",
-      "Química": "/images/quimica.png",
-      "Biología": "/images/biologia.png",
-      "Informática": "/images/informatica.png",
-      "Robótica": "/images/robotica.png",
-      "Astronomía-Astrofísica": "/images/astronomia.png",
-    };
-    
-    return imageMap[area] || "/placeholder.svg";
-  };
-
   const renderNivelesInformatica = () => {
+    if (!combo.rangos || combo.rangos.length === 0) {
+      return <p className="text-gray-500">No hay niveles definidos</p>;
+    }
+    
     return (
       <div className="space-y-4">
         {combo.rangos.map((nivel, idx) => (
@@ -113,6 +126,10 @@ const AreaCompetencia = ({
   };
 
   const renderNivelesRobotica = () => {
+    if (!combo.rangos || combo.rangos.length === 0) {
+      return <p className="text-gray-500">No hay niveles definidos</p>;
+    }
+    
     return (
       <div className="space-y-4">
         {combo.rangos.map((nivel, idx) => (
@@ -169,32 +186,44 @@ const AreaCompetencia = ({
   };
 
   const renderNivelesOtrasAreas = () => {
-    return combo.niveles.map((nivel, nivelIndex) => (
-      <div key={nivelIndex} className="flex items-center mb-2 space-x-4">
-        <div className="flex items-center space-x-1 border-gray-300 rounded-lg p-2 w-[200px]">
-          <input
-            type="checkbox"
-            id={`nivel-${comboIndex}-${nivelIndex}`}
-            checked={combo.checkboxesNivel[nivelIndex]}
-            disabled={!combo.habilitado}
-            onChange={(e) => {
-              const copia = [...combinaciones];
-              copia[comboIndex].checkboxesNivel[nivelIndex] = e.target.checked;
-              setCombinaciones(copia);
-            }}
-          />
-          <label htmlFor={`nivel-${comboIndex}-${nivelIndex}`}>
-            {nivel.nivel}
-          </label>
-        </div>
+    if (!combo.niveles || combo.niveles.length === 0) {
+      return <p className="text-gray-500">No hay niveles definidos</p>;
+    }
+    
+    return (
+      <div className="space-y-2">
+        {combo.niveles.map((nivel, nivelIndex) => (
+          <div key={nivelIndex} className="flex items-center mb-2 space-x-4">
+            <div className="flex items-center space-x-1 border-gray-300 rounded-lg p-2 w-[200px]">
+              <input
+                type="checkbox"
+                id={`nivel-${comboIndex}-${nivelIndex}`}
+                checked={combo.checkboxesNivel ? combo.checkboxesNivel[nivelIndex] : true}
+                disabled={!combo.habilitado}
+                onChange={(e) => {
+                  const copia = [...combinaciones];
+                  if (!copia[comboIndex].checkboxesNivel) {
+                    copia[comboIndex].checkboxesNivel = Array(combo.niveles.length).fill(true);
+                  }
+                  copia[comboIndex].checkboxesNivel[nivelIndex] = e.target.checked;
+                  setCombinaciones(copia);
+                }}
+                className="mr-2"
+              />
+              <label htmlFor={`nivel-${comboIndex}-${nivelIndex}`}>
+                {nivel.nivel}
+              </label>
+            </div>
 
-        <div className="flex items-center space-x-1">
-          <label htmlFor={`grado-${comboIndex}-${nivelIndex}`}>
-            {nivel.grado}
-          </label>
-        </div>
+            <div className="flex items-center space-x-1">
+              <label htmlFor={`grado-${comboIndex}-${nivelIndex}`}>
+                {nivel.grado}
+              </label>
+            </div>
+          </div>
+        ))}
       </div>
-    ));
+    );
   };
 
   const estaHabilitada = combo.habilitado || false;
@@ -210,7 +239,7 @@ const AreaCompetencia = ({
         <div className="absolute inset-0 bg-gray-100 bg-opacity-40 flex flex-col items-center justify-center z-10 backdrop-blur-[1px] rounded-lg">
           <FaLock className="text-gray-500 text-3xl mb-2" />
           <p className="text-gray-600 text-center font-medium px-4">
-            Seleccione una olimpiada para habilitar áreas de competencia
+            Seleccione una olimpiada para asociar áreas de competencia
           </p>
         </div>
       )}
@@ -238,7 +267,7 @@ const AreaCompetencia = ({
 
         {/* Contenido principal */}
         <div className="flex-1">
-          {/* Título del área centrado */}
+          {/* Título del área y estado */}
           <div className="text-center mb-4">
             <h2 className="text-xl font-bold text-blue-700">{combo.area}</h2>
             <p className={`text-sm ${
@@ -253,6 +282,7 @@ const AreaCompetencia = ({
               }
             </p>
           </div>
+
 
           {/* Niveles y rangos */}
           <div className={`${!estaHabilitada ? 'opacity-50' : ''}`}>
