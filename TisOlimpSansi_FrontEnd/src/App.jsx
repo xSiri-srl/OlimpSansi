@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/Inicio/Inicio";
 import Navbar from "./components/Navbar";
+import Login from "./components/login"
 import { ThemeProvider } from "./ThemeContext";
 import InscripcionResponsable from "./pages/OrdenDePago/InscripcionResponsable";
 import InscripcionEstudiante from "./pages/OrdenDePago/InscripcionEstudiante";
@@ -30,6 +31,7 @@ import EditarConvocatoria from "./pages/Administrador/Convocatorias/EditarConvoc
 import CrearOlimpiadas from "./pages/Administrador/CrearOlimpiadas/CrearOlimpiadas";
 import AsociarNivel from "./pages/Administrador/CrearOlimpiadas/AsociarNivel";
 import AsociarCosto from "./pages/Administrador/CrearOlimpiadas/AsociarCosto";
+import RutaPrivada from "./components/RutasPrivadas";
 
 export default function App() {
   return (
@@ -41,7 +43,11 @@ export default function App() {
             {/* ORDEN DE PAGO */}
             <Routes>
               <Route path="/" element={<Home />} />
-              <Route path="/admin/generar-reportes" element={<PanelDatos />} />
+
+              <Route 
+              path="/login" 
+              element={<Login />} 
+              />
               <Route
                 path="/inscripcion/forma-inscripcion"
                 element={<FormaInscripcion />}
@@ -96,40 +102,49 @@ export default function App() {
                 element={<ListaCompetidores />}
               />
 
-              <Route
-                path="/admin/descargar_listas"
-                element={<DescargarListas />}
-              />
-              <Route path="/admin/preInscritos" element={<PreInscritos />} />
-              <Route
-                path="/admin/inscritos_verificados"
-                element={<InscritosVerificados />}
-              />
-              <Route path="/admin/ordenes-pago" element={<OrdenesPago />} />
-              <Route
-                path="/admin/convocatoria"
-                element={<ConvocatoriasPublicadas />}
-              />
-              <Route
-                path="/nueva-convocatoria"
-                element={<SubirConvocatoria />}
-              />
-              <Route
-                path="/editar-convocatoria/:id"
-                element={<EditarConvocatoria />}
-              />
-              <Route
-                path="/admin/crear-olimpiada"
-                element={<CrearOlimpiadas />}
-              />
               <Route 
-              path="/admin/asociar-nivel" 
-              element={<AsociarNivel />} 
-              />
-              <Route 
-              path="/admin/asociar-costo" 
-              element={<AsociarCosto />} 
-              />
+                element={<RutaPrivada />} >
+                 <Route 
+                path="/admin/generar-reportes" 
+                element={<PanelDatos />} 
+                />
+                <Route
+                  path="/admin/descargar_listas"
+                  element={<DescargarListas />}
+                />
+                <Route path="/admin/preInscritos" element={<PreInscritos />} />
+                <Route
+                  path="/admin/inscritos_verificados"
+                  element={<InscritosVerificados />}
+                />
+                <Route path="/admin/ordenes-pago" element={<OrdenesPago />} />
+                <Route
+                  path="/admin/convocatoria"
+                  element={<ConvocatoriasPublicadas />}
+                />
+                <Route
+                  path="/nueva-convocatoria"
+                  element={<SubirConvocatoria />}
+                />
+                <Route
+                  path="/editar-convocatoria/:id"
+                  element={<EditarConvocatoria />}
+                />
+                <Route
+                  path="/admin/crear-olimpiada"
+                  element={<CrearOlimpiadas />}
+                />
+                <Route 
+                path="/admin/asociar-nivel" 
+                element={<AsociarNivel />} 
+                />
+                <Route 
+                path="/admin/asociar-costo" 
+                element={<AsociarCosto />} 
+                />
+              </Route>
+              
+              
 
 
               <Route
