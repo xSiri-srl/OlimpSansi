@@ -30,12 +30,6 @@ const AreaCompetencia = ({
     setCombinaciones(copia);
   };
 
-  // Manejar cambios en el costo de inscripción
-  const handleCostoInscripcionChange = (e) => {
-    const copia = [...combinaciones];
-    copia[comboIndex].costoInscripcion = e.target.value;
-    setCombinaciones(copia);
-  };
 
   // Mapeo de áreas a imágenes
   const getAreaImage = (area) => {
@@ -289,21 +283,6 @@ const AreaCompetencia = ({
             </p>
           </div>
 
-          {/* Costo de inscripción */}
-          <div className="mt-2 flex items-center justify-center mb-4">
-            <label className="text-sm font-medium text-gray-700 mr-2">
-              Costo de inscripción (Bs.):
-            </label>
-            <input
-              type="number"
-              min="0"
-              value={combo.costoInscripcion || ""}
-              onChange={handleCostoInscripcionChange}
-              className={`w-24 px-2 py-1 border rounded ${!combo.habilitado && 'bg-gray-100 text-gray-500'}`}
-              placeholder="16"
-              disabled={!combo.habilitado || !olimpiadaSeleccionada}
-            />
-          </div>
 
           {/* Niveles y rangos */}
           <div className={`${!estaHabilitada ? 'opacity-50' : ''}`}>

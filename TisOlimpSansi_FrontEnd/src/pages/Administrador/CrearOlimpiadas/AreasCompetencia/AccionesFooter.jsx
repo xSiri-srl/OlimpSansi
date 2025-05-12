@@ -1,36 +1,40 @@
-import { FaSave, FaSpinner } from "react-icons/fa";
+import React from "react";
 
-const AccionesFooter = ({
-  guardarConfiguracion,
-  olimpiadaSeleccionada,
-  guardando,
+const AccionesFooter = ({ 
+  guardarConfiguracion, 
+  olimpiadaSeleccionada, 
+  guardando, 
   mensajeExito,
-  textoBoton = "Guardar Cambios"
+  textoBoton = "Guardar Configuración"
 }) => {
   return (
-    <>
-      <div className="flex justify-between items-center mt-6">
-        <div></div>
-        <button
-          onClick={guardarConfiguracion}
-          disabled={guardando || !olimpiadaSeleccionada}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-white ${
-            olimpiadaSeleccionada && !guardando
-              ? "bg-green-600 hover:bg-green-700"
-              : "bg-gray-400 cursor-not-allowed"
-          }`}
-        >
-          {guardando ? <FaSpinner className="animate-spin" /> : <FaSave />}
-          {guardando ? "Guardando..." : textoBoton}
-        </button>
+    <div className="mt-8 flex justify-between items-center">
+      <div>
+        {mensajeExito && (
+          <div className="text-green-600 font-medium animate-fadeIn">
+            {mensajeExito}
+          </div>
+        )}
       </div>
-
-      {mensajeExito && (
-        <div className="mt-4 p-3 bg-green-100 text-green-700 rounded-lg text-center">
-          {mensajeExito}
-        </div>
-      )}
-    </>
+      <button
+        onClick={guardarConfiguracion}
+        disabled={!olimpiadaSeleccionada || guardando}
+        className={`px-4 py-2 text-white rounded-md shadow transition duration-150 ease-in-out ${
+          !olimpiadaSeleccionada || guardando
+            ? "bg-gray-400 cursor-not-allowed"
+            : "bg-blue-500 hover:bg-blue-600"
+        }`}
+      >
+        {guardando ? (
+          <div className="flex items-center">
+            <div className="w-4 h-4 border-2 border-white border-opacity-50 border-t-blue-500 rounded-full animate-spin mr-2"></div>
+            <span>Guardando...</span>
+          </div>
+        ) : (
+          textoBoton
+        )}
+      </button>
+    </div>
   );
 };
 

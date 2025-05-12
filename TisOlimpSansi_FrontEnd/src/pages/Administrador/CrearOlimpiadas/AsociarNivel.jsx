@@ -64,7 +64,6 @@ const SelectorAreaGrado = () => {
         { nivel: "6S", grado: "6to Secundaria" },
       ],
       categoriasRango: [],
-      costoInscripcion: "",
       checkboxesNivel: Array(10).fill(true),
       habilitado: false,
     },
@@ -79,7 +78,6 @@ const SelectorAreaGrado = () => {
         { nivel: "6S", grado: "6to Secundaria" },
       ],
       categoriasRango: [],
-      costoInscripcion: "",
       checkboxesNivel: Array(5).fill(true),
       habilitado: false,
     },
@@ -92,7 +90,6 @@ const SelectorAreaGrado = () => {
         { nivel: "6S", grado: "6to Secundaria" },
       ],
       categoriasRango: [],
-      costoInscripcion: "",
       checkboxesNivel: Array(3).fill(true),
       habilitado: false,
     },
@@ -117,7 +114,6 @@ const SelectorAreaGrado = () => {
       ],
 
       categoriasRango: [],
-      costoInscripcion: "",
       habilitado: false,
     },
     {
@@ -132,7 +128,6 @@ const SelectorAreaGrado = () => {
         { nivel: "Sexto Nivel", grado: "6to Secundaria" },
       ],
       categoriasRango: [],
-      costoInscripcion: "",
       checkboxesNivel: Array(7).fill(true),
       habilitado: false,
     },
@@ -147,7 +142,6 @@ const SelectorAreaGrado = () => {
         { nivel: "6S", grado: "6to Secundaria" },
       ],
       categoriasRango: [],
-      costoInscripcion: "",
       checkboxesNivel: Array(5).fill(true),
       habilitado: false,
     },
@@ -171,7 +165,6 @@ const SelectorAreaGrado = () => {
         { nivel: "LegoS", desde: "1ro Secundaria", hasta: "6to Secundaria" },
       ],
       categoriasRango: [],
-      costoInscripcion: "",
       habilitado: false,
     },
   ]);
@@ -320,14 +313,12 @@ const cargarAreasAsociadas = async (idOlimpiada) => {
             return {
               ...combo,
               habilitado: true,
-              costoInscripcion: areaAsociada.costoInscripcion || "16"
             };
           } else {
             console.log(`❌ NO HAY COINCIDENCIA para "${combo.area}"`);
             return {
               ...combo,
               habilitado: false,
-              costoInscripcion: "16" // valor predeterminado
             };
           }
         });
@@ -400,7 +391,6 @@ const cargarAreasAsociadas = async (idOlimpiada) => {
         areas: combinaciones.map((combo) => ({
           area: combo.area,
           habilitado: !!combo.habilitado,
-          costoInscripcion: combo.costoInscripcion || "16",
           rangos: combo.rangos || [],
           niveles: combo.niveles || []
         }))
