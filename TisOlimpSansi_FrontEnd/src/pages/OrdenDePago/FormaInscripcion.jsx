@@ -14,10 +14,10 @@ export default function FormularioEstudiante() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center from-indigo-100 to-purple-200 p-6">
-      <h1 className="text-sky-950 font-bold text-4xl mb-4 text-center">
-        SELECCIONE SU FOMA DE INSCRIPCIÓN
-      </h1>
+    <div className="p-10 flex flex-col items-center justify-center from-indigo-100 to-purple-200">
+      <h2 className="text-4xl font-bold text-gray-800 mb-6 text-center">  
+        Seleccione su forma de inscripción
+      </h2>
 
       <div className="flex flex-wrap justify-center mt-8 gap-16">
         {/* Opción Individual */}

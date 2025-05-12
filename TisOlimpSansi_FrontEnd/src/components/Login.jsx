@@ -2,6 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
+import { motion } from "framer-motion";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -11,62 +12,39 @@ const Login = () => {
   const [newUsername, setNewUsername] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [registerError, setRegisterError] = useState("");
-  const [rolBasico] = useState(1); 
+  const [rolBasico] = useState(1);
   const navigate = useNavigate();
 
   const endpoint = "http://localhost:8000";
 
   const loginUser = async (username, password) => {
-    await axios.get(`${endpoint}/sanctum/csrf-cookie`, {
-      withCredentials: true,
-    });
-
+    await axios.get(`${endpoint}/sanctum/csrf-cookie`, { withCredentials: true });
     const csrf = Cookies.get("XSRF-TOKEN");
     axios.defaults.headers.common["X-XSRF-TOKEN"] = csrf;
-
-    try {
-      const response = await axios.post(
-        `${endpoint}/login`,
-        {
-          email: username,
-          password: password,
-        },
-        {
-          withCredentials: true,
-        }
-      );
-      return response.data;
-    } catch (error) {
-      throw error.response?.data?.message || "Error en el login";
-    }
+    const response = await axios.post(
+      `${endpoint}/login`,
+      { email: username, password },
+      { withCredentials: true }
+    );
+    return response.data;
   };
 
   const registerUser = async (username, password, rol) => {
-    await axios.get(`${endpoint}/sanctum/csrf-cookie`, {
-      withCredentials: true,
-    });
-
+    await axios.get(`${endpoint}/sanctum/csrf-cookie`, { withCredentials: true });
     const csrf = Cookies.get("XSRF-TOKEN");
     axios.defaults.headers.common["X-XSRF-TOKEN"] = csrf;
-
-    try {
-      const response = await axios.post(
-        `${endpoint}/registro`,
-        {
-          name: username,
-          email: username,
-          password: password,
-          password_confirmation: password,
-          id_rol: rol,
-        },
-        {
-          withCredentials: true,
-        }
-      );
-      return response.data;
-    } catch (error) {
-      throw error.response?.data?.message || "Error en el registro";
-    }
+    const response = await axios.post(
+      `${endpoint}/registro`,
+      {
+        name: username,
+        email: username,
+        password,
+        password_confirmation: password,
+        id_rol: rol,
+      },
+      { withCredentials: true }
+    );
+    return response.data;
   };
 
   const handleLogin = async (e) => {
@@ -74,7 +52,7 @@ const Login = () => {
     try {
       const data = await loginUser(username, password);
       setLoginError("");
-      localStorage.setItem("user", JSON.stringify(data)); 
+      localStorage.setItem("user", JSON.stringify(data));
       navigate("/admin/crear-olimpiada");
     } catch (error) {
       setLoginError(error);
@@ -96,87 +74,90 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-      <div className="bg-white rounded-lg shadow-md p-8 w-96">
-        <h2 className="text-2xl font-bold text-center mb-4">
-          {showRegister ? "Registro" : "Acceso Administrador"}
-        </h2>
+    <div className="min-h-screen flex">
+      <div className="hidden md:flex w-1/2 bg-gradient-to-r from-indigo-700 via-purple-600 to-pink-600 text-white items-center justify-center">
+        <div className="text-left px-10">
+          <motion.h1
+            initial={{ x: -50, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ duration: 1 }}
+            className="text-5xl font-extrabold leading-tight"
+          >
+            Bienvenido a <br />
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-yellow-300 via-red-400 to-pink-500">
+              O! SANSI
+            </span>
+          </motion.h1>
+          <motion.p
+            initial={{ x: -30, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ duration: 1.2, delay: 0.3 }}
+            className="text-lg mt-4 text-gray-200"
+          >
+            Olimpiada de Ciencia y Tecnología
+          </motion.p>
+        </div>
+      </div>
 
-        {showRegister ? (
-          <form onSubmit={handleRegister}>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">Nuevo usuario</label>
+      <div className="w-full md:w-1/2 flex items-center justify-center bg-gray-50 p-6">
+        <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
+          <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
+            {showRegister ? "Registrate" : "Acceso Administrador"}
+          </h2>
+
+          <form onSubmit={showRegister ? handleRegister : handleLogin} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                {showRegister ? "Nuevo usuario" : "Usuario"}
+              </label>
               <input
                 type="text"
-                value={newUsername}
-                onChange={(e) => setNewUsername(e.target.value)}
-                className="w-full mt-1 p-2 border rounded"
+                value={showRegister ? newUsername : username}
+                onChange={(e) =>
+                  showRegister ? setNewUsername(e.target.value) : setUsername(e.target.value)
+                }
+                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 required
               />
             </div>
-            <div className="mb-4">
+
+            <div>
               <label className="block text-sm font-medium text-gray-700">Contraseña</label>
               <input
                 type="password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full mt-1 p-2 border rounded"
+                value={showRegister ? newPassword : password}
+                onChange={(e) =>
+                  showRegister ? setNewPassword(e.target.value) : setPassword(e.target.value)
+                }
+                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 required
               />
             </div>
-            {registerError && <p className="text-red-600 text-sm mb-2">{registerError}</p>}
-            <button type="submit" className="w-full bg-primary text-white py-2 rounded hover:bg-blue-700">
-              Registrar
+
+            {(loginError || registerError) && (
+              <p className="text-sm text-red-600">
+                {showRegister ? registerError : loginError}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              className="w-full py-2 px-4 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition duration-200"
+            >
+              {showRegister ? "Registrar" : "Ingresar"}
             </button>
-            <p className="mt-4 text-center text-sm">
-              ¿Ya tienes cuenta?{" "}
-              <button
-                type="button"
-                onClick={() => setShowRegister(false)}
-                className="text-blue-500 hover:underline"
-              >
-                Iniciar sesión
-              </button>
-            </p>
           </form>
-        ) : (
-          <form onSubmit={handleLogin}>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">Usuario</label>
-              <input
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="w-full mt-1 p-2 border rounded"
-                required
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">Contraseña</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full mt-1 p-2 border rounded"
-                required
-              />
-            </div>
-            {loginError && <p className="text-red-600 text-sm mb-2">{loginError}</p>}
-            <button type="submit" className="w-full bg-primary text-white py-2 rounded hover:bg-blue-700">
-              Iniciar sesión
+
+          <p className="mt-6 text-center text-sm text-gray-600">
+            {showRegister ? "¿Ya tienes cuenta?" : "¿No tienes cuenta?"}{" "}
+            <button
+              onClick={() => setShowRegister(!showRegister)}
+              className="text-indigo-600 hover:underline font-medium"
+            >
+              {showRegister ? "Iniciar sesión" : "Registrarse"}
             </button>
-            <p className="mt-4 text-center text-sm">
-              ¿No tienes cuenta?{" "}
-              <button
-                type="button"
-                onClick={() => setShowRegister(true)}
-                className="text-blue-500 hover:underline"
-              >
-                Registrarse
-              </button>
-            </p>
-          </form>
-        )}
+          </p>
+        </div>
       </div>
     </div>
   );

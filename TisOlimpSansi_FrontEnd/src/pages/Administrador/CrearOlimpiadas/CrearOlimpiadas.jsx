@@ -96,12 +96,13 @@ const CrearOlimpiadas = () => {
 
 
   return (
-    <div className="p-10 relative">
+    <div className="p-10 mb-6 ">
+           <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">  
+        Crear Olimpiada
+      </h2>
       <div className="max-w-4xl mx-auto bg-gray-200 p-7 shadow-lg rounded-lg">
-        <h1 className="text-4xl font-bold text-center mb-12 text-cyan-900">
-          CREAR OLIMPIADA
-        </h1>
-
+     
+      
         <div className="grid grid-cols-2 gap-8">
           {/* Título */}
           <div>
