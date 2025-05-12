@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import axios from "axios";
+import Cookies from 'js-cookie';
 import HeaderSelector from "./AreasCompetencia/HeaderSelector";
 import AreaCompetencia from "./AreasCompetencia/AreaCompetencia";
 import AccionesFooter from "./AreasCompetencia/AccionesFooter";
@@ -10,6 +12,8 @@ const SelectorAreaGrado = () => {
   const [nombreOlimpiada, setNombreOlimpiada] = useState("");
   const [guardando, setGuardando] = useState(false);
   const [mensajeExito, setMensajeExito] = useState("");
+  const [cargandoOlimpiadas, setCargandoOlimpiadas] = useState(false);
+  const [errorCarga, setErrorCarga] = useState("");
 
   const obtenerOpcionesPorArea = (area) => {
     // BASE DE DATOS DETERMINADA
@@ -164,13 +168,76 @@ const SelectorAreaGrado = () => {
     },
   ]);
 
-  useEffect(() => {
-    setOlimpiadas([
-      { id: 1, titulo: "Olimpiada Nacional de Matemática 2025" },
-      { id: 2, titulo: "Olimpiada de Ciencia Escolar 2025" },
-      { id: 3, titulo: "Olimpiada de Lógica y Pensamiento 2025" },
-    ]);
+ useEffect(() => {
+    const cargarOlimpiadas = async () => {
+      setCargandoOlimpiadas(true);
+      setErrorCarga("");
+      
+      try {
+        // Obtener CSRF token para autenticación
+        await axios.get('http://localhost:8000/sanctum/csrf-cookie', {
+          withCredentials: true,
+        });
+        
+        const csrfToken = Cookies.get('XSRF-TOKEN');
+        
+        // Configurar headers para la solicitud
+        const config = {
+          headers: {
+            'X-XSRF-TOKEN': csrfToken,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          withCredentials: true
+        };
+        
+        // Usar la ruta correcta según web.php
+        const response = await axios.get('http://localhost:8000/getOlimpiadas', config);
+        
+        console.log("Respuesta del servidor:", response);
+        
+        // Verificar la respuesta y extraer los datos correctamente
+        if (response.status === 200) {
+          // Verificar la estructura de los datos recibidos
+          if (response.data && response.data.data && Array.isArray(response.data.data)) {
+            setOlimpiadas(response.data.data);
+          } else if (response.data && Array.isArray(response.data)) {
+            // En caso de que la respuesta sea directamente un array
+            setOlimpiadas(response.data);
+          } else {
+            throw new Error("Formato de datos inesperado");
+          }
+        } else {
+          throw new Error("Error en la respuesta del servidor");
+        }
+      } catch (error) {
+        console.error("Error al cargar olimpiadas:", error);
+        
+        // Mensaje de error más descriptivo
+        let mensajeError = "Error al conectar con el servidor.";
+        
+        if (error.response) {
+          // El servidor respondió con un error
+          if (error.response.status === 401) {
+            mensajeError = "No tienes autorización para acceder a esta información.";
+          } else if (error.response.status === 403) {
+            mensajeError = "No tienes permisos suficientes para ver las olimpiadas.";
+          } else {
+            mensajeError = `Error ${error.response.status}: ${error.response.data?.message || "Error del servidor"}`;
+          }
+        } else if (error.message) {
+          mensajeError = error.message;
+        }
+        
+        setErrorCarga(mensajeError);
+      } finally {
+        setCargandoOlimpiadas(false);
+      }
+    };
+
+    cargarOlimpiadas();
   }, []);
+
 
   useEffect(() => {
     if (olimpiadaSeleccionada) {
@@ -246,7 +313,15 @@ const SelectorAreaGrado = () => {
     setGuardando(true);
 
     try {
-      const datosAEnviar = combinaciones.map((combo) => {
+      // Preparar CSRF token para Laravel
+      await axios.get('http://localhost:8000/sanctum/csrf-cookie', {
+        withCredentials: true,
+      });
+      const csrfToken = Cookies.get('XSRF-TOKEN');
+      axios.defaults.headers.common['X-XSRF-TOKEN'] = csrfToken;
+      
+      // Preparar datos para enviar
+      const datosAEnviar = combinaciones.filter(combo => combo.habilitado).map((combo) => {
         const comboCopia = { ...combo };
         if (combo.area === "Otra" && combo.areaPersonalizada) {
           comboCopia.area = combo.areaPersonalizada;
@@ -255,9 +330,21 @@ const SelectorAreaGrado = () => {
         return comboCopia;
       });
 
+      // Aquí iría el endpoint real para guardar las áreas asociadas
+      // Por ejemplo:
+      // const response = await axios.post(
+      //   'http://localhost:8000/asociar-areas-olimpiada',
+      //   {
+      //     id_olimpiada: olimpiadaSeleccionada,
+      //     areas: datosAEnviar
+      //   },
+      //   { withCredentials: true }
+      // );
+
+      // Simulación
       console.log("Guardando configuración:", {
         id_olimpiada: olimpiadaSeleccionada,
-        combinaciones: datosAEnviar,
+        areas: datosAEnviar,
       });
 
       await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -266,47 +353,68 @@ const SelectorAreaGrado = () => {
       setTimeout(() => setMensajeExito(""), 3000);
     } catch (error) {
       console.error("Error al guardar:", error);
-      alert("Error al guardar la configuración");
+      const mensaje = error.response?.data?.message || "Error al guardar la configuración";
+      alert(mensaje);
     } finally {
       setGuardando(false);
     }
   };
 
-  return (
+return (
     <div className="p-6 max-w-5xl mx-auto">
       <HeaderSelector
         nombreOlimpiada={nombreOlimpiada}
         olimpiadas={olimpiadas}
         olimpiadaSeleccionada={olimpiadaSeleccionada}
         setOlimpiadaSeleccionada={setOlimpiadaSeleccionada}
+        cargando={cargandoOlimpiadas}
+        error={errorCarga}
       />
 
       <div className="bg-gray-100 p-4 rounded-lg shadow-md">
+        {cargandoOlimpiadas ? (
+          <div className="text-center py-8">
+            <div className="animate-spin mx-auto h-8 w-8 border-t-2 border-b-2 border-blue-500 rounded-full"></div>
+            <p className="mt-2 text-gray-600">Cargando olimpiadas...</p>
+          </div>
+        ) : errorCarga ? (
+          <div className="text-center py-8 text-red-600">
+            <p>{errorCarga}</p>
+            <button 
+              onClick={() => window.location.reload()}
+              className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            >
+              Reintentar
+            </button>
+          </div>
+        ) : (
+          <>
+            {combinaciones.map((combo, comboIndex) => (
+              <AreaCompetencia
+                key={comboIndex}
+                combo={combo}
+                comboIndex={comboIndex}
+                gradosDisponibles={gradosDisponibles}
+                combinaciones={combinaciones}
+                obtenerOpcionesPorArea={obtenerOpcionesPorArea}
+                setCombinaciones={setCombinaciones}
+                eliminarCombinacion={eliminarCombinacion}
+                olimpiadaSeleccionada={olimpiadaSeleccionada}  
+              />
+            ))}
 
-
-          {combinaciones.map((combo, comboIndex) => (
-            <AreaCompetencia
-              key={comboIndex}
-              combo={combo}
-              comboIndex={comboIndex}
-              gradosDisponibles={gradosDisponibles}
-              combinaciones={combinaciones}
-              obtenerOpcionesPorArea={obtenerOpcionesPorArea}
-              setCombinaciones={setCombinaciones}
-              eliminarCombinacion={eliminarCombinacion}
-              olimpiadaSeleccionada={olimpiadaSeleccionada}  
+            <AccionesFooter
+              guardarConfiguracion={guardarConfiguracion}
+              olimpiadaSeleccionada={olimpiadaSeleccionada}
+              guardando={guardando}
+              mensajeExito={mensajeExito}
             />
-          ))}
-
-        <AccionesFooter
-          guardarConfiguracion={guardarConfiguracion}
-          olimpiadaSeleccionada={olimpiadaSeleccionada}
-          guardando={guardando}
-          mensajeExito={mensajeExito}
-        />
+          </>
+        )}
       </div>
     </div>
   );
 };
+
 
 export default SelectorAreaGrado;
