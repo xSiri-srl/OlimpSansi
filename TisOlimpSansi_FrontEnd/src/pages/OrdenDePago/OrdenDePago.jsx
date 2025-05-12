@@ -177,7 +177,7 @@ const OrdenPago = () => {
               </p>
               <div className="flex justify-center mt-4 w-full">
                 <img
-                  src="/images/navbar.png"
+                  src="/images/Navbar.png"
                   alt="ejemplo_Navbar"
                   className="h-25 w-auto rounded-lg shadow"
                 />
