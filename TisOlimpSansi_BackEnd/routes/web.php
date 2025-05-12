@@ -2,23 +2,19 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\OlimpiadaController;
+use App\Http\Controllers\OlimpiadaAreaController;
+use App\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
+
 Route::get('/', function () {
     return view('welcome');
 });
 
-
-
-
-
-
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::post('/registro', [AuthController::class, 'register']);
-// Route::get('/sanctum/csrf-cookie', function () {
-//     return response()->json(['csrf' => true]);
-// });
+
 
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -26,28 +22,28 @@ Route::middleware('auth:sanctum')->group(function () {
         return $request->user();
     });
     Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/permisos',  [AuthController::class, 'getPermisos']);
+    Route::get('/permisos', [AuthController::class, 'getPermisos']);
 
+    // Rutas para olimpiadas - solo usuarios con permiso crear_olimpiada
+    Route::middleware('permiso:crear_olimpiada')->group(function () {
+        // Obtener olimpiadas
+        Route::get('/getOlimpiadas', [OlimpiadaController::class, 'getOlimpiadas']);
+        
+        // Asociar áreas a olimpiadas
+        Route::post('/asociar-areas-olimpiada', [OlimpiadaAreaController::class, 'asociarAreas']);
+        
+        // Obtener áreas por olimpiada
+        Route::get('/areas-olimpiada/{id}', [OlimpiadaAreaController::class, 'getAreasPorOlimpiada']);
+    
+        //Actualizar costos por área
+        Route::post('/actualizar-costos-olimpiada', [OlimpiadaAreaController::class, 'actualizarCostos']);
+    });
 });
-
-
-
-
-
     
 Route::controller(OlimpiadaController::class)->group(function(){
     //crear olimpiadas
     Route::post('/agregarOlimpiada', [OlimpiadaController::class, 'store'])
     ->middleware(['auth:sanctum', 'permiso:crear_olimpiada']);
-    
-    //devolver todas las olimpiadas para que seleccionen una y hagan la asociacion entre area y categoria
-    Route::get('/getOlimpiadas', [OlimpiadaController::class, 'getOlimpiadas'])->middleware(['auth:sanctum', 'permiso:crear_olimpiada']);
-
-    //dado un id o nombre de olimpiada entonces asociar una lista de areas y categorias
-
-    
-    //devolver todas las olimpiadas para que seleccione una y devuelva todas las areas de esta y seleccione una materia y le asigne precio
-
 });
 
 
