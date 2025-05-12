@@ -124,7 +124,19 @@ public function asociarAreas(Request $request)
         // Iniciar transacción para mantener consistencia
         DB::beginTransaction();
 
-        // Eliminar asociaciones existentes primero - MODIFICADO PARA USAR olimpiada_area_categorias
+        // NUEVO: Guardar los costos existentes antes de eliminar
+        $costosExistentes = DB::table('olimpiada_area_categorias')
+            ->where('id_olimpiada', $idOlimpiada)
+            ->select('id_area', 'id_categoria', 'precio')
+            ->get()
+            ->mapToGroups(function ($item) {
+                // Crear una clave compuesta para identificar cada combinación única
+                $key = $item->id_area . '_' . $item->id_categoria;
+                return [$key => $item->precio];
+            })
+            ->toArray();
+
+        // Eliminar asociaciones existentes
         DB::table('olimpiada_area_categorias')->where('id_olimpiada', $idOlimpiada)->delete();
 
         // Guardar nuevas asociaciones
@@ -151,12 +163,18 @@ public function asociarAreas(Request $request)
                             ['id_area' => $areaModel->id]
                         );
                         
-                        // Crear la relación en la tabla
+                        // NUEVO: Verificar si existe un costo previo para esta combinación
+                        $costoClave = $areaModel->id . '_' . $categoria->id;
+                        $costoExistente = isset($costosExistentes[$costoClave]) && !empty($costosExistentes[$costoClave]) 
+                            ? $costosExistentes[$costoClave][0] 
+                            : 0;
+                        
+                        // Crear la relación en la tabla con el costo existente o 0 si es nueva
                         DB::table('olimpiada_area_categorias')->insert([
                             'id_olimpiada' => $idOlimpiada,
                             'id_area' => $areaModel->id,
                             'id_categoria' => $categoria->id,
-                            'precio' => 0, //el costo es aparte
+                            'precio' => $costoExistente,
                             'created_at' => now(),
                             'updated_at' => now(),
                         ]);
@@ -169,11 +187,17 @@ public function asociarAreas(Request $request)
                             ['id_area' => $areaModel->id]
                         );
                         
+                        // NUEVO: Verificar si existe un costo previo para esta combinación
+                        $costoClave = $areaModel->id . '_' . $categoria->id;
+                        $costoExistente = isset($costosExistentes[$costoClave]) && !empty($costosExistentes[$costoClave]) 
+                            ? $costosExistentes[$costoClave][0] 
+                            : 0;
+                        
                         DB::table('olimpiada_area_categorias')->insert([
                             'id_olimpiada' => $idOlimpiada,
                             'id_area' => $areaModel->id,
                             'id_categoria' => $categoria->id,
-                            'precio' => 0, //el costo es aparte
+                            'precio' => $costoExistente,
                             'created_at' => now(),
                             'updated_at' => now(),
                         ]);
