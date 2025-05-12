@@ -11,7 +11,7 @@ const Login = () => {
   const [newUsername, setNewUsername] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [registerError, setRegisterError] = useState("");
-  const [rol] = useState(1); 
+  const [rolBasico] = useState(1); 
   const navigate = useNavigate();
 
   const endpoint = "http://localhost:8000";
@@ -57,7 +57,7 @@ const Login = () => {
           email: username,
           password: password,
           password_confirmation: password,
-          id_rol: rol,
+          id_rol: rolBasico,
         },
         {
           withCredentials: true,
