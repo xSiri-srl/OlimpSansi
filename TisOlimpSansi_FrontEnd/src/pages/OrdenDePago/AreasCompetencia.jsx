@@ -349,9 +349,9 @@ export default function AreasCompetencia({
         } else {
           let nombreCategoria = "";
           if (esSecundaria) {
-            nombreCategoria = numero + "S";
-          } else {
             nombreCategoria = numero + "P";
+          } else {
+            nombreCategoria = numero + "S";
           }
 
           return {
