@@ -57,7 +57,7 @@ const Login = () => {
           email: username,
           password: password,
           password_confirmation: password,
-          id_rol: rolBasico,
+          id_rol: 1,
         },
         {
           withCredentials: true,
