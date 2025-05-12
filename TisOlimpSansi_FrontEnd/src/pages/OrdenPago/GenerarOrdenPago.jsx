@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaCloudUploadAlt, FaDownload } from "react-icons/fa";
 import axios from "axios";
+
 
 const GenerarOrdenPago = () => {
   const [error, setError] = useState("");
@@ -11,6 +12,27 @@ const GenerarOrdenPago = () => {
   const [descargando, setDescargando] = useState(false);
   const [mostrarModal, setMostrarModal] = useState(false);
   const [ordenYaGenerada, setOrdenYaGenerada] = useState(false);
+  const [cargando, setCargando] = useState(false);
+  const [progreso, setProgreso] = useState(0);
+
+
+
+  useEffect(() => {
+    let timer;
+    if (cargando) {
+      setProgreso(0);
+      timer = setInterval(() => {
+        setProgreso((prev) => {
+          if (prev >= 100) {
+            clearInterval(timer);
+            return 100;
+          }
+          return prev + 10;
+        });
+      }, 200);
+    }
+    return () => clearInterval(timer);
+  }, [cargando]);
 
   const endpoint = "http://localhost:8000/api";
 
@@ -47,31 +69,51 @@ const GenerarOrdenPago = () => {
     }
   };
   const confirmarGenerarOrden = async () => {
-    setGenerando(true);
+    setMostrarModal(false); // Cierra modal de confirmación
+    setCargando(true);       // Activa barra de carga
+    setProgreso(0);
+  
+    let current = 0;
+    const simulacion = setInterval(() => {
+      current += 10;
+      setProgreso(current);
+      if (current >= 100) clearInterval(simulacion);
+    }, 80);
+  
     try {
-      // Verificar si ya existe una orden
-      const response = await axios.get(
-        `${endpoint}/orden-pago-existe/${codigoGenerado}`
-      );
+      const response = await axios.get(`${endpoint}/orden-pago-existe/${codigoGenerado}`);
       if (response.data.existe) {
         setOrdenYaGenerada(true);
       } else {
-        await axios.post(`${endpoint}/orden-pago/pdf`, {
-          codigo_generado: codigoGenerado,
-        });
+        await axios.post(`${endpoint}/orden-pago/pdf`, { codigo_generado: codigoGenerado });
         console.log("Orden de pago generada correctamente");
-        setMostrarModal(false);
       }
     } catch (error) {
       console.error("Error generando la orden de pago:", error);
       alert("Error generando la orden de pago.");
     } finally {
-      setGenerando(false);
+      setTimeout(() => {
+        setCargando(false);
+        setProgreso(0);
+      }, 1000);
     }
   };
+  
 
   const handleDownload = async () => {
     setDescargando(true);
+    setProgreso(0);
+  
+    // Simulación de progreso del 0 al 100%
+    let current = 0;
+    const simulacion = setInterval(() => {
+      current += 10;
+      setProgreso(current);
+      if (current >= 100) {
+        clearInterval(simulacion);
+      }
+    }, 80); // velocidad de llenado (ajustable)
+  
     try {
       const response = await axios.get(
         `${endpoint}/orden-pago/${codigoGenerado}`,
@@ -90,10 +132,13 @@ const GenerarOrdenPago = () => {
       console.error("Error descargando PDF:", error);
       alert("Error al descargar la orden de pago");
     } finally {
-      setDescargando(false);
+      setTimeout(() => {
+        setDescargando(false);
+        setProgreso(0);
+      }, 1000);
     }
   };
-
+  
   return (
     <div className="p-10">
       <div className="max-w-4xl mx-auto bg-gray-200 p-9 shadow-lg rounded-lg">
@@ -284,6 +329,22 @@ const GenerarOrdenPago = () => {
                   </div>
                 </div>
               )}
+              {cargando && (
+              <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                <div className="bg-white px-8 py-6 rounded-lg shadow-xl w-80 text-center">
+                  <h3 className="text-base font-medium text-gray-800 mb-4">Generando orden de pago...</h3>
+                  <div className="w-full bg-gray-300 rounded-full h-4 overflow-hidden">
+                    <div
+                      className="bg-blue-500 h-full text-white text-xs font-semibold text-center"
+                      style={{ width: `${progreso}%`, transition: "width 0.3s ease-in-out" }}
+                    >
+                      {progreso}%
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             </div>
             <div className="flex justify-center mt-6">
               <button
@@ -298,6 +359,23 @@ const GenerarOrdenPago = () => {
                 <FaDownload />
                 {descargando ? "Descargando..." : "Descargar PDF"}
               </button>
+              {descargando && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4 text-center">Descargando orden de pago...</h3>
+            <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+              <div
+                className="bg-blue-500 h-full text-white text-xs text-center transition-all duration-300"
+                style={{ width: `${progreso}%` }}
+              >
+                {progreso}%
+              </div>
+      </div>
+    </div>
+  </div>
+)}
+
+              
             </div>
           </div>
         )}
