@@ -30,6 +30,7 @@ const Navbar = () => {
 
     await axios.post("http://localhost:8000/logout", {}, { withCredentials: true })
     localStorage.removeItem("user")
+    localStorage.clear();
     setRole("responsable")
     setShowSidebar(false)
     navigate("/")
