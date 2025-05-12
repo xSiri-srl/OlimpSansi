@@ -30,7 +30,7 @@ const Tutorial = () => {
     EJEMPLO DE LLENADO
   </p>
   <div
-  className="w-full overflow-x-auto overflow-y-hidden border border-gray-300 rounded shadow"
+  className="w-full overflow-x-auto overflow-y-hidden border border-blue-200 rounded shadow"
   style={{ height: "8cm" }}
 >
 <div
