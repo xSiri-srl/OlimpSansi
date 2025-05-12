@@ -11,7 +11,7 @@ const Login = () => {
   const [newUsername, setNewUsername] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [registerError, setRegisterError] = useState("");
-  const [rolBasico] = useState(1); 
+  const [rol] = useState(1); 
   const navigate = useNavigate();
 
   const endpoint = "http://localhost:8000";
