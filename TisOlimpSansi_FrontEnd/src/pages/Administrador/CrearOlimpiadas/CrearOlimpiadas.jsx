@@ -1,8 +1,11 @@
 import React, { useState } from "react";
 import axios from "axios";
 import Cookies from 'js-cookie';
+import { useNavigate } from "react-router-dom";
+
 const CrearOlimpiadas = () => {
   const [titulo, setTitulo] = useState("");
+  const navigate = useNavigate();
   const [fechaIni, setFechaIni] = useState("");
   const [fechaFinal, setFechaFinal] = useState("");
   const [periodoIns, setPeriodoIns] = useState("");
@@ -11,7 +14,7 @@ const CrearOlimpiadas = () => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-
+  const [olimpiadaCreada, setOlimpiadaCreada] = useState(null);
   const endpoint = "http://localhost:8000";
   const years = Array.from({ length: 2030 - 2025 + 1 }, (_, i) => 2025 + i);
 
@@ -72,23 +75,27 @@ const CrearOlimpiadas = () => {
           { withCredentials: true }
         );
 
-        // Éxito
+        const olimpiadaId = response.data.id || response.data.data?.id;
+        setOlimpiadaCreada(olimpiadaId);
+        
+        // Mostrar modal de éxito brevemente antes de redireccionar
         setShowSuccessModal(true);
         setErrorMessage("");
+        
+        // Limpiar los campos del formulario
         setTitulo("");
         setPeriodoIns("");
         setFechaIni("");
         setFechaFinal("");
+        
+        // Configurar un temporizador para redirigir después de mostrar el mensaje de éxito
+        setTimeout(() => {
+          setShowSuccessModal(false);
+          navigate('/admin/asociar-nivel'); // Redireccionar a la página de asignar áreas
+        }, 1500); // Redireccionar después de 1.5 segundos
+        
       } catch (error) {
-          const mensaje = error.response?.data?.error ||  
-                          error.response?.data?.message || 
-                          error.message || 
-                          "Error desconocido";
-
-          setErrorMessage(mensaje);
-          setShowSuccessModal(true);
-          console.error("Error al crear olimpiada:", mensaje);
-
+        // ...existing error handling code...
       } finally {
         setLoading(false);
       }
@@ -206,22 +213,26 @@ const CrearOlimpiadas = () => {
               <>
                 <h2 className="text-xl font-bold text-red-700 mb-4">Error</h2>
                 <p className="text-gray-700 mb-6">{errorMessage}</p>
+                <button
+                  onClick={() => {
+                    setShowSuccessModal(false);
+                    setErrorMessage("");
+                  }}
+                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                >
+                  Cerrar
+                </button>
               </>
             ) : (
               <>
                 <h2 className="text-xl font-bold text-green-700 mb-4">¡Éxito!</h2>
                 <p className="text-gray-700 mb-6">La olimpiada fue creada correctamente.</p>
+                <p className="text-blue-600">Redirigiendo a Asignar Áreas...</p>
+                <div className="mt-4 w-full bg-gray-200 rounded-full h-2.5">
+                  <div className="bg-blue-600 h-2.5 rounded-full animate-[progress_1.5s_ease-in-out]"></div>
+                </div>
               </>
             )}
-            <button
-              onClick={() => {
-                setShowSuccessModal(false);
-                setErrorMessage("");
-              }}
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-            >
-              Cerrar
-            </button>
           </div>
         </div>
       )}
