@@ -107,21 +107,28 @@ class OrdenPagoController extends Controller
     ]);
 }
 
-    public function verificarCodigo(Request $request)
+public function verificarCodigo(Request $request)
     {
-        // Validar que el código generado no esté vacío
+    
         $validated = $request->validate([
             'codigo_generado' => 'required|string|max:255',
         ]);
 
-        // Verificar si el código generado ya existe en la base de datos
+    
         $ordenPago = OrdenPago::where('codigo_generado', $validated['codigo_generado'])->first();
 
         if (!$ordenPago) {
             return response()->json(['message' => 'Código generado no encontrado. No se puede proceder.'], 404);
         }
 
-        if (!is_null($ordenPago->numero_comprobante)) {
+      
+        if ($ordenPago->orden_pago_url === null) {
+            return response()->json(['message' => 'Genere una orden de pago.'], 400);
+        }
+
+       
+        $comprobante = comprobantes_pago::where('id_orden_pago', $ordenPago->id)->first();
+        if ($comprobante) {
             return response()->json([
                 'message' => 'Este comprobante ya fue registrado previamente. No puede continuar.'
             ], 400);
