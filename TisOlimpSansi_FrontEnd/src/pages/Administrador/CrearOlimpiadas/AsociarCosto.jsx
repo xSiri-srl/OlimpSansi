@@ -206,6 +206,9 @@ const AsociarCosto = () => {
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
+      <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">  
+        Áreas de Competencia
+      </h2>
       <HeaderSelector
         nombreOlimpiada={nombreOlimpiada}
         olimpiadas={olimpiadas}

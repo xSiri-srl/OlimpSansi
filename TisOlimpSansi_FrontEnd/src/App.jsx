@@ -32,6 +32,7 @@ import CrearOlimpiadas from "./pages/Administrador/CrearOlimpiadas/CrearOlimpiad
 import AsociarNivel from "./pages/Administrador/CrearOlimpiadas/AsociarNivel";
 import AsociarCosto from "./pages/Administrador/CrearOlimpiadas/AsociarCosto";
 import RutaPrivada from "./components/RutasPrivadas";
+import DesasignarAreaNivel from "./pages/Administrador/CrearOlimpiadas/DesasignarAreaNivel";
 
 export default function App() {
   return (
@@ -143,10 +144,11 @@ export default function App() {
                 element={<AsociarCosto />} 
                 />
               </Route>
-              
-              
-
-
+              <Route 
+                path="/admin/des-asignar-costo" 
+                element={<DesasignarAreaNivel />} 
+                />
+     
               <Route
                 path="/probarback"
                 element={<ProbarEnd/>}
