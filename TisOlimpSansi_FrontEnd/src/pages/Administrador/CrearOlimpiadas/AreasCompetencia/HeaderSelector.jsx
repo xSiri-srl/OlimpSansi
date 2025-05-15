@@ -10,9 +10,7 @@ const HeaderSelector = ({
 }) => {
   return (
     <div className="bg-white p-6 rounded-lg shadow-md mb-6">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">  
-        Áreas de Competencia
-      </h2>
+     
       
       <div className="flex flex-col md:flex-row items-center justify-center gap-4">
         <div className="flex-1 w-full md:w-auto">
