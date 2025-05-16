@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/Inicio/Inicio";
 import Navbar from "./components/Navbar";
-import Login from "./components/login"
+import Login from "./components/login";
 import { ThemeProvider } from "./ThemeContext";
 import InscripcionResponsable from "./pages/OrdenDePago/InscripcionResponsable";
 import InscripcionEstudiante from "./pages/OrdenDePago/InscripcionEstudiante";
@@ -31,6 +31,7 @@ import EditarConvocatoria from "./pages/Administrador/Convocatorias/EditarConvoc
 import CrearOlimpiadas from "./pages/Administrador/CrearOlimpiadas/CrearOlimpiadas";
 import AsociarNivel from "./pages/Administrador/CrearOlimpiadas/AsociarNivel";
 import AsociarCosto from "./pages/Administrador/CrearOlimpiadas/AsociarCosto";
+import AsociarLimite from "./pages/Administrador/CrearOlimpiadas/AsociarLimiteAreas";
 import RutaPrivada from "./components/RutasPrivadas";
 import DesasignarAreaNivel from "./pages/Administrador/CrearOlimpiadas/DesasignarAreaNivel";
 
@@ -45,15 +46,12 @@ export default function App() {
             <Routes>
               <Route path="/" element={<Home />} />
 
-              <Route 
-              path="/login" 
-              element={<Login />} 
-              />
+              <Route path="/login" element={<Login />} />
               <Route
                 path="/inscripcion/forma-inscripcion"
                 element={<FormaInscripcion />}
               />
-              
+
               <Route
                 path="/inscripcion/responsable"
                 element={<InscripcionResponsable />}
@@ -103,11 +101,10 @@ export default function App() {
                 element={<ListaCompetidores />}
               />
 
-              <Route 
-                element={<RutaPrivada />} >
-                 <Route 
-                path="/admin/generar-reportes" 
-                element={<PanelDatos />} 
+              <Route element={<RutaPrivada />}>
+                <Route
+                  path="/admin/generar-reportes"
+                  element={<PanelDatos />}
                 />
                 <Route
                   path="/admin/descargar_listas"
@@ -135,20 +132,17 @@ export default function App() {
                   path="/admin/crear-olimpiada"
                   element={<CrearOlimpiadas />}
                 />
-                <Route 
-                path="/admin/asociar-nivel" 
-                element={<AsociarNivel />} 
-                />
-                <Route 
-                path="/admin/asociar-costo" 
-                element={<AsociarCosto />} 
+                <Route path="/admin/asociar-nivel" element={<AsociarNivel />} />
+                <Route path="/admin/asociar-costo" element={<AsociarCosto />} />
+                <Route
+                  path="/admin/asociar-limite"
+                  element={<AsociarLimite />}
                 />
               </Route>
-              <Route 
-                path="/admin/des-asignar-costo" 
-                element={<DesasignarAreaNivel />} 
-                />
-     
+              
+              
+
+
               <Route
                 path="/probarback"
                 element={<ProbarEnd/>}
