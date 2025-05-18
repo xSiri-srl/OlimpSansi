@@ -20,9 +20,8 @@ export default function ProbarEnd() {
       // const response = await axios.get('http://localhost:8000/api/olimpiadas/1/areas',  {
       //   withCredentials: true,
       // });
-      const response = await axios.post(
-        'http://localhost:8000/api/olimpiadas/areas',
-        data, // <-- aquí pasas el ID como JSON
+      const response = await axios.get(
+        'http://localhost:8000/user',
         { withCredentials: true }
       );
       setResultado(`✅ Éxito:\n${JSON.stringify(response.data, null, 2)}`);

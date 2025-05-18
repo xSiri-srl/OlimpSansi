@@ -22,6 +22,7 @@ const Inicio = () => {
   };
 
   useEffect(() => {
+    
     const fetchData = async () => {
       try {
         setIsLoading(true);
@@ -54,6 +55,7 @@ const Inicio = () => {
     fetchData();
   }, []);
 
+ 
   // Combinar las áreas con las convocatorias reales
   const getPdfUrls = () => {
     // Si no hay áreas, devolver array vacío para evitar errores
