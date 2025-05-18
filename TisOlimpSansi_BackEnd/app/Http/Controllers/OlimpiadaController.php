@@ -21,6 +21,7 @@ class OlimpiadaController extends Controller
         ]);
     }
 
+
     public function store(Request $request)
     {
         $request->validate([
@@ -32,9 +33,22 @@ class OlimpiadaController extends Controller
             'id_user.exists' => 'El usuario no existe.',
         ]);
 
+        $año = Carbon::parse($request->fecha_ini)->year;
+
+        $existe = OlimpiadaModel::where('titulo', $request->titulo)
+            ->whereYear('fecha_ini', $año)
+            ->exists();
+
+        if ($existe) {
+            return response()->json([
+                'status' => 422,
+                'message' => 'Ya existe una olimpiada con ese título en el mismo año.',
+            ], 422);
+        }
+
         try {
             $olimpiada = new OlimpiadaModel();
-            $olimpiada->id_user = $request->id_user; 
+            $olimpiada->id_user = $request->id_user;
             $olimpiada->titulo = $request->titulo;
             $olimpiada->fecha_ini = $request->fecha_ini;
             $olimpiada->fecha_fin = $request->fecha_fin;
@@ -52,6 +66,7 @@ class OlimpiadaController extends Controller
             ], 500);
         }
     }
+
 
     public function show($id)
     {
