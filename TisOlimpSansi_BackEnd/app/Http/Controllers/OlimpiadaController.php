@@ -132,15 +132,11 @@ class OlimpiadaController extends Controller
         ]);
     }
 
-    public function getOlimpiadasPublicas()
+public function getOlimpiadasPublicas()
 {
-    // Solo obtener olimpiadas activas (fecha_fin mayor o igual a hoy)
-    $hoy = Carbon::now()->toDateString();
-    
-    $olimpiadas = OlimpiadaModel::where('fecha_fin', '>=', $hoy)
-        ->select('id', 'titulo', 'fecha_ini', 'fecha_fin')
+    $olimpiadas = OlimpiadaModel::select('id', 'titulo', 'fecha_ini', 'fecha_fin')
         ->get();
-
+    
     return response()->json([
         'status' => 200,
         'data' => $olimpiadas,
