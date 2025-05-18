@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import { motion } from "framer-motion";
+import obtenerUsuario from "../funciones/obtenerUser";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -16,6 +17,24 @@ const Login = () => {
   const navigate = useNavigate();
 
   const endpoint = "http://localhost:8000";
+
+
+
+  const [auth, setAuth] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const validarAuth = async () => {
+      const user = await obtenerUsuario();
+      setAuth(user);
+      setLoading(false);
+    };
+
+    validarAuth();
+  }, []);
+  if (loading) return <p>Cargando...</p>;
+  if (auth) return <Navigate to="/" replace />;
+
 
   const loginUser = async (username, password) => {
     await axios.get(`${endpoint}/sanctum/csrf-cookie`, { withCredentials: true });
