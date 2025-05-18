@@ -1,7 +1,10 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { FaCheck } from "react-icons/fa";
 import { useFormData } from "./form-data-context";
+import { useLocation } from "react-router-dom";
+import axios from "axios";
 
 const primeraFila = [
   { nombre: "Matemáticas", imgSrc: "/images/matematicaas.png" },
@@ -90,8 +93,75 @@ export default function AreasCompetencia({
   const categoriasSeleccionadas =
     formData.estudiante?.categoriasSeleccionadas || {};
   const cursoEstudiante = formData.estudiante?.curso || "";
+  const [areasDisponibles, setAreasDisponibles] = useState([]);
+  const [cargandoAreas, setCargandoAreas] = useState(false);
+  const [errorCarga, setErrorCarga] = useState("");
+  
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const olimpiadaId = queryParams.get("olimpiada");
 
-  // Función para obtener la categoría según el área y curso
+    useEffect(() => {
+    if (olimpiadaId) {
+      cargarAreasAsociadas();
+    }
+  }, [olimpiadaId]);
+
+    const cargarAreasAsociadas = async () => {
+    setCargandoAreas(true);
+    setErrorCarga("");
+    
+    try {
+      const response = await axios.get(`http://localhost:8000/areas-olimpiada/${olimpiadaId}`);
+      
+      if (response.status === 200 && response.data.data) {
+        // Extraer nombres de áreas disponibles normalizados para comparación
+        const areasHabilitadas = response.data.data.map(area => {
+          // Normalizar nombres para comparación (quitar acentos, espacios, etc.)
+          let nombreNormalizado = area.area
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toUpperCase()
+            .replace(/[^A-Z0-9]/g, "");
+            
+          return nombreNormalizado;
+        });
+        
+        setAreasDisponibles(areasHabilitadas);
+        console.log("Áreas disponibles para esta olimpiada:", areasHabilitadas);
+      }
+    } catch (error) {
+            console.error("Error al cargar áreas asociadas:", error);
+      setErrorCarga("No se pudieron cargar las áreas de competencia");
+    } finally {
+      setCargandoAreas(false);
+    }
+  };
+
+    const areaEstaDisponible = (nombreArea) => {
+    if (areasDisponibles.length === 0) return true; // Si no hay datos, mostrar todas (fallback)
+      if (nombreArea === "Astronomía y Astrofísica") {
+    // Buscar en las áreas disponibles tanto con formato guion como con "y"
+    return areasDisponibles.some(area => {
+      return area === "ASTRONOMIAYASTROFISICA" || 
+             area === "ASTRONOMIAASTROFISICA" || 
+             area === "ASTRONOMIAAASTROFISICA";
+    });
+  }
+  
+    // Normalizar el nombre del área para comparación
+    const nombreNormalizado = nombreArea
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toUpperCase()
+      .replace(/[^A-Z0-9]/g, "");
+      
+    // Comprobar si está en la lista de áreas disponibles
+    return areasDisponibles.some(area => {
+      return area === nombreNormalizado;
+    });
+  };
+
   const obtenerCategoriaAutomatica = (area) => {
     // Normalizar el nombre del área para coincidir con el mapa
     let areaNormalizada = area.toUpperCase();
@@ -230,33 +300,41 @@ export default function AreasCompetencia({
     const estaSeleccionada = seleccionadas.includes(area.nombre);
     const categorias = obtenerCategorias(area.nombre);
     const categoriaSeleccionada = categoriasSeleccionadas[area.nombre] || "";
+    const estaDisponible = areaEstaDisponible(area.nombre);
 
     return (
       <div
         key={index}
         className={`w-40 p-4 rounded-lg text-center shadow-md relative ${
-          estaSeleccionada ? "bg-gray-400" : "bg-gray-300"
+          !estaDisponible 
+            ? "bg-gray-200 opacity-50" 
+            : estaSeleccionada 
+              ? "bg-gray-400" 
+              : "bg-gray-300"
         }`}
       >
-        {/* Selector circular */}
-        <div
-          className="absolute top-2 right-2 w-6 h-6 rounded-full border-2 border-gray-500 flex items-center justify-center bg-white cursor-pointer z-10"
-          onClick={() => manejarSeleccion(area.nombre)}
-        >
-          {estaSeleccionada && <FaCheck className="text-green-600" />}
-        </div>
+        {/* Selector circular (solo visible si el área está disponible) */}
+        {estaDisponible && (
+          <div
+            className="absolute top-2 right-2 w-6 h-6 rounded-full border-2 border-gray-500 flex items-center justify-center bg-white cursor-pointer z-10"
+            onClick={() => manejarSeleccion(area.nombre)}
+          >
+            {estaSeleccionada && <FaCheck className="text-green-600" />}
+          </div>
+        )}
 
         <img
           src={area.imgSrc || "/placeholder.svg"}
-          className="w-full h-auto rounded-md cursor-pointer"
+          className={`w-full h-auto rounded-md ${estaDisponible ? "cursor-pointer" : "cursor-not-allowed"}`}
           alt={area.nombre}
-          onClick={() => manejarSeleccion(area.nombre)}
+          onClick={() => estaDisponible && manejarSeleccion(area.nombre)}
         />
         <p
-          className="font-semibold mt-2 cursor-pointer"
-          onClick={() => manejarSeleccion(area.nombre)}
+          className={`font-semibold mt-2 ${estaDisponible ? "cursor-pointer" : "cursor-not-allowed text-gray-500"}`}
+          onClick={() => estaDisponible && manejarSeleccion(area.nombre)}
         >
           {area.nombre}
+          {!estaDisponible && <span className="block text-xs text-red-500">(No disponible)</span>}
         </p>
 
         {/* Selector de categoría si está seleccionada y tiene categorías */}
@@ -285,6 +363,7 @@ export default function AreasCompetencia({
       </div>
     );
   };
+
 
   const handleSubmitAndNext = () => {
     if (!validarFormulario()) {
@@ -423,6 +502,18 @@ export default function AreasCompetencia({
         </p>
       </div>
 
+      {/* Mensaje de carga o error */}
+      {cargandoAreas ? (
+        <div className="text-center p-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
+          <p className="mt-2 text-gray-600">Cargando áreas disponibles...</p>
+        </div>
+      ) : errorCarga ? (
+        <div className="text-center p-4 bg-red-50 rounded-lg">
+          <p className="text-red-600">{errorCarga}</p>
+        </div>
+      ) : null}
+
       {/* Primera fila */}
       <div className="flex flex-wrap justify-center gap-6 mb-6">
         {primeraFila.map((area, index) => renderizarArea(area, index))}
@@ -434,6 +525,7 @@ export default function AreasCompetencia({
           renderizarArea(area, index + primeraFila.length)
         )}
       </div>
+
 
       {/* Mostrar áreas y categorías seleccionadas */}
       {seleccionadas.length > 0 && (
