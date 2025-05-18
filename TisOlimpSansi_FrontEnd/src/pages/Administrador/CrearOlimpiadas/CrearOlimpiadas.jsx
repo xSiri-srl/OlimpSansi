@@ -234,7 +234,6 @@ const CrearOlimpiadas = () => {
               <>
                 <h2 className="text-xl font-bold text-green-700 mb-4">¡Éxito!</h2>
                 <p className="text-gray-700 mb-6">La olimpiada fue creada correctamente.</p>
-                <p className="text-blue-600">Redirigiendo a Asignar Áreas...</p>
                 <div className="mt-4 w-full bg-gray-200 rounded-full h-2.5">
                   <div className="bg-blue-600 h-2.5 rounded-full animate-[progress_1.5s_ease-in-out]"></div>
                 </div>
