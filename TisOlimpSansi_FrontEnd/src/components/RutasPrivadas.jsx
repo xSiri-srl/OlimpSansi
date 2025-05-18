@@ -1,18 +1,26 @@
-import { Navigate, Outlet } from "react-router-dom"
-import Cookies from "js-cookie"
+import { Navigate, Outlet } from "react-router-dom";
+import { useEffect, useState } from "react";
+import obtenerUsuario from "../funciones/obtenerUser";
 
 const RutaPrivada = () => {
-  // Verificar si el usuario está autenticado
-  const token = Cookies.get("XSRF-TOKEN")
-  const userString = localStorage.getItem("user")
-  const user = userString ? JSON.parse(userString) : null
+  const [auth, setAuth] = useState(null);
+  const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    const validarAuth = async () => {
+      const user = await obtenerUsuario();
+      setAuth(user);
+      setLoading(false);
+    };
 
-  if (!token || !user) {
-    return <Navigate to="/login" />
-  }
+    validarAuth();
+  }, []);
 
-  return <Outlet />
-}
+  if (loading) return <p>Cargando...</p>;
 
-export default RutaPrivada
+  if (!auth) return <Navigate to="/login" replace />;
+
+  return <Outlet />;
+};
+
+export default RutaPrivada;

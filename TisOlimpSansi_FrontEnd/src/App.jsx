@@ -138,11 +138,12 @@ export default function App() {
                   path="/admin/asociar-limite"
                   element={<AsociarLimite />}
                 />
-              </Route>
-              <Route 
+                <Route 
                 path="/admin/des-asignar-costo" 
                 element={<DesasignarAreaNivel />} 
                 />
+              </Route>
+              
      
               <Route
                 path="/probarback"
