@@ -29,6 +29,7 @@ import ProbarEnd from "./pages/hacer pruebas endpoint/ProbarEnd";
 import EditarConvocatoria from "./pages/Administrador/Convocatorias/EditarConvocatoria";
 import CrearOlimpiadas from "./pages/Administrador/CrearOlimpiadas/CrearOlimpiadas";
 import AsociarNivel from "./pages/Administrador/CrearOlimpiadas/AsociarNivel";
+import CodigoPreInscripcion from "./pages/EditarInscripcion/CodigoPreInscripcion";
 
 export default function App() {
   return (
@@ -66,7 +67,14 @@ export default function App() {
                 path="/inscripcion/tutor-academico"
                 element={<InscripcionTutorAcademico />}
               />
-              <Route path="/inscripcion/propuesta" element={<Propuesta />} />
+              <Route 
+                path="/inscripcion/propuesta" 
+                element={<Propuesta />} 
+              />
+              <Route 
+                path="/editar-preinscripcion" 
+                element={<CodigoPreInscripcion/>} 
+              />
               {/* ORDEN DE PAGO GENERADA */}
               <Route path="/orden-pago" element={<OrdenPago />} />
               <Route
