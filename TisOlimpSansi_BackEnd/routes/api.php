@@ -173,9 +173,11 @@ Route::get('/inscripciones/por-categoria', [InscripcionController::class, 'inscr
 Route::post('/inscribir', [InscripcionController::class, 'registrar']);
 Route::post('/inscribir-lista', [InscripcionController::class, 'registrarLista']);
 Route::get('/lista-inscritos', [InscripcionController::class, 'listarInscritos']);
+Route::get('/preinscritos-por-codigo', [InscripcionController::class, 'registrosPorCodigo']);
 //contar preinscritos
 Route::get('/estudiantes/pre-inscritos', [InscripcionController::class, 'contarPreinscritos']);
 Route::get('/estudiantes/inscritos', [InscripcionController::class, 'contarInscritos']);
+
 
 Route::get('/buscarEstudiante/{ci}', [EstudianteController::class, 'buscarEstudiante']);
 

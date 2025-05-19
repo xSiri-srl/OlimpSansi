@@ -55,6 +55,7 @@ const ProcesoRegistro = ({
 
   const handleNext = () => {
     if (step < steps.length) {
+      window.scrollTo(0, 0);
       setStep(step + 1);
     } else if (step === steps.length) {
       navigate(nextRoute);
@@ -63,6 +64,7 @@ const ProcesoRegistro = ({
 
   const handleBack = () => {
     if (step > 1) {
+      window.scrollTo(0, 0);
       setStep(step - 1);
     } else {
       navigate(backRoute);

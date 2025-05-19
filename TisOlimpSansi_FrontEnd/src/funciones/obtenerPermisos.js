@@ -1,3 +1,4 @@
+import axios from 'axios';
 const obtenerPermisos = async () => {
   try {
     const response = await axios.get('http://localhost:8000/permisos', {
@@ -8,3 +9,5 @@ const obtenerPermisos = async () => {
     console.error('No se pudieron obtener los permisos:', error);
   }
 };
+
+export default obtenerPermisos;

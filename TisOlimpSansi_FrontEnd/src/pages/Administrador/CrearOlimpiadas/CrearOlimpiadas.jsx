@@ -91,11 +91,18 @@ const CrearOlimpiadas = () => {
         // Configurar un temporizador para redirigir después de mostrar el mensaje de éxito
         setTimeout(() => {
           setShowSuccessModal(false);
-          navigate('/admin/asociar-nivel'); // Redireccionar a la página de asignar áreas
+          navigate('/'); // Redireccionar a la página de asignar áreas
         }, 1500); // Redireccionar después de 1.5 segundos
         
       } catch (error) {
-        // ...existing error handling code...
+        console.error(error);
+        if (error.response?.status === 422) {
+          setErrorMessage(error.response.data.message);
+          setShowSuccessModal(true); 
+        } else {
+          setErrorMessage("Error inesperado al crear la olimpiada.");
+          setShowSuccessModal(true);
+        }
       } finally {
         setLoading(false);
       }
@@ -227,7 +234,6 @@ const CrearOlimpiadas = () => {
               <>
                 <h2 className="text-xl font-bold text-green-700 mb-4">¡Éxito!</h2>
                 <p className="text-gray-700 mb-6">La olimpiada fue creada correctamente.</p>
-                <p className="text-blue-600">Redirigiendo a Asignar Áreas...</p>
                 <div className="mt-4 w-full bg-gray-200 rounded-full h-2.5">
                   <div className="bg-blue-600 h-2.5 rounded-full animate-[progress_1.5s_ease-in-out]"></div>
                 </div>
