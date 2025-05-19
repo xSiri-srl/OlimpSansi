@@ -23,7 +23,7 @@ const CodigoPreInscripcion = () => {
           codigo: codigoPreInscripcion
         }
       });
-      console.log("Mensaje del backend:", response.data?.res); // "Hola"      
+      console.log("Mensaje del backend:", response.data); // "Hola"      
     } catch (err) {
       setError('Error al verificar el código. Intente nuevamente.');
       console.error(err);
