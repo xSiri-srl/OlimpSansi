@@ -22,7 +22,7 @@ export default function FormularioEstudiante() {
   };
 
   // Cargar la lista de olimpiadas disponibles
-  useEffect(() => {
+  /*useEffect(() => {
     const cargarOlimpiadas = async () => {
       setCargandoOlimpiadas(true);
       setErrorCarga("");
@@ -66,10 +66,10 @@ export default function FormularioEstudiante() {
     };
   
     cargarOlimpiadas();
-  }, []);
+  }, []);*/
 
   // Actualizar nombre de olimpiada cuando se selecciona una
-  useEffect(() => {
+  /*useEffect(() => {
     if (olimpiadaSeleccionada) {
       const olimpiada = olimpiadas.find(
         (o) => o.id.toString() === olimpiadaSeleccionada
@@ -78,7 +78,7 @@ export default function FormularioEstudiante() {
     } else {
       setNombreOlimpiada("");
     }
-  }, [olimpiadaSeleccionada, olimpiadas]);
+  }, [olimpiadaSeleccionada, olimpiadas]);*/
 
   return (
     <div className="p-10 flex flex-col items-center justify-center from-indigo-100 to-purple-200">
@@ -86,7 +86,7 @@ export default function FormularioEstudiante() {
         Registro a Olimpiada
       </h2>
 
-      {/* Selector de Olimpiada */}
+      {/* Selector de Olimpiada 
       <div className="bg-white p-6 rounded-lg shadow-md mb-8 w-full max-w-2xl">
         <div className="flex flex-col items-center justify-center gap-4">
           <div className="w-full">
@@ -128,10 +128,10 @@ export default function FormularioEstudiante() {
             {errorCarga}
           </div>
         )}
-      </div>
+      </div>*/}
 
       {/* Opciones de inscripción (solo visibles cuando una olimpiada está seleccionada) */}
-      {olimpiadaSeleccionada && (
+      {/*olimpiadaSeleccionada &&*/ (
         <>
           <div className="bg-green-50 border border-green-200 p-3 rounded-lg mb-8 text-center w-full max-w-2xl">
             <p className="text-green-700">
@@ -174,22 +174,22 @@ export default function FormularioEstudiante() {
       )}
 
       {/* Mensaje cuando no hay olimpiada seleccionada */}
-      {!olimpiadaSeleccionada && !cargandoOlimpiadas && !errorCarga && (
+      {/*!olimpiadaSeleccionada && !cargandoOlimpiadas && !errorCarga && (
         <div className="mt-8 p-6 bg-yellow-50 border border-yellow-200 rounded-lg text-center">
           <p className="text-yellow-700">
             Por favor, seleccione una olimpiada para continuar con la inscripción
           </p>
         </div>
-      )}
+      )*/}
 
       {/* Mensaje cuando no hay olimpiadas disponibles */}
-    {!cargandoOlimpiadas && !errorCarga && olimpiadas.length === 0 && (
+    {/*!cargandoOlimpiadas && !errorCarga && olimpiadas.length === 0 && (
       <div className="mt-8 p-6 bg-orange-50 border border-orange-200 rounded-lg text-center w-full max-w-2xl">
         <p className="text-orange-700">
           No hay olimpiadas disponibles en este momento. Por favor, vuelve más tarde.
         </p>
       </div>
-    )}
+    )*/}
     </div>
   );
 }
