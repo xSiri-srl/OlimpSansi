@@ -34,6 +34,7 @@ import AsociarCosto from "./pages/Administrador/CrearOlimpiadas/AsociarCosto";
 import AsociarLimite from "./pages/Administrador/CrearOlimpiadas/AsociarLimiteAreas";
 import RutaPrivada from "./components/RutasPrivadas";
 import DesasignarAreaNivel from "./pages/Administrador/CrearOlimpiadas/DesasignarAreaNivel";
+import CodigoPreInscripcion from "./pages/EditarInscripcion/CodigoPreInscripcion";
 
 export default function App() {
   return (
@@ -72,7 +73,14 @@ export default function App() {
                 path="/inscripcion/tutor-academico"
                 element={<InscripcionTutorAcademico />}
               />
-              <Route path="/inscripcion/propuesta" element={<Propuesta />} />
+              <Route 
+                path="/inscripcion/propuesta" 
+                element={<Propuesta />} 
+              />
+              <Route 
+                path="/editar-preinscripcion" 
+                element={<CodigoPreInscripcion/>} 
+              />
               {/* ORDEN DE PAGO GENERADA */}
               <Route path="/orden-pago" element={<OrdenPago />} />
               <Route
