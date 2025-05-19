@@ -518,9 +518,11 @@ public function inscripcionesPorCategoria()
     return response()->json($resultado);
 }
         
-
-
-
-
-
+    public function registrosPorCodigo(Request $request){
+        $codigo = $request -> input('codigo');
+        return response()->json([
+            'res' => 'Hola',
+            'codigo_recibido' => $codigo // Para verificar que recibiste el código
+        ]);
+    }
 }

@@ -47,4 +47,5 @@ Route::controller(OlimpiadaController::class)->group(function(){
     ->middleware(['auth:sanctum', 'permiso:crear_olimpiada']);
 });
 
+Route::get('/areas-olimpiada/{id}', [OlimpiadaAreaController::class, 'getAreasPorOlimpiada']);
 
