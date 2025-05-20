@@ -8,6 +8,7 @@ use App\Models\OlimpiadaAreaModel;
 use App\Models\Inscripcion\AreaModel;
 use App\Models\Inscripcion\CategoriaModel;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class OlimpiadaAreaController extends Controller
 {
@@ -262,5 +263,55 @@ public function actualizarCostos(Request $request)
         ], 500);
     }
 }
+
+public function desasociarAreas(Request $request)
+{
+    $request->validate([
+        'id_olimpiada' => 'required|exists:olimpiada,id',
+        'areas' => 'required|array',
+    ]);
+
+    try {
+        $idOlimpiada = $request->id_olimpiada;
+        $areas = $request->areas;
+
+        // Iniciar transacción para mantener consistencia
+        DB::beginTransaction();
+
+        foreach ($areas as $area) {
+            // Buscar el ID del área por nombre
+            $areaModel = AreaModel::where('nombre_area', strtoupper($area['area']))
+                ->first();
+
+            if ($areaModel) {
+                // Eliminar solo esta área específica de la olimpiada
+                DB::table('olimpiada_area_categorias')
+                    ->where('id_olimpiada', $idOlimpiada)
+                    ->where('id_area', $areaModel->id)
+                    ->delete();
+
+                // Log para depuración
+                Log::info("Desasociando área: {$area['area']} (ID: {$areaModel->id}) de olimpiada ID: $idOlimpiada");
+            }
+        }
+
+        DB::commit();
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Áreas desasociadas exitosamente de la olimpiada',
+        ]);
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error("Error al desasociar áreas: " . $e->getMessage());
+        
+        return response()->json([
+            'status' => 500,
+            'message' => 'Error al desasociar áreas de la olimpiada: ' . $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ], 500);
+    }
+}
+
 
 }

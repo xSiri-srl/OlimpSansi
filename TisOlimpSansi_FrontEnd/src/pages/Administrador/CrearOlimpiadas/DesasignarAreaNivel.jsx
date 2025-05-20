@@ -281,59 +281,53 @@ const DesasignarAreaNivel = () => {
       
       console.log("Áreas asociadas (raw):", response.data);
       
-      if (response.status === 200 && response.data.data) {
-        const areasAsociadas = response.data.data;
-        
-        // Función auxiliar para normalizar nombres (elimina todo excepto letras y números)
-        const normalizarNombre = (nombre) => {
-          return nombre.toUpperCase()
-            .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Eliminar acentos
-            .replace(/[^A-Z0-9]/g, ""); // Eliminar caracteres especiales y espacios
-        };
-        
-        // Crear un mapa de áreas asociadas normalizadas para búsqueda eficiente
-        const areasNormalizadasMap = new Map();
-        
-        areasAsociadas.forEach(area => {
-          const nombreNormalizado = normalizarNombre(area.area);
-          console.log(`Área del backend normalizada: "${area.area}" -> "${nombreNormalizado}"`);
-          areasNormalizadasMap.set(nombreNormalizado, area);
+    if (response.status === 200 && response.data.data) {
+      const areasAsociadas = response.data.data;
+      
+      // Función auxiliar para normalizar nombres (elimina todo excepto letras y números)
+      const normalizarNombre = (nombre) => {
+        return nombre.toUpperCase()
+          .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Eliminar acentos
+          .replace(/[^A-Z0-9]/g, ""); // Eliminar caracteres especiales y espacios
+      };
+      
+      // Crear un mapa de áreas asociadas normalizadas para búsqueda eficiente
+      const areasNormalizadasMap = new Map();
+      
+      areasAsociadas.forEach(area => {
+        const nombreNormalizado = normalizarNombre(area.area);
+        console.log(`Área del backend normalizada: "${area.area}" -> "${nombreNormalizado}"`);
+        areasNormalizadasMap.set(nombreNormalizado, area);
+      });
+      
+      setCombinaciones(prev => {
+        const nuevasCombinaciones = prev.map(combo => {
+                    const nombreNormalizado = normalizarNombre(combo.area);
+          console.log(`Área del frontend normalizada: "${combo.area}" -> "${nombreNormalizado}"`);
+          
+
+          const areaAsociada = areasNormalizadasMap.get(nombreNormalizado);
+          
+          if (areaAsociada) {
+            console.log(`COINCIDENCIA ENCONTRADA para "${combo.area}"`);
+            return {
+              ...combo,
+              habilitado: true,
+              yaAsociada: true // Marcar que ya estaba asociada
+            };
+          } else {
+            console.log(`NO HAY COINCIDENCIA para "${combo.area}"`);
+            return {
+              ...combo,
+              habilitado: false,
+              yaAsociada: false
+            };
+          }
         });
         
-        // Actualizar el estado de combinaciones
-        setCombinaciones(prev => {
-          const nuevasCombinaciones = prev.map(combo => {
-            // Normalizar el nombre del área del frontend
-            const nombreNormalizado = normalizarNombre(combo.area);
-            console.log(`Área del frontend normalizada: "${combo.area}" -> "${nombreNormalizado}"`);
-            
-            // Buscar si esta área normalizada existe en las áreas asociadas
-            const areaAsociada = areasNormalizadasMap.get(nombreNormalizado);
-            
-            if (areaAsociada) {
-              console.log(`✅ COINCIDENCIA ENCONTRADA para "${combo.area}"`);
-              return {
-                ...combo,
-                habilitado: true,
-              };
-            } else {
-              console.log(`❌ NO HAY COINCIDENCIA para "${combo.area}"`);
-              return {
-                ...combo,
-                habilitado: false,
-              };
-            }
-          });
-          
-          console.log("Resultado final de áreas:", nuevasCombinaciones.map(c => ({
-            area: c.area,
-            habilitado: c.habilitado,
-            normalizado: normalizarNombre(c.area)
-          })));
-          
-          return nuevasCombinaciones;
-        });
-      }
+        return nuevasCombinaciones;
+      });
+    }
     } catch (error) {
       console.error("Error al cargar áreas asociadas:", error);
       // Si hay error, mostrar todas las áreas como no habilitadas
@@ -354,11 +348,11 @@ const DesasignarAreaNivel = () => {
       }
     };
   
-    const guardarConfiguracion = async () => {
-      if (!olimpiadaSeleccionada) {
-        alert("Por favor seleccione una olimpiada");
-        return;
-      }
+      const guardarConfiguracion = async () => {
+        if (!olimpiadaSeleccionada) {
+          alert("Por favor seleccione una olimpiada");
+          return;
+        }
   
       // Validar que haya al menos un área habilitada
       const areasHabilitadas = combinaciones.filter(combo => combo.habilitado);
@@ -366,8 +360,23 @@ const DesasignarAreaNivel = () => {
         alert("Debe habilitar al menos un área de competencia");
         return;
       }
-  
+
+      const areasParaDesasociar = combinaciones.filter(combo => 
+        combo.yaAsociada && !combo.habilitado
+      );
+      
+      if (areasParaDesasociar.length === 0) {
+        alert("Debe seleccionar al menos un área para desasociar");
+        return;
+      }
+
+      // Confirmar la acción con el usuario
+      if (!confirm(`¿Está seguro que desea desasociar ${areasParaDesasociar.length} área(s) de esta olimpiada? Esta acción podría afectar a los participantes ya inscritos.`)) {
+        return;
+      }
+
       setGuardando(true);
+
   
       try {
         // Obtener CSRF token para autenticación
@@ -390,32 +399,30 @@ const DesasignarAreaNivel = () => {
         // Preparar datos para enviar
         const datosAEnviar = {
           id_olimpiada: olimpiadaSeleccionada,
-          areas: combinaciones.map((combo) => ({
-            area: combo.area,
-            habilitado: !!combo.habilitado,
-            rangos: combo.rangos || [],
-            niveles: combo.niveles || []
-          }))
+          areas: combinaciones
+            .filter(combo => combo.yaAsociada && !combo.habilitado)
+            .map((combo) => ({
+              area: combo.area,
+              habilitado: false
+            }))
         };
+        console.log("Desasociando áreas:", datosAEnviar);
   
-        console.log("Guardando configuración:", datosAEnviar);
   
         // Enviar la solicitud al servidor
         const response = await axios.post(
-          'http://localhost:8000/asociar-areas-olimpiada',
+          'http://localhost:8000/desasociar-areas-olimpiada', 
           datosAEnviar,
           config
         );
   
-        console.log("Respuesta del servidor:", response.data);
-  
-        if (response.status === 200) {
-          setMensajeExito("¡Áreas asociadas exitosamente!");
-          setTimeout(() => setMensajeExito(""), 3000);
-          
-          // Recargar las áreas para mostrar el estado actualizado
-          cargarAreasAsociadas(olimpiadaSeleccionada);
-        } else {
+    if (response.status === 200) {
+      setMensajeExito("¡Áreas desasociadas exitosamente!");
+      setTimeout(() => setMensajeExito(""), 3000);
+      
+      // Recargar las áreas para mostrar el estado actualizado
+      cargarAreasAsociadas(olimpiadaSeleccionada);
+    } else {
           throw new Error("Error al guardar la configuración");
         }
       } catch (error) {
@@ -484,7 +491,8 @@ const DesasignarAreaNivel = () => {
               obtenerOpcionesPorArea={obtenerOpcionesPorArea}
               setCombinaciones={setCombinaciones}
               eliminarCombinacion={eliminarCombinacion}
-              olimpiadaSeleccionada={olimpiadaSeleccionada}  
+              olimpiadaSeleccionada={olimpiadaSeleccionada}
+              modoAsociacion={false} 
             />
           ))}
 
@@ -493,6 +501,7 @@ const DesasignarAreaNivel = () => {
             olimpiadaSeleccionada={olimpiadaSeleccionada}
             guardando={guardando}
             mensajeExito={mensajeExito}
+            textoBoton="Desasociar Áreas Seleccionadas"
           />
         </>
       )}
