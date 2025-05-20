@@ -47,127 +47,43 @@ const SelectorAreaGrado = () => {
     return opciones[area] || [];
   };
   // BASE DE DATOS DETERMINADA
-  const [combinaciones, setCombinaciones] = useState([
-    {
-      area: "Astronomía-Astrofísica",
-      modoRango: false,
-      niveles: [
-        { nivel: "3P", grado: "3ro Primaria" },
-        { nivel: "4P", grado: "4to Primaria" },
-        { nivel: "5P", grado: "5to Primaria" },
-        { nivel: "6P", grado: "6to Primaria" },
-        { nivel: "1S", grado: "1ro Secundaria" },
-        { nivel: "2S", grado: "2do Secundaria" },
-        { nivel: "3S", grado: "3ro Secundaria" },
-        { nivel: "4S", grado: "4to Secundaria" },
-        { nivel: "5S", grado: "5to Secundaria" },
-        { nivel: "6S", grado: "6to Secundaria" },
-      ],
-      categoriasRango: [],
-      checkboxesNivel: Array(10).fill(true),
-      habilitado: false,
-    },
-    {
-      area: "Biología",
-      modoRango: false,
-      niveles: [
-        { nivel: "2S", grado: "2do Secundaria" },
-        { nivel: "3S", grado: "3ro Secundaria" },
-        { nivel: "4S", grado: "4to Secundaria" },
-        { nivel: "5S", grado: "5to Secundaria" },
-        { nivel: "6S", grado: "6to Secundaria" },
-      ],
-      categoriasRango: [],
-      checkboxesNivel: Array(5).fill(true),
-      habilitado: false,
-    },
-    {
-      area: "Física",
-      modoRango: false,
-      niveles: [
-        { nivel: "4S", grado: "4to Secundaria" },
-        { nivel: "5S", grado: "5to Secundaria" },
-        { nivel: "6S", grado: "6to Secundaria" },
-      ],
-      categoriasRango: [],
-      checkboxesNivel: Array(3).fill(true),
-      habilitado: false,
-    },
-    {
-      area: "Informática",
-      modoRango: false,
-      niveles: [
-        { nivel: "Guacamayo", grado: "Guacamayo" },
-        { nivel: "Guanaco", grado: "Guanaco" },
-        { nivel: "Londra", grado: "Londra" },
-        { nivel: "Jucumari", grado: "Jucumari" },
-        { nivel: "Bufeo", grado: "Bufeo" },
-        { nivel: "Puma", grado: "Puma" },
-      ],
-      rangos: [
-        { nivel: "Guacamayo", desde: "5to Primaria", hasta: "6to Primaria" },
-        { nivel: "Guanaco", desde: "1ro Secundaria", hasta: "3ro Secundaria" },
-        { nivel: "Londra", desde: "1ro Secundaria", hasta: "3ro Secundaria" },
-        { nivel: "Jucumari", desde: "4to Secundaria", hasta: "6to Secundaria" },
-        { nivel: "Bufeo", desde: "1ro Secundaria", hasta: "3ro Secundaria" },
-        { nivel: "Puma", desde: "4to Secundaria", hasta: "6to Secundaria" },
-      ],
-
-      categoriasRango: [],
-      habilitado: false,
-    },
-    {
-      area: "Matemáticas",
-      modoRango: false,
-      niveles: [
-        { nivel: "Primer Nivel", grado: "1ro Secundaria" },
-        { nivel: "Segundo Nivel", grado: "2do Secundaria" },
-        { nivel: "Tercer Nivel", grado: "3ro Secundaria" },
-        { nivel: "Cuarto Nivel", grado: "4to Secundaria" },
-        { nivel: "Quinto Nivel", grado: "5to Secundaria" },
-        { nivel: "Sexto Nivel", grado: "6to Secundaria" },
-      ],
-      categoriasRango: [],
-      checkboxesNivel: Array(7).fill(true),
-      habilitado: false,
-    },
-    {
-      area: "Química",
-      modoRango: false,
-      niveles: [
-        { nivel: "2S", grado: "2do Secundaria" },
-        { nivel: "3S", grado: "3ro Secundaria" },
-        { nivel: "4S", grado: "4to Secundaria" },
-        { nivel: "5S", grado: "5to Secundaria" },
-        { nivel: "6S", grado: "6to Secundaria" },
-      ],
-      categoriasRango: [],
-      checkboxesNivel: Array(5).fill(true),
-      habilitado: false,
-    },
-    {
-      area: "Robótica",
-      modoRango: false,
-      niveles: [
-        { nivel: "Builders P", grado: "Builders Primaria" },
-        { nivel: "Builders S", grado: "Builders Secundaria" },
-        { nivel: "Lego P", grado: "Lego Primaria" },
-        { nivel: "Lego S", grado: "Lego Secundaria" },
-      ],
-      rangos: [
-        { nivel: "BuildersP", desde: "5to Primaria", hasta: "6to Primaria" },
-        {
-          nivel: "BuildersS",
-          desde: "1ro Secundaria",
-          hasta: "6to Secundaria",
-        },
-        { nivel: "LegoP", desde: "5to Primaria", hasta: "6to Primaria" },
-        { nivel: "LegoS", desde: "1ro Secundaria", hasta: "6to Secundaria" },
-      ],
-      categoriasRango: [],
-      habilitado: false,
-    },
-  ]);
+const [combinaciones, setCombinaciones] = useState([
+  {
+    area: "Astronomía-Astrofísica",
+    habilitado: false,
+    categorias: []
+  },
+  {
+    area: "Biología",
+    habilitado: false,
+    categorias: []
+  },
+  {
+    area: "Física",
+    habilitado: false,
+    categorias: []
+  },
+  {
+    area: "Informática",
+    habilitado: false,
+    categorias: []
+  },
+  {
+    area: "Matemáticas",
+    habilitado: false,
+    categorias: []
+  },
+  {
+    area: "Química",
+    habilitado: false,
+        categorias: []
+  },
+  {
+    area: "Robótica",
+    habilitado: false,
+    categorias: []
+  },
+]);
 
   useEffect(() => {
     const cargarOlimpiadas = async () => {
@@ -307,17 +223,29 @@ const cargarAreasAsociadas = async (idOlimpiada) => {
           
           if (areaAsociada) {
             console.log(`COINCIDENCIA ENCONTRADA para "${combo.area}"`);
+            
+            // Obtener las categorías del área asociada desde el backend
+            const categoriasBackend = []; // Aquí deberías obtener las categorías del backend
+            
             return {
               ...combo,
               habilitado: true,
-              yaAsociada: true // Marcar que ya estaba asociada
+              yaAsociada: true,
+              // Convertir categorías del backend al nuevo formato
+              categorias: categoriasBackend.map(cat => ({
+                nombre: cat.nivel,
+                desde: cat.desde || cat.grado,
+                hasta: cat.hasta || cat.grado
+              }))
             };
           } else {
             console.log(`NO HAY COINCIDENCIA para "${combo.area}"`);
             return {
               ...combo,
               habilitado: false,
-              yaAsociada: false
+              yaAsociada: false,
+              // Mantener las categorías vacías para áreas no asociadas
+              categorias: []
             };
           }
         });
@@ -357,8 +285,17 @@ const cargarAreasAsociadas = async (idOlimpiada) => {
       alert("Debe habilitar al menos un área de competencia");
       return;
     }
+  const areasSinCategorias = areasHabilitadas.filter(combo => 
+    !combo.categorias || combo.categorias.length === 0
+  );
+  
+  if (areasSinCategorias.length > 0) {
+    const areasNombres = areasSinCategorias.map(a => a.area).join(", ");
+    alert(`Las siguientes áreas no tienen categorías definidas: ${areasNombres}. Debe definir al menos una categoría por área.`);
+    return;
+  }
 
-    setGuardando(true);
+  setGuardando(true);
 
     try {
       // Obtener CSRF token para autenticación
@@ -379,15 +316,25 @@ const cargarAreasAsociadas = async (idOlimpiada) => {
       };
       
       // Preparar datos para enviar
-      const datosAEnviar = {
-        id_olimpiada: olimpiadaSeleccionada,
-        areas: combinaciones.map((combo) => ({
-          area: combo.area,
-          habilitado: !!combo.habilitado,
-          rangos: combo.rangos || [],
-          niveles: combo.niveles || []
-        }))
-      };
+    const datosAEnviar = {
+      id_olimpiada: olimpiadaSeleccionada,
+      areas: combinaciones
+        .filter(combo => combo.habilitado)
+        .map((combo) => {
+          // Transformar las categorías al formato esperado por el backend
+          const categoriasFormateadas = combo.categorias.map(cat => ({
+            nivel: cat.nombre,
+            desde: cat.desde,
+            hasta: cat.hasta
+          }));
+          
+          return {
+            area: combo.area,
+            habilitado: true,
+            rangos: categoriasFormateadas
+          };
+        })
+    };
 
       console.log("Guardando configuración:", datosAEnviar);
 
