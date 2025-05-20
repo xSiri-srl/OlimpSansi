@@ -38,6 +38,10 @@ Route::middleware('auth:sanctum')->group(function () {
     
         //Actualizar costos por área
         Route::post('/actualizar-costos-olimpiada', [OlimpiadaAreaController::class, 'actualizarCostos']);
+        
+        Route::post('/asociar-areas-olimpiada', [OlimpiadaAreaController::class, 'asociarAreas']);
+        Route::post('/desasociar-areas-olimpiada', [OlimpiadaAreaController::class, 'desasociarAreas']);
+   
     });
 });
     

@@ -282,14 +282,13 @@ const cargarAreasAsociadas = async (idOlimpiada) => {
     if (response.status === 200 && response.data.data) {
       const areasAsociadas = response.data.data;
       
-      // Función auxiliar para normalizar nombres (elimina todo excepto letras y números)
+
       const normalizarNombre = (nombre) => {
         return nombre.toUpperCase()
-          .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Eliminar acentos
-          .replace(/[^A-Z0-9]/g, ""); // Eliminar caracteres especiales y espacios
+          .normalize("NFD").replace(/[\u0300-\u036f]/g, "") 
+          .replace(/[^A-Z0-9]/g, ""); 
       };
-      
-      // Crear un mapa de áreas asociadas normalizadas para búsqueda eficiente
+    
       const areasNormalizadasMap = new Map();
       
       areasAsociadas.forEach(area => {
@@ -297,37 +296,31 @@ const cargarAreasAsociadas = async (idOlimpiada) => {
         console.log(`Área del backend normalizada: "${area.area}" -> "${nombreNormalizado}"`);
         areasNormalizadasMap.set(nombreNormalizado, area);
       });
-      
-      // Actualizar el estado de combinaciones
+
       setCombinaciones(prev => {
         const nuevasCombinaciones = prev.map(combo => {
           // Normalizar el nombre del área del frontend
-          const nombreNormalizado = normalizarNombre(combo.area);
+                    const nombreNormalizado = normalizarNombre(combo.area);
           console.log(`Área del frontend normalizada: "${combo.area}" -> "${nombreNormalizado}"`);
-          
-          // Buscar si esta área normalizada existe en las áreas asociadas
+      
           const areaAsociada = areasNormalizadasMap.get(nombreNormalizado);
           
           if (areaAsociada) {
-            console.log(`✅ COINCIDENCIA ENCONTRADA para "${combo.area}"`);
+            console.log(`COINCIDENCIA ENCONTRADA para "${combo.area}"`);
             return {
               ...combo,
               habilitado: true,
+              yaAsociada: true // Marcar que ya estaba asociada
             };
           } else {
-            console.log(`❌ NO HAY COINCIDENCIA para "${combo.area}"`);
+            console.log(`NO HAY COINCIDENCIA para "${combo.area}"`);
             return {
               ...combo,
               habilitado: false,
+              yaAsociada: false
             };
           }
         });
-        
-        console.log("Resultado final de áreas:", nuevasCombinaciones.map(c => ({
-          area: c.area,
-          habilitado: c.habilitado,
-          normalizado: normalizarNombre(c.area)
-        })));
         
         return nuevasCombinaciones;
       });
@@ -474,19 +467,20 @@ const cargarAreasAsociadas = async (idOlimpiada) => {
           </div>
         ) : (
           <>
-            {combinaciones.map((combo, comboIndex) => (
-              <AreaCompetencia
-                key={comboIndex}
-                combo={combo}
-                comboIndex={comboIndex}
-                gradosDisponibles={gradosDisponibles}
-                combinaciones={combinaciones}
-                obtenerOpcionesPorArea={obtenerOpcionesPorArea}
-                setCombinaciones={setCombinaciones}
-                eliminarCombinacion={eliminarCombinacion}
-                olimpiadaSeleccionada={olimpiadaSeleccionada}  
-              />
-            ))}
+      {combinaciones.map((combo, comboIndex) => (
+        <AreaCompetencia
+          key={comboIndex}
+          combo={combo}
+          comboIndex={comboIndex}
+          gradosDisponibles={gradosDisponibles}
+          combinaciones={combinaciones}
+          obtenerOpcionesPorArea={obtenerOpcionesPorArea}
+          setCombinaciones={setCombinaciones}
+          eliminarCombinacion={eliminarCombinacion}
+          olimpiadaSeleccionada={olimpiadaSeleccionada}
+          modoAsociacion={true}
+        />
+      ))}
 
             <AccionesFooter
               guardarConfiguracion={guardarConfiguracion}

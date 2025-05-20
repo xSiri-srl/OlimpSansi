@@ -9,6 +9,7 @@ const AreaCompetencia = ({
   setCombinaciones,
   eliminarCombinacion,
   olimpiadaSeleccionada,
+  modoAsociacion = true,
 }) => {
   const [mostrarDetalles, setMostrarDetalles] = useState(false);
 
@@ -17,6 +18,18 @@ const AreaCompetencia = ({
     // No permitir cambios si no hay olimpiada seleccionada
     if (!olimpiadaSeleccionada) {
       alert("Por favor seleccione una olimpiada primero");
+      return;
+    }
+    
+    // En modo asociación, solo permitir asociar (no desasociar áreas ya asociadas)
+    if (modoAsociacion && combo.yaAsociada && !checked) {
+      alert("En esta sección solo puedes asociar áreas. Para desasociar áreas, usa la sección 'Desasignar Áreas'");
+      return;
+    }
+    
+    // En modo desasociación, solo permitir desasociar (no asociar áreas no asociadas)
+    if (!modoAsociacion && !combo.yaAsociada && checked) {
+      alert("En esta sección solo puedes desasociar áreas. Para asociar áreas, usa la sección 'Asignar Áreas'");
       return;
     }
     
@@ -45,6 +58,7 @@ const AreaCompetencia = ({
     
     return imageMap[area] || "/placeholder.svg";
   };
+
 
   const handleRangoChange = (comboIndex, rangoKey, nuevoRango, tipo) => {
     setCombinaciones((prev) =>
@@ -228,7 +242,8 @@ const AreaCompetencia = ({
 
   const estaHabilitada = combo.habilitado || false;
   const sePuedeHabilitar = !!olimpiadaSeleccionada;
-
+  const esInteractuable = sePuedeHabilitar && 
+    (modoAsociacion ? !combo.yaAsociada : combo.yaAsociada);
   return (
     <div className={`relative bg-white p-4 rounded-lg mb-6 shadow-md transition-all duration-300 ${
       estaHabilitada ? 'border-l-4 border-blue-500' : 
@@ -239,7 +254,20 @@ const AreaCompetencia = ({
         <div className="absolute inset-0 bg-gray-100 bg-opacity-40 flex flex-col items-center justify-center z-10 backdrop-blur-[1px] rounded-lg">
           <FaLock className="text-gray-500 text-3xl mb-2" />
           <p className="text-gray-600 text-center font-medium px-4">
-            Seleccione una olimpiada para asociar áreas de competencia
+            Seleccione una olimpiada para {modoAsociacion ? "asociar" : "desasociar"} áreas de competencia
+          </p>
+        </div>
+      )}
+
+            {/* Mostrar mensaje cuando el área no es interactuable según el modo */}
+      {sePuedeHabilitar && !esInteractuable && (
+        <div className="absolute inset-0 bg-gray-100 bg-opacity-40 flex flex-col items-center justify-center z-10 backdrop-blur-[1px] rounded-lg">
+          <FaLock className="text-gray-500 text-3xl mb-2" />
+          <p className="text-gray-600 text-center font-medium px-4">
+            {modoAsociacion 
+              ? "Esta área ya está asociada. Para desasociarla, usa 'Desasignar Áreas'"
+              : "Esta área no está asociada a esta olimpiada. Para asociarla, usa 'Asignar Áreas'"
+            }
           </p>
         </div>
       )}
@@ -255,11 +283,11 @@ const AreaCompetencia = ({
           
           <div
             className={`absolute top-0 right-0 w-8 h-8 rounded-full border-2 flex items-center justify-center ${
-              sePuedeHabilitar ? 'cursor-pointer' : 'cursor-not-allowed'
+              esInteractuable ? 'cursor-pointer' : 'cursor-not-allowed'
             } transition-colors ${
               estaHabilitada ? 'border-blue-500 bg-blue-50' : 'border-gray-400 bg-white'
             }`}
-            onClick={() => sePuedeHabilitar && handleAreaToggle(!estaHabilitada)}
+            onClick={() => esInteractuable && handleAreaToggle(!estaHabilitada)}
           >
             {estaHabilitada && <FaCheck className="text-blue-600" />}
           </div>
@@ -270,17 +298,17 @@ const AreaCompetencia = ({
           {/* Título del área y estado */}
           <div className="text-center mb-4">
             <h2 className="text-xl font-bold text-blue-700">{combo.area}</h2>
-            <p className={`text-sm ${
-              estaHabilitada ? 'text-green-600' : 
-              !sePuedeHabilitar ? 'text-gray-400' : 
-              'text-gray-500'
-            }`}>
-              {estaHabilitada ? 
-                'Área asociada' : 
-                !sePuedeHabilitar ? 'Seleccione una olimpiada' : 
-                'Área no asociada'
-              }
-            </p>
+            <div className="flex justify-center mt-1">
+              {combo.yaAsociada ? (
+                <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                  Área asociada
+                </span>
+              ) : (
+                <span className="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                  Área no asociada
+                </span>
+              )}
+            </div>
           </div>
 
 
