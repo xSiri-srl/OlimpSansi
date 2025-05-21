@@ -132,15 +132,15 @@ const CrearOlimpiadas = () => {
             {errores.titulo && <p className="text-red-600 text-sm mt-1">{errores.titulo}</p>}
           </div>
 
-          {/* Período de inscripción */}
+          {/* Gestión de inscripción */}
           <div>
-            <label className="block text-sm font-medium text-cyan-800 mb-1">Período de inscripción</label>
+            <label className="block text-sm font-medium text-cyan-800 mb-1">Gestión de inscripción</label>
             <select
               value={periodoIns}
               onChange={(e) => setPeriodoIns(e.target.value)}
               className="w-full border rounded-lg px-4 py-2 transition focus:outline-none focus:ring-2"
             >
-              <option value="">Seleccione el periodo</option>
+              <option value="">Seleccione la gestión</option>
               {years.map((year) => (
                 <option key={year} value={year}>{year}</option>
               ))}
@@ -150,7 +150,7 @@ const CrearOlimpiadas = () => {
 
           {/* Fecha de inicio */}
           <div>
-            <label className="block text-sm font-medium text-cyan-800 mb-1">Fecha de inicio</label>
+            <label className="block text-sm font-medium text-cyan-800 mb-1">Fecha inicio de inscripción</label>
             <input
               type="date"
               value={fechaIni}
@@ -162,7 +162,7 @@ const CrearOlimpiadas = () => {
 
           {/* Fecha final */}
           <div>
-            <label className="block text-sm font-medium text-cyan-800 mb-1">Fecha final</label>
+            <label className="block text-sm font-medium text-cyan-800 mb-1">Fecha final de inscripción</label>
             <input
               type="date"
               value={fechaFinal}
