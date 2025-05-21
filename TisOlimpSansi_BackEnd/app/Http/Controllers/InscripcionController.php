@@ -485,44 +485,150 @@ public function listarInscritos()
         return response()->json($resultado);
     }
 
-public function inscripcionesPorCategoria()
-{
-    $categorias = CategoriaModel::with('area')->get();
-    $resultado = [];
+    public function inscripcionesPorCategoria()
+    {
+        $categorias = CategoriaModel::with('area')->get();
+        $resultado = [];
 
-    foreach ($categorias as $categoria) {
-        // Contar inscritos (con comprobante)
-        $inscritos = DB::table('inscripcion_categoria')
-            ->join('inscripcion', 'inscripcion_categoria.id_inscripcion', '=', 'inscripcion.id')
-            ->join('orden_pagos', 'inscripcion.id_orden_pago', '=', 'orden_pagos.id')
-            ->where('inscripcion_categoria.id_categoria', $categoria->id)
-            ->whereNotNull('orden_pagos.comprobante_url')
-            ->count();
-            
-        // Contar preinscritos (sin comprobante pero con orden de pago)
-        $preinscritos = DB::table('inscripcion_categoria')
-            ->join('inscripcion', 'inscripcion_categoria.id_inscripcion', '=', 'inscripcion.id')
-            ->join('orden_pagos', 'inscripcion.id_orden_pago', '=', 'orden_pagos.id')
-            ->where('inscripcion_categoria.id_categoria', $categoria->id)
-            ->whereNull('orden_pagos.comprobante_url')
-            ->whereNotNull('orden_pagos.orden_pago_url')
-            ->count();
-            
-        $resultado[] = [
-            'categoria' => $categoria->nombre_categoria . ' (' . $categoria->area->nombre_area . ')',
-            'inscritos' => $inscritos,
-            'preinscritos' => $preinscritos
-        ];
-    }
-    
-    return response()->json($resultado);
-}
+        foreach ($categorias as $categoria) {
+            // Contar inscritos (con comprobante)
+            $inscritos = DB::table('inscripcion_categoria')
+                ->join('inscripcion', 'inscripcion_categoria.id_inscripcion', '=', 'inscripcion.id')
+                ->join('orden_pagos', 'inscripcion.id_orden_pago', '=', 'orden_pagos.id')
+                ->where('inscripcion_categoria.id_categoria', $categoria->id)
+                ->whereNotNull('orden_pagos.comprobante_url')
+                ->count();
+                
+            // Contar preinscritos (sin comprobante pero con orden de pago)
+            $preinscritos = DB::table('inscripcion_categoria')
+                ->join('inscripcion', 'inscripcion_categoria.id_inscripcion', '=', 'inscripcion.id')
+                ->join('orden_pagos', 'inscripcion.id_orden_pago', '=', 'orden_pagos.id')
+                ->where('inscripcion_categoria.id_categoria', $categoria->id)
+                ->whereNull('orden_pagos.comprobante_url')
+                ->whereNotNull('orden_pagos.orden_pago_url')
+                ->count();
+                
+            $resultado[] = [
+                'categoria' => $categoria->nombre_categoria . ' (' . $categoria->area->nombre_area . ')',
+                'inscritos' => $inscritos,
+                'preinscritos' => $preinscritos
+            ];
+        }
         
-    public function registrosPorCodigo(Request $request){
-        $codigo = $request -> input('codigo');
-        return response()->json([
-            'res' => 'Hola',
-            'codigo_recibido' => $codigo // Para verificar que recibiste el código
-        ]);
+        return response()->json($resultado);
+    }
+            
+    public function registrosPorCodigo(Request $request)
+    {
+        try {
+            $codigo = $request->input('codigo');
+
+            $ordenPago = OrdenPago::where('codigo_generado', $codigo)->first();
+
+            if (!$ordenPago) {
+                return response()->json([
+                    'status' => 404,
+                    'message' => 'Código no encontrado.'
+                ], 404);
+            }
+
+            $inscripciones = InscripcionModel::with([
+                'estudiante.grado',
+                'estudiante.colegio',
+                'tutorLegal',
+                'tutorAcademico',
+                'olimpiadaAreaCategoria.area',
+                'olimpiadaAreaCategoria.categoria'
+            ])->where('id_orden_pago', $ordenPago->id)->get();
+
+            if ($inscripciones->isEmpty()) {
+                return response()->json([
+                    'status' => 404,
+                    'message' => 'No se encontraron inscripciones asociadas a este código.'
+                ], 404);
+            }
+
+            $grupoPorEstudiante = $inscripciones->groupBy('id_estudiante');
+            $resultados = [];
+
+            foreach ($grupoPorEstudiante as $inscripcionesEstudiante) {
+                $primera = $inscripcionesEstudiante->first();
+                $estudiante = $primera->estudiante;
+                $grado = $estudiante->grado;
+                $colegio = $estudiante->colegio;
+                $tutorLegal = $primera->tutorLegal ?? null;
+                $responsable = $ordenPago->responsable;
+
+                $areas_competencia = [];
+                $tutores_academicos = [];
+
+                foreach ($inscripcionesEstudiante as $inscripcion) {
+                    $areaCategoria = $inscripcion->olimpiadaAreaCategoria;
+                    $area = $areaCategoria->area;
+                    $categoria = $areaCategoria->categoria;
+
+                    $areas_competencia[] = [
+                        'nombre_area' => $area->nombre_area,
+                        'categoria' => $categoria->nombre_categoria
+                    ];
+
+                    $tutorAcademico = $inscripcion->tutorAcademico;
+
+                    $tutores_academicos[] = [
+                        'nombre_area' => $area->nombre_area,
+                        'tutor' => [
+                            'nombre' => $tutorAcademico->nombre ?? '',
+                            'apellido_pa' => $tutorAcademico->apellido_pa ?? '',
+                            'apellido_ma' => $tutorAcademico->apellido_ma ?? '',
+                            'ci' => $tutorAcademico->ci ?? '',
+                            'correo' => $tutorAcademico->correo ?? '',
+                        ]
+                    ];
+                }
+
+                $resultados[] = [
+                    'responsable_inscripcion' => [
+                        'nombre' => $responsable->nombre,
+                        'apellido_pa' => $responsable->apellido_pa,
+                        'apellido_ma' => $responsable->apellido_ma,
+                        'ci' => $responsable->ci
+                    ],
+                    'estudiante' => [
+                        'nombre' => $estudiante->nombre,
+                        'apellido_pa' => $estudiante->apellido_pa,
+                        'apellido_ma' => $estudiante->apellido_ma,
+                        'ci' => $estudiante->ci,
+                        'correo' => $estudiante->correo,
+                        'fecha_nacimiento' => $estudiante->fecha_nacimiento,
+                        'propietario_correo' => $estudiante->propietario_correo,
+                    ],
+                    'colegio' => [
+                        'nombre_colegio' => $colegio->nombre_colegio,
+                        'curso' => $grado->nombre_grado,
+                        'departamento' => $colegio->departamento,
+                        'distrito' => $colegio->distrito,
+                    ],
+                    'tutor_legal' => [
+                        'nombre' => $tutorLegal->nombre ?? '',
+                        'apellido_pa' => $tutorLegal->apellido_pa ?? '',
+                        'apellido_ma' => $tutorLegal->apellido_ma ?? '',
+                        'ci' => $tutorLegal->ci ?? '',
+                        'correo' => $tutorLegal->correo ?? '',
+                        'numero_celular' => $tutorLegal->numero_celular ?? '',
+                        'tipo' => $tutorLegal->tipo ?? '',
+                    ],
+                    'areas_competencia' => $areas_competencia,
+                    'tutores_academicos' => $tutores_academicos
+                ];
+            }
+
+            return response()->json($resultados);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 500,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
 }
