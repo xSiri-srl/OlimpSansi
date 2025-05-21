@@ -9,6 +9,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
+
 class OlimpiadaController extends Controller
 {
     public function index()
@@ -157,4 +158,33 @@ public function getOlimpiadasPublicas()
         'data' => $olimpiadas,
     ]);
 }
+
+public function getTodasLasOlimpiadas(): JsonResponse
+{
+    try {
+        $olimpiadas = OlimpiadaModel::select('id', 'titulo', 'fecha_ini', 'fecha_fin')
+            ->orderBy('fecha_ini', 'asc') // Opcional: ordena por fecha de inicio
+            ->get();
+
+        if ($olimpiadas->isEmpty()) {
+            return response()->json([
+                'status' => 204,
+                'message' => 'No hay olimpiadas registradas.'
+            ]);
+        }
+
+        return response()->json([
+            'status' => 200,
+            'data' => $olimpiadas,
+        ]);
+    } catch (\Exception $e) {
+        \Log::error('Error al obtener todas las olimpiadas: ' . $e->getMessage());
+
+        return response()->json([
+            'status' => 500,
+            'error' => 'Ocurrió un error al recuperar las olimpiadas.'
+        ]);
+    }
+}
+
 }

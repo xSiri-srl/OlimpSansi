@@ -162,6 +162,7 @@ Route::get('/dinero-por-departamento', [OrdenPagoController::class, 'dineroRecau
 Route::get('/ordenes-recientes', [OrdenPagoController::class, 'obtenerOrdenesConResponsable']);
 Route::get('/orden-de-pago/info', [OrdenPagoController::class, 'getInfOrdenesDePago']);
 Route::get('/orden-pago-existe/{codigo}', [OrdenPagoController::class, 'ordenPagoExiste']);
+Route::get('/todas-publicas', [OlimpiadaController::class, ' getTodasLasOlimpiadas']);
 
 
 Route::post('/guardar-comprobante', [ComprobanteController::class, 'guardarComprobante']);
