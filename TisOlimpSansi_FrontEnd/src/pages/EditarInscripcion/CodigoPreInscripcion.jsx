@@ -70,7 +70,11 @@ const CodigoPreInscripcion = () => {
         processStudents(response.data.estudiantes);
       }
     } catch (err) {
-      setError("Error al verificar el código. Intente nuevamente.");
+      if (axios.isAxiosError(err) && err.response?.status === 404) {
+        setError("No se encontraron Pre Inscripciones asociadas a este código.");
+      } else {
+        setError("Error al verificar el código. Intente nuevamente.");
+      }
       console.error(err);
     } finally {
       setLoading(false);
