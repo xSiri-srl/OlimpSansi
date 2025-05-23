@@ -63,7 +63,7 @@
     </div>
 
     <!-- Orden de Pago -->
-    <h4 class="mb-3">Orden de Pago: {{ $ordenPago->codigo_generado }}</h4>
+    <h4 class="mb-3">Orden de Pago: 00{{ $ordenPago->id }}</h4>
 
     <!-- Unidad -->
     <p><span class="section-label">Emitido por la Unidad:</span><br>
@@ -96,7 +96,7 @@
         <tbody>
             <tr class="text-center">
                 <td>{{ intval($ordenPago->monto_total / 20) }}</td>
-                <td>Inscripción de un estudiante en un area</td>
+                <td>Inscripción de estudiante(s) para olimpiada asociado al codigo de preinscripcion {{$ordenPago->codigo_generado}}</td>
                 <td>20 </td>
                 <td>{{ number_format($ordenPago->monto_total, 2) }}</td>
             </tr>
