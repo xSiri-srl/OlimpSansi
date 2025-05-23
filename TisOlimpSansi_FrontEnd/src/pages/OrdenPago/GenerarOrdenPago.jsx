@@ -1,25 +1,26 @@
 import { useEffect, useState } from "react";
-import { FaCloudUploadAlt, FaDownload } from "react-icons/fa";
+import { FaCloudUploadAlt, FaDownload, FaEye, FaEyeSlash } from "react-icons/fa";
 import axios from "axios";
-
 
 const GenerarOrdenPago = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [codigoGenerado, setCodigoGenerado] = useState("");
   const [resumen, setResumen] = useState(null);
-  const [generando, setGenerando] = useState(false);
+  const [cargando, setCargando] = useState(false);
   const [descargando, setDescargando] = useState(false);
   const [mostrarModal, setMostrarModal] = useState(false);
   const [ordenYaGenerada, setOrdenYaGenerada] = useState(false);
-  const [cargando, setCargando] = useState(false);
   const [progreso, setProgreso] = useState(0);
+  const [pdfUrl, setPdfUrl] = useState(null); // Estado para la previsualización
+  const [mostrarPrevisualizacion, setMostrarPrevisualizacion] = useState(false); // Estado para mostrar/ocultar previsualización
 
+  const endpoint = "http://localhost:8000/api";
 
-
+  // Efecto para la barra de progreso
   useEffect(() => {
     let timer;
-    if (cargando) {
+    if (cargando || descargando) {
       setProgreso(0);
       timer = setInterval(() => {
         setProgreso((prev) => {
@@ -32,10 +33,26 @@ const GenerarOrdenPago = () => {
       }, 200);
     }
     return () => clearInterval(timer);
-  }, [cargando]);
+  }, [cargando, descargando]);
 
-  const endpoint = "http://localhost:8000/api";
+  // Nueva función para obtener el PDF
+  const obtenerPdf = async () => {
+    try {
+      const pdfResponse = await axios.get(
+        `${endpoint}/orden-pago/${codigoGenerado}`,
+        { responseType: "blob" }
+      );
+      const pdfBlob = new Blob([pdfResponse.data], { type: "application/pdf" });
+      const url = window.URL.createObjectURL(pdfBlob);
+      setPdfUrl(url);
+      setMostrarPrevisualizacion(true); // Mostrar previsualización automáticamente
+    } catch (error) {
+      console.error("Error obteniendo el PDF:", error);
+      setError("Error al obtener el PDF para previsualización");
+    }
+  };
 
+  // Verificar si el código existe y obtener el resumen
   const verificarCodigo = async () => {
     setLoading(true);
     setError("");
@@ -44,7 +61,16 @@ const GenerarOrdenPago = () => {
         `${endpoint}/obtener-orden-pago/${codigoGenerado}`
       );
       if (response.status === 200) {
-        obtenerResumen(codigoGenerado);
+        await obtenerResumen(codigoGenerado);
+        // Verificar si la orden ya está generada
+        const existeResponse = await axios.get(
+          `${endpoint}/orden-pago-existe/${codigoGenerado}`
+        );
+        setOrdenYaGenerada(existeResponse.data.existe);
+        if (existeResponse.data.existe) {
+          // Si la orden ya existe, obtener el PDF para previsualización
+          await obtenerPdf();
+        }
       }
     } catch (err) {
       if (err.response && err.response.status === 404) {
@@ -57,6 +83,7 @@ const GenerarOrdenPago = () => {
     }
   };
 
+  // Obtener el resumen de la orden
   const obtenerResumen = async (codigo) => {
     try {
       const response = await axios.get(
@@ -68,29 +95,37 @@ const GenerarOrdenPago = () => {
       setError("Error al obtener el resumen");
     }
   };
+
+  // Generar la orden de pago
   const confirmarGenerarOrden = async () => {
-    setMostrarModal(false); // Cierra modal de confirmación
-    setCargando(true);       // Activa barra de carga
+    setMostrarModal(false);
+    setCargando(true);
     setProgreso(0);
-  
-    let current = 0;
-    const simulacion = setInterval(() => {
-      current += 10;
-      setProgreso(current);
-      if (current >= 100) clearInterval(simulacion);
-    }, 80);
-  
+
     try {
-      const response = await axios.get(`${endpoint}/orden-pago-existe/${codigoGenerado}`);
+      const response = await axios.get(
+        `${endpoint}/orden-pago-existe/${codigoGenerado}`
+      );
       if (response.data.existe) {
         setOrdenYaGenerada(true);
-      } else {
-        await axios.post(`${endpoint}/orden-pago/pdf`, { codigo_generado: codigoGenerado });
-        console.log("Orden de pago generada correctamente");
+        setCargando(false);
+        await obtenerPdf(); // Obtener el PDF si ya existe
+        return;
       }
+
+      await axios.post(
+        `${endpoint}/orden-pago/pdf`,
+        { codigo_generado: codigoGenerado },
+        { responseType: "blob" }
+      );
+      console.log("Orden de pago generada correctamente");
+      setOrdenYaGenerada(true);
+
+      // Obtener el PDF recién generado para previsualización
+      await obtenerPdf();
     } catch (error) {
       console.error("Error generando la orden de pago:", error);
-      alert("Error generando la orden de pago.");
+      setError("Error generando la orden de pago.");
     } finally {
       setTimeout(() => {
         setCargando(false);
@@ -98,39 +133,34 @@ const GenerarOrdenPago = () => {
       }, 1000);
     }
   };
-  
 
+  // Descargar el PDF
   const handleDownload = async () => {
     setDescargando(true);
     setProgreso(0);
-  
-    // Simulación de progreso del 0 al 100%
-    let current = 0;
-    const simulacion = setInterval(() => {
-      current += 10;
-      setProgreso(current);
-      if (current >= 100) {
-        clearInterval(simulacion);
-      }
-    }, 80); // velocidad de llenado (ajustable)
-  
+
     try {
-      const response = await axios.get(
-        `${endpoint}/orden-pago/${codigoGenerado}`,
-        {
-          responseType: "blob",
-        }
-      );
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", `orden_pago_${codigoGenerado}.pdf`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
+      if (pdfUrl) {
+        // Usar el pdfUrl existente para la descarga
+        const link = document.createElement("a");
+        link.href = pdfUrl;
+        link.setAttribute("download", `orden_pago_${codigoGenerado}.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      } else {
+        // Si no hay pdfUrl, obtener el PDF del servidor
+        await obtenerPdf();
+        const link = document.createElement("a");
+        link.href = pdfUrl;
+        link.setAttribute("download", `orden_pago_${codigoGenerado}.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      }
     } catch (error) {
       console.error("Error descargando PDF:", error);
-      alert("Error al descargar la orden de pago");
+      setError("Error al descargar la orden de pago");
     } finally {
       setTimeout(() => {
         setDescargando(false);
@@ -138,14 +168,19 @@ const GenerarOrdenPago = () => {
       }, 1000);
     }
   };
-  
+
+  // Alternar previsualización
+  const togglePrevisualizacion = () => {
+    setMostrarPrevisualizacion(!mostrarPrevisualizacion);
+  };
+
   return (
-    <div className="p-10">
-      <div className="max-w-4xl mx-auto bg-gray-200 p-9 shadow-lg rounded-lg">
+    <div className="p-6 sm:p-10">
+      <div className="max-w-4xl mx-auto bg-gray-100 p-6 sm:p-9 shadow-lg rounded-lg">
         <div>
-          <h2 className="text-xl font-semibold mb-4 text-gray-700">
-            Por favor, ingrese el código de orden de pago proporcionado en el
-            formulario de REGISTRAR COMPETIDOR.
+          <h2 className="text-lg sm:text-xl font-semibold mb-4 text-gray-700">
+            Ingrese el código de orden de pago proporcionado en el formulario de
+            REGISTRAR COMPETIDOR.
           </h2>
           <input
             type="text"
@@ -154,6 +189,9 @@ const GenerarOrdenPago = () => {
               setCodigoGenerado(e.target.value);
               setResumen(null);
               setError("");
+              setOrdenYaGenerada(false);
+              setPdfUrl(null);
+              setMostrarPrevisualizacion(false);
             }}
             className="w-full p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             placeholder="Ingrese el código"
@@ -198,9 +236,7 @@ const GenerarOrdenPago = () => {
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Carnet de Identidad</p>
-                    <p className="font-medium">
-                      {resumen.responsable.ci || ""}
-                    </p>
+                    <p className="font-medium">{resumen.responsable.ci || ""}</p>
                   </div>
                 </div>
               </div>
@@ -238,12 +274,8 @@ const GenerarOrdenPago = () => {
                             <td className="px-4 py-2 border">
                               {inscrito.categoria}
                             </td>
-                            <td className="px-4 py-2 border">
-                              {inscrito.area}
-                            </td>
-                            <td className="px-4 py-2 border">
-                              {inscrito.grado}
-                            </td>
+                            <td className="px-4 py-2 border">{inscrito.area}</td>
+                            <td className="px-4 py-2 border">{inscrito.grado}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -255,7 +287,6 @@ const GenerarOrdenPago = () => {
                 <h3 className="text-lg font-semibold text-blue-600 mb-3">
                   Importe
                 </h3>
-
                 <div className="flex justify-between border-b py-2">
                   <span className="text-gray-600 font-medium">
                     Costo por área
@@ -266,9 +297,7 @@ const GenerarOrdenPago = () => {
                   <span className="text-gray-600 font-medium">
                     Total de áreas
                   </span>
-                  <span className="font-semibold">
-                    {resumen.inscritos.length}
-                  </span>
+                  <span className="font-semibold">{resumen.inscritos.length}</span>
                 </div>
                 <div className="flex justify-between py-2 text-blue-700 font-bold text-lg">
                   <span>Total a pagar</span>
@@ -276,63 +305,112 @@ const GenerarOrdenPago = () => {
                 </div>
               </div>
             </div>
-            <div className="flex justify-center mt-6">
+
+            {/* Botones de acción */}
+            <div className="flex flex-col sm:flex-row justify-center gap-4 mt-6">
               <button
                 onClick={() => setMostrarModal(true)}
-                disabled={generando}
+                disabled={cargando || descargando}
                 className={`px-6 py-2 transition duration-300 ease-in-out text-white rounded-md shadow-md flex items-center gap-2 ${
-                  !generando
+                  !cargando && !descargando
                     ? "bg-blue-500 hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500"
                     : "bg-gray-400 cursor-not-allowed"
                 }`}
               >
-                {generando ? "Generando..." : "Generar Orden de Pago"}
+                <FaCloudUploadAlt />
+                {cargando ? "Generando..." : "Generar Orden de Pago"}
               </button>
-              {mostrarModal && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-                  <div className="bg-white p-8 rounded shadow-lg max-w-md w-full">
-                    {ordenYaGenerada ? (
-                      <>
-                        <h2 className="text-xl font-bold text-red-600 mb-4">
-                          ¡Ya existe una orden de pago generada!
-                        </h2>
-                        <div className="flex justify-end gap-4">
-                          <button
-                            onClick={() => setMostrarModal(false)}
-                            className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
-                          >
-                            Cerrar
-                          </button>
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <h2 className="text-xl font-bold text-gray-700 mb-4">
-                          ¿Está seguro de generar una orden de pago?
-                        </h2>
-                        <div className="flex justify-end gap-4">
-                          <button
-                            onClick={() => setMostrarModal(false)}
-                            className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
-                          >
-                            Cancelar
-                          </button>
-                          <button
-                            onClick={confirmarGenerarOrden}
-                            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                          >
-                            Confirmar
-                          </button>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </div>
+              {pdfUrl && (
+                <button
+                  onClick={togglePrevisualizacion}
+                  className="px-6 py-2 transition duration-300 ease-in-out text-white rounded-md shadow-md flex items-center gap-2 bg-green-500 hover:-translate-y-1 hover:scale-110 hover:bg-green-600"
+                >
+                  {mostrarPrevisualizacion ? <FaEyeSlash /> : <FaEye />}
+                  {mostrarPrevisualizacion
+                    ? "Ocultar Previsualización"
+                    : "Ver Previsualización"}
+                </button>
               )}
-              {cargando && (
+              <button
+                onClick={handleDownload}
+                disabled={descargando || !ordenYaGenerada}
+                className={`px-6 py-2 transition duration-300 ease-in-out text-white rounded-md shadow-md flex items-center gap-2 ${
+                  !descargando && ordenYaGenerada
+                    ? "bg-blue-500 hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500"
+                    : "bg-gray-400 cursor-not-allowed"
+                }`}
+              >
+                <FaDownload />
+                {descargando ? "Descargando..." : "Descargar PDF"}
+              </button>
+            </div>
+
+            {/* Previsualización del PDF */}
+            {mostrarPrevisualizacion && pdfUrl && (
+              <div className="mt-6 max-w-3xl mx-auto">
+                <h3 className="text-lg font-semibold text-gray-700 mb-4">
+                  Previsualización de la Orden de Pago
+                </h3>
+                <div className="bg-white rounded-lg shadow-md p-4">
+                  <iframe
+                    src={pdfUrl}
+                    className="w-full h-[500px] border border-gray-300 rounded-md"
+                    title="Previsualización de la orden de pago"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Modal de confirmación o orden ya generada */}
+            {mostrarModal && (
+              <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                <div className="bg-white p-8 rounded shadow-lg max-w-md w-full">
+                  {ordenYaGenerada ? (
+                    <>
+                      <h2 className="text-xl font-bold text-red-600 mb-4">
+                        ¡Ya existe una orden de pago generada!
+                      </h2>
+                      <div className="flex justify-end gap-4">
+                        <button
+                          onClick={() => setMostrarModal(false)}
+                          className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
+                        >
+                          Cerrar
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <h2 className="text-xl font-bold text-gray-700 mb-4">
+                        ¿Está seguro de generar una orden de pago?
+                      </h2>
+                      <div className="flex justify-end gap-4">
+                        <button
+                          onClick={() => setMostrarModal(false)}
+                          className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
+                        >
+                          Cancelar
+                        </button>
+                        <button
+                          onClick={confirmarGenerarOrden}
+                          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                        >
+                          Confirmar
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Modal de carga */}
+            {cargando && (
               <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
                 <div className="bg-white px-8 py-6 rounded-lg shadow-xl w-80 text-center">
-                  <h3 className="text-base font-medium text-gray-800 mb-4">Generando orden de pago...</h3>
+                  <h3 className="text-base font-medium text-gray-800 mb-4">
+                    Generando orden de pago...
+                  </h3>
                   <div className="w-full bg-gray-300 rounded-full h-4 overflow-hidden">
                     <div
                       className="bg-blue-500 h-full text-white text-xs font-semibold text-center"
@@ -345,38 +423,24 @@ const GenerarOrdenPago = () => {
               </div>
             )}
 
-            </div>
-            <div className="flex justify-center mt-6">
-              <button
-                onClick={handleDownload}
-                disabled={descargando}
-                className={`px-6 py-2 transition duration-300 ease-in-out text-white rounded-md shadow-md flex items-center gap-2 ${
-                  !descargando
-                    ? "bg-blue-500 hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500"
-                    : "bg-gray-400 cursor-not-allowed"
-                }`}
-              >
-                <FaDownload />
-                {descargando ? "Descargando..." : "Descargar PDF"}
-              </button>
-              {descargando && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4 text-center">Descargando orden de pago...</h3>
-            <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
-              <div
-                className="bg-blue-500 h-full text-white text-xs text-center transition-all duration-300"
-                style={{ width: `${progreso}%` }}
-              >
-                {progreso}%
+            {/* Modal de descarga */}
+            {descargando && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+                  <h3 className="text-lg font-semibold text-gray-800 mb-4 text-center">
+                    Descargando orden de pago...
+                  </h3>
+                  <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+                    <div
+                      className="bg-blue-500 h-full text-white text-xs text-center transition-all duration-300"
+                      style={{ width: `${progreso}%` }}
+                    >
+                      {progreso}%
+                    </div>
+                  </div>
+                </div>
               </div>
-      </div>
-    </div>
-  </div>
-)}
-
-              
-            </div>
+            )}
           </div>
         )}
       </div>
