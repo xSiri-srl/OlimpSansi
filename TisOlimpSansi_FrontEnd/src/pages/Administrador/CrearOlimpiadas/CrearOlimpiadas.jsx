@@ -137,7 +137,7 @@ const CrearOlimpiadas = () => {
             )}
           </div>
 
-          {/* Período de inscripción */}
+          {/* Gestión de inscripción */}
           <div>
             <label className="block text-sm font-medium text-cyan-800 mb-1">
               Período de inscripción
@@ -147,7 +147,7 @@ const CrearOlimpiadas = () => {
               onChange={(e) => setPeriodoIns(e.target.value)}
               className="w-full border rounded-lg px-4 py-2 transition focus:outline-none focus:ring-2"
             >
-              <option value="">Seleccione el periodo</option>
+              <option value="">Seleccione la gestión</option>
               {years.map((year) => (
                 <option key={year} value={year}>
                   {year}
