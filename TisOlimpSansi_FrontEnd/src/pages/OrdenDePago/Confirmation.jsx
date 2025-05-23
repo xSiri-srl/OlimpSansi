@@ -1,7 +1,12 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useFormData } from "./form-data-context";
-import { FaCheckCircle } from "react-icons/fa";
+
+import {
+  FaCheckCircle,
+  FaTimesCircle,
+  FaExclamationTriangle,
+} from "react-icons/fa";
 import ExitoModal from "./../InscripcionLista/Modales/ExitoModal";
 const Confirmation = ({ navigate, handleBack }) => {
   const { globalData } = useFormData();
@@ -14,6 +19,7 @@ const Confirmation = ({ navigate, handleBack }) => {
   const [showProgressBar, setShowProgressBar] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [codigoGenerado, setCodigoGenerado] = useState("");
+  const [mostrarModal, setMostrarModal] = useState(false);
 
   useEffect(() => {
     console.log(globalData);
@@ -304,8 +310,9 @@ const Confirmation = ({ navigate, handleBack }) => {
 
         {/* Sección de Desglose de Costos por Área */}
 
-        <div className="mb-6">
-          <p className="text-sm text-gray-500">
+        <div className="mt-4 p-2  bg-red-100 border-4 border-red-500 rounded-xl text-center shadow-xl animate-pulse flex items-center justify-center">
+          <FaExclamationTriangle className="text-red-700 text-2xl" />
+          <p className="text-red-800 font-bold text-sm p-2 tracking-wide">
             Recuerde que el pago debe ser realizado por el responsable de
             inscripción
           </p>
@@ -329,15 +336,50 @@ const Confirmation = ({ navigate, handleBack }) => {
           Atrás
         </button>
         <button
-          onClick={handleSubmit}
-          disabled={isSubmitting}
-          className={`bg-blue-600 text-white px-6 py-2 rounded-md transition duration-300 ease-in-out hover:bg-indigo-500 shadow-md ${
-            isSubmitting ? "opacity-70 cursor-not-allowed" : ""
-          }`}
+          onClick={() => setMostrarModal(true)}
+          className="bg-blue-600 text-white px-6 py-2 rounded-md transition duration-300 ease-in-out hover:bg-indigo-500 shadow-md"
         >
-          {isSubmitting ? "Registrando..." : "Finalizar Registro"}
+          Registrar Preinscripción
         </button>
       </div>
+
+      {mostrarModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md text-center relative">
+            <div className="flex justify-center mb-4">
+              <FaExclamationTriangle className="text-yellow-500 text-5xl animate-pulse" />
+            </div>
+
+            <h2 className="text-2xl font-extrabold text-gray-800 mb-2">
+              ¿Estás seguro?
+            </h2>
+            <p className="text-gray-600 text-sm mb-6">
+              Esta acción registrará la información. Por favor, revisa bien los
+              datos. ¿Deseas continuar?
+            </p>
+
+            <div className="flex justify-center gap-6">
+              <button
+                onClick={() => {
+                  setMostrarModal(false);
+                  handleSubmit();
+                }}
+                className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-5 py-2.5 rounded-full shadow-xl drop-shadow-lg transition duration-300"
+              >
+                <FaCheckCircle className="text-lg" />
+                Sí, crear
+              </button>
+              <button
+                onClick={() => setMostrarModal(false)}
+                className="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-5 py-2.5 rounded-full shadow-xl drop-shadow-lg transition duration-300"
+              >
+                <FaTimesCircle className="text-lg" />
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Barra de progreso */}
       {showProgressBar && (

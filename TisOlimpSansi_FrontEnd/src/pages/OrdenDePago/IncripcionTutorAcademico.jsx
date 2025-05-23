@@ -575,7 +575,7 @@ export default function FormularioTutoresAcademicos({
                       <input
                         type="email"
                         className="mt-1 p-2 w-full border rounded-md"
-                        placeholder="ejemplo@correo.com"
+                        placeholder="Correo Electrónico"
                         value={tutoresPorArea[area.nombre_area]?.correo || ""}
                         onChange={(e) =>
                           handleFormChange(
