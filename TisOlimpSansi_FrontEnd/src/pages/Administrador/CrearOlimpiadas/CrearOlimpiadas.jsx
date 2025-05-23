@@ -30,7 +30,8 @@ const CrearOlimpiadas = () => {
     const nuevosErrores = {};
 
     if (!titulo.trim()) nuevosErrores.titulo = "El título no puede estar vacío";
-    if (!periodoIns) nuevosErrores.periodoIns = "Debe seleccionar un período";
+    if (!periodoIns)
+      nuevosErrores.periodoIns = "Debe seleccionar un año de gestión";
     if (!fechaIni) nuevosErrores.fechaIni = "Debe ingresar la fecha de inicio";
     else if (ini < hoy.setHours(0, 0, 0, 0))
       nuevosErrores.fechaIni = "La fecha de inicio no puede ser anterior";
@@ -140,7 +141,7 @@ const CrearOlimpiadas = () => {
           {/* Gestión de inscripción */}
           <div>
             <label className="block text-sm font-medium text-cyan-800 mb-1">
-              Período de inscripción
+              Gestión
             </label>
             <select
               value={periodoIns}
@@ -162,7 +163,7 @@ const CrearOlimpiadas = () => {
           {/* Fecha de inicio */}
           <div>
             <label className="block text-sm font-medium text-cyan-800 mb-1">
-              Fecha de inicio
+              Inicio de inscripciones
             </label>
             <input
               type="date"
@@ -178,7 +179,7 @@ const CrearOlimpiadas = () => {
           {/* Fecha final */}
           <div>
             <label className="block text-sm font-medium text-cyan-800 mb-1">
-              Fecha final
+              Fin de inscripciones
             </label>
             <input
               type="date"
