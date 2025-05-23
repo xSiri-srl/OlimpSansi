@@ -1,7 +1,12 @@
 import React, { useState } from "react";
 import axios from "axios";
-import Cookies from 'js-cookie';
+import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
+import {
+  FaCheckCircle,
+  FaTimesCircle,
+  FaExclamationTriangle,
+} from "react-icons/fa";
 
 const CrearOlimpiadas = () => {
   const [titulo, setTitulo] = useState("");
@@ -32,7 +37,8 @@ const CrearOlimpiadas = () => {
 
     if (!fechaFinal) nuevosErrores.fechaFinal = "Debe ingresar la fecha final";
     else if (fechaIni && fin <= ini)
-      nuevosErrores.fechaFinal = "La fecha final debe ser posterior a la fecha de inicio";
+      nuevosErrores.fechaFinal =
+        "La fecha final debe ser posterior a la fecha de inicio";
 
     setErrores(nuevosErrores);
     return Object.keys(nuevosErrores).length === 0;
@@ -44,83 +50,80 @@ const CrearOlimpiadas = () => {
     }
   };
 
+  const confirmarCreacion = async () => {
+    setShowConfirmModal(false);
+    setLoading(true);
 
-    const confirmarCreacion = async () => {
-      setShowConfirmModal(false);
-      setLoading(true);
+    try {
+      //--------------------
+      //esto solo se utiliza en todo menos get
+      await axios.get("http://localhost:8000/sanctum/csrf-cookie", {
+        withCredentials: true,
+      });
+      const csrfToken = Cookies.get("XSRF-TOKEN");
+      axios.defaults.headers.common["X-XSRF-TOKEN"] = csrfToken;
+      //----------------------
 
-      try {
-       //--------------------
-       //esto solo se utiliza en todo menos get
-        await axios.get('http://localhost:8000/sanctum/csrf-cookie', {
-          withCredentials: true,
-        });
-        const csrfToken = Cookies.get('XSRF-TOKEN');
-        axios.defaults.headers.common['X-XSRF-TOKEN'] = csrfToken;
-        //----------------------
-       
-        const userData = JSON.parse(localStorage.getItem("user"));
-        const userId = userData?.user?.id;
+      const userData = JSON.parse(localStorage.getItem("user"));
+      const userId = userData?.user?.id;
 
-        const olimpiadaData = {
-          id_user: userId,
-          titulo,
-          fecha_ini: fechaIni,
-          fecha_fin: fechaFinal,
-        };
+      const olimpiadaData = {
+        id_user: userId,
+        titulo,
+        fecha_ini: fechaIni,
+        fecha_fin: fechaFinal,
+      };
 
-        const response = await axios.post(
-          'http://localhost:8000/agregarOlimpiada',
-          olimpiadaData,
-          { withCredentials: true }
-        );
+      const response = await axios.post(
+        "http://localhost:8000/agregarOlimpiada",
+        olimpiadaData,
+        { withCredentials: true }
+      );
 
-        const olimpiadaId = response.data.id || response.data.data?.id;
-        setOlimpiadaCreada(olimpiadaId);
-        
-        // Mostrar modal de éxito brevemente antes de redireccionar
+      const olimpiadaId = response.data.id || response.data.data?.id;
+      setOlimpiadaCreada(olimpiadaId);
+
+      // Mostrar modal de éxito brevemente antes de redireccionar
+      setShowSuccessModal(true);
+      setErrorMessage("");
+
+      // Limpiar los campos del formulario
+      setTitulo("");
+      setPeriodoIns("");
+      setFechaIni("");
+      setFechaFinal("");
+
+      // Configurar un temporizador para redirigir después de mostrar el mensaje de éxito
+      setTimeout(() => {
+        setShowSuccessModal(false);
+        navigate("/"); // Redireccionar a la página de asignar áreas
+      }, 1500); // Redireccionar después de 1.5 segundos
+    } catch (error) {
+      console.error(error);
+      if (error.response?.status === 422) {
+        setErrorMessage(error.response.data.message);
         setShowSuccessModal(true);
-        setErrorMessage("");
-        
-        // Limpiar los campos del formulario
-        setTitulo("");
-        setPeriodoIns("");
-        setFechaIni("");
-        setFechaFinal("");
-        
-        // Configurar un temporizador para redirigir después de mostrar el mensaje de éxito
-        setTimeout(() => {
-          setShowSuccessModal(false);
-          navigate('/'); // Redireccionar a la página de asignar áreas
-        }, 1500); // Redireccionar después de 1.5 segundos
-        
-      } catch (error) {
-        console.error(error);
-        if (error.response?.status === 422) {
-          setErrorMessage(error.response.data.message);
-          setShowSuccessModal(true); 
-        } else {
-          setErrorMessage("Error inesperado al crear la olimpiada.");
-          setShowSuccessModal(true);
-        }
-      } finally {
-        setLoading(false);
+      } else {
+        setErrorMessage("Error inesperado al crear la olimpiada.");
+        setShowSuccessModal(true);
       }
-    };
-
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="p-10 mb-6 ">
-           <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">  
+      <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
         Crear Olimpiada
       </h2>
       <div className="max-w-4xl mx-auto bg-gray-200 p-7 shadow-lg rounded-lg">
-     
-      
         <div className="grid grid-cols-2 gap-8">
           {/* Título */}
           <div>
-            <label className="block text-sm font-medium text-cyan-800 mb-1">Título</label>
+            <label className="block text-sm font-medium text-cyan-800 mb-1">
+              Título
+            </label>
             <input
               type="text"
               value={titulo}
@@ -129,12 +132,16 @@ const CrearOlimpiadas = () => {
               className="w-full border rounded-lg px-4 py-2 transition focus:outline-none focus:ring-2"
               placeholder="Ej. Olimpiada 2025"
             />
-            {errores.titulo && <p className="text-red-600 text-sm mt-1">{errores.titulo}</p>}
+            {errores.titulo && (
+              <p className="text-red-600 text-sm mt-1">{errores.titulo}</p>
+            )}
           </div>
 
           {/* Período de inscripción */}
           <div>
-            <label className="block text-sm font-medium text-cyan-800 mb-1">Período de inscripción</label>
+            <label className="block text-sm font-medium text-cyan-800 mb-1">
+              Período de inscripción
+            </label>
             <select
               value={periodoIns}
               onChange={(e) => setPeriodoIns(e.target.value)}
@@ -142,34 +149,46 @@ const CrearOlimpiadas = () => {
             >
               <option value="">Seleccione el periodo</option>
               {years.map((year) => (
-                <option key={year} value={year}>{year}</option>
+                <option key={year} value={year}>
+                  {year}
+                </option>
               ))}
             </select>
-            {errores.periodoIns && <p className="text-red-600 text-sm mt-1">{errores.periodoIns}</p>}
+            {errores.periodoIns && (
+              <p className="text-red-600 text-sm mt-1">{errores.periodoIns}</p>
+            )}
           </div>
 
           {/* Fecha de inicio */}
           <div>
-            <label className="block text-sm font-medium text-cyan-800 mb-1">Fecha de inicio</label>
+            <label className="block text-sm font-medium text-cyan-800 mb-1">
+              Fecha de inicio
+            </label>
             <input
               type="date"
               value={fechaIni}
               onChange={(e) => setFechaIni(e.target.value)}
               className="w-full border rounded-lg px-4 py-2 transition focus:outline-none focus:ring-2"
             />
-            {errores.fechaIni && <p className="text-red-600 text-sm mt-1">{errores.fechaIni}</p>}
+            {errores.fechaIni && (
+              <p className="text-red-600 text-sm mt-1">{errores.fechaIni}</p>
+            )}
           </div>
 
           {/* Fecha final */}
           <div>
-            <label className="block text-sm font-medium text-cyan-800 mb-1">Fecha final</label>
+            <label className="block text-sm font-medium text-cyan-800 mb-1">
+              Fecha final
+            </label>
             <input
               type="date"
               value={fechaFinal}
               onChange={(e) => setFechaFinal(e.target.value)}
               className="w-full border rounded-lg px-4 py-2 transition focus:outline-none focus:ring-2"
             />
-            {errores.fechaFinal && <p className="text-red-600 text-sm mt-1">{errores.fechaFinal}</p>}
+            {errores.fechaFinal && (
+              <p className="text-red-600 text-sm mt-1">{errores.fechaFinal}</p>
+            )}
           </div>
         </div>
 
@@ -190,21 +209,32 @@ const CrearOlimpiadas = () => {
 
       {/* Modal de confirmación */}
       {showConfirmModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg text-center w-96">
-            <h2 className="text-xl font-bold text-gray-800 mb-4">¿Estás seguro?</h2>
-            <p className="text-gray-700 mb-6">¿Deseas crear esta convocatoria?</p>
-            <div className="flex justify-center gap-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md text-center relative">
+            <div className="flex justify-center mb-4">
+              <FaExclamationTriangle className="text-yellow-500 text-5xl animate-pulse" />
+            </div>
+
+            <h2 className="text-2xl font-extrabold text-gray-800 mb-2">
+              ¿Estás seguro?
+            </h2>
+            <p className="text-gray-600 text-sm mb-6">
+              Esta acción creará una nueva convocatoria. ¿Deseas continuar?
+            </p>
+
+            <div className="flex justify-center gap-6">
               <button
                 onClick={confirmarCreacion}
-                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-5 py-2.5 rounded-full shadow-xl drop-shadow-lg transition duration-300"
               >
+                <FaCheckCircle className="text-lg" />
                 Sí, crear
               </button>
               <button
                 onClick={() => setShowConfirmModal(false)}
-                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                className="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-5 py-2.5 rounded-full shadow-xl drop-shadow-lg transition duration-300"
               >
+                <FaTimesCircle className="text-lg" />
                 Cancelar
               </button>
             </div>
@@ -232,8 +262,12 @@ const CrearOlimpiadas = () => {
               </>
             ) : (
               <>
-                <h2 className="text-xl font-bold text-green-700 mb-4">¡Éxito!</h2>
-                <p className="text-gray-700 mb-6">La olimpiada fue creada correctamente.</p>
+                <h2 className="text-xl font-bold text-green-700 mb-4">
+                  ¡Éxito!
+                </h2>
+                <p className="text-gray-700 mb-6">
+                  La olimpiada fue creada correctamente.
+                </p>
                 <div className="mt-4 w-full bg-gray-200 rounded-full h-2.5">
                   <div className="bg-blue-600 h-2.5 rounded-full animate-[progress_1.5s_ease-in-out]"></div>
                 </div>
@@ -246,11 +280,13 @@ const CrearOlimpiadas = () => {
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg text-center w-96">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Creando olimpiada</h2>
+            <h2 className="text-xl font-bold text-gray-800 mb-4">
+              Creando olimpiada
+            </h2>
             <p className="text-gray-700">Espere un momento por favor...</p>
           </div>
         </div>
-      )}    
+      )}
     </div>
   );
 };
