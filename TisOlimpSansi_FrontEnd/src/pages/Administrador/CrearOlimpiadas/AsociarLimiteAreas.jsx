@@ -172,18 +172,6 @@ const AsociarLimiteAreas = () => {
             Seleccione una olimpiada para asignar un limite de áreas por
             participante.
           </div>
-        ) : cargando ? (
-          <div className="p-8 text-center text-gray-600">
-            <div className="flex justify-center mb-4">
-              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
-            </div>
-            Cargando áreas de competencia...
-          </div>
-        ) : areasAsociadas.length === 0 ? (
-          <div className="p-8 text-center text-gray-600">
-            No hay áreas de competencia asociadas a esta olimpiada. Primero debe
-            asignar áreas de competencia en la sección "Asignar Áreas".
-          </div>
         ) : (
           <div className="flex flex-col items-center justify-center p-8 bg-gradient-to-b from-blue-50 to-gray-100 rounded-xl shadow-lg  border border-blue-100">
             <div className="flex items-center mb-6">
