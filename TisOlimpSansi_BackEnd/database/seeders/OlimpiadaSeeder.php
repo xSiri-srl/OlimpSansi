@@ -14,7 +14,7 @@ class OlimpiadaSeeder extends Seeder
             [
                 'id_user' => 1,
                 'titulo' => 'Olimpiada de Matemáticas 2024',
-                'fecha_ini' => Carbon::create(2024, 6, 1),
+                'fecha_ini' => Carbon::create(2024, 6, 3),
                 'fecha_fin' => Carbon::create(2024, 6, 30),
             ],
 
