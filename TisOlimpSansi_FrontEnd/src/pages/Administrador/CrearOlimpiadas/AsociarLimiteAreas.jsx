@@ -142,7 +142,7 @@ const AsociarLimiteAreas = () => {
   };
 
   const incrementar = () => {
-    if (contador < 6) {
+    if (contador < 7) {
       setContador(contador + 1);
     }
   };
@@ -176,7 +176,7 @@ const AsociarLimiteAreas = () => {
           <div className="flex flex-col items-center justify-center p-8 bg-gradient-to-b from-blue-50 to-gray-100 rounded-xl shadow-lg  border border-blue-100">
             <div className="flex items-center mb-6">
               <h2 className="text-3xl font-bold text-blue-600">
-                Numero de areas por participante
+                Inscripciones por participante
               </h2>
             </div>
 
@@ -204,9 +204,9 @@ const AsociarLimiteAreas = () => {
               {/* Botón para incrementar */}
               <button
                 onClick={incrementar}
-                disabled={contador === 6}
+                disabled={contador === 7}
                 className={`flex items-center justify-center w-12 h-12 rounded-full shadow-md transition-all duration-200 transform hover:scale-105 ${
-                  contador === 6
+                  contador === 7
                     ? "bg-gray-200 text-gray-400 cursor-not-allowed"
                     : "bg-blue-500 hover:bg-blue-600 text-white active:translate-y-1"
                 }`}
@@ -215,7 +215,7 @@ const AsociarLimiteAreas = () => {
               </button>
             </div>
             <div className="mt-8 flex space-x-2">
-              {[1, 2, 3, 4, 5, 6].map((num) => (
+              {[1, 2, 3, 4, 5, 6,7].map((num) => (
                 <div
                   key={num}
                   className={`w-8 h-2 rounded-full ${
