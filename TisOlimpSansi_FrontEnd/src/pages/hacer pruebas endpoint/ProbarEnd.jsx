@@ -10,20 +10,22 @@ export default function ProbarEnd() {
     try {
       const data = JSON.parse(jsonInput);
 
-      // await axios.get('http://localhost:8000/sanctum/csrf-cookie', {
-      //   withCredentials: true,
-      // });
+      await axios.get('http://localhost:8000/sanctum/csrf-cookie', {
+        withCredentials: true,
+      });
 
-      // const csrf = Cookies.get('XSRF-TOKEN');
-      // axios.defaults.headers.common['X-XSRF-TOKEN'] = csrf;
+      const csrf = Cookies.get('XSRF-TOKEN');
+      axios.defaults.headers.common['X-XSRF-TOKEN'] = csrf;
 
-      // const response = await axios.get('http://localhost:8000/api/olimpiadas/1/areas',  {
-      //   withCredentials: true,
-      // });
-      const response = await axios.get(
-        'http://localhost:8000/user',
-        { withCredentials: true }
+      const response = await axios.post(
+        'http://localhost:8000/olimpiada/max-materias',
+        data,                      
+        { withCredentials: true }  
       );
+      // const response = await axios.get(
+      //   'http://localhost:8000/user',
+      //   { withCredentials: true }
+      // );
       setResultado(`✅ Éxito:\n${JSON.stringify(response.data, null, 2)}`);
     } catch (error) {
       setResultado(`❌ Error:\n${error.response?.data?.message || error.message}`);
