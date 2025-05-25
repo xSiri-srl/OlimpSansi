@@ -325,17 +325,22 @@ const GenerarOrdenPago = () => {
             {/* Botones de acción */}
             <div className="flex flex-col sm:flex-row justify-center gap-4 mt-6">
               <button
-                onClick={() => setMostrarModal(true)}
-                disabled={cargando || descargando}
-                className={`px-6 py-2 transition duration-300 ease-in-out text-white rounded-md shadow-md flex items-center gap-2 ${
-                  !cargando && !descargando
-                    ? "bg-blue-500 hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500"
-                    : "bg-gray-400 cursor-not-allowed"
-                }`}
-              >
-                <FaCloudUploadAlt />
-                {cargando ? "Generando..." : "Generar Orden de Pago"}
-              </button>
+                  onClick={confirmarGenerarOrden}
+                  disabled={cargando || descargando || ordenYaGenerada}
+                  className={`px-6 py-2 transition duration-300 ease-in-out text-white rounded-md shadow-md flex items-center gap-2 ${
+                    !cargando && !descargando && !ordenYaGenerada
+                      ? "bg-blue-500 hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500"
+                      : "bg-gray-400 cursor-not-allowed"
+                  }`}
+                >
+                  <FaCloudUploadAlt />
+                  {ordenYaGenerada
+                    ? "Orden ya generada"
+                    : cargando
+                    ? "Generando..."
+                    : "Generar Orden de Pago"}
+                </button>
+
               {pdfUrl && (
                 <button
                   onClick={togglePrevisualizacion}
