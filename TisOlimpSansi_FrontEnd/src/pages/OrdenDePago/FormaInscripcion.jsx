@@ -29,7 +29,7 @@ export default function FormularioEstudiante() {
       
       try {
         // Usar la nueva ruta pública que no requiere autenticación
-        const response = await axios.get('http://localhost:8000/olimpiadas-publicas');
+        const response = await axios.get('http://localhost:8000/api/olimpiadas');
         
         if (response.status === 200) {
           if (response.data && response.data.data && Array.isArray(response.data.data)) {
