@@ -11,8 +11,6 @@ const AsociarLimiteAreas = () => {
   const [nombreOlimpiada, setNombreOlimpiada] = useState("");
   const [guardando, setGuardando] = useState(false);
   const [mensajeExito, setMensajeExito] = useState("");
-  const [areasAsociadas, setAreasAsociadas] = useState([]);
-  const [cargando, setCargando] = useState(false);
   const [cargandoOlimpiadas, setCargandoOlimpiadas] = useState(false);
   const [errorCarga, setErrorCarga] = useState("");
   const [contador, setContador] = useState(1);
@@ -59,8 +57,6 @@ const AsociarLimiteAreas = () => {
           throw new Error("Error en la respuesta del servidor");
         }
       } catch (error) {
-        console.error("Error al cargar olimpiadas:", error);
-
         let mensajeError = "Error al conectar con el servidor.";
 
         if (error.response) {
@@ -94,13 +90,10 @@ const AsociarLimiteAreas = () => {
         (o) => o.id.toString() === olimpiadaSeleccionada
       );
       setNombreOlimpiada(olimpiada ? olimpiada.titulo : "");
-
-      // Cargar las áreas asociadas a esta olimpiada
     } else {
       setNombreOlimpiada("");
-      setAreasAsociadas([]);
     }
-  }, [olimpiadas]);
+  }, [olimpiadaSeleccionada, olimpiadas]);
 
   const guardarConfiguracion = async () => {
     if (!olimpiadaSeleccionada) {
@@ -108,37 +101,76 @@ const AsociarLimiteAreas = () => {
       return;
     }
 
+    setGuardando(true);
+    setMensajeExito("");
     try {
       await axios.get("http://localhost:8000/sanctum/csrf-cookie", {
         withCredentials: true,
       });
 
       const csrfToken = Cookies.get("XSRF-TOKEN");
-      axios.defaults.headers.common["X-XSRF-TOKEN"] = csrfToken;
 
-      // Preparar datos para enviar
+      const config = {
+        headers: {
+          "X-XSRF-TOKEN": csrfToken,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        withCredentials: true,
+      };
+      v; //ASAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
       const datosAEnviar = {
-        id_olimpiada: olimpiadaSeleccionada,
-        numero_areas_por_participante: contador, // BACKgfff------------
+        id: parseInt(olimpiadaSeleccionada),
+        numMax: contador,
       };
 
       const response = await axios.post(
-        "http://localhost:8000/",
+        "http://localhost:8000/olimpiada/max-materias",
         datosAEnviar,
-        { withCredentials: true }
+        config
       );
 
-      if (response.status === 200) {
-        setMensajeExito("exito!");
-        setTimeout(() => setMensajeExito(""), 3000);
+      if (response.status === 200 || response.status === 201) {
+        setMensajeExito("¡Número máximo de áreas actualizado correctamente!");
+        setTimeout(() => setMensajeExito(""), 5000);
       } else {
-        throw new Error("Error al guardar");
+        throw new Error(`Error en la respuesta: ${response.status}`);
       }
-    } catch (error) {}
+    } catch (error) {
+      let mensajeError = "Error al guardar la configuración.";
 
-    // BACKgfff-------------------------------------------------------------------- áreas
+      if (error.response) {
+        if (error.response.status === 401) {
+          mensajeError = "No tienes autorización para realizar esta acción.";
+        } else if (error.response.status === 403) {
+          mensajeError = "No tienes permisos suficientes.";
+        } else if (error.response.status === 422) {
+          const errores = error.response.data?.errors;
+          if (errores) {
+            const mensajesError = Object.values(errores).flat();
+            mensajeError = `Errores de validación:\n${mensajesError.join(
+              "\n"
+            )}`;
+          } else {
+            mensajeError = `Error de validación: ${
+              error.response.data?.message || "Datos inválidos"
+            }`;
+          }
+        } else {
+          mensajeError = `Error ${error.response.status}: ${
+            error.response.data?.message || "Error del servidor"
+          }`;
+        }
+      } else if (error.request) {
+        mensajeError = "No se pudo conectar con el servidor.";
+      } else {
+        mensajeError = error.message;
+      }
 
-    setGuardando(true);
+      alert(mensajeError);
+    } finally {
+      setGuardando(false);
+    }
   };
 
   const incrementar = () => {
@@ -173,7 +205,7 @@ const AsociarLimiteAreas = () => {
             participante.
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center p-8 bg-gradient-to-b from-blue-50 to-gray-100 rounded-xl shadow-lg  border border-blue-100">
+          <div className="flex flex-col items-center justify-center p-8 bg-gradient-to-b from-blue-50 to-gray-100 rounded-xl shadow-lg border border-blue-100">
             <div className="flex items-center mb-6">
               <h2 className="text-3xl font-bold text-blue-600">
                 Inscripciones por participante
@@ -214,8 +246,9 @@ const AsociarLimiteAreas = () => {
                 <FaChevronRight size={20} />
               </button>
             </div>
+
             <div className="mt-8 flex space-x-2">
-              {[1, 2, 3, 4, 5, 6,7].map((num) => (
+              {[1, 2, 3, 4, 5, 6, 7].map((num) => (
                 <div
                   key={num}
                   className={`w-8 h-2 rounded-full ${
