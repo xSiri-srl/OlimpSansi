@@ -15,6 +15,7 @@ class OlimpiadaModel extends Model
     protected $fillable = [
         'id_user',
         'titulo',
+        'max_materias',
         'fecha_ini',
         'fecha_fin'
     ];
