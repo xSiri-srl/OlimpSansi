@@ -14,7 +14,9 @@ return new class extends Migration
         Schema::create('olimpiada', function (Blueprint $table) {
             $table->id();
             $table->foreignId('id_user')->constrained('users')->onDelete('cascade');
+         
             $table->string('titulo');
+            $table->unsignedInteger('max_materias')->default(0);
             $table->date('fecha_ini');
             $table->date('fecha_fin');
             $table->timestamps();

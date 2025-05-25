@@ -1,34 +1,59 @@
 import { useState } from "react";
-import { FaCheck, FaLock, FaTimes, FaTrash, FaPlus } from "react-icons/fa";
+import { FaCheck, FaLock, FaTrash, FaPlus } from "react-icons/fa";
 
 const AreaCompetencia = ({
   combo,
   comboIndex,
   combinaciones,
-  obtenerOpcionesPorArea,
   setCombinaciones,
   eliminarCombinacion,
   olimpiadaSeleccionada,
   modoAsociacion = true,
 }) => {
   const [mostrarDetalles, setMostrarDetalles] = useState(false);
-  const [nuevaCategoria, setNuevaCategoria] = useState("");
   
-  // Lista unificada de grados para todas las áreas
-  const todosLosGrados = [
-    "1ro Primaria", "2do Primaria", "3ro Primaria", "4to Primaria", "5to Primaria", "6to Primaria",
-    "1ro Secundaria", "2do Secundaria", "3ro Secundaria", "4to Secundaria", "5to Secundaria", "6to Secundaria"
-  ];
+  // Catálogo predefinido de categorías con sus rangos correspondientes
+  const categoriasPredefinidasMap = {
+    "1P": { nombre: "1P", desde: "1ro Primaria", hasta: "1ro Primaria" },
+    "2P": { nombre: "2P", desde: "2do Primaria", hasta: "2do Primaria" },
+    "3P": { nombre: "3P", desde: "3ro Primaria", hasta: "3ro Primaria" },
+    "4P": { nombre: "4P", desde: "4to Primaria", hasta: "4to Primaria" },
+    "5P": { nombre: "5P", desde: "5to Primaria", hasta: "5to Primaria" },
+    "6P": { nombre: "6P", desde: "6to Primaria", hasta: "6to Primaria" },
+    "1S": { nombre: "1S", desde: "1ro Secundaria", hasta: "1ro Secundaria" },
+    "2S": { nombre: "2S", desde: "2do Secundaria", hasta: "2do Secundaria" },
+    "3S": { nombre: "3S", desde: "3ro Secundaria", hasta: "3ro Secundaria" },
+    "4S": { nombre: "4S", desde: "4to Secundaria", hasta: "4to Secundaria" },
+    "5S": { nombre: "5S", desde: "5to Secundaria", hasta: "5to Secundaria" },
+    "6S": { nombre: "6S", desde: "6to Secundaria", hasta: "6to Secundaria" },
+    "PRIMER NIVEL": { nombre: "PRIMER NIVEL", desde: "1ro Secundaria", hasta: "1ro Secundaria" },
+    "SEGUNDO NIVEL": { nombre: "SEGUNDO NIVEL", desde: "2do Secundaria", hasta: "2do Secundaria" },
+    "TERCER NIVEL": { nombre: "TERCER NIVEL", desde: "3ro Secundaria", hasta: "3ro Secundaria" },
+    "CUARTO NIVEL": { nombre: "CUARTO NIVEL", desde: "4to Secundaria", hasta: "4to Secundaria" },
+    "QUINTO NIVEL": { nombre: "QUINTO NIVEL", desde: "5to Secundaria", hasta: "5to Secundaria" },
+    "SEXTO NIVEL": { nombre: "SEXTO NIVEL", desde: "6to Secundaria", hasta: "6to Secundaria" },
+    "GUACAMAYO": { nombre: "GUACAMAYO", desde: "5to Primaria", hasta: "6to Primaria" },
+    "GUANACO": { nombre: "GUANACO", desde: "1ro Secundaria", hasta: "3ro Secundaria" },
+    "LONDRA": { nombre: "LONDRA", desde: "1ro Secundaria", hasta: "3ro Secundaria" },
+    "JUCUMARI": { nombre: "JUCUMARI", desde: "4to Secundaria", hasta: "6to Secundaria" },
+    "BUFEO": { nombre: "BUFEO", desde: "1ro Secundaria", hasta: "3ro Secundaria" },
+    "PUMA": { nombre: "PUMA", desde: "4to Secundaria", hasta: "6to Secundaria" },
+    "BUILDERS P": { nombre: "BUILDERS P", desde: "5to Primaria", hasta: "6to Primaria" },
+    "BUILDERS S": { nombre: "BUILDERS S", desde: "1ro Secundaria", hasta: "6to Secundaria" },
+    "LEGO P": { nombre: "LEGO P", desde: "5to Primaria", hasta: "6to Primaria" },
+    "LEGO S": { nombre: "LEGO S", desde: "1ro Secundaria", hasta: "6to Secundaria" }
+  };
+  
+  // Lista de categorías predefinidas para el selector
+  const categoriasPredefinidas = Object.keys(categoriasPredefinidasMap);
 
   // Manejar la habilitación/deshabilitación del área
   const handleAreaToggle = (checked) => {
-    // No permitir cambios si no hay olimpiada seleccionada
     if (!olimpiadaSeleccionada) {
       alert("Por favor seleccione una olimpiada primero");
       return;
     }
     
-    // Restricciones según modo (asociación/desasociación)
     if (modoAsociacion && combo.yaAsociada && !checked) {
       alert("En esta sección solo puedes asociar áreas. Para desasociar áreas, usa la sección 'Desasignar Áreas'");
       return;
@@ -64,8 +89,12 @@ const AreaCompetencia = ({
     return imageMap[area] || "/placeholder.svg";
   };
 
-  // Manejar cambios en las categorías (nombre o rango)
-  const handleCategoriaChange = (index, campo, valor) => {
+  // Manejar la selección de categoría predefinida
+  const handleCategoriaSelect = (index, nombreCategoria) => {
+    const categoriaSeleccionada = categoriasPredefinidasMap[nombreCategoria];
+    
+    if (!categoriaSeleccionada) return;
+    
     const copia = [...combinaciones];
     
     // Asegurarse de que exista el array de categorías
@@ -73,22 +102,18 @@ const AreaCompetencia = ({
       copia[comboIndex].categorias = [];
     }
     
-    // Actualizar el campo específico de la categoría
+    // Actualizar la categoría con los valores predefinidos
     copia[comboIndex].categorias[index] = {
-      ...copia[comboIndex].categorias[index],
-      [campo]: valor
+      nombre: categoriaSeleccionada.nombre,
+      desde: categoriaSeleccionada.desde,
+      hasta: categoriaSeleccionada.hasta
     };
     
     setCombinaciones(copia);
   };
 
-  // Agregar una nueva categoría
+  // Agregar una nueva categoría predefinida
   const agregarCategoria = () => {
-    if (!nuevaCategoria.trim()) {
-      alert("Por favor ingrese un nombre para la categoría");
-      return;
-    }
-    
     const copia = [...combinaciones];
     
     // Inicializar el array de categorías si no existe
@@ -96,62 +121,27 @@ const AreaCompetencia = ({
       copia[comboIndex].categorias = [];
     }
     
-    // Agregar la nueva categoría con valores predeterminados
+    // Agregar la primera categoría predefinida por defecto
+    const primerCategoria = categoriasPredefinidasMap[categoriasPredefinidas[0]];
+    
     copia[comboIndex].categorias.push({
-      nombre: nuevaCategoria,
-      desde: todosLosGrados[0],
-      hasta: todosLosGrados[0]
+      nombre: primerCategoria.nombre,
+      desde: primerCategoria.desde,
+      hasta: primerCategoria.hasta
     });
     
     setCombinaciones(copia);
-    setNuevaCategoria(""); // Limpiar el campo
   };
 
   // Eliminar una categoría existente
   const eliminarCategoria = (index) => {
     const copia = [...combinaciones];
-    
-    // Eliminar la categoría del array
     copia[comboIndex].categorias.splice(index, 1);
-    
     setCombinaciones(copia);
   };
 
-  // Inicializar categorías si no existen
-  const inicializarCategorias = () => {
-    const copia = [...combinaciones];
-    
-    if (!copia[comboIndex].categorias) {
-      // Convertir los niveles o rangos existentes al nuevo formato unificado
-      let categoriasIniciales = [];
-      
-      if (combo.niveles && combo.niveles.length > 0) {
-        categoriasIniciales = combo.niveles.map(nivel => ({
-          nombre: nivel.nivel,
-          desde: nivel.grado,
-          hasta: nivel.grado
-        }));
-      } else if (combo.rangos && combo.rangos.length > 0) {
-        categoriasIniciales = combo.rangos.map(rango => ({
-          nombre: rango.nivel,
-          desde: rango.desde,
-          hasta: rango.hasta
-        }));
-      }
-      
-      copia[comboIndex].categorias = categoriasIniciales;
-      setCombinaciones(copia);
-    }
-  };
-
-  // Asegurar que existan categorías inicializadas
-  if (!combo.categorias && (combo.niveles || combo.rangos)) {
-    inicializarCategorias();
-  }
-
   // Preparar categorías para renderizar
   const categorias = combo.categorias || [];
-
   const estaHabilitada = combo.habilitado || false;
   const sePuedeHabilitar = !!olimpiadaSeleccionada;
   const esInteractuable = sePuedeHabilitar && 
@@ -172,7 +162,6 @@ const AreaCompetencia = ({
         </div>
       )}
 
-      {/* Mensaje cuando el área no es interactuable según el modo */}
       {sePuedeHabilitar && !esInteractuable && (
         <div className="absolute inset-0 bg-gray-100 bg-opacity-40 flex flex-col items-center justify-center z-10 backdrop-blur-[1px] rounded-lg">
           <FaLock className="text-gray-500 text-3xl mb-2" />
@@ -236,7 +225,7 @@ const AreaCompetencia = ({
                   mostrarDetalles ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700'
                 } hover:bg-blue-200 transition`}
               >
-                {mostrarDetalles ? "Ocultar Categorías" : "Ver Categorías"}
+                {mostrarDetalles ? "Ocultar Categorías" : "Asociar Categorías"}
               </button>
             </div>
 
@@ -249,46 +238,35 @@ const AreaCompetencia = ({
                   categorias.map((categoria, idx) => (
                     <div key={idx} className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg border border-gray-200">
                       <div className="flex-1 flex flex-wrap gap-2">
-                        {/* Nombre de la categoría */}
+                        {/* Selector de Categoría */}
                         <div className="w-full sm:w-auto flex-grow">
-                          <label className="block text-xs text-gray-500 mb-1">Nombre categoría</label>
-                          <input
-                            type="text"
+                          <label className="block text-xs text-gray-500 mb-1">Seleccionar categoría</label>
+                          <select
                             className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             value={categoria.nombre || ""}
-                            onChange={(e) => handleCategoriaChange(idx, "nombre", e.target.value)}
+                            onChange={(e) => handleCategoriaSelect(idx, e.target.value)}
                             disabled={!estaHabilitada}
-                          />
+                          >
+                            {categoriasPredefinidas.map((cat) => (
+                              <option key={cat} value={cat}>{cat}</option>
+                            ))}
+                          </select>
                         </div>
                         
-                        {/* Selector de grado inicial */}
+                        {/* Visualización de rango inicial (no editable) */}
                         <div className="w-full sm:w-auto">
                           <label className="block text-xs text-gray-500 mb-1">Desde</label>
-                          <select
-                            className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            value={categoria.desde || todosLosGrados[0]}
-                            onChange={(e) => handleCategoriaChange(idx, "desde", e.target.value)}
-                            disabled={!estaHabilitada}
-                          >
-                            {todosLosGrados.map((grado) => (
-                              <option key={`desde-${grado}`} value={grado}>{grado}</option>
-                            ))}
-                          </select>
+                          <div className="w-full p-2 border border-gray-200 bg-gray-50 rounded text-gray-700">
+                            {categoria.desde || "N/A"}
+                          </div>
                         </div>
                         
-                        {/* Selector de grado final */}
+                        {/* Visualización de rango final (no editable) */}
                         <div className="w-full sm:w-auto">
                           <label className="block text-xs text-gray-500 mb-1">Hasta</label>
-                          <select
-                            className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            value={categoria.hasta || todosLosGrados[0]}
-                            onChange={(e) => handleCategoriaChange(idx, "hasta", e.target.value)}
-                            disabled={!estaHabilitada}
-                          >
-                            {todosLosGrados.map((grado) => (
-                              <option key={`hasta-${grado}`} value={grado}>{grado}</option>
-                            ))}
-                          </select>
+                          <div className="w-full p-2 border border-gray-200 bg-gray-50 rounded text-gray-700">
+                            {categoria.hasta || "N/A"}
+                          </div>
                         </div>
                       </div>
                       
@@ -306,27 +284,15 @@ const AreaCompetencia = ({
                   ))
                 )}
                 
-                {/* Formulario para agregar nueva categoría */}
+                {/* Botón para agregar categoría predefinida */}
                 {estaHabilitada && (
-                  <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                    <h4 className="text-sm font-semibold text-blue-700 mb-2">Agregar nueva categoría</h4>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="text"
-                        placeholder="Nombre de la categoría"
-                        className="flex-1 p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        value={nuevaCategoria}
-                        onChange={(e) => setNuevaCategoria(e.target.value)}
-                      />
-                      <button
-                        onClick={agregarCategoria}
-                        className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition flex items-center gap-1"
-                      >
-                        <FaPlus size={14} />
-                        Agregar
-                      </button>
-                    </div>
-                  </div>
+                  <button
+                    onClick={agregarCategoria}
+                    className="w-full mt-3 py-2 bg-blue-50 border border-blue-200 rounded-lg text-blue-600 font-medium hover:bg-blue-100 transition flex items-center justify-center gap-2"
+                  >
+                    <FaPlus size={14} />
+                    Agregar Categoría
+                  </button>
                 )}
               </div>
             )}
@@ -343,7 +309,7 @@ const AreaCompetencia = ({
                     ))}
                   </div>
                 ) : (
-                  <p className="italic">No hay categorías definidas. Haga clic en "Ver detalles" para agregar.</p>
+                  <p className="italic">No hay categorías asociadas. Haga clic en "Asociar Categorías" para agregar.</p>
                 )}
               </div>
             )}

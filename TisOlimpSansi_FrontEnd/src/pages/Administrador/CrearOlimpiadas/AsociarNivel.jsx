@@ -198,13 +198,14 @@ const cargarAreasAsociadas = async (idOlimpiada) => {
     if (response.status === 200 && response.data.data) {
       const areasAsociadas = response.data.data;
       
-
+      // Función auxiliar para normalizar nombres
       const normalizarNombre = (nombre) => {
         return nombre.toUpperCase()
           .normalize("NFD").replace(/[\u0300-\u036f]/g, "") 
           .replace(/[^A-Z0-9]/g, ""); 
       };
-    
+      
+      // Crear un mapa de áreas asociadas normalizadas para búsqueda eficiente
       const areasNormalizadasMap = new Map();
       
       areasAsociadas.forEach(area => {
@@ -212,39 +213,40 @@ const cargarAreasAsociadas = async (idOlimpiada) => {
         console.log(`Área del backend normalizada: "${area.area}" -> "${nombreNormalizado}"`);
         areasNormalizadasMap.set(nombreNormalizado, area);
       });
-
+      
+      // Si no hay categorías disponibles, usar estas por defecto
+      const categoriasPorDefecto = {
+        "Astronomía-Astrofísica": [{ nombre: "1S", desde: "1ro Secundaria", hasta: "1ro Secundaria" }],
+        "Biología": [{ nombre: "2S", desde: "2do Secundaria", hasta: "2do Secundaria" }],
+        "Física": [{ nombre: "3S", desde: "3ro Secundaria", hasta: "3ro Secundaria" }],
+        "Informática": [{ nombre: "GUACAMAYO", desde: "5to Primaria", hasta: "6to Primaria" }],
+        "Matemáticas": [{ nombre: "PRIMER NIVEL", desde: "1ro Secundaria", hasta: "1ro Secundaria" }],
+        "Química": [{ nombre: "4S", desde: "4to Secundaria", hasta: "4to Secundaria" }],
+        "Robótica": [{ nombre: "BUILDERS P", desde: "5to Primaria", hasta: "6to Primaria" }]
+      };
+      
       setCombinaciones(prev => {
         const nuevasCombinaciones = prev.map(combo => {
-          // Normalizar el nombre del área del frontend
-                    const nombreNormalizado = normalizarNombre(combo.area);
+          const nombreNormalizado = normalizarNombre(combo.area);
           console.log(`Área del frontend normalizada: "${combo.area}" -> "${nombreNormalizado}"`);
-      
+          
           const areaAsociada = areasNormalizadasMap.get(nombreNormalizado);
           
           if (areaAsociada) {
-            console.log(`COINCIDENCIA ENCONTRADA para "${combo.area}"`);
-            
-            // Obtener las categorías del área asociada desde el backend
-            const categoriasBackend = []; // Aquí deberías obtener las categorías del backend
-            
+            console.log(`✅ COINCIDENCIA ENCONTRADA para "${combo.area}"`);
             return {
               ...combo,
               habilitado: true,
               yaAsociada: true,
-              // Convertir categorías del backend al nuevo formato
-              categorias: categoriasBackend.map(cat => ({
-                nombre: cat.nivel,
-                desde: cat.desde || cat.grado,
-                hasta: cat.hasta || cat.grado
-              }))
+              // Usar las categorías reales si están disponibles, o las predeterminadas
+              categorias: areaAsociada.categorias || categoriasPorDefecto[combo.area] || []
             };
           } else {
-            console.log(`NO HAY COINCIDENCIA para "${combo.area}"`);
+            console.log(`❌ NO HAY COINCIDENCIA para "${combo.area}"`);
             return {
               ...combo,
               habilitado: false,
               yaAsociada: false,
-              // Mantener las categorías vacías para áreas no asociadas
               categorias: []
             };
           }
@@ -255,9 +257,8 @@ const cargarAreasAsociadas = async (idOlimpiada) => {
     }
   } catch (error) {
     console.error("Error al cargar áreas asociadas:", error);
-    // Si hay error, mostrar todas las áreas como no habilitadas
     setCombinaciones(prev => 
-      prev.map(combo => ({...combo, habilitado: false, costoInscripcion: "16"}))
+      prev.map(combo => ({...combo, habilitado: false, yaAsociada: false, categorias: []}))
     );
   } finally {
     setCargandoAreas(false);

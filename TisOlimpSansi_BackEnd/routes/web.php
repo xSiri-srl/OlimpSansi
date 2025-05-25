@@ -29,7 +29,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('permiso:crear_olimpiada')->group(function () {
         // Obtener olimpiadas
         Route::get('/getOlimpiadas', [OlimpiadaController::class, 'getOlimpiadas']);
-        
+        Route::post('/olimpiada/max-materias', [OlimpiadaController::class, 'setNumMaxMaterias']);
+
         // Asociar áreas a olimpiadas
         Route::post('/asociar-areas-olimpiada', [OlimpiadaAreaController::class, 'asociarAreas']);
         

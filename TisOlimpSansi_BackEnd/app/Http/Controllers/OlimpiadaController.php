@@ -187,4 +187,24 @@ public function getTodasLasOlimpiadas(): JsonResponse
     }
 }
 
+
+    public function setNumMaxMaterias(Request $request)
+    {
+    
+        $data = $request->validate([
+            'id'     => 'required|exists:olimpiada,id',
+            'numMax' => 'required|integer|min:0',
+        ]);
+
+        
+        $olimpiada = OlimpiadaModel::findOrFail($data['id']);
+        $olimpiada->max_materias = $data['numMax'];
+        $olimpiada->save();
+
+
+        return response()->json([
+            'message'    => 'Número máximo de materias actualizado correctamente',
+            'olimpiada'  => $olimpiada,
+        ], 200);
+    }
 }
