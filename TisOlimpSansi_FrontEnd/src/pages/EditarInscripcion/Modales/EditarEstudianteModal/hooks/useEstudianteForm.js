@@ -73,18 +73,6 @@ export const useEstudianteForm = (estudiante) => {
     });
   };
 
-  // función para cambiar el departamento y resetear provincia
-  const handleDepartamentoChange = (value) => {
-    setEstudianteData(prev => ({
-      ...prev,
-      colegio: {
-        ...prev.colegio,
-        departamento: value,
-        provincia: '' 
-      }
-    }));
-  };
-
 const validarDatos = () => {
   const nuevoErrores = {};
   
@@ -317,7 +305,6 @@ return {
   estudianteData,
   errores,
   handleChange,
-  handleDepartamentoChange,
   validarDatos,
   tieneError,
   mostrarCampo,

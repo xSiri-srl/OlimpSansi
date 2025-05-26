@@ -12,7 +12,6 @@ const EditarEstudianteModal = ({ estudiante, onClose, onSave }) => {
     estudianteData,
     errores,
     handleChange,
-    handleDepartamentoChange,
     validarDatos,
     tieneError,
     mostrarCampo,
