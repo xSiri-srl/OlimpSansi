@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react';
-import { SECCIONES } from '../constants'
 
 export const useEstudianteForm = (estudiante) => {
-  const [seccionActiva, setSeccionActiva] = useState(SECCIONES.TODOS);
   const [estudianteData, setEstudianteData] = useState(null);
   const [errores, setErrores] = useState({});
 
@@ -251,54 +249,7 @@ const validarDatos = () => {
 
   // Función para mostrar u ocultar campos según la sección activa
   const mostrarCampo = (campo) => {
-    if (seccionActiva === SECCIONES.TODOS) return true;
-    
-    // En modo de solo campos inválidos, verificar todos los tipos de errores
-    
-    // Si el campo específico tiene error, siempre mostrarlo
-    if (tieneError(campo)) {
-      return true;
-    }
-    
-    // Para errores específicos de estudiante
-    if (tieneError('ci') || tieneError('apellido_pa') || tieneError('nombre')) {
-      if (campo === 'ci' || campo === 'apellido_pa' || campo === 'nombre') {
-        return true;
-      }
-    }
-    
-    // Para errores específicos de colegio
-    if (tieneError('nombre_colegio') || tieneError('curso')) {
-      if (campo === 'nombre_colegio' || campo === 'curso') {
-        return true;
-      }
-    }
-    
-    // Para errores de categoría en áreas
-    const tieneErrorCategoria = Object.keys(errores).some(key => key.startsWith('categoria_'));
-    if (tieneErrorCategoria || tieneError('areas')) {
-      if (campo === 'areas') {
-        return true;
-      }
-    }
-    
-    // Para errores en tutor legal
-    if (tieneError('tutor_legal_ci') || tieneError('tutor_legal_telefono')) {
-      if (campo === 'tutor_legal') {
-        return true;
-      }
-    }
-    
-    // Para errores en tutores académicos
-    const tieneErrorTutorAcademico = Object.keys(errores).some(key => key.startsWith('tutor_academico_'));
-    if (tieneErrorTutorAcademico) {
-      if (campo === 'tutores_academicos') {
-        return true;
-      }
-    }
-    
-    // No mostrar el campo por defecto en modo "Solo campos inválidos"
-    return false;
+    return true;
   };
     // Validar formato numérico para CI
     const validarFormatoCI = (value) => {
@@ -363,8 +314,6 @@ const validarDatos = () => {
     };
 
 return {
-  seccionActiva,
-  setSeccionActiva,
   estudianteData,
   errores,
   handleChange,

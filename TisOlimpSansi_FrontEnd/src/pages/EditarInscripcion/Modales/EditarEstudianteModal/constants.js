@@ -1,8 +1,3 @@
-export const SECCIONES = {
-    TODOS: "todos",
-    INVALIDOS: "invalidos"
-  };
-  
   export const departamentos = {
     "La Paz": ["Murillo", "Pacajes", "Los Andes", "Larecaja", "Ingavi"],
     Cochabamba: ["Cercado", "Quillacollo", "Chapare", "Arani", "Ayopaya"],
