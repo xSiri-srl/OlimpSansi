@@ -69,15 +69,21 @@ class OlimpiadaController extends Controller
     }
 
 
-    public function show($id)
-    {
+public function show($id)
+{
+    try {
         $olimpiada = OlimpiadaModel::findOrFail($id);
-
+        
+        $olimpiada->makeVisible(['max_materias']);
+        
+        return response()->json($olimpiada);
+    } catch (\Exception $e) {
         return response()->json([
-            'status' => 200,
-            'data' => $olimpiada,
-        ]);
+            'error' => 'Olimpiada no encontrada',
+            'message' => $e->getMessage()
+        ], 404);
     }
+}
 
 
     public function update(Request $request, $id)

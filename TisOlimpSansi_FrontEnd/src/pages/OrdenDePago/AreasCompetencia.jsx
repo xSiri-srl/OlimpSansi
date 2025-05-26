@@ -10,6 +10,8 @@ import LoadingIndicator from './AreasCompetencia/LoadingIndicator';
 import AreaGrid from './AreasCompetencia/AreaGrid';
 import AreaSummary from './AreasCompetencia/AreaSummary';
 import NavigationButtons from './AreasCompetencia/NavigationButtons';
+import axios from "axios";
+import { useState, useEffect } from "react";
 
 export default function AreasCompetencia({
   formData,
@@ -22,10 +24,41 @@ export default function AreasCompetencia({
   const categoriasSeleccionadas = formData.estudiante?.categoriasSeleccionadas || {};
   const cursoEstudiante = formData.estudiante?.curso || "";
   
+  const [maxAreas, setMaxAreas] = useState(0); 
+  const [cargandoMaxAreas, setCargandoMaxAreas] = useState(false);
+  
   // Obtener ID de olimpiada de la URL
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const olimpiadaId = queryParams.get("olimpiada");
+
+useEffect(() => {
+  if (olimpiadaId) {
+    const cargarMaxAreas = async () => {
+      setCargandoMaxAreas(true);
+      try {
+        const response = await axios.get(`http://localhost:8000/olimpiada/${olimpiadaId}`);
+        
+        if (response.status === 200 && response.data) {
+          // Forzar la conversión a número entero
+          const maxMateriasValue = parseInt(response.data.max_materias, 10);
+          // Usar el valor real incluso si es 0, solo usar 0 si es NaN
+          setMaxAreas(isNaN(maxMateriasValue) ? 0 : maxMateriasValue);
+        }
+      } catch (error) {
+        console.error("Error al cargar máximo de áreas:", error);
+      } finally {
+        setCargandoMaxAreas(false);
+      }
+    };
+    
+    cargarMaxAreas();
+  }
+}, [olimpiadaId]);
+
+useEffect(() => {
+  console.log("maxAreas actualizado a:", maxAreas);
+}, [maxAreas]);
 
   // Usar hooks personalizados
   const { cargandoAreas, errorCarga, areaEstaDisponible } = useAreasDisponibles(olimpiadaId);
@@ -34,7 +67,8 @@ export default function AreasCompetencia({
     seleccionadas, 
     categoriasSeleccionadas, 
     obtenerCategorias,
-    handleInputChange
+    handleInputChange,
+    maxAreas
   );
 
   // Manejo del envío y avance
@@ -73,7 +107,7 @@ export default function AreasCompetencia({
 
   return (
     <div className="grid grid-cols-1 gap-6">
-      <Title />
+      <Title maxAreas={maxAreas} cargandoMaxAreas={cargandoMaxAreas} />
       
       <LoadingIndicator 
         cargandoAreas={cargandoAreas} 
@@ -90,6 +124,7 @@ export default function AreasCompetencia({
         manejarSeleccion={manejarSeleccion}
         handleCategoriaChange={handleCategoriaChange}
         cargandoAreas={cargandoAreas}
+        maxAreas={maxAreas}
       />
 
       <AreaSummary 
