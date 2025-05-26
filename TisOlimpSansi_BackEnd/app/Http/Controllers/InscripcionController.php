@@ -106,11 +106,16 @@ public function registrar(Request $request)
         }
 
         // ❌ Validar si ya está inscrito en demasiadas áreas
-        $limiteAreas = 2;
+        $olimpiada = OlimpiadaModel::findOrFail($data['olimpiada']['id']);
+        $limiteAreas = $olimpiada->max_materias;
+        // Verificar cuántas inscripciones tiene el estudiante
         $cantidadInscripciones = InscripcionModel::where('id_estudiante', $estudiante->id)->count();
         if ($cantidadInscripciones + count($data['areas_competencia']) > $limiteAreas) {
-            throw new \Exception("Este estudiante ya está inscrito en el límite de áreas permitidas ($limiteAreas).");
-        }
+                return response()->json([
+                    'status' => 422,
+                    'error' => "Este estudiante ya está inscrito en el límite de áreas permitidas ($limiteAreas)."
+                ], 422);
+            }
 
         // TUTOR LEGAL
         $tutorLegal = TutorLegalModel::firstOrCreate(

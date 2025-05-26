@@ -166,7 +166,7 @@ export default function FormularioEstudiante() {
                 <FaUsers size={100} className="text-purple-600 group-hover:text-purple-800 transition-all" />
               </div>
               <span className="font-mono mt-4 text-2xl font-semibold text-gray-600 group-hover:text-purple-700">
-                Por lista
+                Por U.E.
               </span>
             </motion.div>
           </div>
