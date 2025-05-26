@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { SECCIONES } from '../constants'
-import { normalizarDatosEstudiante } from '../utils';
 
 export const useEstudianteForm = (estudiante) => {
   const [seccionActiva, setSeccionActiva] = useState(SECCIONES.TODOS);
@@ -11,105 +10,9 @@ export const useEstudianteForm = (estudiante) => {
     if (estudiante?.originalData) {
       console.log("Datos originales recibidos:", estudiante.originalData);
       
-      const normalizedData = normalizarDatosEstudiante(estudiante.originalData);
+      const normalizedData = estudiante.originalData;
       
-      console.log("Datos normalizados:", normalizedData);
-  
-      const erroresIniciales = {};
-          // Validar nombres y apellidos del estudiante
-    if (normalizedData.estudiante?.nombre && !/^[A-ZÁÉÍÓÚÑ\s]+$/i.test(normalizedData.estudiante.nombre)) {
-      erroresIniciales.nombre = "El nombre debe contener solo letras";
-    }
-    
-    if (normalizedData.estudiante?.apellido_pa && !/^[A-ZÁÉÍÓÚÑ\s]+$/i.test(normalizedData.estudiante.apellido_pa)) {
-      erroresIniciales.apellido_pa = "El apellido paterno debe contener solo letras";
-    }
-    
-    if (normalizedData.estudiante?.apellido_ma && !/^[A-ZÁÉÍÓÚÑ\s]+$/i.test(normalizedData.estudiante.apellido_ma)) {
-      erroresIniciales.apellido_ma = "El apellido materno debe contener solo letras";
-    }
-    
-    // Validar áreas que requieren categoría
-    normalizedData.areas_competencia?.forEach((area, index) => {
-      if ((area.nombre_area === "Informática" || area.nombre_area === "Robótica") && !area.categoria) {
-        erroresIniciales[`categoria_${index}`] = `Debe seleccionar una categoría para ${area.nombre_area}`;
-      } else if ((area.nombre_area === "Informática" || area.nombre_area === "Robótica") && area.categoria) {
-        // Validar que la categoría corresponda al curso
-        const curso = normalizedData.colegio?.curso || '';
-        const esPrimaria = curso.includes("Primaria");
-        const esSecundaria = curso.includes("Secundaria");
-        const numeroCurso = parseInt(curso.match(/\d+/)?.[0] || "0");
-        
-        // Verificar categorías de Informática
-        if (area.nombre_area === "Informática") {
-          if (esPrimaria && (numeroCurso === 5 || numeroCurso === 6)) {
-            if (!area.categoria.includes("Guacamayo")) {
-              erroresIniciales[`categoria_${index}`] = `La categoría seleccionada no corresponde al curso ${curso}`;
-            }
-          } else if (esSecundaria && numeroCurso >= 1 && numeroCurso <= 3) {
-            if (!area.categoria.includes("Guanaco") && 
-                !area.categoria.includes("Londra") && 
-                !area.categoria.includes("Bufeo")) {
-              erroresIniciales[`categoria_${index}`] = `La categoría seleccionada no corresponde al curso ${curso}`;
-            }
-          } else if (esSecundaria && numeroCurso >= 4 && numeroCurso <= 6) {
-            if (!area.categoria.includes("Jucumari") && 
-                !area.categoria.includes("Puma")) {
-              erroresIniciales[`categoria_${index}`] = `La categoría seleccionada no corresponde al curso ${curso}`;
-            }
-          }
-        }
-        
-        // Verificar categorías de Robótica
-        if (area.nombre_area === "Robótica") {
-          if (esPrimaria && (numeroCurso === 5 || numeroCurso === 6)) {
-            if (!area.categoria.includes("Builders P") && 
-                !area.categoria.includes("Lego P")) {
-              erroresIniciales[`categoria_${index}`] = `La categoría seleccionada no corresponde al curso ${curso}`;
-            }
-          } else if (esSecundaria) {
-            if (!area.categoria.includes("Builders S") && 
-                !area.categoria.includes("Lego S")) {
-              erroresIniciales[`categoria_${index}`] = `La categoría seleccionada no corresponde al curso ${curso}`;
-            }
-          }
-        }
-      }
-    });
-      // Validar áreas que requieren categoría
-      normalizedData.areas_competencia?.forEach((area, index) => {
-        if ((area.nombre_area === "Informática" || area.nombre_area === "Robótica") && !area.categoria) {
-          erroresIniciales[`categoria_${index}`] = `Debe seleccionar una categoría para ${area.nombre_area}`;
-        }
-      });
-      
-      // Validar CI del estudiante
-      if (normalizedData.estudiante?.ci && !/^\d{7,8}$/.test(normalizedData.estudiante.ci)) {
-        erroresIniciales.ci = "El CI del estudiante debe contener entre 7 y 8 dígitos numéricos";
-      }
-      
-      // Validar formato de teléfono del tutor legal
-      if (normalizedData.tutor_legal?.numero_celular && !/^\d{7,9}$/.test(normalizedData.tutor_legal.numero_celular)) {
-        erroresIniciales.tutor_legal_telefono = "El teléfono debe contener entre 7 y 9 dígitos numéricos";
-      }
-      
-      // Validar CI de tutores académicos
-      normalizedData.tutores_academicos?.forEach((tutor, index) => {
-        if (tutor?.tutor?.ci && !/^\d{7,8}$/.test(tutor.tutor.ci)) {
-          erroresIniciales[`tutor_academico_${index}_ci`] = "El CI del tutor académico debe contener entre 7 y 8 dígitos numéricos";
-        }
-      });
-      
-      // Validar CI del tutor legal
-      if (normalizedData.tutor_legal?.ci && !/^\d{7,8}$/.test(normalizedData.tutor_legal.ci)) {
-        erroresIniciales.tutor_legal_ci = "El CI del tutor legal debe contener entre 7 y 8 dígitos numéricos";
-      }
-      
-      // Establecer errores encontrados
-      if (Object.keys(erroresIniciales).length > 0) {
-        setErrores(erroresIniciales);
-      }
-      
+      console.log("Datos normalizados:", normalizedData);      
       setEstudianteData(normalizedData);
     }
   }, [estudiante]);
@@ -346,7 +249,6 @@ const validarDatos = () => {
   // verificar si el campo tiene error
   const tieneError = (campo) => Boolean(errores[campo]);
 
-  // Función para mostrar u ocultar campos según la sección activa
   // Función para mostrar u ocultar campos según la sección activa
   const mostrarCampo = (campo) => {
     if (seccionActiva === SECCIONES.TODOS) return true;

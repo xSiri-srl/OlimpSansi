@@ -44,17 +44,6 @@ const EditarEstudianteModal = ({ estudiante, onClose, onSave }) => {
           <h3 className="text-xl font-semibold">Editar información del competidor</h3>
           
           <div className="flex items-center gap-4">
-            <div className="flex items-center space-x-2">
-              <label className="text-sm text-gray-600">Mostrar:</label>
-              <select 
-                className="border rounded px-2 py-1 text-sm"
-                value={seccionActiva}
-                onChange={(e) => setSeccionActiva(e.target.value)}
-              >
-                <option value={SECCIONES.TODOS}>Todos los campos</option>
-                <option value={SECCIONES.INVALIDOS}>Solo campos inválidos</option>
-              </select>
-            </div>
             
             <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
               <FaTimes className="text-xl" />
