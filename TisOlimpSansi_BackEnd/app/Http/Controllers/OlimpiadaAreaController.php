@@ -69,39 +69,51 @@ class OlimpiadaAreaController extends Controller
         ]);
     }
 
+
 public function getAreasPorOlimpiada($id)
 {
     try {
-        // Obtener áreas asociadas a la olimpiada desde olimpiada_area_categorias
-        $areasAsociadas = DB::table('olimpiada_area_categorias')
+        // Obtener áreas y sus categorías asociadas a la olimpiada
+        $areasYCategorias = DB::table('olimpiada_area_categorias')
             ->join('area', 'olimpiada_area_categorias.id_area', '=', 'area.id')
+            ->join('categoria', 'olimpiada_area_categorias.id_categoria', '=', 'categoria.id')
             ->where('olimpiada_area_categorias.id_olimpiada', $id)
             ->select(
                 'area.id',
                 'area.nombre_area as area',
-                'olimpiada_area_categorias.precio as costoInscripcion',
-                DB::raw('true as habilitado')
+                'categoria.id as id_categoria',
+                'categoria.nombre_categoria as nombre_categoria',
+                'olimpiada_area_categorias.precio as costoInscripcion'
             )
-            ->distinct() // Para evitar duplicados por múltiples categorías
             ->get();
 
-        // Normalizamos y mapeamos los nombres para garantizar la coherencia
-        $areasAsociadas = $areasAsociadas->map(function($item) {
-            $nombreNormalizado = str_replace(['-', '_'], ' ', $item->area);
-            $nombreNormalizado = str_replace('ASTROFISICA', 'ASTROFÍSICA', $nombreNormalizado);
-            $nombreNormalizado = str_replace('MATEMATICAS', 'MATEMÁTICAS', $nombreNormalizado);
-            $nombreNormalizado = str_replace('FISICA', 'FÍSICA', $nombreNormalizado);
-            $nombreNormalizado = str_replace('INFORMATICA', 'INFORMÁTICA', $nombreNormalizado);
-            $nombreNormalizado = str_replace('QUIMICA', 'QUÍMICA', $nombreNormalizado);
-            $nombreNormalizado = str_replace('ROBOTICA', 'ROBÓTICA', $nombreNormalizado);
+        // Agrupar por área para evitar duplicados
+        $areasAgrupadasMap = [];
+        
+        foreach ($areasYCategorias as $item) {
+            if (!isset($areasAgrupadasMap[$item->id])) {
+                $areasAgrupadasMap[$item->id] = [
+                    'id' => $item->id,
+                    'area' => $item->area,
+                    'costoInscripcion' => $item->costoInscripcion,
+                    'habilitado' => true,
+                    'categorias' => []
+                ];
+            }
             
-            $item->area = $nombreNormalizado;
-            return $item;
-        });
+            // Añadir la categoría al área correspondiente
+            $areasAgrupadasMap[$item->id]['categorias'][] = [
+                'nombre' => $item->nombre_categoria,
+                'id' => $item->id_categoria
+            ];
+        }
+        
+        // Convertir el mapa a un array para la respuesta
+        $areasAgrupadas = array_values($areasAgrupadasMap);
 
         return response()->json([
             'status' => 200,
-            'data' => $areasAsociadas,
+            'data' => $areasAgrupadas,
         ]);
     } catch (\Exception $e) {
         return response()->json([

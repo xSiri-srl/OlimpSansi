@@ -5,7 +5,8 @@ import HeaderSelector from "./AreasCompetencia/HeaderSelector";
 import AreaCompetencia from "./AreasCompetencia/AreaCompetencia";
 import AccionesFooter from "./AreasCompetencia/AccionesFooter";
 import { gradosDisponibles } from "./AreasCompetencia/constants";
-
+import { todasLasCategoriasPorArea } from "./todasLasCategoriasPorArea";
+import { categoriasPredefinidasMap } from "./todasLasCategoriasPorArea";
 const DesasignarAreaNivel = () => {
 
     const [olimpiadas, setOlimpiadas] = useState([]);
@@ -279,16 +280,15 @@ const cargarAreasAsociadas = async (idOlimpiada) => {
     
     const response = await axios.get(`http://localhost:8000/areas-olimpiada/${idOlimpiada}`, config);
     
-    console.log("Áreas asociadas (raw):", response.data);
+    console.log("Áreas asociadas (respuesta del backend):", response.data);
     
     if (response.status === 200 && response.data.data) {
       const areasAsociadas = response.data.data;
-      
-      // Función auxiliar para normalizar nombres
       const normalizarNombre = (nombre) => {
+        if (!nombre) return '';
         return nombre.toUpperCase()
           .normalize("NFD").replace(/[\u0300-\u036f]/g, "") 
-          .replace(/[^A-Z0-9]/g, ""); 
+          .replace(/[^A-Z0-9\s\-]/g, ""); 
       };
       
       // Crear un mapa de áreas asociadas normalizadas para búsqueda eficiente
@@ -299,119 +299,54 @@ const cargarAreasAsociadas = async (idOlimpiada) => {
         areasNormalizadasMap.set(nombreNormalizado, area);
       });
       
-      // Añadir categorías predefinidas por área
-      const categoriasPorDefecto = {
-        "Astronomía-Astrofísica": [
-          { nombre: "1P", desde: "1ro Primaria", hasta: "1ro Primaria" },
-          { nombre: "2P", desde: "2do Primaria", hasta: "2do Primaria" },
-          { nombre: "3P", desde: "3ro Primaria", hasta: "3ro Primaria" },
-          { nombre: "1S", desde: "1ro Secundaria", hasta: "1ro Secundaria" },
-          { nombre: "2S", desde: "2do Secundaria", hasta: "2do Secundaria" },
-          { nombre: "3S", desde: "3ro Secundaria", hasta: "3ro Secundaria" }
-        ],
-        "Biología": [
-          { nombre: "2S", desde: "2do Secundaria", hasta: "2do Secundaria" },
-          { nombre: "3S", desde: "3ro Secundaria", hasta: "3ro Secundaria" },
-          { nombre: "4S", desde: "4to Secundaria", hasta: "4to Secundaria" },
-          { nombre: "5S", desde: "5to Secundaria", hasta: "5to Secundaria" }
-        ],
-        "Física": [
-          { nombre: "3S", desde: "3ro Secundaria", hasta: "3ro Secundaria" },
-          { nombre: "4S", desde: "4to Secundaria", hasta: "4to Secundaria" },
-          { nombre: "5S", desde: "5to Secundaria", hasta: "5to Secundaria" },
-          { nombre: "6S", desde: "6to Secundaria", hasta: "6to Secundaria" }
-        ],
-                "Informática": [
-          { nombre: "GUACAMAYO", desde: "5to Primaria", hasta: "6to Primaria" },
-          { nombre: "GUANACO", desde: "1ro Secundaria", hasta: "3ro Secundaria" },
-          { nombre: "LONDRA", desde: "1ro Secundaria", hasta: "3ro Secundaria" },
-          { nombre: "JUCUMARI", desde: "4to Secundaria", hasta: "6to Secundaria" },
-          { nombre: "BUFEO", desde: "1ro Secundaria", hasta: "3ro Secundaria" },
-          { nombre: "PUMA", desde: "4to Secundaria", hasta: "6to Secundaria" }
-        ],
-        "Matemáticas": [
-          { nombre: "PRIMER NIVEL", desde: "1ro Secundaria", hasta: "1ro Secundaria" },
-          { nombre: "SEGUNDO NIVEL", desde: "2do Secundaria", hasta: "2do Secundaria" },
-          { nombre: "TERCER NIVEL", desde: "3ro Secundaria", hasta: "3ro Secundaria" },
-          { nombre: "CUARTO NIVEL", desde: "4to Secundaria", hasta: "4to Secundaria" },
-          { nombre: "QUINTO NIVEL", desde: "5to Secundaria", hasta: "5to Secundaria" },
-          { nombre: "SEXTO NIVEL", desde: "6to Secundaria", hasta: "6to Secundaria" }
-        ],
-        "Química": [
-          { nombre: "2S", desde: "2do Secundaria", hasta: "2do Secundaria" },
-          { nombre: "3S", desde: "3ro Secundaria", hasta: "3ro Secundaria" },
-          { nombre: "4S", desde: "4to Secundaria", hasta: "4to Secundaria" },
-          { nombre: "5S", desde: "5to Secundaria", hasta: "5to Secundaria" },
-          { nombre: "6S", desde: "6to Secundaria", hasta: "6to Secundaria" }
-        ],
-        "Robótica": [
-          { nombre: "BUILDERS P", desde: "5to Primaria", hasta: "6to Primaria" },
-          { nombre: "BUILDERS S", desde: "1ro Secundaria", hasta: "6to Secundaria" },
-          { nombre: "LEGO P", desde: "5to Primaria", hasta: "6to Primaria" },
-          { nombre: "LEGO S", desde: "1ro Secundaria", hasta: "6to Secundaria" }
-        ]
-      };
-setCombinaciones(prev => {
-  const nuevasCombinaciones = prev.map(combo => {
-    const nombreNormalizado = normalizarNombre(combo.area);
-    
-    const areaAsociada = areasNormalizadasMap.get(nombreNormalizado);
-    
-    if (areaAsociada) {
-      console.log(`✅ COINCIDENCIA ENCONTRADA para "${combo.area}"`);
-      
-      // Comprobar si ya tiene categorías en el objeto combo
-      let categoriasActuales = [];
-      
-      // Si es el área de Informática, usar sus rangos predefinidos
-      if (combo.area === "Informática" && combo.rangos && combo.rangos.length > 0) {
-        categoriasActuales = combo.rangos.map(rango => ({
-          nombre: rango.nivel,
-          desde: rango.desde,
-          hasta: rango.hasta
-        }));
-      } 
-      // Si es el área de Robótica, usar sus rangos predefinidos
-      else if (combo.area === "Robótica" && combo.rangos && combo.rangos.length > 0) {
-        categoriasActuales = combo.rangos.map(rango => ({
-          nombre: rango.nivel,
-          desde: rango.desde,
-          hasta: rango.hasta
-        }));
-      } 
-      // Para el resto de áreas, usar sus niveles predefinidos si existen
-      else if (combo.niveles && combo.niveles.length > 0) {
-        // Para las áreas que usan niveles en lugar de rangos
-        categoriasActuales = combo.niveles.map(nivel => ({
-          nombre: nivel.nivel,
-          desde: nivel.grado,
-          hasta: nivel.grado
-        }));
-      } 
-      // Si no hay datos predefinidos, usar las categorías predeterminadas del mapa
-      else {
-        categoriasActuales = categoriasPorDefecto[combo.area] || [];
-      }
-      
-      return {
-        ...combo,
-        habilitado: true,
-        yaAsociada: true,
-        categorias: categoriasActuales
-      };
-    } else {
-      console.log(`❌ NO HAY COINCIDENCIA para "${combo.area}"`);
-      return {
-        ...combo,
-        habilitado: false,
-        yaAsociada: false,
-        categorias: []
-      };
-    }
-  });
-  
-  return nuevasCombinaciones;
-});
+      setCombinaciones(prev => {
+        const nuevasCombinaciones = prev.map(combo => {
+          const nombreNormalizado = normalizarNombre(combo.area);
+          const areaAsociada = areasNormalizadasMap.get(nombreNormalizado);
+          
+          if (areaAsociada) {
+            console.log(`✅ COINCIDENCIA ENCONTRADA para "${combo.area}"`);
+            console.log(`Categorías asociadas:`, areaAsociada.categorias);
+            
+            // Convertir las categorías del backend al formato que espera el frontend
+            const categorias = [];
+            
+            if (areaAsociada.categorias && Array.isArray(areaAsociada.categorias)) {
+              areaAsociada.categorias.forEach(cat => {
+                const infoCategoria = categoriasPredefinidasMap[cat.nombre] || {
+                  nombre: cat.nombre,
+                  desde: determinarDesde(cat.nombre),
+                  hasta: determinarHasta(cat.nombre)
+                };
+                
+                categorias.push({
+                  nombre: cat.nombre,
+                  desde: infoCategoria.desde,
+                  hasta: infoCategoria.hasta,
+                  id: cat.id
+                });
+              });
+            }
+            
+            return {
+              ...combo,
+              habilitado: true,
+              yaAsociada: true,
+              categorias: categorias
+            };
+          } else {
+            console.log(`❌ NO HAY COINCIDENCIA para "${combo.area}"`);
+            return {
+              ...combo,
+              habilitado: false,
+              yaAsociada: false,
+              categorias: []
+            };
+          }
+        });
+        
+        return nuevasCombinaciones;
+      });
     }
   } catch (error) {
     console.error("Error al cargar áreas asociadas:", error);
@@ -421,6 +356,85 @@ setCombinaciones(prev => {
   } finally {
     setCargandoAreas(false);
   }
+};
+const determinarDesde = (categoriaNombre) => {
+  const mapeo = {
+    // Primaria
+    "1P": "1ro Primaria",
+    "2P": "2do Primaria",
+    "3P": "3ro Primaria",
+    "4P": "4to Primaria",
+    "5P": "5to Primaria",
+    "6P": "6to Primaria",
+    // Secundaria
+    "1S": "1ro Secundaria",
+    "2S": "2do Secundaria",
+    "3S": "3ro Secundaria",
+    "4S": "4to Secundaria",
+    "5S": "5to Secundaria",
+    "6S": "6to Secundaria",
+    // Niveles de Matemáticas
+    "PRIMER NIVEL": "1ro Secundaria",
+    "SEGUNDO NIVEL": "2do Secundaria",
+    "TERCER NIVEL": "3ro Secundaria",
+    "CUARTO NIVEL": "4to Secundaria",
+    "QUINTO NIVEL": "5to Secundaria",
+    "SEXTO NIVEL": "6to Secundaria",
+    // Informática
+    "GUACAMAYO": "5to Primaria",
+    "GUANACO": "1ro Secundaria",
+    "LONDRA": "1ro Secundaria",
+    "JUCUMARI": "4to Secundaria",
+    "BUFEO": "1ro Secundaria",
+    "PUMA": "4to Secundaria",
+    // Robótica
+    "BUILDERS P": "5to Primaria",
+    "BUILDERS S": "1ro Secundaria",
+    "LEGO P": "5to Primaria",
+    "LEGO S": "1ro Secundaria",
+  };
+  
+  return mapeo[categoriaNombre] || "N/A";
+};
+
+const determinarHasta = (categoriaNombre) => {
+  const mapeo = {
+    // Primaria (grados únicos)
+    "1P": "1ro Primaria",
+    "2P": "2do Primaria",
+    "3P": "3ro Primaria",
+    "4P": "4to Primaria",
+    "5P": "5to Primaria",
+    "6P": "6to Primaria",
+    // Secundaria (grados únicos)
+    "1S": "1ro Secundaria",
+    "2S": "2do Secundaria",
+    "3S": "3ro Secundaria",
+    "4S": "4to Secundaria",
+    "5S": "5to Secundaria",
+    "6S": "6to Secundaria",
+    // Niveles de Matemáticas (grados únicos)
+    "PRIMER NIVEL": "1ro Secundaria",
+    "SEGUNDO NIVEL": "2do Secundaria",
+    "TERCER NIVEL": "3ro Secundaria",
+    "CUARTO NIVEL": "4to Secundaria",
+    "QUINTO NIVEL": "5to Secundaria",
+    "SEXTO NIVEL": "6to Secundaria",
+    // Informática (rangos)
+    "GUACAMAYO": "6to Primaria",
+    "GUANACO": "3ro Secundaria",
+    "LONDRA": "3ro Secundaria",
+    "JUCUMARI": "6to Secundaria",
+    "BUFEO": "3ro Secundaria",
+    "PUMA": "6to Secundaria",
+    // Robótica (rangos)
+    "BUILDERS P": "6to Primaria",
+    "BUILDERS S": "6to Secundaria",
+    "LEGO P": "6to Primaria",
+    "LEGO S": "6to Secundaria",
+  };
+  
+  return mapeo[categoriaNombre] || "N/A";
 };
   
     const eliminarCombinacion = (index) => {
