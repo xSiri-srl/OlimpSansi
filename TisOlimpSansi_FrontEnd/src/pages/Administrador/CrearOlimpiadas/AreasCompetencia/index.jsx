@@ -65,7 +65,38 @@ const AreasCompetenciaManager = () => {
       alert("Por favor seleccione una olimpiada");
       return;
     }
-
+  if (areasHabilitadas.length === 0) {
+    alert("Debe habilitar al menos un área de competencia");
+    return;
+  }
+    const areasSinCategorias = areasHabilitadas.filter(combo => 
+    !combo.categorias || combo.categorias.length === 0
+  );
+  
+  if (areasSinCategorias.length > 0) {
+    const areasNombres = areasSinCategorias.map(a => a.area).join(", ");
+    alert(`Las siguientes áreas no tienen categorías definidas: ${areasNombres}. Debe definir al menos una categoría por área.`);
+    return;
+  }
+    areasHabilitadas.forEach(combo => {
+    // Crear un conjunto para rastrear categorías únicas
+    const categoriasVistas = new Set();
+    
+    combo.categorias.forEach(cat => {
+      if (categoriasVistas.has(cat.nombre)) {
+        tieneCategoriaDuplicada = true;
+        areaDuplicada = combo.area;
+        categoriaDuplicada = cat.nombre;
+      } else {
+        categoriasVistas.add(cat.nombre);
+      }
+    });
+  });
+  
+  if (tieneCategoriaDuplicada) {
+    alert(`Error: El área "${areaDuplicada}" tiene la categoría "${categoriaDuplicada}" duplicada. No se pueden asociar dos categorías iguales a la misma área.`);
+    return;
+  }
     let datosCompletos = true;
     let mensaje = "";
 
