@@ -290,6 +290,29 @@ const gradosToIndice = (grado) => {
   };
   return mapeo[grado] !== undefined ? mapeo[grado] : -1;
 };
+const sonCategoriasEquivalentes = (cat1, cat2) => {
+  // Lista de pares de nombres de categorías que se consideran equivalentes
+  const equivalencias = [
+    ["1S", "PRIMER NIVEL"],
+    ["2S", "SEGUNDO NIVEL"],
+    ["3S", "TERCER NIVEL"],
+    ["4S", "CUARTO NIVEL"],
+    ["5S", "QUINTO NIVEL"],
+    ["6S", "SEXTO NIVEL"],
+    // Añade aquí más equivalencias si las hay
+  ];
+    const nombre1 = cat1.toUpperCase().trim();
+  const nombre2 = cat2.toUpperCase().trim();
+  
+  // Si son exactamente iguales, son equivalentes
+  if (nombre1 === nombre2) return true;
+  
+  // Buscar en la lista de equivalencias
+  return equivalencias.some(([a, b]) => 
+    (nombre1 === a.toUpperCase() && nombre2 === b.toUpperCase()) || 
+    (nombre1 === b.toUpperCase() && nombre2 === a.toUpperCase())
+  );
+};
   const guardarConfiguracion = async () => {
     if (!olimpiadaSeleccionada) {
       alert("Por favor seleccione una olimpiada");
@@ -315,33 +338,35 @@ const gradosToIndice = (grado) => {
   let areaSolapada = "";
   let categoriaSolapada1 = "";
   let categoriaSolapada2 = "";
-    areasHabilitadas.forEach(combo => {
-    const categoriasArea = combo.categorias || [];
+areasHabilitadas.forEach(combo => {
+  const categoriasArea = combo.categorias || [];
+  
+  // Por cada par de categorías, comprobar si hay solapamiento
+  for (let i = 0; i < categoriasArea.length; i++) {
+    const cat1 = categoriasArea[i];
+    const inicioIndice1 = gradosToIndice(cat1.desde);
+    const finIndice1 = gradosToIndice(cat1.hasta);
     
-    // Por cada par de categorías, comprobar si hay solapamiento
-    for (let i = 0; i < categoriasArea.length; i++) {
-      const cat1 = categoriasArea[i];
-      const inicioIndice1 = gradosToIndice(cat1.desde);
-      const finIndice1 = gradosToIndice(cat1.hasta);
+    for (let j = i + 1; j < categoriasArea.length; j++) {
+      const cat2 = categoriasArea[j];
+      const inicioIndice2 = gradosToIndice(cat2.desde);
+      const finIndice2 = gradosToIndice(cat2.hasta);
       
-      for (let j = i + 1; j < categoriasArea.length; j++) {
-        const cat2 = categoriasArea[j];
-        const inicioIndice2 = gradosToIndice(cat2.desde);
-        const finIndice2 = gradosToIndice(cat2.hasta);
-        
-        // Comprobar si hay solapamiento entre los rangos
-        if (!(finIndice1 < inicioIndice2 || finIndice2 < inicioIndice1)) {
-          tieneSolapamiento = true;
-          areaSolapada = combo.area;
-          categoriaSolapada1 = cat1.nombre;
-          categoriaSolapada2 = cat2.nombre;
-          break;
-        }
+      // Solo considerar solapamiento si los rangos se solapan Y las categorías son equivalentes
+      const hayRangosSolapados = !(finIndice1 < inicioIndice2 || finIndice2 < inicioIndice1);
+      
+      if (hayRangosSolapados && sonCategoriasEquivalentes(cat1.nombre, cat2.nombre)) {
+        tieneSolapamiento = true;
+        areaSolapada = combo.area;
+        categoriaSolapada1 = cat1.nombre;
+        categoriaSolapada2 = cat2.nombre;
+        break;
       }
-      
-      if (tieneSolapamiento) break;
     }
-  });
+    
+    if (tieneSolapamiento) break;
+  }
+});
     if (tieneSolapamiento) {
     alert(`Error: En el área "${areaSolapada}", las categorías "${categoriaSolapada1}" y "${categoriaSolapada2}" tienen grados solapados. No se permite asociar categorías que abarquen los mismos grados.`);
     return;
