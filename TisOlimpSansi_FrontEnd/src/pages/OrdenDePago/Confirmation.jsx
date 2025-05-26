@@ -71,18 +71,18 @@ const Confirmation = ({ navigate, handleBack }) => {
         message: "Inscripción registrada correctamente.",
       });
 
-      // Llamar al backend para generar el PDF
 
       setShowSuccessModal(true);
     } catch (error) {
       console.error("Error al registrar los datos", error);
+      console.log("Respuesta del error:", error.response); 
       clearInterval(progressInterval);
       setShowProgressBar(false);
       setSubmitStatus({
         success: false,
         message:
           error.response?.data?.error ||
-          "Error al registrar los datos o generar PDF.",
+          "Error al registrar los datos",
       });
     } finally {
       setIsSubmitting(false);
