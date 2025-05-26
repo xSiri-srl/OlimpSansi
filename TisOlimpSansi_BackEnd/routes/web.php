@@ -17,6 +17,7 @@ Route::post('/registro', [AuthController::class, 'register']);
 
 Route::get('/olimpiadas-publicas', [OlimpiadaController::class, 'getOlimpiadasPublicas']);
 
+Route::get('/olimpiada/{id}', [OlimpiadaController::class, 'show']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {

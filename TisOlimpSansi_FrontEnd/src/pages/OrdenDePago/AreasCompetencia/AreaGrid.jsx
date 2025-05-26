@@ -9,14 +9,15 @@ const AreaGrid = ({
   categoriasSeleccionadas,
   manejarSeleccion,
   handleCategoriaChange,
-  cargandoAreas
+  cargandoAreas,
+  maxAreas = 0
 }) => {
   const renderizarArea = (area, index) => {
     const estaSeleccionada = seleccionadas.includes(area.nombre);
     const categorias = obtenerCategorias(area.nombre);
     const categoriaSeleccionada = categoriasSeleccionadas[area.nombre] || "";
     // Durante la carga, todas las áreas aparecen como no disponibles
-    const estaDisponible = !cargandoAreas && areaEstaDisponible(area.nombre);
+    const estaDisponible = !cargandoAreas && maxAreas > 0 && areaEstaDisponible(area.nombre);
 
     return (
       <AreaCard
@@ -28,7 +29,7 @@ const AreaGrid = ({
         categoriaSeleccionada={categoriaSeleccionada}
         manejarSeleccion={manejarSeleccion}
         handleCategoriaChange={handleCategoriaChange}
-        cargandoAreas={cargandoAreas}
+        //cargandoAreas={cargandoAreas}
       />
     );
   };
