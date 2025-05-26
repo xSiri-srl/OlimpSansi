@@ -240,7 +240,7 @@ const AreaCompetencia = ({
                             className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             value={categoria.nombre || ""}
                             onChange={(e) => handleCategoriaSelect(idx, e.target.value)}
-                            disabled={!estaHabilitada}
+                            disabled={!estaHabilitada || !modoAsociacion} // Añadir !modoAsociacion para deshabilitar en modo desasignación
                           >
                             {categoriasPredefinidas.map((cat) => (
                               <option key={cat} value={cat}>{cat}</option>
