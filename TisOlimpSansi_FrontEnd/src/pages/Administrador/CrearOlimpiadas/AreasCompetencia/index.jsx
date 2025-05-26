@@ -59,6 +59,7 @@ const AreasCompetenciaManager = () => {
       alert("Debe mantener al menos una combinación de área");
     }
   };
+  
 
   const guardarConfiguracion = async () => {
     if (!olimpiadaSeleccionada) {
