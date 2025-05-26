@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { FaCheck, FaLock, FaPlus } from "react-icons/fa";
+import { FaCheck, FaLock, FaPlus, FaTimes } from "react-icons/fa";
 import { categoriasPredefinidasMap } from "../todasLasCategoriasPorArea";
+
 const AreaCompetencia = ({
   combo,
   comboIndex,
@@ -12,7 +13,6 @@ const AreaCompetencia = ({
 }) => {
   const [mostrarDetalles, setMostrarDetalles] = useState(false);
   
- 
   // Lista de categorías predefinidas para el selector
   const categoriasPredefinidas = Object.keys(categoriasPredefinidasMap);
 
@@ -59,74 +59,74 @@ const AreaCompetencia = ({
   };
 
   // Manejar la selección de categoría predefinida
-const handleCategoriaSelect = (index, nombreCategoria) => {
-  const categoriaSeleccionada = categoriasPredefinidasMap[nombreCategoria];
-  
-  if (!categoriaSeleccionada) return;
-  
-  const copia = [...combinaciones];
-  
-  // Asegurarse de que exista el array de categorías
-  if (!copia[comboIndex].categorias) {
-    copia[comboIndex].categorias = [];
-  }
-  
-  // Verificar si ya existe esta categoría en otra posición del array
-  const existeEnOtraPosicion = copia[comboIndex].categorias.some(
-    (cat, idx) => idx !== index && cat.nombre === nombreCategoria
-  );
-  
-  if (existeEnOtraPosicion) {
-    alert(`La categoría "${nombreCategoria}" ya está asociada a esta área. Por favor seleccione una categoría diferente.`);
-    return;
-  }
-  
-  // Actualizar la categoría con los valores predefinidos
-  copia[comboIndex].categorias[index] = {
-    nombre: categoriaSeleccionada.nombre,
-    desde: categoriaSeleccionada.desde,
-    hasta: categoriaSeleccionada.hasta
-  };
-  
-  setCombinaciones(copia);
-};
-
-
-const agregarCategoria = () => {
-  const copia = [...combinaciones];
-  
-  // Inicializar el array de categorías si no existe
-  if (!copia[comboIndex].categorias) {
-    copia[comboIndex].categorias = [];
-  }
-  
-  // Encontrar la primera categoría disponible (no utilizada)
-  const categoriasExistentes = new Set(copia[comboIndex].categorias.map(cat => cat.nombre));
-  
-  // Buscar la primera categoría que no esté en uso
-  let categoriaSeleccionada = null;
-  for (const nombreCategoria of categoriasPredefinidas) {
-    if (!categoriasExistentes.has(nombreCategoria)) {
-      categoriaSeleccionada = categoriasPredefinidasMap[nombreCategoria];
-      break;
+  const handleCategoriaSelect = (index, nombreCategoria) => {
+    const categoriaSeleccionada = categoriasPredefinidasMap[nombreCategoria];
+    
+    if (!categoriaSeleccionada) return;
+    
+    const copia = [...combinaciones];
+    
+    // Asegurarse de que exista el array de categorías
+    if (!copia[comboIndex].categorias) {
+      copia[comboIndex].categorias = [];
     }
-  }
-  
-  // Si todas las categorías están en uso
-  if (!categoriaSeleccionada) {
-    alert("Ya has añadido todas las categorías disponibles para esta área.");
-    return;
-  }
-  
-  // Agregar la nueva categoría
-  copia[comboIndex].categorias.push({
-    nombre: categoriaSeleccionada.nombre,
-    desde: categoriaSeleccionada.desde,
-    hasta: categoriaSeleccionada.hasta
-  });
-  
-  setCombinaciones(copia);
-};
+    
+    // Verificar si ya existe esta categoría en otra posición del array
+    const existeEnOtraPosicion = copia[comboIndex].categorias.some(
+      (cat, idx) => idx !== index && cat.nombre === nombreCategoria
+    );
+    
+    if (existeEnOtraPosicion) {
+      alert(`La categoría "${nombreCategoria}" ya está asociada a esta área. Por favor seleccione una categoría diferente.`);
+      return;
+    }
+    
+    // Actualizar la categoría con los valores predefinidos
+    copia[comboIndex].categorias[index] = {
+      nombre: categoriaSeleccionada.nombre,
+      desde: categoriaSeleccionada.desde,
+      hasta: categoriaSeleccionada.hasta
+    };
+    
+    setCombinaciones(copia);
+  };
+
+
+  const agregarCategoria = () => {
+    const copia = [...combinaciones];
+    
+    // Inicializar el array de categorías si no existe
+    if (!copia[comboIndex].categorias) {
+      copia[comboIndex].categorias = [];
+    }
+    
+    // Encontrar la primera categoría disponible (no utilizada)
+    const categoriasExistentes = new Set(copia[comboIndex].categorias.map(cat => cat.nombre));
+    
+    // Buscar la primera categoría que no esté en uso
+    let categoriaSeleccionada = null;
+    for (const nombreCategoria of categoriasPredefinidas) {
+      if (!categoriasExistentes.has(nombreCategoria)) {
+        categoriaSeleccionada = categoriasPredefinidasMap[nombreCategoria];
+        break;
+      }
+    }
+    
+    // Si todas las categorías están en uso
+    if (!categoriaSeleccionada) {
+      alert("Ya has añadido todas las categorías disponibles para esta área.");
+      return;
+    }
+    
+    // Agregar la nueva categoría
+    copia[comboIndex].categorias.push({
+      nombre: categoriaSeleccionada.nombre,
+      desde: categoriaSeleccionada.desde,
+      hasta: categoriaSeleccionada.hasta
+    });
+    
+    setCombinaciones(copia);
+  };
 
   // Eliminar una categoría existente
   const eliminarCategoria = (index) => {
@@ -231,8 +231,8 @@ const agregarCategoria = () => {
                   <p className="text-gray-500 italic text-center">No hay categorías definidas para esta área</p>
                 ) : (
                   categorias.map((categoria, idx) => (
-                    <div key={idx} className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg border border-gray-200">
-                      <div className="flex-1 flex flex-wrap gap-2">
+                    <div key={idx} className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg border border-gray-200 min-h-[80px] w-full">
+                      <div className="flex-1 flex flex-wrap gap-2 items-center">
                         {/* Selector de Categoría */}
                         <div className="w-64 flex-none">
                           <label className="block text-xs text-gray-500 mb-1">Seleccionar categoría</label>
@@ -264,6 +264,22 @@ const agregarCategoria = () => {
                           </div>
                         </div>
                       </div>
+                      
+                      {/* Botón eliminar (X) - Solo en modo asociación */}
+                      {estaHabilitada && modoAsociacion && (
+                        <div className="flex items-center self-center ml-2">
+                          <button 
+                            className="flex-shrink-0 bg-red-100 hover:bg-red-200 text-red-600 rounded-full w-6 h-6 flex items-center justify-center"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              eliminarCategoria(idx);
+                            }}
+                            title="Eliminar categoría"
+                          >
+                            <FaTimes className="h-3 w-3" />
+                          </button>
+                        </div>
+                      )}
                     </div>
                   ))
                 )}
@@ -287,9 +303,23 @@ const agregarCategoria = () => {
                 {categorias.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
                     {categorias.map((cat, idx) => (
-                      <span key={idx} className="bg-blue-50 text-blue-700 px-2 py-1 rounded-full text-xs">
-                        {cat.nombre} ({cat.desde} - {cat.hasta})
-                      </span>
+                      <div key={idx} className="inline-flex items-center bg-blue-50 text-blue-700 px-2 py-1 rounded-full text-xs mr-1 mb-1">
+                        <span>{cat.nombre} ({cat.desde} - {cat.hasta})</span>
+                        
+                        {/* Botón eliminar (X) - Solo en modo asociación */}
+                        {estaHabilitada && modoAsociacion && (
+                          <button 
+                            className="ml-1 bg-red-100 hover:bg-red-200 text-red-600 rounded-full w-4 h-4 flex items-center justify-center"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              eliminarCategoria(idx);
+                            }}
+                            title="Eliminar categoría"
+                          >
+                            <FaTimes className="h-2 w-2" />
+                          </button>
+                        )}
+                      </div>
                     ))}
                   </div>
                 ) : (
