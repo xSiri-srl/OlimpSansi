@@ -273,7 +273,23 @@ const cargarAreasAsociadas = async (idOlimpiada) => {
       alert("Debe mantener al menos una combinación de área");
     }
   };
-
+const gradosToIndice = (grado) => {
+  const mapeo = {
+    "1ro Primaria": 0,
+    "2do Primaria": 1,
+    "3ro Primaria": 2,
+    "4to Primaria": 3,
+    "5to Primaria": 4,
+    "6to Primaria": 5,
+    "1ro Secundaria": 6,
+    "2do Secundaria": 7,
+    "3ro Secundaria": 8,
+    "4to Secundaria": 9,
+    "5to Secundaria": 10,
+    "6to Secundaria": 11,
+  };
+  return mapeo[grado] !== undefined ? mapeo[grado] : -1;
+};
   const guardarConfiguracion = async () => {
     if (!olimpiadaSeleccionada) {
       alert("Por favor seleccione una olimpiada");
@@ -295,6 +311,41 @@ const cargarAreasAsociadas = async (idOlimpiada) => {
     alert(`Las siguientes áreas no tienen categorías definidas: ${areasNombres}. Debe definir al menos una categoría por área.`);
     return;
   }
+  let tieneSolapamiento = false;
+  let areaSolapada = "";
+  let categoriaSolapada1 = "";
+  let categoriaSolapada2 = "";
+    areasHabilitadas.forEach(combo => {
+    const categoriasArea = combo.categorias || [];
+    
+    // Por cada par de categorías, comprobar si hay solapamiento
+    for (let i = 0; i < categoriasArea.length; i++) {
+      const cat1 = categoriasArea[i];
+      const inicioIndice1 = gradosToIndice(cat1.desde);
+      const finIndice1 = gradosToIndice(cat1.hasta);
+      
+      for (let j = i + 1; j < categoriasArea.length; j++) {
+        const cat2 = categoriasArea[j];
+        const inicioIndice2 = gradosToIndice(cat2.desde);
+        const finIndice2 = gradosToIndice(cat2.hasta);
+        
+        // Comprobar si hay solapamiento entre los rangos
+        if (!(finIndice1 < inicioIndice2 || finIndice2 < inicioIndice1)) {
+          tieneSolapamiento = true;
+          areaSolapada = combo.area;
+          categoriaSolapada1 = cat1.nombre;
+          categoriaSolapada2 = cat2.nombre;
+          break;
+        }
+      }
+      
+      if (tieneSolapamiento) break;
+    }
+  });
+    if (tieneSolapamiento) {
+    alert(`Error: En el área "${areaSolapada}", las categorías "${categoriaSolapada1}" y "${categoriaSolapada2}" tienen grados solapados. No se permite asociar categorías que abarquen los mismos grados.`);
+    return;
+  } 
 
   setGuardando(true);
 
