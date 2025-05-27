@@ -95,7 +95,7 @@
         </thead>
         <tbody>
             <tr class="text-center">
-                <td>{{ intval($ordenPago->monto_total / 20) }}</td>
+                <td></td>
                 <td>Inscripción de estudiante(s) para olimpiada asociado al codigo de preinscripcion {{$ordenPago->codigo_generado}}</td>
                 <td>20 </td>
                 <td>{{ number_format($ordenPago->monto_total, 2) }}</td>

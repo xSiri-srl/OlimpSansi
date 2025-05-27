@@ -258,7 +258,8 @@ public function registrarLista(Request $request)
             );
 
             // Validación: límite de inscripciones
-            $limiteAreas = 2;
+             $olimpiada = OlimpiadaModel::findOrFail($data['olimpiada']['id']);
+             $limiteAreas = $olimpiada->max_materias;
             $inscritas = InscripcionModel::where('id_estudiante', $estudiante->id)->count();
             if ($inscritas + count($item['areas_competencia']) > $limiteAreas) {
                 throw new \Exception("El estudiante '{$estudiante->nombre} {$estudiante->apellido_pa}' supera el límite de áreas permitidas.");

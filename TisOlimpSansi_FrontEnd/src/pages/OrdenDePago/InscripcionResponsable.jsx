@@ -10,6 +10,7 @@ import Confirmation from "./Confirmation";
 import { FormDataContext, useFormData } from "./form-data-context";
 import { TextField } from "./components/FormComponents";
 import { validateField, validateCI } from "./utils/validationsUtils";
+import { useSearchParams } from "react-router-dom";
 
 const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
   const [errors, setErrors] = useState({});
@@ -17,7 +18,9 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
   const [isSearching, setIsSearching] = useState(false);
   const [responsableFound, setResponsableFound] = useState(false);
   const { globalData, setGlobalData } = useFormData();
-  const { olimpiada, setOlimpiada} = useState(1);
+  const [searchParams] = useSearchParams();
+  const olimpiada = searchParams.get("olimpiada");
+
 
   // Función para validar campos del formulario
   const validateInput = (value, fieldName, regex, minWords = 1) => {
@@ -124,7 +127,7 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
       // Actualizar el objeto global con los datos del responsable
       const updatedData = {
         ...globalData,
-        olimpiada: { id: "1" },  
+        olimpiada: { id: olimpiada},  
         responsable_inscripcion: {
           nombre: formData.responsable?.nombres,
           apellido_pa: formData.responsable?.apellidoPaterno,
