@@ -43,6 +43,24 @@ const validarCampos = () => {
   else if (fechaIni && fechaFinal <= fechaIni)
     nuevosErrores.fechaFinal = "La fecha final debe ser posterior a la fecha de inicio";
 
+
+  //esto verifica que las fecha ini y fin sean en el mismo año
+  // if (fechaIni && fechaFinal) {
+  //   const yIni = new Date(fechaIni).getFullYear();
+  //   const yFin = new Date(fechaFinal).getFullYear();
+  //   if (yIni !== yFin) {
+  //     nuevosErrores.periodoIns = "Inicio y fin deben estar en la misma gestión";
+  //   }
+  // }
+
+
+  if (periodoIns && fechaIni) {
+    const gestionNum = parseInt(periodoIns, 10);
+    const yIni = new Date(fechaIni).getFullYear();
+    if (gestionNum !== yIni) {
+      nuevosErrores.periodoIns = "La gestión debe coincidir con el año de inicio de inscripciones";
+    }
+  }
   setErrores(nuevosErrores);
   return Object.keys(nuevosErrores).length === 0;
 };
