@@ -1,4 +1,5 @@
 "use client";
+import { useNavigate } from "react-router-dom";
 
 import { useState } from "react";
 import axios from "axios";
@@ -13,14 +14,17 @@ import {
   FaChevronRight,
   FaExclamationCircle,
   FaDownload,
+  FaSave,
 } from "react-icons/fa";
 import EditarEstudianteModal from "./Modales/EditarEstudianteModal";
 
 const CodigoPreInscripcion = () => {
+  const navigate = useNavigate();
   const [codigoPreInscripcion, setCodigoPreInscripcion] = useState("");
   const [error, setError] = useState("");
   const [resumen, setResumen] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [savingChanges, setSavingChanges] = useState(false);
   const endpoint = "http://127.0.0.1:8000/api";
   
   // Estado para manejar la lista de estudiantes
@@ -53,15 +57,33 @@ const CodigoPreInscripcion = () => {
     setProcessedEstudiantes([]);
 
     try {
+      // Paso 1: Verificar si ya se generó una orden de pago
+      const ordenPagoResponse = await axios.get(`${endpoint}/orden-pago-existe/${codigoPreInscripcion}`);
+      if (ordenPagoResponse.data?.existe) {
+        setError("Ya se generó una orden de pago. Solo se puede editar la inscripción antes de generarla.");
+        setLoading(false);
+        return;
+      }
+    } catch (ordenError) {
+      if (axios.isAxiosError(ordenError) && ordenError.response?.status === 404) {
+        setError("Código no encontrado.");
+      } else {
+        setError("Error al verificar si existe una orden de pago.");
+      }
+      console.error(ordenError);
+      setLoading(false);
+      return;
+    }
+
+    try {
+      // Paso 2: Buscar preinscripciones si no hay orden generada
       const response = await axios.get(`${endpoint}/preinscritos-por-codigo`, {
-        params: {
-          codigo: codigoPreInscripcion,
-        },
+        params: { codigo: codigoPreInscripcion },
       });
+
       console.log(response.data);
       setResumen(response.data);
-      
-      // Asumiendo que la respuesta incluye los estudiantes
+
       if (response.data && Array.isArray(response.data)) {
         setEstudiantes(response.data);
         processStudents(response.data);
@@ -250,6 +272,7 @@ const CodigoPreInscripcion = () => {
   const handleCloseModal = () => {
     setShowModal(false);
     setSelectedStudent(null);
+    navigate("/");
   };
 
   // Función para guardar cambios después de editar
@@ -273,6 +296,53 @@ const CodigoPreInscripcion = () => {
     // Cerrar el modal
     setShowModal(false);
     setSelectedStudent(null);
+  };
+
+  // Función para enviar todos los cambios al servidor
+  const guardarTodosLosCambios = async () => {
+    if (!codigoPreInscripcion.trim()) {
+      setError("No hay código de pre-inscripción válido.");
+      return;
+    }
+
+    setSavingChanges(true);
+    setError("");
+
+    try {
+      const datosParaEnviar = {
+        estudiantes: estudiantes
+      };
+      console.log("ENVIANDO",datosParaEnviar)
+      const response = await axios.post(`${endpoint}/editarLista`, datosParaEnviar);
+
+      if (response.data.success || response.status === 200) {
+        // Mostrar mensaje de éxito
+        setModalContent({
+          title: "Éxito",
+          content: "Los cambios se han guardado correctamente.",
+          type: "success"
+        });
+        setShowModal(true);
+        
+      }
+    } catch (err) {
+      console.error("Error al guardar cambios:", err);
+      let errorMessage = "Error al guardar los cambios. Intente nuevamente.";
+      
+      if (axios.isAxiosError(err)) {
+        if (err.response?.data?.message) {
+          errorMessage = err.response.data.message;
+        } else if (err.response?.status === 422) {
+          errorMessage = "Datos inválidos. Verifique la información ingresada.";
+        } else if (err.response?.status === 404) {
+          errorMessage = "No se encontró el código de pre-inscripción.";
+        }
+      }
+      
+      setError(errorMessage);
+    } finally {
+      setSavingChanges(false);
+    }
   };
 
   // Función para la paginación
@@ -585,17 +655,72 @@ const CodigoPreInscripcion = () => {
                 </select>
               </div>
             </div>
+
+            {/* Botón para guardar todos los cambios */}
+            <div className="bg-white p-4 rounded-lg shadow-md">
+              <div className="flex flex-col sm:flex-row items-center justify-between">
+                <div className="flex items-center mb-3 sm:mb-0">
+                  <FaSave className="text-green-600 mr-2" />
+                  <span className="text-sm text-gray-700">
+                    {totalErrors > 0 
+                      ? "Corrija los errores antes de guardar los cambios" 
+                      : "Todos los datos están correctos. Puede guardar los cambios."}
+                  </span>
+                </div>
+                
+                <button
+                  onClick={guardarTodosLosCambios}
+                  disabled={savingChanges || totalErrors > 0}
+                  className={`px-6 py-2 rounded-md font-medium transition duration-300 ease-in-out flex items-center ${
+                    totalErrors > 0
+                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      : savingChanges
+                      ? "bg-green-400 text-white cursor-wait"
+                      : "bg-green-600 hover:bg-green-700 hover:shadow-lg text-white"
+                  }`}
+                >
+                  <FaSave className="mr-2" />
+                  {savingChanges ? "Guardando..." : "Guardar Cambios"}
+                </button>
+              </div>
+              
+              {totalErrors > 0 && (
+                <div className="mt-3 p-2 bg-yellow-50 border-l-4 border-yellow-400 rounded">
+                  <p className="text-yellow-700 text-xs">
+                    <strong>Importante:</strong> Debe corregir todos los errores antes de poder guardar los cambios.
+                    Haga clic en cada fila con error para editarla.
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>
 
       {/* Modal personalizado para reemplazar los modales importados */}
-      {showModal && selectedStudent && (
+      {showModal && selectedStudent && modalContent.type !== "success" && (
         <EditarEstudianteModal
             estudiante={selectedStudent}
             onClose={handleCloseModal}
             onSave={handleSaveEdit}
         />
+      )}
+
+      {/* Modal de éxito */}
+      {showModal && modalContent.type === "success" && (
+        <Modal show={showModal} onClose={handleCloseModal} title={modalContent.title}>
+          <div className="text-center">
+            <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
+              <FaSave className="h-6 w-6 text-green-600" />
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              {modalContent.title}
+            </h3>
+            <p className="text-sm text-gray-500">
+              {modalContent.content}
+            </p>
+          </div>
+        </Modal>
       )}
     </div>
   );
