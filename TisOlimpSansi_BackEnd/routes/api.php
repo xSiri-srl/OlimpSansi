@@ -172,6 +172,7 @@ Route::get('/inscripciones/por-area', [InscripcionController::class, 'inscripcio
 Route::get('/inscripciones/por-categoria', [InscripcionController::class, 'inscripcionesPorCategoria']);
 Route::post('/inscribir', [InscripcionController::class, 'registrar']);
 Route::post('/inscribir-lista', [InscripcionController::class, 'registrarLista']);
+Route::post('/editarLista', [InscripcionController::class, 'actualizarLista']);
 Route::get('/lista-inscritos', [InscripcionController::class, 'listarInscritos']);
 Route::get('/preinscritos-por-codigo', [InscripcionController::class, 'registrosPorCodigo']);
 //contar preinscritos
@@ -198,6 +199,9 @@ Route::get('/getOlimpiadasActuales', [OlimpiadaController::class, 'getOlimpiadas
 //Route::get('/getOlimpiadaz', [OlimpiadaController::class, 'getOlimpiadas']);
 //mostrar todas las areas habilitadas para esa olimpiada
 Route::post('/olimpiadas/areas', [OlimpiadaController::class, 'getAreasPorOlimpiada']);
+
+
+Route::get('/areasCategoriasOlimpiada', [OlimpiadaController::class, 'getAreasCategoriasPorOlimpiada']);
 
 //mostrar todas las categorias de esa materia de una olimpiada
 

@@ -524,104 +524,304 @@ public function listarInscritos()
         return response()->json($resultado);
     }
             
-    public function registrosPorCodigo(Request $request)
-    {
-        try {
-            $codigo = $request->input('codigo');
+public function registrosPorCodigo(Request $request)
+{
+    try {
+        $codigo = $request->input('codigo');
 
-            $ordenPago = OrdenPago::where('codigo_generado', $codigo)->first();
+        $ordenPago = OrdenPago::where('codigo_generado', $codigo)->first();
 
-            if (!$ordenPago) {
-                return response()->json([
-                    'status' => 404,
-                    'message' => 'Código no encontrado.'
-                ], 404);
-            }
-
-            $inscripciones = InscripcionModel::with([
-                'estudiante.grado',
-                'estudiante.colegio',
-                'tutorLegal',
-                'tutorAcademico',
-                'olimpiadaAreaCategoria.area',
-                'olimpiadaAreaCategoria.categoria'
-            ])->where('id_orden_pago', $ordenPago->id)->get();
-
-            if ($inscripciones->isEmpty()) {
-                return response()->json([
-                    'status' => 404,
-                    'message' => 'No se encontraron inscripciones asociadas a este código.'
-                ], 404);
-            }
-
-            $resultados = [];
-
-            foreach ($inscripciones as $inscripcion) {
-                $estudiante = $inscripcion->estudiante;
-                $grado = $estudiante->grado;
-                $colegio = $estudiante->colegio;
-                $tutorLegal = $inscripcion->tutorLegal ?? null;
-                $tutorAcademico = $inscripcion->tutorAcademico ?? null;
-                $responsable = $ordenPago->responsable;
-                $areaCategoria = $inscripcion->olimpiadaAreaCategoria;
-                $area = $areaCategoria->area;
-                $categoria = $areaCategoria->categoria;
-
-                $resultados[] = [
-                    'responsable_inscripcion' => [
-                        'nombre' => $responsable->nombre,
-                        'apellido_pa' => $responsable->apellido_pa,
-                        'apellido_ma' => $responsable->apellido_ma,
-                        'ci' => $responsable->ci
-                    ],
-                    'estudiante' => [
-                        'nombre' => $estudiante->nombre,
-                        'apellido_pa' => $estudiante->apellido_pa,
-                        'apellido_ma' => $estudiante->apellido_ma,
-                        'ci' => $estudiante->ci,
-                        'correo' => $estudiante->correo,
-                        'fecha_nacimiento' => $estudiante->fecha_nacimiento,
-                        'propietario_correo' => $estudiante->propietario_correo,
-                    ],
-                    'colegio' => [
-                        'nombre_colegio' => $colegio->nombre_colegio,
-                        'curso' => $grado->nombre_grado,
-                        'departamento' => $colegio->departamento,
-                        'distrito' => $colegio->distrito,
-                    ],
-                    'tutor_legal' => [
-                        'nombre' => $tutorLegal->nombre ?? '',
-                        'apellido_pa' => $tutorLegal->apellido_pa ?? '',
-                        'apellido_ma' => $tutorLegal->apellido_ma ?? '',
-                        'ci' => $tutorLegal->ci ?? '',
-                        'correo' => $tutorLegal->correo ?? '',
-                        'numero_celular' => $tutorLegal->numero_celular ?? '',
-                        'tipo' => $tutorLegal->tipo ?? '',
-                    ],
-                    'areas_competencia' => [[
-                        'nombre_area' => $area->nombre_area,
-                        'categoria' => $categoria->nombre_categoria
-                    ]],
-                    'tutores_academicos' => [[
-                        'nombre_area' => $area->nombre_area,
-                        'tutor' => [
-                            'nombre' => $tutorAcademico->nombre ?? '',
-                            'apellido_pa' => $tutorAcademico->apellido_pa ?? '',
-                            'apellido_ma' => $tutorAcademico->apellido_ma ?? '',
-                            'ci' => $tutorAcademico->ci ?? '',
-                            'correo' => $tutorAcademico->correo ?? '',
-                        ]
-                    ]]
-                ];
-            }
-
-            return response()->json($resultados);
-
-        } catch (\Exception $e) {
+        if (!$ordenPago) {
             return response()->json([
-                'status' => 500,
-                'message' => $e->getMessage(),
-            ], 500);
+                'status' => 404,
+                'message' => 'Código no encontrado.'
+            ], 404);
         }
+
+        $inscripciones = InscripcionModel::with([
+            'estudiante.grado',
+            'estudiante.colegio',
+            'tutorLegal',
+            'tutorAcademico',
+            'olimpiadaAreaCategoria.area',
+            'olimpiadaAreaCategoria.categoria'
+        ])->where('id_orden_pago', $ordenPago->id)->get();
+
+        if ($inscripciones->isEmpty()) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'No se encontraron inscripciones asociadas a este código.'
+            ], 404);
+        }
+
+        $resultados = [];
+
+        foreach ($inscripciones as $inscripcion) {
+            $estudiante = $inscripcion->estudiante;
+            $grado = $estudiante->grado;
+            $colegio = $estudiante->colegio;
+            $tutorLegal = $inscripcion->tutorLegal ?? null;
+            $tutorAcademico = $inscripcion->tutorAcademico ?? null;
+            $responsable = $ordenPago->responsable;
+            $areaCategoria = $inscripcion->olimpiadaAreaCategoria;
+            $area = $areaCategoria->area;
+            $categoria = $areaCategoria->categoria;
+            $idOlimpiada = $areaCategoria->id_olimpiada;
+
+            $resultados[] = [
+                'id_inscripcion' => $inscripcion->id,
+                'id_olimpiada' => $idOlimpiada,
+                'responsable_inscripcion' => [
+                    'nombre' => $responsable->nombre,
+                    'apellido_pa' => $responsable->apellido_pa,
+                    'apellido_ma' => $responsable->apellido_ma,
+                    'ci' => $responsable->ci
+                ],
+                'estudiante' => [
+                    'nombre' => $estudiante->nombre,
+                    'apellido_pa' => $estudiante->apellido_pa,
+                    'apellido_ma' => $estudiante->apellido_ma,
+                    'ci' => $estudiante->ci,
+                    'correo' => $estudiante->correo,
+                    'fecha_nacimiento' => $estudiante->fecha_nacimiento,
+                    'propietario_correo' => $estudiante->propietario_correo,
+                ],
+                'colegio' => [
+                    'nombre_colegio' => $colegio->nombre_colegio,
+                    'curso' => $grado->nombre_grado,
+                    'departamento' => $colegio->departamento,
+                    'distrito' => $colegio->distrito,
+                ],
+                'tutor_legal' => [
+                    'nombre' => $tutorLegal->nombre ?? '',
+                    'apellido_pa' => $tutorLegal->apellido_pa ?? '',
+                    'apellido_ma' => $tutorLegal->apellido_ma ?? '',
+                    'ci' => $tutorLegal->ci ?? '',
+                    'correo' => $tutorLegal->correo ?? '',
+                    'numero_celular' => $tutorLegal->numero_celular ?? '',
+                    'tipo' => $tutorLegal->tipo ?? '',
+                ],
+                'areas_competencia' => [[
+                    'nombre_area' => $area->nombre_area,
+                    'categoria' => $categoria->nombre_categoria
+                ]],
+                'tutores_academicos' => [[
+                    'nombre_area' => $area->nombre_area,
+                    'tutor' => [
+                        'nombre' => $tutorAcademico->nombre ?? '',
+                        'apellido_pa' => $tutorAcademico->apellido_pa ?? '',
+                        'apellido_ma' => $tutorAcademico->apellido_ma ?? '',
+                        'ci' => $tutorAcademico->ci ?? '',
+                        'correo' => $tutorAcademico->correo ?? '',
+                    ]
+                ]]
+            ];
+        }
+
+        return response()->json($resultados);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 500,
+            'message' => $e->getMessage(),
+        ], 500);
     }
+}
+
+public function actualizarLista(Request $request)
+{
+    DB::beginTransaction();
+
+    try {
+        $data = $request->all();
+
+        // Validar que existan estudiantes
+        if (!isset($data['estudiantes']) || empty($data['estudiantes'])) {
+            throw new \Exception("No se encontraron estudiantes para actualizar.");
+        }
+
+        // Actualizar Responsable de inscripción una sola vez
+        // Obtenemos el responsable del primer estudiante (ya que es el mismo para todos)
+        $responsableData = $data['estudiantes'][0]['responsable_inscripcion'];
+        $responsable = ResponsableInscripcionModel::where('ci', $responsableData['ci'])->first();
+        if ($responsable) {
+            $responsable->update($responsableData);
+        } else {
+            throw new \Exception("No se encontró el responsable de inscripción con CI: {$responsableData['ci']}");
+        }
+
+        // Procesar cada estudiante
+        foreach ($data['estudiantes'] as $item) {
+            // Validar que existe el id_inscripcion
+            if (!isset($item['id_inscripcion'])) {
+                throw new \Exception("Falta el id_inscripcion para actualizar el estudiante.");
+            }
+
+            // Buscar la inscripción existente
+            $inscripcion = InscripcionModel::find($item['id_inscripcion']);
+            if (!$inscripcion) {
+                throw new \Exception("No se encontró la inscripción con ID: {$item['id_inscripcion']}");
+            }
+
+            // Actualizar o crear Colegio
+            $colegio = ColegioModel::where('nombre_colegio', $item['colegio']['nombre_colegio'])->first();
+            if ($colegio) {
+                $colegio->update([
+                    'departamento' => $item['colegio']['departamento'],
+                    'distrito'     => $item['colegio']['distrito'],
+                ]);
+            } else {
+                $colegio = ColegioModel::create([
+                    'nombre_colegio' => $item['colegio']['nombre_colegio'],
+                    'departamento'   => $item['colegio']['departamento'],
+                    'distrito'       => $item['colegio']['distrito'],
+                ]);
+            }
+
+            // Buscar grado por nombre del curso
+            $grado = GradoModel::where('nombre_grado', $item['colegio']['curso'])->first();
+            if (!$grado) {
+                throw new \Exception("No se encontró el grado: {$item['colegio']['curso']}");
+            }
+
+            // Actualizar Estudiante
+            $estudiante = EstudianteModel::find($inscripcion->id_estudiante);
+            if ($estudiante) {
+                $estudiante->update([
+                    'nombre'           => $item['estudiante']['nombre'],
+                    'apellido_pa'      => $item['estudiante']['apellido_pa'],
+                    'apellido_ma'      => $item['estudiante']['apellido_ma'],
+                    'ci'               => $item['estudiante']['ci'],
+                    'fecha_nacimiento' => $item['estudiante']['fecha_nacimiento'],
+                    'correo'           => $item['estudiante']['correo'],
+                    'propietario_correo' => $item['estudiante']['propietario_correo'],
+                    'id_unidad'        => $colegio->id,
+                    'id_grado'         => $grado->id,
+                ]);
+            } else {
+                throw new \Exception("No se encontró el estudiante asociado a la inscripción ID: {$item['id_inscripcion']}");
+            }
+
+            // Actualizar Tutor Legal
+            $tutorLegal = TutorLegalModel::find($inscripcion->id_tutor_legal);
+            if ($tutorLegal) {
+                // Actualizar tutor existente
+                $tutorLegal->update([
+                    'nombre'         => $item['tutor_legal']['nombre'],
+                    'apellido_pa'    => $item['tutor_legal']['apellido_pa'],
+                    'apellido_ma'    => $item['tutor_legal']['apellido_ma'],
+                    'ci'             => $item['tutor_legal']['ci'],
+                    'correo'         => $item['tutor_legal']['correo'],
+                    'numero_celular' => $item['tutor_legal']['numero_celular'],
+                    'tipo'           => $item['tutor_legal']['tipo'],
+                ]);
+            } else {
+                // Crear nuevo tutor legal
+                $tutorLegal = TutorLegalModel::firstOrCreate(
+                    ['ci' => $item['tutor_legal']['ci']],
+                    [
+                        'nombre'         => $item['tutor_legal']['nombre'],
+                        'apellido_pa'    => $item['tutor_legal']['apellido_pa'],
+                        'apellido_ma'    => $item['tutor_legal']['apellido_ma'],
+                        'ci'             => $item['tutor_legal']['ci'],
+                        'correo'         => $item['tutor_legal']['correo'],
+                        'numero_celular' => $item['tutor_legal']['numero_celular'],
+                        'tipo'           => $item['tutor_legal']['tipo'],
+                    ]
+                );
+                $inscripcion->update(['id_tutor_legal' => $tutorLegal->id]);
+            }
+
+            // Actualizar área de competencia de la inscripción
+            if (!empty($item['areas_competencia']) && is_array($item['areas_competencia']) && count($item['areas_competencia']) > 0) {
+                $areaItem = $item['areas_competencia'][0]; // Tomamos la primera área
+                
+                $area = AreaModel::where('nombre_area', $areaItem['nombre_area'])->first();
+                if (!$area) {
+                    throw new \Exception("No se encontró el área: {$areaItem['nombre_area']}");
+                }
+                
+                $categoria = CategoriaModel::where('nombre_categoria', $areaItem['categoria'])->first();
+                if (!$categoria) {
+                    throw new \Exception("No se encontró la categoría: {$areaItem['categoria']}");
+                }
+
+                // Buscar la combinación olimpiada-area-categoria
+                $oac = DB::table('olimpiada_area_categorias')
+                    ->where([
+                        ['id_olimpiada', '=', $item['id_olimpiada']],
+                        ['id_area', '=', $area->id],
+                        ['id_categoria', '=', $categoria->id],
+                    ])
+                    ->first();
+
+                if (!$oac) {
+                    throw new \Exception("Combinación inválida de área/categoría para la olimpiada. Área: {$areaItem['nombre_area']}, Categoría: {$areaItem['categoria']}");
+                }
+
+                // Actualizar la inscripción con la nueva área/categoría
+                $inscripcion->update([
+                    'id_olimpiada_area_categoria' => $oac->id,
+                ]);
+            }
+
+            // Actualizar Tutores Académicos
+            if (!empty($item['tutores_academicos']) && is_array($item['tutores_academicos'])) {
+                foreach ($item['tutores_academicos'] as $tutorItem) {
+                    $area = AreaModel::where('nombre_area', $tutorItem['nombre_area'])->first();
+                    if (!$area) {
+                        throw new \Exception("No se encontró el área del tutor académico: {$tutorItem['nombre_area']}");
+                    }
+                    
+                    // Verificar si la inscripción actual corresponde al área del tutor
+                    $inscripcionActual = InscripcionModel::join('olimpiada_area_categorias', 'inscripcion.id_olimpiada_area_categoria', '=', 'olimpiada_area_categorias.id')
+                        ->where('inscripcion.id', $inscripcion->id)
+                        ->where('olimpiada_area_categorias.id_area', $area->id)
+                        ->first();
+
+                    if ($inscripcionActual) {
+                        // Verificar si el tutor tiene datos válidos (no vacíos)
+                        if (!empty($tutorItem['tutor']['ci']) && !empty($tutorItem['tutor']['nombre'])) {
+                            $tutor = TutorAcademicoModel::firstOrCreate(
+                                ['ci' => $tutorItem['tutor']['ci']],
+                                [
+                                    'nombre'      => $tutorItem['tutor']['nombre'],
+                                    'apellido_pa' => $tutorItem['tutor']['apellido_pa'],
+                                    'apellido_ma' => $tutorItem['tutor']['apellido_ma'],
+                                    'ci'          => $tutorItem['tutor']['ci'],
+                                    'correo'      => $tutorItem['tutor']['correo'],
+                                ]
+                            );
+
+                            // Actualizar la inscripción con el tutor académico
+                            $inscripcion->update([
+                                'id_tutor_academico' => $tutor->id,
+                            ]);
+                        } else {
+                            // Si no hay datos del tutor, remover la asignación
+                            $inscripcion->update([
+                                'id_tutor_academico' => null,
+                            ]);
+                        }
+                    }
+                }
+            }
+        }
+
+        DB::commit();
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Lista de inscripciones actualizada exitosamente.',
+        ], 200);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json([
+            'status' => 500,
+            'message' => $e->getMessage(),
+        ], 500);
+    }
+}
+
 }
