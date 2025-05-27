@@ -172,6 +172,7 @@ Route::get('/inscripciones/por-area', [InscripcionController::class, 'inscripcio
 Route::get('/inscripciones/por-categoria', [InscripcionController::class, 'inscripcionesPorCategoria']);
 Route::post('/inscribir', [InscripcionController::class, 'registrar']);
 Route::post('/inscribir-lista', [InscripcionController::class, 'registrarLista']);
+Route::post('/editarLista', [InscripcionController::class, 'actualizarLista']);
 Route::get('/lista-inscritos', [InscripcionController::class, 'listarInscritos']);
 Route::get('/preinscritos-por-codigo', [InscripcionController::class, 'registrosPorCodigo']);
 //contar preinscritos
