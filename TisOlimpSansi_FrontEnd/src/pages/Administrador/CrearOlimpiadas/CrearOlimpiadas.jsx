@@ -1,4 +1,13 @@
 import React, { useState } from "react";
+
+
+import DatePicker, { registerLocale } from "react-datepicker";
+import es from "date-fns/locale/es";
+import "react-datepicker/dist/react-datepicker.css";
+
+registerLocale("es", es);
+
+
 import axios from "axios";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
@@ -11,6 +20,8 @@ import {
 const CrearOlimpiadas = () => {
   const [titulo, setTitulo] = useState("");
   const navigate = useNavigate();
+  const [fechaIniDate, setFechaIniDate]     = useState(null);
+  const [fechaFinalDate, setFechaFinalDate] = useState(null);
   const [fechaIni, setFechaIni] = useState("");
   const [fechaFinal, setFechaFinal] = useState("");
   const [periodoIns, setPeriodoIns] = useState("");
@@ -185,10 +196,16 @@ const validarCampos = () => {
             <label className="block text-sm font-medium text-cyan-800 mb-1">
               Inicio de inscripciones
             </label>
-            <input
-              type="date"
-              value={fechaIni}
-              onChange={(e) => setFechaIni(e.target.value)}
+            <DatePicker
+              selected={fechaIniDate}
+              onChange={(date) => {
+                setFechaIniDate(date);
+                setFechaIni(date.toISOString().split("T")[0]);
+              }}
+              locale="es"
+              dateFormat="dd/MM/yyyy"
+              placeholderText="dd/mm/aaaa"
+              wrapperClassName="w-full"  
               className="w-full border rounded-lg px-4 py-2 transition focus:outline-none focus:ring-2"
             />
             {errores.fechaIni && (
@@ -201,12 +218,19 @@ const validarCampos = () => {
             <label className="block text-sm font-medium text-cyan-800 mb-1">
               Fin de inscripciones
             </label>
-            <input
-              type="date"
-              value={fechaFinal}
-              onChange={(e) => setFechaFinal(e.target.value)}
-              className="w-full border rounded-lg px-4 py-2 transition focus:outline-none focus:ring-2"
+            <DatePicker
+              selected={fechaFinalDate}
+              onChange={(date) => {
+                setFechaFinalDate(date);
+                setFechaFinal(date.toISOString().split("T")[0]);
+              }}
+              locale="es"
+              dateFormat="dd/MM/yyyy"
+              placeholderText="dd/mm/aaaa"
+              wrapperClassName="w-full"  
+              className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2"
             />
+
             {errores.fechaFinal && (
               <p className="text-red-600 text-sm mt-1">{errores.fechaFinal}</p>
             )}
