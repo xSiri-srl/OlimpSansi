@@ -272,7 +272,6 @@ const CodigoPreInscripcion = () => {
   const handleCloseModal = () => {
     setShowModal(false);
     setSelectedStudent(null);
-    navigate("/");
   };
 
   // Función para guardar cambios después de editar
