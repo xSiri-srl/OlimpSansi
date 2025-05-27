@@ -4,6 +4,7 @@ import { FaUserAlt, FaUsers } from "react-icons/fa";
 import { motion } from "framer-motion";
 import axios from "axios";
 import Cookies from 'js-cookie';
+import ModalPeriodo from "./modales/ModalPeriodo";
 
 export default function FormularioEstudiante() {
   const navigate = useNavigate();
@@ -12,6 +13,13 @@ export default function FormularioEstudiante() {
   const [nombreOlimpiada, setNombreOlimpiada] = useState("");
   const [cargandoOlimpiadas, setCargandoOlimpiadas] = useState(false);
   const [errorCarga, setErrorCarga] = useState("");
+  
+  // Estados para el modal de período
+  const [showPeriodoModal, setShowPeriodoModal] = useState(false);
+  const [olimpiadaSeleccionadaInfo, setOlimpiadaSeleccionadaInfo] = useState({
+    fechaIni: "",
+    fechaFin: ""
+  });
 
   const handleSeleccion = () => {
     navigate(`/inscripcion/responsable?olimpiada=${olimpiadaSeleccionada}`);
@@ -21,6 +29,51 @@ export default function FormularioEstudiante() {
     navigate(`/inscripcion-lista/tutorial?olimpiada=${olimpiadaSeleccionada}`);
   };
 
+  // Función para verificar si estamos dentro del período de inscripción
+  const estaEnPeriodo = (fechaIni, fechaFin) => {
+    const ahora = new Date();
+    const inicio = new Date(fechaIni);
+    const fin = new Date(fechaFin);
+    
+    // Establecer horas a 0 para comparar solo fechas
+    ahora.setHours(0, 0, 0, 0);
+    inicio.setHours(0, 0, 0, 0);
+    fin.setHours(23, 59, 59, 999);
+    
+    return ahora >= inicio && ahora <= fin;
+  };
+
+  // Manejador modificado para la selección de olimpiada
+  const handleOlimpiadaChange = (e) => {
+    const idSeleccionado = e.target.value;
+    
+    if (idSeleccionado) {
+      const olimpiadaInfo = olimpiadas.find(
+        (o) => o.id.toString() === idSeleccionado
+      );
+      
+      if (olimpiadaInfo) {
+        // Verificar si estamos dentro del periodo de inscripción
+        if (estaEnPeriodo(olimpiadaInfo.fecha_ini, olimpiadaInfo.fecha_fin)) {
+          // Si estamos en periodo, simplemente seleccionamos la olimpiada
+          setOlimpiadaSeleccionada(idSeleccionado);
+        } else {
+          // Fuera de periodo, mostramos el modal
+          setOlimpiadaSeleccionadaInfo({
+            fechaIni: olimpiadaInfo.fecha_ini,
+            fechaFin: olimpiadaInfo.fecha_fin
+          });
+          setShowPeriodoModal(true);
+          // No seleccionamos la olimpiada
+          setOlimpiadaSeleccionada("");
+        }
+      }
+    } else {
+      // Si no hay selección, limpiamos
+      setOlimpiadaSeleccionada("");
+    }
+  };
+
   // Cargar la lista de olimpiadas disponibles
   useEffect(() => {
     const cargarOlimpiadas = async () => {
@@ -28,38 +81,16 @@ export default function FormularioEstudiante() {
       setErrorCarga("");
       
       try {
-        // Usar la nueva ruta pública que no requiere autenticación
-        const response = await axios.get('http://localhost:8000/api/olimpiadas');
+        const response = await axios.get("http://localhost:8000/olimpiadas-publicas");
         
         if (response.status === 200) {
-          if (response.data && response.data.data && Array.isArray(response.data.data)) {
-            setOlimpiadas(response.data.data);
-          } else if (response.data && Array.isArray(response.data)) {
-            setOlimpiadas(response.data);
-          } else {
-            throw new Error("Formato de datos inesperado");
-          }
+          setOlimpiadas(response.data.data || []);
         } else {
-          throw new Error("Error en la respuesta del servidor");
+          throw new Error("No se pudieron cargar las olimpiadas");
         }
       } catch (error) {
         console.error("Error al cargar olimpiadas:", error);
-        
-        let mensajeError = "Error al conectar con el servidor.";
-        
-        if (error.response) {
-          if (error.response.status === 401) {
-            mensajeError = "No tienes autorización para acceder a esta información.";
-          } else if (error.response.status === 403) {
-            mensajeError = "No tienes permisos suficientes para ver las olimpiadas.";
-          } else {
-            mensajeError = `Error ${error.response.status}: ${error.response.data?.message || "Error del servidor"}`;
-          }
-        } else if (error.message) {
-          mensajeError = error.message;
-        }
-        
-        setErrorCarga(mensajeError);
+        setErrorCarga("Error al cargar las olimpiadas. Por favor, intente nuevamente.");
       } finally {
         setCargandoOlimpiadas(false);
       }
@@ -97,7 +128,7 @@ export default function FormularioEstudiante() {
               id="olimpiada"
               className="block w-full bg-white border border-gray-300 hover:border-gray-400 px-4 py-2 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               value={olimpiadaSeleccionada}
-              onChange={(e) => setOlimpiadaSeleccionada(e.target.value)}
+              onChange={handleOlimpiadaChange}
               disabled={cargandoOlimpiadas}
             >
               <option value="">Seleccionar...</option>
@@ -174,7 +205,7 @@ export default function FormularioEstudiante() {
       )}
 
       {/* Mensaje cuando no hay olimpiada seleccionada */}
-      {!olimpiadaSeleccionada && !cargandoOlimpiadas && !errorCarga && (
+      {!olimpiadaSeleccionada && !cargandoOlimpiadas && !errorCarga && olimpiadas.length > 0 && (
         <div className="mt-8 p-6 bg-yellow-50 border border-yellow-200 rounded-lg text-center">
           <p className="text-yellow-700">
             Por favor, seleccione una olimpiada para continuar con la inscripción
@@ -183,13 +214,21 @@ export default function FormularioEstudiante() {
       )}
 
       {/* Mensaje cuando no hay olimpiadas disponibles */}
-    {!cargandoOlimpiadas && !errorCarga && olimpiadas.length === 0 && (
-      <div className="mt-8 p-6 bg-orange-50 border border-orange-200 rounded-lg text-center w-full max-w-2xl">
-        <p className="text-orange-700">
-          No hay olimpiadas disponibles en este momento. Por favor, vuelve más tarde.
-        </p>
-      </div>
-    )}
+      {!cargandoOlimpiadas && !errorCarga && olimpiadas.length === 0 && (
+        <div className="mt-8 p-6 bg-orange-50 border border-orange-200 rounded-lg text-center w-full max-w-2xl">
+          <p className="text-orange-700">
+            No hay olimpiadas disponibles en este momento. Por favor, vuelve más tarde.
+          </p>
+        </div>
+      )}
+
+      {/* Modal de período para olimpiadas fuera de fechas permitidas */}
+      <ModalPeriodo
+        isOpen={showPeriodoModal}
+        onClose={() => setShowPeriodoModal(false)}
+        fechaIni={olimpiadaSeleccionadaInfo.fechaIni}
+        fechaFin={olimpiadaSeleccionadaInfo.fechaFin}
+      />
     </div>
   );
 }
