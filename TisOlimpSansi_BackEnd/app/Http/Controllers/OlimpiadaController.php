@@ -8,6 +8,8 @@ use App\Models\OlimpiadaModel;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Models\olimpiada_area_categoria;
+
 
 
 class OlimpiadaController extends Controller
@@ -213,4 +215,52 @@ public function getTodasLasOlimpiadas(): JsonResponse
             'olimpiada'  => $olimpiada,
         ], 200);
     }
+
+public function getAreasCategoriasPorOlimpiada(Request $request)
+{
+    try {
+        $idOlimpiada = $request->input('id');
+
+        // Obtener todas las relaciones necesarias
+        $registros = olimpiada_area_categoria::with(['area', 'categoria'])
+            ->where('id_olimpiada', $idOlimpiada)
+            ->get();
+
+        if ($registros->isEmpty()) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'No se encontraron áreas ni categorías para esta olimpiada.'
+            ], 404);
+        }
+
+        // Agrupar por área
+        $resultado = [];
+
+        foreach ($registros as $registro) {
+            $areaId = $registro->area->id;
+
+            if (!isset($resultado[$areaId])) {
+                $resultado[$areaId] = [
+                    'nombre_area' => $registro->area->nombre_area,
+                    'categorias' => []
+                ];
+            }
+
+            $resultado[$areaId]['categorias'][] = [
+                'nombre_categoria' => $registro->categoria->nombre_categoria,
+            ];
+        }
+
+        // Reindexar como array simple
+        $resultado = array_values($resultado);
+
+        return response()->json($resultado);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 500,
+            'message' => $e->getMessage()
+        ], 500);
+    }
+}
 }

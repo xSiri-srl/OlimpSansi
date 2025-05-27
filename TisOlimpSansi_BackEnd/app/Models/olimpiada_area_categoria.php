@@ -24,7 +24,7 @@ class olimpiada_area_categoria extends Model
 
     public function inscripcion()
     {
-        return $this->hasMany(InscripcionModdel::class, 'id_olimpiada_area_categoria');
+        return $this->hasMany(InscripcionModel::class, 'id_olimpiada_area_categoria');
     }
     public function area()
     {

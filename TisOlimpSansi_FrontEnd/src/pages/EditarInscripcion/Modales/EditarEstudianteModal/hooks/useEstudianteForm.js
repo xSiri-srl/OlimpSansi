@@ -39,6 +39,7 @@ export const useEstudianteForm = (estudiante) => {
           [field]: value
         };
       } else if (section.startsWith('area_')) {
+        console.log(section)
         const index = parseInt(section.split('_')[1]);
         if (!newData.areas_competencia) newData.areas_competencia = [];
         if (!newData.areas_competencia[index]) {
@@ -150,6 +151,11 @@ const validarDatos = () => {
       } else if (!/^[A-ZÁÉÍÓÚÑ\s]+$/i.test(tutorData.apellido_pa)) {
         nuevoErrores[`tutor_academico_${index}_apellido_pa`] = "El apellido paterno del tutor académico debe contener solo letras";
       }
+      if (!tutorData.apellido_ma) {
+        nuevoErrores[`tutor_academico_${index}_apellido_ma`] = "El apellido materno del tutor académico es requerido";
+      } else if (!/^[A-ZÁÉÍÓÚÑ\s]+$/i.test(tutorData.apellido_ma)) {
+        nuevoErrores[`tutor_academico_${index}_apellido_ma`] = "El apellido materno del tutor académico debe contener solo letras";
+      }
       
       if (tutorData.apellido_ma && !/^[A-ZÁÉÍÓÚÑ\s]+$/i.test(tutorData.apellido_ma)) {
         nuevoErrores[`tutor_academico_${index}_apellido_ma`] = "El apellido materno del tutor académico debe contener solo letras";
@@ -170,63 +176,19 @@ const validarDatos = () => {
     nuevoErrores.curso = "El curso es obligatorio";
   
   // Validar áreas de competencia
-  if (!estudianteData.areas_competencia || estudianteData.areas_competencia.length === 0 ||
+  if (!estudianteData.areas_competencia || estudianteData.areas_competencia[0].nombre_area == "" ||
       !estudianteData.areas_competencia[0]?.nombre_area) {
-    nuevoErrores.areas = "Debe seleccionar al menos un área de competencia";
+    nuevoErrores.areas = "Debe seleccionar un área de competencia";
   }
-  
-  // Validar categorías para informática y robótica
-  estudianteData.areas_competencia?.forEach((area, index) => {
-    if ((area.nombre_area === "Informática" || area.nombre_area === "Robótica") && !area.categoria) {
-      nuevoErrores[`categoria_${index}`] = `Debe seleccionar una categoría para ${area.nombre_area}`;
-    } else if ((area.nombre_area === "Informática" || area.nombre_area === "Robótica") && area.categoria) {
-      // Validar que la categoría corresponda al curso
-      const curso = estudianteData.colegio?.curso || '';
-      const esPrimaria = curso.includes("Primaria");
-      const esSecundaria = curso.includes("Secundaria");
-      const numeroCurso = parseInt(curso.match(/\d+/)?.[0] || "0");
-      
-      // Verificar categorías de Informática
-      if (area.nombre_area === "Informática") {
-        if (esPrimaria && (numeroCurso === 5 || numeroCurso === 6)) {
-          // Solo Guacamayo es válido para primaria
-          if (!area.categoria.includes("Guacamayo")) {
-            nuevoErrores[`categoria_${index}`] = `La categoría seleccionada no corresponde al curso ${curso}`;
-          }
-        } else if (esSecundaria && numeroCurso >= 1 && numeroCurso <= 3) {
-          // Solo Guanaco, Londra y Bufeo son válidos para 1ro a 3ro de secundaria
-          if (!area.categoria.includes("Guanaco") && 
-              !area.categoria.includes("Londra") && 
-              !area.categoria.includes("Bufeo")) {
-            nuevoErrores[`categoria_${index}`] = `La categoría seleccionada no corresponde al curso ${curso}`;
-          }
-        } else if (esSecundaria && numeroCurso >= 4 && numeroCurso <= 6) {
-          // Solo Jucumari y Puma son válidos para 4to a 6to de secundaria
-          if (!area.categoria.includes("Jucumari") && 
-              !area.categoria.includes("Puma")) {
-            nuevoErrores[`categoria_${index}`] = `La categoría seleccionada no corresponde al curso ${curso}`;
-          }
+  // Validar áreas de competencia
+  if (!estudianteData.areas_competencia || estudianteData.areas_competencia[0].categoria == "" ||
+      !estudianteData.areas_competencia[0]?.categoria) {
+        if(estudianteData.areas_competencia[0].nombre_area == ""){
+          nuevoErrores[`categoria_${0}`] = `Debe seleccionar un área de competencia y luego una categoria`;
+        }else{
+          nuevoErrores[`categoria_${0}`] = `Debe seleccionar una categoría para ${estudianteData.areas_competencia[0].nombre_area}`;
         }
-      }
-      
-      // Verificar categorías de Robótica
-      if (area.nombre_area === "Robótica") {
-        if (esPrimaria && (numeroCurso === 5 || numeroCurso === 6)) {
-          // Solo Builders P y Lego P son válidos para primaria
-          if (!area.categoria.includes("Builders P") && 
-              !area.categoria.includes("Lego P")) {
-            nuevoErrores[`categoria_${index}`] = `La categoría seleccionada no corresponde al curso ${curso}`;
-          }
-        } else if (esSecundaria) {
-          // Solo Builders S y Lego S son válidos para secundaria
-          if (!area.categoria.includes("Builders S") && 
-              !area.categoria.includes("Lego S")) {
-            nuevoErrores[`categoria_${index}`] = `La categoría seleccionada no corresponde al curso ${curso}`;
-          }
-        }
-      }
-    }
-  });
+  }
   
   setErrores(nuevoErrores);
   return Object.keys(nuevoErrores).length === 0;
