@@ -273,7 +273,11 @@ const CodigoPreInscripcion = () => {
     setShowModal(false);
     setSelectedStudent(null);
   };
-
+const handleCloseModal2 = () => {
+    setShowModal(false);
+    setSelectedStudent(null);
+    navigate("/")
+  };
   // Función para guardar cambios después de editar
   const handleSaveEdit = (updatedData) => {
     // Implementar la lógica para guardar los cambios
@@ -707,7 +711,7 @@ const CodigoPreInscripcion = () => {
 
       {/* Modal de éxito */}
       {showModal && modalContent.type === "success" && (
-        <Modal show={showModal} onClose={handleCloseModal} title={modalContent.title}>
+        <Modal show={showModal} onClose={handleCloseModal2} title={modalContent.title}>
           <div className="text-center">
             <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
               <FaSave className="h-6 w-6 text-green-600" />
