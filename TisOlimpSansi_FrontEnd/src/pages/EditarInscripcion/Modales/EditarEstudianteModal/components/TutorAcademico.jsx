@@ -9,7 +9,6 @@ const TutorAcademico = ({
   tieneError,
   errores,
   validarFormatoCI,
-  campoEditable 
 }) => {
   return (
     <div className="space-y-4">
@@ -24,14 +23,9 @@ const TutorAcademico = ({
           </label>
           <input
             type="text"
-            className={`mt-1 p-2 w-full border rounded-md ${
-              tieneError(`tutor_academico_${areaIndex}_apellido_pa`) ? 'border-red-500' : ''
-            } ${
-              !campoEditable(`tutor_academico_${areaIndex}_apellido_pa`) ? 'bg-gray-100' : ''
-            }`}
+            className={`mt-1 p-2 w-full border rounded-md ${tieneError(`tutor_academico_${areaIndex}_apellido_pa`) ? 'border-red-500' : ''}`}
             value={estudianteData.tutores_academicos?.[areaIndex]?.tutor?.apellido_pa || ''}
             onChange={(e) => handleChange(`tutor_academico_${areaIndex}`, 'apellido_pa', e.target.value.toUpperCase())}
-            disabled={!campoEditable(`tutor_academico_${areaIndex}_apellido_pa`)}
           />
           {tieneError(`tutor_academico_${areaIndex}_apellido_pa`) && (
             <p className="text-red-500 text-xs mt-1">{errores[`tutor_academico_${areaIndex}_apellido_pa`]}</p>
@@ -44,13 +38,13 @@ const TutorAcademico = ({
           </label>
           <input
             type="text"
-            className={`mt-1 p-2 w-full border rounded-md ${
-              !campoEditable(`tutor_academico_${areaIndex}_apellido_ma`) ? 'bg-gray-100' : ''
-            }`}
+            className={`mt-1 p-2 w-full border rounded-md ${tieneError(`tutor_academico_${areaIndex}_apellido_ma`) ? 'border-red-500' : ''}`}
             value={estudianteData.tutores_academicos?.[areaIndex]?.tutor?.apellido_ma || ''}
             onChange={(e) => handleChange(`tutor_academico_${areaIndex}`, 'apellido_ma', e.target.value.toUpperCase())}
-            disabled={!campoEditable(`tutor_academico_${areaIndex}_apellido_ma`)}
           />
+          {tieneError(`tutor_academico_${areaIndex}_apellido_ma`) && (
+            <p className="text-red-500 text-xs mt-1">{errores[`tutor_academico_${areaIndex}_apellido_ma`]}</p>
+          )}
         </div>
       </div>
       
@@ -60,14 +54,9 @@ const TutorAcademico = ({
         </label>
         <input
           type="text"
-          className={`mt-1 p-2 w-full border rounded-md ${
-            tieneError(`tutor_academico_${areaIndex}_nombre`) ? 'border-red-500' : ''
-          } ${
-            !campoEditable(`tutor_academico_${areaIndex}_nombre`) ? 'bg-gray-100' : ''
-          }`}
+          className={`mt-1 p-2 w-full border rounded-md ${tieneError(`tutor_academico_${areaIndex}_nombre`) ? 'border-red-500' : ''}`}
           value={estudianteData.tutores_academicos?.[areaIndex]?.tutor?.nombre || ''}
           onChange={(e) => handleChange(`tutor_academico_${areaIndex}`, 'nombre', e.target.value.toUpperCase())}
-          disabled={!campoEditable(`tutor_academico_${areaIndex}_nombre`)}
         />
         {tieneError(`tutor_academico_${areaIndex}_nombre`) && (
           <p className="text-red-500 text-xs mt-1">{errores[`tutor_academico_${areaIndex}_nombre`]}</p>
@@ -80,11 +69,7 @@ const TutorAcademico = ({
         </label>
         <input
           type="text"
-          className={`mt-1 p-2 w-full border rounded-md ${
-            tieneError(`tutor_academico_${areaIndex}_ci`) ? 'border-red-500' : ''
-          } ${
-            !campoEditable(`tutor_academico_${areaIndex}_ci`) ? 'bg-gray-100' : ''
-          }`}
+          className={`mt-1 p-2 w-full border rounded-md ${tieneError(`tutor_academico_${areaIndex}_ci`) ? 'border-red-500' : ''}`}
           value={estudianteData.tutores_academicos?.[areaIndex]?.tutor?.ci || ''}
           onChange={(e) => {
             const formattedValue = validarFormatoCI(e.target.value);
@@ -92,7 +77,6 @@ const TutorAcademico = ({
           }}
           pattern="\d{7,8}"
           title="El CI debe contener entre 7 y 8 dígitos"
-          disabled={!campoEditable(`tutor_academico_${areaIndex}_ci`)}
         />
         {tieneError(`tutor_academico_${areaIndex}_ci`) && (
           <p className="text-red-500 text-xs mt-1">{errores[`tutor_academico_${areaIndex}_ci`]}</p>
@@ -105,12 +89,9 @@ const TutorAcademico = ({
         </label>
         <input
           type="email"
-          className={`mt-1 p-2 w-full border rounded-md ${
-            !campoEditable(`tutor_academico_${areaIndex}_correo`) ? 'bg-gray-100' : ''
-          }`}
+          className={`mt-1 p-2 w-full border rounded-md ${tieneError(`tutor_academico_${areaIndex}_correo`) ? 'border-red-500' : ''}`}
           value={estudianteData.tutores_academicos?.[areaIndex]?.tutor?.correo || ''}
           onChange={(e) => handleChange(`tutor_academico_${areaIndex}`, 'correo', e.target.value)}
-          disabled={!campoEditable(`tutor_academico_${areaIndex}_correo`)}
         />
       </div>
       
