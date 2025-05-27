@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use App\Models\OrdenPago;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Inscripcion\InscripcionModel;

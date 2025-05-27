@@ -30,6 +30,10 @@ class OrdenPago extends Model
     {
         return $this->hasMany(InscripcionModel::class, 'id_orden_pago');
     }
+     public function contarInscripciones()
+    {
+        return $this->inscripcion()->count();
+    }
     public function responsable(){
         return $this->belongsTo(ResponsableInscripcionModel::class, 'id_responsable', 'id');
     }

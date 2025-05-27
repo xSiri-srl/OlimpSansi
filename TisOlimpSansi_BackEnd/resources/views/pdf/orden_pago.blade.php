@@ -58,12 +58,11 @@
     <!-- Encabezado -->
     <div class="text-center mb-4">
         <h4>UNIVERSIDAD MAYOR DE SAN SIMÓN</h4>
-        <h5>Facultad de Ciencias y Tecnología</h5>
-        <h6>Secretaría Administrativa</h6>
+        <h6>DIRECCION ADMINISTRATIVA Y FINANCIERA</h6>
     </div>
 
     <!-- Orden de Pago -->
-    <h4 class="mb-3">Orden de Pago: 00{{ $ordenPago->id }}</h4>
+    <h4 class="mb-3">Orden de Pago: 0000{{ $ordenPago->id }}</h4>
 
     <!-- Unidad -->
     <p><span class="section-label">Emitido por la Unidad:</span><br>
@@ -95,20 +94,23 @@
         </thead>
         <tbody>
             <tr class="text-center">
-                <td></td>
+                <td>{{ $ordenPago->contarInscripciones() }}</td>
                 <td>Inscripción de estudiante(s) para olimpiada asociado al codigo de preinscripcion {{$ordenPago->codigo_generado}}</td>
                 <td>20 </td>
-                <td>{{ number_format($ordenPago->monto_total, 2) }}</td>
+                <td>{{$ordenPago->contarInscripciones()*20 }}</td>
             </tr>
         </tbody>
         <tfoot>
             <tr class="text-end">
                 <th colspan="3">Total (Bs):</th>
-                <th class="text-center">{{ number_format($ordenPago->monto_total, 2) }}</th>
+                <th class="text-center">{{ $ordenPago->contarInscripciones()*20}}</th>
             </tr>
         </tfoot>
     </table>
-
+    @php
+    $numero = $ordenPago->contarInscripciones() * 20;
+    @endphp
+    <p><span class="section-label">La suma de:</span> {{ mostrarOrdenPago($numero) }} 00/100 BOLIVIANOS </p>
     <!-- Firma -->
     <div class="firma">
         <p>
