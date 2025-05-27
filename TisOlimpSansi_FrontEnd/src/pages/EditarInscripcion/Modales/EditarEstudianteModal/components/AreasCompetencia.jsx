@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 
 const AreasCompetencia = ({ 
   estudianteData, 
@@ -7,59 +8,36 @@ const AreasCompetencia = ({
   tieneError, 
   errores 
 }) => {
-  const areas = [
-    "Matemáticas",
-    "Física",
-    "Química",
-    "Biología",
-    "Informática",
-    "Robótica",
-    "Astronomía y Astrofísica"
-  ];
+  const [areas, setAreas] = useState([]);
+
+  useEffect(() => {
+    const cargarAreas = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8000/api/areasCategoriasOlimpiada?id=${estudianteData.id_olimpiada}`);
+        setAreas(response.data);
+      } catch (error) {
+        console.error("Error al cargar las áreas:", error);
+      }
+    };
+
+    cargarAreas();
+  }, []);
 
 
-  const obtenerCategorias = (area, curso) => {
-    if (area !== "Informática" && area !== "Robótica") {
-      return [];
+  const obtenerCategorias = (areaNombre) => {
+    if (!Array.isArray(areas)) {
+      console.warn("La variable 'areas' no es un array:", areas);
+      return ["Categoría no disponible para esta área"];
     }
-    
-    const esPrimaria = curso?.includes("Primaria");
-    const esSecundaria = curso?.includes("Secundaria");
-    const numero = parseInt(curso?.match(/\d+/)?.[0] || "0");
-    
-    if (area === "Informática") {
-      if (esPrimaria && (numero === 5 || numero === 6)) {
-        return ["\"Guacamayo\" 5to a 6to Primaria"];
-      } else if (esSecundaria && numero >= 1 && numero <= 3) {
-        return [
-          "\"Guanaco\" 1ro a 3ro Secundaria", 
-          "\"Londra\" 1ro a 3ro Secundaria",
-          "\"Bufeo\" 1ro a 3ro Secundaria"
-        ];
-      } else if (esSecundaria && numero >= 4 && numero <= 6) {
-        return [
-          "\"Jucumari\" 4to a 6to Secundaria",
-          "\"Puma\" 4to a 6to Secundaria"
-        ];
-      }
+
+    const area = areas.find(a => a.nombre_area === areaNombre);
+    if (!area || !Array.isArray(area.categorias)) {
+      return ["Categoría no disponible para esta área"];
     }
-    
-    if (area === "Robótica") {
-      if (esPrimaria && (numero === 5 || numero === 6)) {
-        return [
-          "\"Builders P\" 5to a 6to Primaria",
-          "\"Lego P\" 5to a 6to Primaria"
-        ];
-      } else if (esSecundaria) {
-        return [
-          "\"Builders S\" 1ro a 6to Secundaria",
-          "\"Lego S\" 1ro a 6to Secundaria"
-        ];
-      }
-    }
-    
-    return ["Categoría no disponible para este curso"];
+
+    return area.categorias.map(cat => cat.nombre_categoria);
   };
+
   
   const handleCategoriaChange = (e, sectionIndex) => {
     const selectedCategory = e.target.value;
@@ -84,7 +62,9 @@ const AreasCompetencia = ({
             >
               <option value="">Seleccione un área</option>
               {areas.map((area) => (
-                <option key={area} value={area}>{area}</option>
+                <option key={area.nombre_area} value={area.nombre_area}>
+                  {area.nombre_area}
+                </option>
               ))}
             </select>
           </div>
