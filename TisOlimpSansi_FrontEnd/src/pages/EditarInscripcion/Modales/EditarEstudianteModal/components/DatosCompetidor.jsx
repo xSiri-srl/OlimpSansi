@@ -18,7 +18,7 @@ const DatosCompetidor = ({
             type="text"
             className={"mt-1 p-2 w-full border rounded-md bg-gray-100"}
             value={estudianteData.estudiante?.apellido_pa || ''}
-            readOnly={true}
+            disabled={true}
           />
         </div>
       
@@ -30,7 +30,7 @@ const DatosCompetidor = ({
             type="text"
             className={"mt-1 p-2 w-full border rounded-md bg-gray-100"}
             value={estudianteData.estudiante?.apellido_ma || ''}
-            readOnly={true}
+            disabled={true}
           />
         </div>
       
@@ -42,7 +42,7 @@ const DatosCompetidor = ({
               type="text"
               className={"mt-1 p-2 w-full border rounded-md bg-gray-100"}
               value={estudianteData.estudiante?.nombre || ''}
-              readOnly={true}
+            disabled={true}
             />
           </div>
       
@@ -67,8 +67,8 @@ const DatosCompetidor = ({
           <input
             type="date"
             className={"mt-1 p-2 w-full border rounded-md bg-gray-100"}
-            value={estudianteData.estudiante?.fecha_nacimiento || ''}
-            readOnly={true}
+            value={estudianteData.estudiante?.fecha_nacimiento?.split(' ')[0] || ''}
+            disabled={true}
           />
         </div>
       
@@ -81,7 +81,6 @@ const DatosCompetidor = ({
             className={`mt-1 p-2 w-full border rounded-md ${tieneError('correo') ? 'border-red-500' : ''}`}
             value={estudianteData.estudiante?.correo || ''}
             onChange={(e) => handleChange('estudiante', 'correo', e.target.value)}
-            readOnly={false}
           />
         </div>
       
