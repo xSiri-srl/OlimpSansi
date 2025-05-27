@@ -23,27 +23,29 @@ const CrearOlimpiadas = () => {
   const endpoint = "http://localhost:8000";
   const years = Array.from({ length: 2030 - 2025 + 1 }, (_, i) => 2025 + i);
 
-  const validarCampos = () => {
-    const hoy = new Date();
-    const ini = new Date(fechaIni);
-    const fin = new Date(fechaFinal);
-    const nuevosErrores = {};
+const validarCampos = () => {
+  // Convertir la fecha actual a string en formato YYYY-MM-DD
+  const hoy = new Date();
+  const hoyString = hoy.toISOString().split('T')[0]; // Formato YYYY-MM-DD
+  
+  // fechaIni ya está en formato YYYY-MM-DD del input type="date"
+  const nuevosErrores = {};
 
-    if (!titulo.trim()) nuevosErrores.titulo = "El título no puede estar vacío";
-    if (!periodoIns)
-      nuevosErrores.periodoIns = "Debe seleccionar un año de gestión";
-    if (!fechaIni) nuevosErrores.fechaIni = "Debe ingresar la fecha de inicio";
-    else if (ini < hoy.setHours(0, 0, 0, 0))
-      nuevosErrores.fechaIni = "La fecha de inicio no puede ser anterior";
+  if (!titulo.trim()) nuevosErrores.titulo = "El título no puede estar vacío";
+  if (!periodoIns) nuevosErrores.periodoIns = "Debe seleccionar un año de gestión";
+  if (!fechaIni) nuevosErrores.fechaIni = "Debe ingresar la fecha de inicio";
+  
+  // Comparación directa de strings en formato YYYY-MM-DD
+  else if (fechaIni < hoyString) 
+    nuevosErrores.fechaIni = "La fecha de inicio no puede ser anterior a hoy";
 
-    if (!fechaFinal) nuevosErrores.fechaFinal = "Debe ingresar la fecha final";
-    else if (fechaIni && fin <= ini)
-      nuevosErrores.fechaFinal =
-        "La fecha final debe ser posterior a la fecha de inicio";
+  if (!fechaFinal) nuevosErrores.fechaFinal = "Debe ingresar la fecha final";
+  else if (fechaIni && fechaFinal <= fechaIni)
+    nuevosErrores.fechaFinal = "La fecha final debe ser posterior a la fecha de inicio";
 
-    setErrores(nuevosErrores);
-    return Object.keys(nuevosErrores).length === 0;
-  };
+  setErrores(nuevosErrores);
+  return Object.keys(nuevosErrores).length === 0;
+};
 
   const handleCrear = () => {
     if (validarCampos()) {
