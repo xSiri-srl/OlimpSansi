@@ -199,5 +199,8 @@ Route::get('/getOlimpiadasActuales', [OlimpiadaController::class, 'getOlimpiadas
 //mostrar todas las areas habilitadas para esa olimpiada
 Route::post('/olimpiadas/areas', [OlimpiadaController::class, 'getAreasPorOlimpiada']);
 
+
+Route::get('/areasCategoriasOlimpiada', [OlimpiadaController::class, 'getAreasCategoriasPorOlimpiada']);
+
 //mostrar todas las categorias de esa materia de una olimpiada
 
