@@ -11,6 +11,8 @@ class GradoSeeder extends Seeder
     public function run(): void
     {
         $grados = [
+            '1RO PRIMARIA',
+            '2DO PRIMARIA',
             '3RO PRIMARIA',
             '4TO PRIMARIA',
             '5TO PRIMARIA',
