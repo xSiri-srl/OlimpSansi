@@ -17,6 +17,7 @@ use App\Http\Controllers\ConvocatoriaController;
 use App\Http\Controllers\UserAdminController;
 use App\Http\Controllers\OlimpiadaController;
 use App\Http\Controllers\OlimpiadaAreaController;
+use App\Http\Controllers\CategoriaGradoController;
 
 use App\Http\Controllers\Inscripcion\AreaController;
 use App\Http\Controllers\Inscripcion\CategoriaController;
@@ -201,7 +202,11 @@ Route::get('/getOlimpiadasActuales', [OlimpiadaController::class, 'getOlimpiadas
 Route::post('/olimpiadas/areas', [OlimpiadaController::class, 'getAreasPorOlimpiada']);
 
 
-Route::get('/areasCategoriasOlimpiada', [OlimpiadaController::class, 'getAreasCategoriasPorOlimpiada']);
+Route::get('/areasCategoriasOlimpiada', [OlimpiadaController::class, 'obtenerCategoriasPorGrado']);
+
+
+Route::get('/cursoAreaCategoriaPorOlimpiada', [CategoriaGradoController::class, 'obtenerCategoriasPorGrado']);
+Route::post('/agregarCategoriaGrado', [CategoriaGradoController::class, 'store']);
 
 //mostrar todas las categorias de esa materia de una olimpiada
 
