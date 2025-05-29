@@ -22,9 +22,9 @@ class DatabaseSeeder extends Seeder
         $this->call([
             UserSeeder::class,
         ]);
-        // $this->call([
-        //     OlimpiadaSeeder::class,
-        // ]);
+        $this->call([
+            OlimpiadaSeeder::class,
+         ]);
         $this->call([
             ColegioSeeder::class,
         ]);
@@ -40,8 +40,8 @@ class DatabaseSeeder extends Seeder
         $this->call([
             GradoSeeder::class,
         ]);
-        // $this->call([
-        //     OlimpiadaAreaCategoriaSeeder::class
-        // ]);
+         $this->call([
+             OlimpiadaAreaCategoriaSeeder::class
+         ]);
     }
 }

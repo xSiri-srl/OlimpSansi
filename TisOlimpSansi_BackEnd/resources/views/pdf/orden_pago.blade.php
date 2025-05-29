@@ -96,19 +96,19 @@
             <tr class="text-center">
                 <td>{{ $ordenPago->contarInscripciones() }}</td>
                 <td>Inscripción de estudiante(s) para olimpiada asociado al codigo de preinscripcion {{$ordenPago->codigo_generado}}</td>
-                <td>20 </td>
-                <td>{{$ordenPago->contarInscripciones()*20 }}</td>
+                <td>16</td>
+                <td>{{$ordenPago->contarInscripciones()*16 }}</td>
             </tr>
         </tbody>
         <tfoot>
             <tr class="text-end">
                 <th colspan="3">Total (Bs):</th>
-                <th class="text-center">{{ $ordenPago->contarInscripciones()*20}}</th>
+                <th class="text-center">{{ $ordenPago->contarInscripciones()*16}}</th>
             </tr>
         </tfoot>
     </table>
     @php
-    $numero = $ordenPago->contarInscripciones() * 20;
+    $numero = $ordenPago->contarInscripciones() * 16;
     @endphp
     <p><span class="section-label">La suma de:</span> {{ mostrarOrdenPago($numero) }} 00/100 BOLIVIANOS </p>
     <!-- Firma -->
