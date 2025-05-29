@@ -29,6 +29,7 @@ const CodigoPreInscripcion = () => {
   
   // Estado para manejar la lista de estudiantes
   const [estudiantes, setEstudiantes] = useState([]);
+  const [cursoAreaCategoria, setCursoAreaCategoria] = useState(null);
   const [processedEstudiantes, setProcessedEstudiantes] = useState([]);
   
   // Estados para paginación y filtrado
@@ -84,12 +85,25 @@ const CodigoPreInscripcion = () => {
       console.log(response.data);
       setResumen(response.data);
 
-      if (response.data && Array.isArray(response.data)) {
-        setEstudiantes(response.data);
-        processStudents(response.data);
-      } else if (response.data && Array.isArray(response.data.estudiantes)) {
-        setEstudiantes(response.data.estudiantes);
-        processStudents(response.data.estudiantes);
+      // Paso 3: Si hay estudiantes y hay un id_olimpiada, cargar áreas y categorías
+      const estudiantesLista = Array.isArray(response.data)
+        ? response.data
+        : response.data.estudiantes;
+
+      if (estudiantesLista?.length > 0 && estudiantesLista[0].id_olimpiada) {
+        try {
+          const response = await axios.get(`${endpoint}/cursoAreaCategoriaPorOlimpiada?id=${estudiantesLista[0].id_olimpiada}`);
+          setCursoAreaCategoria(response.data);
+        } catch (err2) {
+          console.error("Error al obtener las áreas y categorías:", err2);
+          setError("No se pudieron cargar las áreas y categorías.");
+        }
+      }
+
+      // Guardar estudiantes
+      if (estudiantesLista && Array.isArray(estudiantesLista)) {
+        setEstudiantes(estudiantesLista);
+        processStudents(estudiantesLista);
       }
     } catch (err) {
       if (axios.isAxiosError(err) && err.response?.status === 404) {
@@ -110,67 +124,6 @@ const CodigoPreInscripcion = () => {
       const errores = [];
       let hasError = false;
       let mensajeError = "";
-
-      // PASO 1: Verificar si hay áreas de competencia que necesitan categoría pero no la tienen
-      if (est.areas_competencia && Array.isArray(est.areas_competencia)) {
-        for (const area of est.areas_competencia) {
-          if (
-            area.nombre_area === "Informática" ||
-            area.nombre_area === "Robótica"
-          ) {
-            // Si no hay categoría seleccionada, es un error
-            if (!area.categoria || area.categoria.trim() === "") {
-              errores.push(
-                `Falta seleccionar categoría para ${area.nombre_area}`
-              );
-              hasError = true; // Marcar el registro como erróneo
-            } else {
-              // Si hay categoría, verificar que corresponda al curso
-              const curso = est.colegio?.curso || "";
-              const esPrimaria = curso.includes("Primaria");
-              const esSecundaria = curso.includes("Secundaria");
-              const numeroCurso = Number.parseInt(curso.match(/\d+/)?.[0] || "0");
-
-              let categoriaIncorrecta = false;
-
-              if (area.nombre_area === "Informática") {
-                if (esPrimaria && (numeroCurso === 5 || numeroCurso === 6)) {
-                  categoriaIncorrecta = !area.categoria.includes("Guacamayo");
-                } else if (esSecundaria && numeroCurso >= 1 && numeroCurso <= 3) {
-                  categoriaIncorrecta =
-                    !area.categoria.includes("Guanaco") &&
-                    !area.categoria.includes("Londra") &&
-                    !area.categoria.includes("Bufeo");
-                } else if (esSecundaria && numeroCurso >= 4 && numeroCurso <= 6) {
-                  categoriaIncorrecta =
-                    !area.categoria.includes("Jucumari") &&
-                    !area.categoria.includes("Puma");
-                }
-              }
-
-              if (area.nombre_area === "Robótica") {
-                if (esPrimaria && (numeroCurso === 5 || numeroCurso === 6)) {
-                  categoriaIncorrecta =
-                    !area.categoria.includes("Builders P") &&
-                    !area.categoria.includes("Lego P");
-                } else if (esSecundaria) {
-                  categoriaIncorrecta =
-                    !area.categoria.includes("Builders S") &&
-                    !area.categoria.includes("Lego S");
-                }
-              }
-
-              if (categoriaIncorrecta) {
-                errores.push(
-                  `La categoría de ${area.nombre_area} no corresponde al curso ${curso}`
-                );
-                hasError = true; // Marcar el registro como erróneo
-              }
-            }
-          }
-        }
-      }
-
       // PASO 2: Verificar otros errores solo si aún no se encontró ninguno
       if (!hasError) {
         if (
@@ -706,6 +659,7 @@ const handleCloseModal2 = () => {
             estudiante={selectedStudent}
             onClose={handleCloseModal}
             onSave={handleSaveEdit}
+            cursoAreaCategoria={cursoAreaCategoria}
         />
       )}
 

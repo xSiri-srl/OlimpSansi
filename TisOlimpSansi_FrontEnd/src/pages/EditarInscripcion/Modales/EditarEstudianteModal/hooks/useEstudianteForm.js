@@ -189,6 +189,26 @@ const validarDatos = () => {
           nuevoErrores[`categoria_${0}`] = `Debe seleccionar una categoría para ${estudianteData.areas_competencia[0].nombre_area}`;
         }
   }
+
+  const tutorData = estudianteData.tutor_legal;
+  if (!tutorData.correo) {
+    nuevoErrores[`tutor_legal_correo`] = "El correo del tutor es requerido";
+  } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(tutorData.correo)) {
+    nuevoErrores[`tutor_legal_correo`] = "El correo del tutor no es válido";
+  }
+
+  if (!estudianteData.estudiante?.correo) {
+    nuevoErrores.correo = "El correo del estudiante es obligatorio";
+  } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(estudianteData.estudiante.correo)) {
+    nuevoErrores.correo = "El correo del estudiante no es válido";
+  }
+
+  const tutorAcademicoData = estudianteData.tutores_academicos[0].tutor;
+  if (!tutorData.correo) {
+    nuevoErrores[`tutor_academico_${0}_correo`] = "El correo del tutor académico es requerido";
+  } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(tutorAcademicoData.correo)) {
+    nuevoErrores[`tutor_academico_${0}_correo`] = "El correo del tutor académico no es válido";
+  }
   
   setErrores(nuevoErrores);
   return Object.keys(nuevoErrores).length === 0;
@@ -206,11 +226,21 @@ const validarDatos = () => {
       // Permitir solo dígitos y limitar longitud
       return value.replace(/\D/g, '').substring(0, 8);
     };
+
+    // Validar y limpiar el correo electrónico
+  const validarCorreo = (value) => {
+    const email = value.trim(); // quitar espacios adelante/atrás
+
+    // Expresión regular simple para validar email
+    const regexCorreo = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    return regexCorreo.test(email) ? email : email; // Retorna el valor igual, pero podrías retornar '' si querés forzar solo válido
+  };
     
     // Validar formato numérico para teléfono
     const validarFormatoTelefono = (value) => {
       // Permitir solo dígitos y limitar longitud
-      return value.replace(/\D/g, '').substring(0, 9);
+      return value.replace(/\D/g, '').substring(0, 8);
     };
 
     const campoEditable = (campo) => {
@@ -272,7 +302,8 @@ return {
   mostrarCampo,
   campoEditable,
   validarFormatoCI,
-  validarFormatoTelefono
+  validarFormatoTelefono,
+  validarCorreo
 };
 
 };
