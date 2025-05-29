@@ -42,7 +42,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/actualizar-costos-olimpiada', [OlimpiadaAreaController::class, 'actualizarCostos']);
         Route::post('/desasociar-areas-olimpiada', [OlimpiadaAreaController::class, 'desasociarAreas']);
 
-        
+        //Categorías y grados
+        Route::get('/categorias-por-area/{idArea}', [App\Http\Controllers\Inscripcion\CategoriaController::class, 'getCategoriasPorArea']);
+        Route::get('/grados', function() {
+            return response()->json([
+                'status' => 200,
+                'data' => App\Models\Inscripcion\GradoModel::orderBy('id')->get()
+            ]);
+        });
    
     });
 });

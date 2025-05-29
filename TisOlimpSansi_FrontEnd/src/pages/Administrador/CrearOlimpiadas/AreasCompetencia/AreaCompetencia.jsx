@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaCheck, FaLock, FaPlus, FaTimes } from "react-icons/fa";
 import { categoriasPredefinidasMap } from "../todasLasCategoriasPorArea";
 
@@ -10,11 +10,20 @@ const AreaCompetencia = ({
   eliminarCombinacion,
   olimpiadaSeleccionada,
   modoAsociacion = true,
+  todosLosGrados = []
 }) => {
   const [mostrarDetalles, setMostrarDetalles] = useState(false);
   
   // Lista de categorías predefinidas para el selector
   const categoriasPredefinidas = Object.keys(categoriasPredefinidasMap);
+  
+  useEffect(() => {
+    // Si tenemos grados del backend, actualizar las categorías predefinidas
+    if (todosLosGrados && todosLosGrados.length > 0) {
+      // Podríamos actualizar categoriasPredefinidasMap aquí si fuera necesario
+      console.log("Grados disponibles para categorías:", todosLosGrados);
+    }
+  }, [todosLosGrados]);
 
   // Manejar la habilitación/deshabilitación del área
   const handleAreaToggle = (checked) => {
@@ -91,7 +100,6 @@ const AreaCompetencia = ({
     setCombinaciones(copia);
   };
 
-
   const agregarCategoria = () => {
     const copia = [...combinaciones];
     
@@ -157,14 +165,20 @@ const AreaCompetencia = ({
         </div>
       )}
 
-      {sePuedeHabilitar && !esInteractuable && (
+      {sePuedeHabilitar && !esInteractuable && modoAsociacion && (
+        <div className="absolute inset-0 bg-gray-100 bg-opacity-40 flex flex-col items-center justify-center z-10 backdrop-blur-[1px] rounded-lg">
+          <FaCheck className="text-green-500 text-3xl mb-2" />
+          <p className="text-gray-600 text-center font-medium px-4">
+            Esta área ya está asociada. Para desasociarla, usa la sección 'Desasignar Áreas'
+          </p>
+        </div>
+      )}
+      
+      {sePuedeHabilitar && !esInteractuable && !modoAsociacion && (
         <div className="absolute inset-0 bg-gray-100 bg-opacity-40 flex flex-col items-center justify-center z-10 backdrop-blur-[1px] rounded-lg">
           <FaLock className="text-gray-500 text-3xl mb-2" />
           <p className="text-gray-600 text-center font-medium px-4">
-            {modoAsociacion 
-              ? "Esta área ya está asociada. Para desasociarla, usa 'Desasignar Áreas'"
-              : "Esta área no está asociada a esta olimpiada. Para asociarla, usa 'Asignar Áreas'"
-            }
+            Esta área no está asociada a esta olimpiada. Para asociarla, usa 'Asignar Áreas'
           </p>
         </div>
       )}
@@ -180,11 +194,16 @@ const AreaCompetencia = ({
           
           <div
             className={`absolute top-0 right-0 w-8 h-8 rounded-full border-2 flex items-center justify-center ${
-              esInteractuable ? 'cursor-pointer' : 'cursor-not-allowed'
+              esInteractuable || (sePuedeHabilitar && combo.yaAsociada && modoAsociacion)
+                ? 'cursor-pointer' : 'cursor-not-allowed'
             } transition-colors ${
               estaHabilitada ? 'border-blue-500 bg-blue-50' : 'border-gray-400 bg-white'
             }`}
-            onClick={() => esInteractuable && handleAreaToggle(!estaHabilitada)}
+            onClick={() => {
+              if ((esInteractuable || (sePuedeHabilitar && combo.yaAsociada && modoAsociacion)) && sePuedeHabilitar) {
+                handleAreaToggle(!estaHabilitada);
+              }
+            }}
           >
             {estaHabilitada && <FaCheck className="text-blue-600" />}
           </div>
@@ -235,7 +254,7 @@ const AreaCompetencia = ({
                       <div className="flex-1 flex flex-wrap gap-2 items-center">
                         {/* Selector de Categoría */}
                         <div className="w-64 flex-none">
-                          <label className="block text-xs text-gray-500 mb-1">Seleccionar categoría</label>
+                          <label className="block text-xs text-gray-500 mb-1">Categoría</label>
                           <select
                             className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             value={categoria.nombre || ""}
@@ -323,7 +342,7 @@ const AreaCompetencia = ({
                     ))}
                   </div>
                 ) : (
-                  <p className="italic">No hay categorías asociadas. Haga clic en "Asociar Categorías" para agregar.</p>
+                  <p className="italic">No hay categorías asociadas. {modoAsociacion ? "Haga clic en 'Asociar Categorías' para agregar." : "Este área no tiene categorías configuradas."}</p>
                 )}
               </div>
             )}
