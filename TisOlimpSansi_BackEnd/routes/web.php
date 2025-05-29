@@ -6,6 +6,7 @@ use App\Http\Controllers\OlimpiadaAreaController;
 use App\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
+use App\Http\Controllers\CategoriaGradoController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -42,7 +43,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/actualizar-costos-olimpiada', [OlimpiadaAreaController::class, 'actualizarCostos']);
         Route::post('/desasociar-areas-olimpiada', [OlimpiadaAreaController::class, 'desasociarAreas']);
 
-        
+        //Categorías y grados
+        Route::get('/categorias-por-area/{idArea}', [App\Http\Controllers\Inscripcion\CategoriaController::class, 'getCategoriasPorArea']);
+        Route::get('/grados', function() {
+            return response()->json([
+                'status' => 200,
+                'data' => App\Models\Inscripcion\GradoModel::orderBy('id')->get()
+            ]);
+        });
    
     });
 });
@@ -55,3 +63,4 @@ Route::controller(OlimpiadaController::class)->group(function(){
 
 Route::get('/areas-olimpiada/{id}', [OlimpiadaAreaController::class, 'getAreasPorOlimpiada']);
 
+Route::get('/cursoAreaCategoriaPorOlimpiada', [CategoriaGradoController::class, 'obtenerCategoriasPorGrado']);
