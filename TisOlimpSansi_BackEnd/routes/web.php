@@ -6,6 +6,7 @@ use App\Http\Controllers\OlimpiadaAreaController;
 use App\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
+use App\Http\Controllers\CategoriaGradoController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -62,3 +63,4 @@ Route::controller(OlimpiadaController::class)->group(function(){
 
 Route::get('/areas-olimpiada/{id}', [OlimpiadaAreaController::class, 'getAreasPorOlimpiada']);
 
+Route::get('/cursoAreaCategoriaPorOlimpiada', [CategoriaGradoController::class, 'obtenerCategoriasPorGrado']);

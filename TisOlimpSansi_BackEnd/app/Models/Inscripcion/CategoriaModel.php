@@ -21,6 +21,9 @@ class CategoriaModel extends Model
     public function olimpiadaAreaCategoria(){
         return $this->hasMany(olimpiada_area_categoria::class, 'id_categoria', 'id');
     }
+    public function grado(){
+        return $this->hasMany(CategoriaGradoModel::class, 'id_categoria', 'id');
+    }
     
     public function area(){
         return $this->belongsTo(AreaModel::class, 'id_area');
