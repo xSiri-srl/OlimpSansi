@@ -1,5 +1,6 @@
 <?php
 
+
 namespace App\Models\Inscripcion;
 
 use Illuminate\Database\Eloquent\Model;
@@ -14,12 +15,23 @@ class CategoriaModel extends Model
     protected $table = 'categoria';
     protected $fillable = [
         'nombre_categoria',
+        'id_area',
     ];
 
     public function olimpiadaAreaCategoria(){
         return $this->hasMany(olimpiada_area_categoria::class, 'id_categoria', 'id');
     }
-    public function categoriaGrados(){
-        return $this->hasMany(CategoriaGradoModel::class, 'id_categoria', 'id');
+    
+    public function area(){
+        return $this->belongsTo(AreaModel::class, 'id_area');
+    }
+    
+    public function grados(){
+        return $this->belongsToMany(
+            GradoModel::class,
+            'categoria_grado',
+            'id_categoria',
+            'id_grado'
+        );
     }
 }
