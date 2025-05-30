@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('id_user')->constrained('users')->onDelete('cascade');
          
             $table->string('titulo');
-            $table->unsignedInteger('max_materias')->default(0);
+            $table->unsignedInteger('max_materias')->default(1);
             $table->date('fecha_ini');
             $table->date('fecha_fin');
             $table->timestamps();

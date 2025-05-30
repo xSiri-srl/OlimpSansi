@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { FaUser, FaIdCard } from "react-icons/fa"
 import { useFormData } from "./form-context"
 import axios from "axios"
+import { useLocation } from "react-router-dom";
 
 function RegistroResponsable({ setStep }) {
   const [formData, setFormData] = useState({
@@ -12,7 +13,9 @@ function RegistroResponsable({ setStep }) {
       ci: "",
     },
   })
-
+const location = useLocation();
+const state = location.state;
+const olimpiada = parseInt(state, 10);
   const [errors, setErrors] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSearching, setIsSearching] = useState(false)
@@ -165,7 +168,7 @@ function RegistroResponsable({ setStep }) {
     try {
       const updatedData = {
         ...globalData,
-        olimpiada: {"id":"1"},
+        olimpiada:olimpiada,
         responsable_inscripcion: {
           nombre: formData.responsable?.nombres,
           apellido_pa: formData.responsable?.apellidoPaterno,

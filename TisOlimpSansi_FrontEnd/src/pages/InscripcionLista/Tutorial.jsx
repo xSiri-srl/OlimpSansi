@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate,useSearchParams } from "react-router-dom";
 import { FaExclamationTriangle } from "react-icons/fa";
 import { IoClose } from "react-icons/io5"; // Ícono de cierre
 
@@ -7,9 +7,12 @@ const Tutorial = () => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [scale, setScale] = useState(1); // Escala de zoom
-
+const [searchParams] = useSearchParams();
+  const olimpiada = searchParams.get("olimpiada");
   const handleSeleccion = () => {
-    navigate(`/inscripcion-lista/registro-lista`);
+     navigate(`/inscripcion-lista/registro-lista`, {
+    state:olimpiada
+  });
   };
 
   const handleWheel = (e) => {

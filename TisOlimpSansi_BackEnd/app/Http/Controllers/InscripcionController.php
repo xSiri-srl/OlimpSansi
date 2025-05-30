@@ -12,6 +12,7 @@ use App\Models\Inscripcion\InscripcionCategoriaModel;
 use App\Models\Inscripcion\InscripcionModel;
 use App\Models\Inscripcion\ResponsableInscripcionModel;
 use App\Models\Inscripcion\TutorAcademicoModel;
+use App\Models\olimpiada_area_categoria;
 use App\Models\Inscripcion\TutorLegalModel;
 use App\Models\OlimpiadaModel;
 use App\Models\OrdenPago;
@@ -207,14 +208,14 @@ public function registrar(Request $request)
     }
 }
 
-public function registrarLista(Request $request)
+public function registrarLista(Request $request) 
 {
     DB::beginTransaction();
 
     try {
         $data = $request->all();
 
-        // Registrar Responsable (solo una vez)
+        // Registrar Responsable (una vez)
         $responsable = ResponsableInscripcionModel::firstOrCreate(
             ['ci' => $data['responsable_inscripcion']['ci']],
             $data['responsable_inscripcion']
@@ -224,17 +225,18 @@ public function registrarLista(Request $request)
             throw new \Exception("No se pudo registrar o recuperar el responsable de inscripción.");
         }
 
-        // Crear orden de pago (temporal)
+        // Crear orden de pago temporal
         $ordenPago = OrdenPago::create([
             'id_responsable' => $responsable->id,
             'codigo_generado' => '',
-            'monto_total'     => 0,
-            'estado'          => 'pendiente',
+            'monto_total' => 0,
+            'estado' => 'pendiente',
         ]);
 
         $total = 0;
+
         foreach ($data['estudiantes'] as $item) {
-            // Colegio y Grado
+            // Colegio y grado
             $colegio = ColegioModel::firstOrCreate(
                 ['nombre_colegio' => $item['colegio']['nombre_colegio']],
                 [
@@ -247,20 +249,20 @@ public function registrarLista(Request $request)
 
             // Estudiante
             $estudiante = EstudianteModel::firstOrCreate(
-                [
-                    'ci'           => $item['estudiante']['ci'],
-                ],
+                ['ci' => $item['estudiante']['ci']],
                 [
                     ...$item['estudiante'],
-                    'id_unidad'    => $colegio->id,
-                    'id_grado'     => $grado->id,
+                    'id_unidad' => $colegio->id,
+                    'id_grado'  => $grado->id,
                 ]
             );
 
-            // Validación: límite de inscripciones
-             $olimpiada = OlimpiadaModel::findOrFail($data['olimpiada']['id']);
-             $limiteAreas = $olimpiada->max_materias;
+            // Validar límite de áreas permitidas
+            $olimpiadaId = $data['olimpiada'];
+            $olimpiada = OlimpiadaModel::findOrFail($olimpiadaId);
+            $limiteAreas = $olimpiada->max_materias;
             $inscritas = InscripcionModel::where('id_estudiante', $estudiante->id)->count();
+
             if ($inscritas + count($item['areas_competencia']) > $limiteAreas) {
                 throw new \Exception("El estudiante '{$estudiante->nombre} {$estudiante->apellido_pa}' supera el límite de áreas permitidas.");
             }
@@ -274,21 +276,32 @@ public function registrarLista(Request $request)
             $inscripcionesPorArea = [];
 
             foreach ($item['areas_competencia'] as $areaItem) {
+                // Buscar IDs de área y categoría
                 $area = AreaModel::where('nombre_area', $areaItem['nombre_area'])->firstOrFail();
                 $categoria = CategoriaModel::where('nombre_categoria', $areaItem['categoria'])->firstOrFail();
 
-                $oac = DB::table('olimpiada_area_categorias')
-                    ->where([
-                        ['id_olimpiada', '=', $data['olimpiada']['id']],
-                        ['id_area', '=', $area->id],
-                        ['id_categoria', '=', $categoria->id],
-                    ])
-                    ->first();
+                // Obtener combinación válida
+                $oac = olimpiada_area_categoria::where([
+                    ['id_olimpiada', $olimpiadaId],
+                    ['id_area', $area->id],
+                    ['id_categoria', $categoria->id],
+                ])->first();
 
                 if (!$oac) {
-                    throw new \Exception("Combinación inválida de área/categoría para la olimpiada.");
+                    throw new \Exception("No está asociado esa área y/o categoría en esta olimpiada.");
                 }
 
+                // Validar si ya está inscrito a esta misma combinación
+                $yaInscrito = InscripcionModel::where([
+                    ['id_estudiante', $estudiante->id],
+                    ['id_olimpiada_area_categoria', $oac->id],
+                ])->exists();
+
+                if ($yaInscrito) {
+                    throw new \Exception("El estudiante '{$estudiante->nombre} {$estudiante->apellido_pa}' ya está inscrito en esta área y categoría para esta olimpiada.");
+                }
+
+                // Registrar inscripción
                 $inscripcion = InscripcionModel::create([
                     'id_estudiante' => $estudiante->id,
                     'id_tutor_legal' => $tutorLegal->id,
@@ -298,19 +311,19 @@ public function registrarLista(Request $request)
                 ]);
 
                 $inscripcionesPorArea[$area->id] = $inscripcion;
-                $total += floatval($oac->precio);
+                $total += floatval($oac->precio ?? 0); // si existe columna precio
             }
 
-            // Tutores académicos
+            // Registrar tutores académicos
             if (!empty($item['tutores_academicos']) && is_array($item['tutores_academicos'])) {
                 foreach ($item['tutores_academicos'] as $tutorItem) {
                     $area = AreaModel::where('nombre_area', $tutorItem['nombre_area'])->firstOrFail();
-            
+
                     $tutor = TutorAcademicoModel::firstOrCreate(
                         ['ci' => $tutorItem['tutor']['ci']],
                         $tutorItem['tutor']
                     );
-            
+
                     if (isset($inscripcionesPorArea[$area->id])) {
                         $inscripcionesPorArea[$area->id]->update([
                             'id_tutor_academico' => $tutor->id,
@@ -333,7 +346,7 @@ public function registrarLista(Request $request)
             'status' => 200,
             'message' => 'Lista de inscripciones registrada exitosamente.',
             'codigo_generado' => $ordenPago->codigo_generado,
-          ], 201);
+        ], 201);
 
     } catch (\Exception $e) {
         DB::rollBack();
@@ -343,6 +356,8 @@ public function registrarLista(Request $request)
         ], 500);
     }
 }
+
+
 
     
 public function listarInscritos()
