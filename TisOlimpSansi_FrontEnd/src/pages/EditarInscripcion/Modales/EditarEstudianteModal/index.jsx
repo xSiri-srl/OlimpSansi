@@ -7,7 +7,7 @@ import AreasCompetencia from "./components/AreasCompetencia";
 import TutorLegal from "./components/TutorLegal";
 import TutorAcademico from "./components/TutorAcademico";
 
-const EditarEstudianteModal = ({ estudiante, onClose, onSave, cursoAreaCategoria }) => {
+const EditarEstudianteModal = ({ estudiante, onClose, onSave, cursoAreaCategoria, estudiantes }) => {
   const {
     estudianteData,
     errores,
@@ -19,7 +19,7 @@ const EditarEstudianteModal = ({ estudiante, onClose, onSave, cursoAreaCategoria
     validarFormatoCI,
     validarFormatoTelefono,
     validarCorreo
-  } = useEstudianteForm(estudiante);
+  } = useEstudianteForm(estudiante, estudiantes );
   
   // Si no hay datos, no renderizar nada
   if (!estudianteData) return null;
