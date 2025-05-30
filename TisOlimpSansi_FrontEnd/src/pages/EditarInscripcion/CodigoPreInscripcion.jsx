@@ -660,6 +660,7 @@ const handleCloseModal2 = () => {
             onClose={handleCloseModal}
             onSave={handleSaveEdit}
             cursoAreaCategoria={cursoAreaCategoria}
+            estudiantes={estudiantes}
         />
       )}
 
