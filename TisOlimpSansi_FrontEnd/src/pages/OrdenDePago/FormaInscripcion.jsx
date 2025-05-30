@@ -40,7 +40,7 @@ export default function FormularioEstudiante() {
     inicio.setHours(0, 0, 0, 0);
     fin.setHours(23, 59, 59, 999);
     
-    return ahora >= inicio && ahora <= fin;
+    return ahora > inicio && ahora <= fin;
   };
 
   // Manejador modificado para la selección de olimpiada
@@ -60,8 +60,8 @@ export default function FormularioEstudiante() {
         } else {
           // Fuera de periodo, mostramos el modal
           setOlimpiadaSeleccionadaInfo({
-            fechaIni: olimpiadaInfo.fecha_ini,
-            fechaFin: olimpiadaInfo.fecha_fin
+            fechaIni: olimpiadaInfo.fecha_ini + "T00:00:00",
+            fechaFin: olimpiadaInfo.fecha_fin + "T00:00:00"
           });
           setShowPeriodoModal(true);
           // No seleccionamos la olimpiada
