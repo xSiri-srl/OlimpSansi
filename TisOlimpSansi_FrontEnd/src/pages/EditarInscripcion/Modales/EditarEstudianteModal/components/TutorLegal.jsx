@@ -6,7 +6,7 @@ const TutorLegal = ({
   handleChange,
   tieneError,
   errores,
-  validarFormatoTelefono
+  validarFormatoTelefono,
 }) => {
   return (
     <div className="space-y-4">

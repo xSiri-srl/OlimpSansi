@@ -7,7 +7,7 @@ import AreasCompetencia from "./components/AreasCompetencia";
 import TutorLegal from "./components/TutorLegal";
 import TutorAcademico from "./components/TutorAcademico";
 
-const EditarEstudianteModal = ({ estudiante, onClose, onSave }) => {
+const EditarEstudianteModal = ({ estudiante, onClose, onSave, cursoAreaCategoria }) => {
   const {
     estudianteData,
     errores,
@@ -17,11 +17,13 @@ const EditarEstudianteModal = ({ estudiante, onClose, onSave }) => {
     mostrarCampo,
     campoEditable,
     validarFormatoCI,
-    validarFormatoTelefono
+    validarFormatoTelefono,
+    validarCorreo
   } = useEstudianteForm(estudiante);
   
   // Si no hay datos, no renderizar nada
   if (!estudianteData) return null;
+  console.log(cursoAreaCategoria);
 
   // Obtener las áreas actuales
   const areasActuales = estudianteData.areas_competencia || [];
@@ -32,6 +34,13 @@ const EditarEstudianteModal = ({ estudiante, onClose, onSave }) => {
       onSave(estudianteData);
     }
   };
+
+  const areasCategorias = () => {
+    const grado = estudianteData?.colegio?.curso;
+    const datosPorGrado = cursoAreaCategoria[grado];
+    const areasYcategorias = datosPorGrado?.areas || {};
+    return areasYcategorias;
+  }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto">
@@ -54,6 +63,7 @@ const EditarEstudianteModal = ({ estudiante, onClose, onSave }) => {
               estudianteData={estudianteData}
               handleChange={handleChange}
               tieneError={tieneError}
+              errores={errores}
             />
             
             {/* Solo mostrar si hay campos visibles en esta sección */}
@@ -73,6 +83,7 @@ const EditarEstudianteModal = ({ estudiante, onClose, onSave }) => {
                 tieneError={tieneError}
                 campoEditable={campoEditable}
                 errores={errores}
+                areasPorGrado={areasCategorias()}
               />
             
             {/* Tutor legal - solo en modo todos */}
@@ -93,6 +104,7 @@ const EditarEstudianteModal = ({ estudiante, onClose, onSave }) => {
               tieneError={tieneError}
               errores={errores}
               validarFormatoCI={validarFormatoCI}
+              validarCorreo={validarCorreo}
             />
           </div>
         </div>
