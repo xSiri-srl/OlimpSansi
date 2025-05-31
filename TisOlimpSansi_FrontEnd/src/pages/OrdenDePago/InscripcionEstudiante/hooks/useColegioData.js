@@ -18,8 +18,8 @@ export default function useColegioData(formData, handleInputChange) {
 
   // Cargar datos de colegios al iniciar
   useEffect(() => {
-    await
-      axios.post(`${API_URL}/colegios/filtro`, {})
+    axios
+      .post(`${API_URL}/colegios/filtro`, {})
       .then((res) => {
         setColegiosData(res.data);
         const departamentosUnicos = [

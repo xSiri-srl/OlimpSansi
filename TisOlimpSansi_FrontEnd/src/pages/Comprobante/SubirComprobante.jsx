@@ -170,8 +170,8 @@ const SubirComprobante = () => {
     setError(null);
 
     try {
-      const response = await api.post(
-        `/api/verificar-codigo-generado`,
+      const response = await axios.post(
+        `${API_URL}/api/verificar-codigo-generado`,
         {
           codigo_generado: codigoGenerado,
         }
@@ -213,8 +213,8 @@ const SubirComprobante = () => {
 
 
     try {
-      const response = await api.post(
-        `/api/procesar-comprobanteOCR`,
+      const response = await axios.post(
+        `${API_URL}/api/procesar-comprobanteOCR`,
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },

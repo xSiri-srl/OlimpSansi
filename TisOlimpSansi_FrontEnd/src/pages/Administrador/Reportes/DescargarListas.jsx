@@ -5,7 +5,8 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { useNavigate } from "react-router-dom";
 import { HiArrowCircleRight } from "react-icons/hi";
-import api from "../../../utils/api";
+import api, { API_URL } from "../../../utils/api";
+import axios from "axios";
 
 const datos = {
   ASTRONOMIA_ASTROFISICA: [
@@ -91,7 +92,7 @@ function DescargarListas() {
   ];
 
   useEffect(() => {
-    api.get("/lista-inscritos").then((response) => {
+    axios.get(`${API_URL}/lista-inscritos`).then((response) => {
       setInscritos(response.data);
     });
   }, []);
