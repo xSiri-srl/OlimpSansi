@@ -29,9 +29,9 @@ class CategoriaGradoController extends Controller
         ], 201);
     }
 
-    public function obtenerCategoriasPorGrado()
+    public function obtenerCategoriasPorGrado(Request $request)
     {
-        $olimpiadaId = 1;
+        $olimpiadaId = $request->id_olimpiada;
 
         $datos = olimpiada_area_categoria::with([
             'area',
