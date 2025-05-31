@@ -1,33 +1,28 @@
 import React from "react";
-import { FaExclamationCircle, FaTimes } from "react-icons/fa";
+import { FaExclamationTriangle } from "react-icons/fa";
 
 const RegistrosInvalidosModal = ({ mensaje, onClose }) => {
+  const mensajeTexto =
+    typeof mensaje === "string"
+      ? mensaje
+      : mensaje?.mensaje || "Ocurrió un error inesperado.";
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-xl">
-        <div className="flex justify-between items-center mb-4">
-          <div className="flex items-center">
-            <FaExclamationCircle className="text-red-500 text-2xl mr-2" />
-            <h3 className="text-xl font-semibold text-red-500">Error</h3>
-          </div>
-          <button 
-            onClick={onClose} 
-            className="text-gray-500 hover:text-gray-700"
-          >
-            <FaTimes className="text-xl" />
-          </button>
+    <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex items-center justify-center">
+      <div className="bg-white p-6 rounded-lg shadow-2xl max-w-lg w-full">
+        <div className="flex items-center mb-4 text-red-600">
+          <FaExclamationTriangle className="text-3xl mr-2" />
+          <h2 className="text-xl font-bold">Error</h2>
         </div>
-        
-        <div className="mb-6">
-          <p className="text-gray-700">{mensaje}</p>
-        </div>
-        
-        <div className="flex justify-end">
+
+        <p className="text-gray-800 whitespace-pre-wrap">{mensajeTexto}</p>
+
+        <div className="mt-6 text-right">
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
           >
-            Entendido
+            Cerrar
           </button>
         </div>
       </div>

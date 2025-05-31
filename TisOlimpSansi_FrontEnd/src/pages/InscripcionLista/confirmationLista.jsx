@@ -183,24 +183,28 @@ const ConfirmationLista = ({ setStep }) => {
       clearInterval(progressInterval);
       setShowProgressBar(false);
 
-      // Mostrar mensaje de error más detallado si está disponible
-      let errorMsg = `Hubo un error al enviar la lista: ${error.message}`;
-      if (
-        error.response &&
-        error.response.data &&
-        error.response.data.message
-      ) {
-        errorMsg += ` - ${error.response.data.message}`;
+      let rawMessage = error.response?.data?.message || error.message || "";
+      let mensajeFinal = rawMessage;
+
+      if (rawMessage.includes("Areas/categorias válidas:")) {
+        const [mensajeBase, combinacionesRaw] = rawMessage.split("Combinaciones válidas:");
+        const combinaciones = combinacionesRaw
+          .split("-")
+          .map((item) => item.trim())
+          .filter((item) => item.length > 0);
+
+        mensajeFinal = `${mensajeBase.trim()}\n\nCombinaciones válidas:\n${combinaciones
+          .map((c) => `• ${c}`)
+          .join("\n")}`;
       }
 
-      setErrorMessage(errorMsg + ". Intenta nuevamente.");
+      // ✅ Pasar el string completo como mensaje plano
+      setErrorMessage(mensajeFinal);
       setShowErrorModal(true);
 
       setSubmitStatus({
         success: false,
-        message:
-          error.response?.data?.error ||
-          "Error al registrar los datos o generar PDF.",
+        message: mensajeFinal,
       });
     } finally {
       setIsSubmitting(false);
