@@ -92,6 +92,7 @@ const TutorAcademico = ({
             handleChange(`tutor_academico_${areaIndex}`, 'correo', e.target.value);
           }}
           disabled={estudianteData.tutores_academicos?.[0]?.tutor?.ci == ""}
+          maxLength={30}
         />
         {tieneError(`tutor_academico_${areaIndex}_correo`) && (
           <p className="text-red-500 text-xs mt-1">{errores[`tutor_academico_${areaIndex}_correo`]}</p>

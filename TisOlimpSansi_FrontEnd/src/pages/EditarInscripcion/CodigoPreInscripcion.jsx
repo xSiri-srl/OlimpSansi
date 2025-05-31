@@ -371,6 +371,7 @@ const handleCloseModal2 = () => {
             }}
             className="w-full p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             placeholder="Ingrese el código"
+            maxLength={30}
           />
           {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
           <div className="flex justify-center mt-6">
