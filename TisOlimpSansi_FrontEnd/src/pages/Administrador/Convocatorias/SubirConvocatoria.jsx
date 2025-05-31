@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FaCheckCircle } from "react-icons/fa";
 import { SiGoogledocs } from "react-icons/si";
+import api from "../../../utils/api";
 
 const SubirConvocatoria = () => {
   const [titulo, setTitulo] = useState("");
@@ -18,7 +19,7 @@ const SubirConvocatoria = () => {
   useEffect(() => {
     const fetchAreas = async () => {
       try {
-        const res = await axios.get("http://localhost:8000/api/areas");
+        const res = await api.get("/api/areas");
         if (res.data && Array.isArray(res.data.data)) {
           setAreas(res.data.data);
         } else {
@@ -64,7 +65,7 @@ const SubirConvocatoria = () => {
 
   const existeConvocatoria = async (id_area) => {
     try {
-      const res = await axios.get(`http://localhost:8000/api/convocatoriaPorArea/${id_area}`);
+      const res = await api.get(`/api/convocatoriaPorArea/${id_area}`);
       return {
         existe: res.data?.existe || false,
         data: res.data?.data || null,
@@ -104,8 +105,8 @@ const SubirConvocatoria = () => {
             formData.append("documento_pdf", documento);
           }
   
-          await axios.post(
-            `http://localhost:8000/api/actualizarConvocatoria/${idConvocatoria}`,
+          await api.post(
+            `/api/actualizarConvocatoria/${idConvocatoria}`,
             formData,
             {
               headers: {
@@ -132,8 +133,8 @@ const SubirConvocatoria = () => {
     formData.append("documento_pdf", documento);
 
     try {
-      await axios.post(
-        "http://localhost:8000/api/agregarConvocatoria",
+      await api.post(
+        "/api/agregarConvocatoria",
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },

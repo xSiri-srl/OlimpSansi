@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import { useFormData } from "./form-context";
 import ExitoModal from "./Modales/ExitoModal";
 import ErrorModal from "./Modales/RegistrosInvalidosModal";
@@ -11,6 +10,7 @@ import {
   FaTimesCircle,
   FaExclamationTriangle,
 } from "react-icons/fa";
+import api from "../../utils/api";
 
 const ConfirmationLista = ({ setStep }) => {
   const { globalData, setGlobalData } = useFormData();
@@ -149,8 +149,8 @@ const ConfirmationLista = ({ setStep }) => {
 
     try {
       console.log(datosPreparados);
-      const response = await axios.post(
-        "http://localhost:8000/api/inscribir-lista",
+      const response = await api.post(
+        "/api/inscribir-lista",
         datosPreparados
       );
 

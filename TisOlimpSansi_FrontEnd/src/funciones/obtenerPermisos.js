@@ -1,7 +1,7 @@
-import axios from 'axios';
+import api from '../utils/api';
 const obtenerPermisos = async () => {
   try {
-    const response = await axios.get('http://localhost:8000/permisos', {
+    const response = await api.get('/permisos', {
       withCredentials: true
     });
     console.log('Permisos del usuario:', response.data.permisos);

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { SiGoogledocs } from "react-icons/si";
+import api from "../../../utils/api";
 
 const EditarConvocatoria = () => {
   const { id } = useParams();
@@ -27,7 +28,7 @@ const EditarConvocatoria = () => {
   useEffect(() => {
     const fetchAreas = async () => {
       try {
-        const response = await axios.get("http://localhost:8000/api/areas");
+        const response = await api.get("/api/areas");
         setAreas(response.data?.data);
       } catch (error) {
         console.error("Error al obtener áreas:", error);
@@ -41,7 +42,7 @@ const EditarConvocatoria = () => {
   useEffect(() => {
     const fetchConvocatoria = async () => {
       try {
-        const response = await axios.get(`http://localhost:8000/api/convocatoria/${id}`);
+        const response = await api.get(`/api/convocatoria/${id}`);
         const data = response.data;
         setTitulo(data.titulo);
         setArea(data.id_area);
@@ -82,7 +83,7 @@ const EditarConvocatoria = () => {
     }
 
     try {
-      await axios.post(`http://localhost:8000/api/actualizarConvocatoria/${id}`, formData, {
+      await api.post(`/api/actualizarConvocatoria/${id}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
