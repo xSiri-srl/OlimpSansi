@@ -91,6 +91,7 @@ const TutorLegal = ({
           className={`mt-1 p-2 w-full border rounded-md ${tieneError('tutor_legal_correo') ? 'border-red-500' : ''}`}
           value={estudianteData.tutor_legal?.correo || ''}
           onChange={(e) => handleChange('tutor_legal', 'correo', e.target.value)}
+          maxLength={30}
         />
         {tieneError('tutor_legal_correo') && <p className="text-red-500 text-xs mt-1">{errores.tutor_legal_correo}</p>}
       </div>
