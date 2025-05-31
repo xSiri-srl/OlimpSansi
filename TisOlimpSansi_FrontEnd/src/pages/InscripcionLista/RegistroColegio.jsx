@@ -7,7 +7,7 @@ import {
   FaTimesCircle,
 } from "react-icons/fa";
 import { useFormData } from "./form-context";
-import axios from "axios";
+import api from "../../utils/api";
 
 function RegistroColegio({ setStep }) {
   const [formData, setFormData] = useState({
@@ -53,8 +53,8 @@ function RegistroColegio({ setStep }) {
   }, []);
 
   useEffect(() => {
-    axios
-      .post("http://localhost:8000/api/colegios/filtro", {})
+    api
+      .post("/colegios/filtro", {})
       .then((res) => {
         setColegiosData(res.data);
         const departamentosUnicos = [

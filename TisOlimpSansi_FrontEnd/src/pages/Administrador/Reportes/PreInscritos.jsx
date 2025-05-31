@@ -5,9 +5,9 @@ import jsPDF from "jspdf"
 import autoTable from "jspdf-autotable"
 import * as XLSX from "xlsx"
 import { saveAs } from "file-saver"
-import axios from "axios"
 import { useNavigate } from "react-router-dom"
 import { HiArrowCircleRight } from "react-icons/hi"
+import api from "../../../utils/api"
 
 function DescargarListas() {
   const [busqueda, setBusqueda] = useState("")
@@ -22,7 +22,7 @@ function DescargarListas() {
   const [contadorNumeracion, setContadorNumeracion] = useState(1)
 
   useEffect(() => {
-    axios.get("http://localhost:8000/api/estudiantes/pre-inscritos").then((response) => {
+    api.get("/estudiantes/pre-inscritos").then((response) => {
       setInscritos(response.data.estudiantes_no_pagados)
       console.log("Inscritos:", response.data.estudiantes_no_pagados)
     })

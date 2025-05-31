@@ -5,9 +5,9 @@ import jsPDF from "jspdf"
 import autoTable from "jspdf-autotable"
 import * as XLSX from "xlsx"
 import { saveAs } from "file-saver"
-import axios from "axios"
 import { useNavigate } from "react-router-dom"
 import { HiArrowCircleRight } from "react-icons/hi"
+import api from "../../../utils/api"
 
 function InscritosVerificados() {
   const [busqueda, setBusqueda] = useState("")
@@ -22,8 +22,8 @@ function InscritosVerificados() {
   const [contadorNumeracion, setContadorNumeracion] = useState(1)
 
   useEffect(() => {
-    axios
-      .get("http://localhost:8000/api/estudiantes/inscritos") // AQUI PONER LA LLAMADA
+    api
+      .get("/estudiantes/inscritos") // AQUI PONER LA LLAMADA
       .then((response) => {
         setInscritos(response.data.estudiantes_que_pagaron) // CAMBIAR
         console.log("Inscritos:", response.data.estudiantes_que_pagaron) // CAMBIAR

@@ -3,9 +3,9 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { HiArrowCircleRight } from "react-icons/hi";
+import api from "../../../utils/api";
 
 const datos = {
   ASTRONOMIA_ASTROFISICA: [
@@ -91,7 +91,7 @@ function DescargarListas() {
   ];
 
   useEffect(() => {
-    axios.get("http://localhost:8000/api/lista-inscritos").then((response) => {
+    api.get("/lista-inscritos").then((response) => {
       setInscritos(response.data);
     });
   }, []);

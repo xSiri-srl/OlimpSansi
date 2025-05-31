@@ -8,7 +8,7 @@ import {
   HiOutlinePlusCircle,
 } from "react-icons/hi2";
 import { motion } from "framer-motion";
-import axios from "axios";
+import api from "../../../utils/api";
 
 const ConvocatoriasPublicadas = () => {
   const [convocatorias, setConvocatorias] = useState([]);
@@ -21,7 +21,7 @@ const ConvocatoriasPublicadas = () => {
   useEffect(() => {
     const fetchConvocatorias = async () => {
       try {
-        const response = await axios.get("http://localhost:8000/api/convocatorias");
+        const response = await api.get("/api/convocatorias");
         setConvocatorias(response.data);
       } catch (error) {
         console.error("Error al obtener convocatorias", error);
@@ -33,7 +33,7 @@ const ConvocatoriasPublicadas = () => {
 
   const handleDelete = async () => {
     try {
-      await axios.delete(`http://localhost:8000/api/eliminarConvocatoria/${selectedConvocatoriaId}`);
+      await api.delete(`/api/eliminarConvocatoria/${selectedConvocatoriaId}`);
       setConvocatorias((prev) => prev.filter((c) => c.id !== selectedConvocatoriaId));
       setShowDeleteModal(false);
       setShowSuccessModal(true);

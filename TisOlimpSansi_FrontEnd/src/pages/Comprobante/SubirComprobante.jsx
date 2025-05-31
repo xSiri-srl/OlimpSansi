@@ -2,6 +2,7 @@ import { useState,useEffect, useReducer } from "react";
 import { FaCloudUploadAlt } from "react-icons/fa";
 import axios from "axios";
 import ImageCropper from "./ImageCropper";
+import api from "../../utils/api";
 
 
 const SubirComprobante = () => {
@@ -35,11 +36,6 @@ const SubirComprobante = () => {
       localStorage.setItem("codigoGenerado", codigoGenerado);
     }
   }, [codigoGenerado]);
-
-
-  const endpoint = "http://127.0.0.1:8000/api";
-
-
   const handleFinalizar = () => {
     let valid = true;
   
@@ -174,8 +170,8 @@ const SubirComprobante = () => {
     setError(null);
 
     try {
-      const response = await axios.post(
-        `${endpoint}/verificar-codigo-generado`,
+      const response = await api.post(
+        `/api/verificar-codigo-generado`,
         {
           codigo_generado: codigoGenerado,
         }
@@ -217,8 +213,8 @@ const SubirComprobante = () => {
 
 
     try {
-      const response = await axios.post(
-        `${endpoint}/procesar-comprobanteOCR`,
+      const response = await api.post(
+        `/api/procesar-comprobanteOCR`,
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -267,8 +263,8 @@ const SubirComprobante = () => {
     }
 
     try {
-      const response = await axios.post(
-        `${endpoint}/guardar-comprobante`,
+      const response = await api.post(
+        `/api/guardar-comprobante`,
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
