@@ -14,7 +14,7 @@ class CategoriaModel extends Model
     protected $table = 'categoria';
     protected $fillable = [
         'nombre_categoria',
-        'id_area',
+        //'id_area',
     ];
 
     public function olimpiadaAreaCategoria(){
@@ -31,6 +31,14 @@ class CategoriaModel extends Model
             'categoria_grado',
             'id_categoria',
             'id_grado'
+        );
+    }
+        public function areas(){
+        return $this->belongsToMany(
+            AreaModel::class,
+            'olimpiada_area_categorias',
+            'id_categoria',
+            'id_area'
         );
     }
 }

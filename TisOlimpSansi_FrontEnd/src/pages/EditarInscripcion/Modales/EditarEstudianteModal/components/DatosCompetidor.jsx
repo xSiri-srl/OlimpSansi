@@ -5,6 +5,7 @@ const DatosCompetidor = ({
   estudianteData, 
   handleChange, 
   tieneError,
+  errores
 }) => {
   return (
     <div className="space-y-4">
@@ -82,6 +83,9 @@ const DatosCompetidor = ({
             value={estudianteData.estudiante?.correo || ''}
             onChange={(e) => handleChange('estudiante', 'correo', e.target.value)}
           />
+          {tieneError('correo') && (
+            <p className="text-red-500 text-xs mt-1">{errores.correo}</p>
+          )}
         </div>
       
         <div>

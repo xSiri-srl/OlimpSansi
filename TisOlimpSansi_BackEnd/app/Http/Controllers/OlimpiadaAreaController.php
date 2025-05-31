@@ -125,6 +125,7 @@ public function getAreasPorOlimpiada($id)
     }
 }
 
+
 public function asociarAreas(Request $request)
 {
     $request->validate([
@@ -150,7 +151,7 @@ public function asociarAreas(Request $request)
         // Eliminar asociaciones existentes
         DB::table('olimpiada_area_categorias')->where('id_olimpiada', $idOlimpiada)->delete();
 
-// Guardar nuevas asociaciones
+        // Guardar nuevas asociaciones
         foreach ($areas as $area) {
             // Solo guardar áreas habilitadas
             if (isset($area['habilitado']) && $area['habilitado']) {
@@ -167,10 +168,9 @@ public function asociarAreas(Request $request)
                 // Si tiene niveles o rangos específicos, guardarlos
                 if (isset($area['niveles']) && is_array($area['niveles'])) {
                     foreach ($area['niveles'] as $nivel) {
-                        // Buscar o crear la categoría
+                        // Buscar o crear la categoría (sin id_area que ya no existe)
                         $categoria = CategoriaModel::firstOrCreate(
-                            ['nombre_categoria' => $nivel['nivel']],
-                            ['id_area' => $areaModel->id]
+                            ['nombre_categoria' => $nivel['nivel']]
                         );
                         
                         // Asociar grados a la categoría
@@ -200,7 +200,7 @@ public function asociarAreas(Request $request)
                             ? $costosExistentes[$costoClave][0] 
                             : 0;
                         
-                        // Crear la relación en la tabla
+                        // Crear la relación en la tabla olimpiada_area_categorias
                         DB::table('olimpiada_area_categorias')->insert([
                             'id_olimpiada' => $idOlimpiada,
                             'id_area' => $areaModel->id,
@@ -211,11 +211,10 @@ public function asociarAreas(Request $request)
                         ]);
                     }
                 } else if (isset($area['rangos']) && is_array($area['rangos'])) {
-                    // Similar implementación para rangos
                     foreach ($area['rangos'] as $rango) {
+                        // Buscar o crear la categoría (sin id_area que ya no existe)
                         $categoria = CategoriaModel::firstOrCreate(
-                            ['nombre_categoria' => $rango['nivel']],
-                            ['id_area' => $areaModel->id]
+                            ['nombre_categoria' => $rango['nivel']]
                         );
                         
                         // Asociar grados a la categoría
