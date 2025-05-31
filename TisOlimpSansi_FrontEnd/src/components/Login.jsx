@@ -4,6 +4,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import { motion } from "framer-motion";
 import obtenerUsuario from "../funciones/obtenerUser";
+import api from "../utils/api";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -15,11 +16,6 @@ const Login = () => {
   const [registerError, setRegisterError] = useState("");
   const [rolBasico] = useState(1);
   const navigate = useNavigate();
-
-  const endpoint = "http://localhost:8000";
-
-
-
   const [auth, setAuth] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -37,11 +33,11 @@ const Login = () => {
 
 
   const loginUser = async (username, password) => {
-    await axios.get(`${endpoint}/sanctum/csrf-cookie`, { withCredentials: true });
+    await api.get(`/sanctum/csrf-cookie`, { withCredentials: true });
     const csrf = Cookies.get("XSRF-TOKEN");
     axios.defaults.headers.common["X-XSRF-TOKEN"] = csrf;
-    const response = await axios.post(
-      `${endpoint}/login`,
+    const response = await api.post(
+      `/login`,
       { email: username, password },
       { withCredentials: true }
     );
@@ -49,11 +45,11 @@ const Login = () => {
   };
 
   const registerUser = async (username, password, rol) => {
-    await axios.get(`${endpoint}/sanctum/csrf-cookie`, { withCredentials: true });
+    await api.get(`/sanctum/csrf-cookie`, { withCredentials: true });
     const csrf = Cookies.get("XSRF-TOKEN");
     axios.defaults.headers.common["X-XSRF-TOKEN"] = csrf;
-    const response = await axios.post(
-      `${endpoint}/registro`,
+    const response = await api.post(
+      `/registro`,
       {
         name: username,
         email: username,

@@ -18,6 +18,7 @@ import {
 } from "react-icons/fa";
 import EditarEstudianteModal from "./Modales/EditarEstudianteModal";
 import ModalPeriodo from "./Modales/ModalPeriodo";
+import api from "../../utils/api";
 
 
 const CodigoPreInscripcion = () => {
@@ -80,7 +81,7 @@ const CodigoPreInscripcion = () => {
 
     try {
       // Paso 1: Verificar si ya se generó una orden de pago
-      const ordenPagoResponse = await axios.get(`${endpoint}/orden-pago-existe/${codigoPreInscripcion}`);
+      const ordenPagoResponse = await api.get(`/api/orden-pago-existe/${codigoPreInscripcion}`);
       if (ordenPagoResponse.data?.existe) {
         setError("Ya se generó una orden de pago. Solo se puede editar la inscripción antes de generarla.");
         setLoading(false);
@@ -99,7 +100,7 @@ const CodigoPreInscripcion = () => {
 
     try {
       // Paso 2: Buscar preinscripciones si no hay orden generada
-      const response = await axios.get(`${endpoint}/preinscritos-por-codigo`, {
+      const response = await api.get(`/api/preinscritos-por-codigo`, {
         params: { codigo: codigoPreInscripcion },
       });
       setResumen(response.data);
@@ -115,7 +116,7 @@ const CodigoPreInscripcion = () => {
 
         try {
           // Obtener datos completos de la olimpiada
-          const olimpiadaResponse = await axios.get(`${endpoint}/olimpiada/${idOlimpiada}`);
+          const olimpiadaResponse = await api.get(`/api/olimpiada/${idOlimpiada}`);
           const olimpiada = olimpiadaResponse.data;
 
           const fechaIni = olimpiada.fecha_ini + "T00:00:00";
@@ -131,7 +132,7 @@ const CodigoPreInscripcion = () => {
 
           // Si está en período, cargar áreas/categorías
           try {
-            const response = await axios.get(`${endpoint}/cursoAreaCategoriaPorOlimpiada?id=${idOlimpiada}`);
+            const response = await api.get(`/api/cursoAreaCategoriaPorOlimpiada?id=${idOlimpiada}`);
             setCursoAreaCategoria(response.data);
           } catch (err2) {
             console.error("Error al obtener las áreas y categorías:", err2);
@@ -153,7 +154,7 @@ const CodigoPreInscripcion = () => {
 
       if (estudiantesLista?.length > 0 && estudiantesLista[0].id_olimpiada) {
         try {
-          const response = await axios.get(`${endpoint}/cursoAreaCategoriaPorOlimpiada?id=${estudiantesLista[0].id_olimpiada}`);
+          const response = await api.get(`/api/cursoAreaCategoriaPorOlimpiada?id=${estudiantesLista[0].id_olimpiada}`);
           setCursoAreaCategoria(response.data);
         } catch (err2) {
           console.error("Error al obtener las áreas y categorías:", err2);
@@ -330,7 +331,7 @@ const handleCloseModal2 = () => {
         estudiantes: estudiantes
       };
       console.log("ENVIANDO",datosParaEnviar)
-      const response = await axios.post(`${endpoint}/editarLista`, datosParaEnviar);
+      const response = await api.post(`/api/editarLista`, datosParaEnviar);
 
       if (response.data.success || response.status === 200) {
         // Mostrar mensaje de éxito

@@ -5,6 +5,7 @@ import HeaderSelector from "./AreasCompetencia/HeaderSelector";
 import AreaCompetencia from "./AreasCompetencia/AreaCompetencia";
 import AccionesFooter from "./AreasCompetencia/AccionesFooter";
 import { gradosDisponibles } from "./AreasCompetencia/constants";
+import api from "../../../utils/api";
 
 const SelectorAreaGrado = () => {
   const [olimpiadas, setOlimpiadas] = useState([]);
@@ -60,7 +61,7 @@ const SelectorAreaGrado = () => {
   useEffect(() => {
     const cargarGrados = async () => {
       try {
-        const response = await axios.get('http://localhost:8000/grados', {
+        const response = await api.get('/grados', {
           withCredentials: true
         });
         
@@ -83,7 +84,7 @@ const SelectorAreaGrado = () => {
       
       try {
         // Obtener CSRF token para autenticación
-        await axios.get('http://localhost:8000/sanctum/csrf-cookie', {
+        await api.get('/sanctum/csrf-cookie', {
           withCredentials: true,
         });
         
@@ -100,7 +101,7 @@ const SelectorAreaGrado = () => {
         };
         
         // Usar la ruta correcta según web.php (protegida por middleware)
-        const response = await axios.get('http://localhost:8000/getOlimpiadas', config);
+        const response = await api.get('/getOlimpiadas', config);
         
         if (response.status === 200) {
           if (response.data && response.data.data && Array.isArray(response.data.data)) {
@@ -164,7 +165,7 @@ const SelectorAreaGrado = () => {
     
     try {
       // Obtener CSRF token para autenticación
-      await axios.get('http://localhost:8000/sanctum/csrf-cookie', {
+      await api.get('/sanctum/csrf-cookie', {
         withCredentials: true,
       });
       
@@ -180,7 +181,7 @@ const SelectorAreaGrado = () => {
         withCredentials: true
       };
       
-      const response = await axios.get(`http://localhost:8000/areas-olimpiada/${idOlimpiada}`, config);
+      const response = await api.get(`/areas-olimpiada/${idOlimpiada}`, config);
       
       console.log("Áreas asociadas:", response.data);
       
@@ -295,7 +296,7 @@ const SelectorAreaGrado = () => {
 
     try {
       // Obtener CSRF token para autenticación
-      await axios.get('http://localhost:8000/sanctum/csrf-cookie', {
+      await api.get('/sanctum/csrf-cookie', {
         withCredentials: true,
       });
       
@@ -335,8 +336,8 @@ const SelectorAreaGrado = () => {
       console.log("Guardando configuración:", datosAEnviar);
 
       // Enviar la solicitud al servidor
-      const response = await axios.post(
-        'http://localhost:8000/asociar-areas-olimpiada',
+      const response = await api.post(
+        '/asociar-areas-olimpiada',
         datosAEnviar,
         config
       );

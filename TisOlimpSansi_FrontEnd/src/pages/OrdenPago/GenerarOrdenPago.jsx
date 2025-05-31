@@ -42,7 +42,7 @@ const GenerarOrdenPago = () => {
   // Nueva función para obtener el PDF
   const obtenerPdf = async () => {
     try {
-      const pdfResponse = await api.get(`/orden-pago/${codigoGenerado}`,
+      const pdfResponse = await api.get(`/api/orden-pago/${codigoGenerado}`,
         { responseType: "blob" }
       );
       const pdfBlob = new Blob([pdfResponse.data], { type: "application/pdf" });
@@ -61,13 +61,13 @@ const GenerarOrdenPago = () => {
     setError("");
     try {
       const response = await api.get(
-        `/obtener-orden-pago/${codigoGenerado}`
+        `/api/obtener-orden-pago/${codigoGenerado}`
       );
       if (response.status === 200) {
         await obtenerResumen(codigoGenerado);
         // Verificar si la orden ya está generada
         const existeResponse = await api.get(
-          `/orden-pago-existe/${codigoGenerado}`
+          `/api/orden-pago-existe/${codigoGenerado}`
         );
         setOrdenYaGenerada(existeResponse.data.existe);
         if (existeResponse.data.existe) {
@@ -90,7 +90,7 @@ const GenerarOrdenPago = () => {
   const obtenerResumen = async (codigo) => {
     try {
       const response = await api.get(
-        `/resumen-orden-pago/${codigo}`
+        `/api/resumen-orden-pago/${codigo}`
       );
       setResumen(response.data.resumen);
     } catch (error) {
@@ -107,7 +107,7 @@ const GenerarOrdenPago = () => {
 
     try {
       const response = await api.get(
-        `/orden-pago-existe/${codigoGenerado}`
+        `/api/orden-pago-existe/${codigoGenerado}`
       );
       if (response.data.existe) {
         setOrdenYaGenerada(true);
@@ -117,7 +117,7 @@ const GenerarOrdenPago = () => {
       }
 
       await api.post(
-        `/orden-pago/pdf`,
+        `/api/orden-pago/pdf`,
         { codigo_generado: codigoGenerado },
         { responseType: "blob" }
       );

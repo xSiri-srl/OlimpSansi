@@ -1,5 +1,4 @@
 import { useState} from "react";
-import axios from "axios";
 import ProcesoRegistro from "./ProcesoRegistro";
 import { FaUser, FaIdCard } from "react-icons/fa";
 import InscripcionEstudiante from "./InscripcionEstudiante";
@@ -10,6 +9,7 @@ import Confirmation from "./Confirmation";
 import { FormDataContext, useFormData } from "./form-data-context";
 import { TextField } from "./components/FormComponents";
 import { validateField, validateCI } from "./utils/validationsUtils";
+import api from "../../utils/api";
 
 const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
   const [errors, setErrors] = useState({});
@@ -34,10 +34,10 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
       console.log("Buscando responsable con CI:", ci);
       
       try {
-        const apiUrl = `http://localhost:8000/api/buscarResponsable/${ci}`;
+        const apiUrl = `/api/buscarResponsable/${ci}`;
         console.log("Consultando API en:", apiUrl);
         
-        const response = await axios.get(apiUrl);
+        const response = await api.get(apiUrl);
         console.log("Respuesta recibida:", response.data);
         
         if (response.data.found) {

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import axios from "axios";
+import api from "../../../../utils/api";
 
 export default function useColegioData(formData, handleInputChange) {
   // Estados para manejar datos de colegios
@@ -17,8 +17,8 @@ export default function useColegioData(formData, handleInputChange) {
 
   // Cargar datos de colegios al iniciar
   useEffect(() => {
-    axios
-      .post("http://localhost:8000/api/colegios/filtro", {})
+    api
+      .post("/colegios/filtro", {})
       .then((res) => {
         setColegiosData(res.data);
         const departamentosUnicos = [
