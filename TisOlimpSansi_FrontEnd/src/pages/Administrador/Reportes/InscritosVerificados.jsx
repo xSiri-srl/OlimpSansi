@@ -7,8 +7,8 @@ import * as XLSX from "xlsx"
 import { saveAs } from "file-saver"
 import { useNavigate } from "react-router-dom"
 import { HiArrowCircleRight } from "react-icons/hi"
-import api from "../../../utils/api"
-
+import { API_URL } from "../../../utils/api"
+import axios from 'axios'
 function InscritosVerificados() {
   const [busqueda, setBusqueda] = useState("")
   const [estado, setEstado] = useState("")
@@ -22,8 +22,7 @@ function InscritosVerificados() {
   const [contadorNumeracion, setContadorNumeracion] = useState(1)
 
   useEffect(() => {
-    api
-      .get("/estudiantes/inscritos") // AQUI PONER LA LLAMADA
+      axios.get(`${API_URL}/estudiantes/inscritos`) // AQUI PONER LA LLAMADA
       .then((response) => {
         setInscritos(response.data.estudiantes_que_pagaron) // CAMBIAR
         console.log("Inscritos:", response.data.estudiantes_que_pagaron) // CAMBIAR
