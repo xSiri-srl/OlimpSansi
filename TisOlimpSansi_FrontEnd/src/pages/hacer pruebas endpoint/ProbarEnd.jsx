@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import api from '../../utils/api';
+import { API_URL } from '../../utils/api';
 
 export default function ProbarEnd() {
   const [jsonInput, setJsonInput] = useState('{\n  "email": "poly",\n  "password": "1234"\n}');
@@ -11,15 +11,15 @@ export default function ProbarEnd() {
     try {
       const data = JSON.parse(jsonInput);
 
-      await api.get('/sanctum/csrf-cookie', {
+      await axios.get(`${API_URL}/sanctum/csrf-cookie`, {
         withCredentials: true,
       });
 
       const csrf = Cookies.get('XSRF-TOKEN');
       axios.defaults.headers.common['X-XSRF-TOKEN'] = csrf;
 
-      const response = await api.post(
-        '/olimpiada/max-materias',
+      const response = await axios.post(
+        `${API_URL}/olimpiada/max-materias`,
         data,                      
         { withCredentials: true }  
       );

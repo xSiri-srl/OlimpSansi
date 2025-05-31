@@ -8,7 +8,8 @@ import {
   HiOutlinePlusCircle,
 } from "react-icons/hi2";
 import { motion } from "framer-motion";
-import api from "../../../utils/api";
+import  { API_URL } from "../../../utils/api";
+import axios from "axios";
 
 const ConvocatoriasPublicadas = () => {
   const [convocatorias, setConvocatorias] = useState([]);
@@ -21,7 +22,7 @@ const ConvocatoriasPublicadas = () => {
   useEffect(() => {
     const fetchConvocatorias = async () => {
       try {
-        const response = await api.get("/api/convocatorias");
+        const response = await axios.get(`${API_URL}/api/convocatorias`);
         setConvocatorias(response.data);
       } catch (error) {
         console.error("Error al obtener convocatorias", error);

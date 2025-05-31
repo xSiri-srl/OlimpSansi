@@ -4,7 +4,8 @@ import { Navigate, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import { motion } from "framer-motion";
 import obtenerUsuario from "../funciones/obtenerUser";
-import api from "../utils/api";
+
+import { API_URL } from "../utils/api";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -33,11 +34,11 @@ const Login = () => {
 
 
   const loginUser = async (username, password) => {
-    await api.get(`/sanctum/csrf-cookie`, { withCredentials: true });
+    await axios.get(`http://localhost:8000/sanctum/csrf-cookie`, { withCredentials: true });
     const csrf = Cookies.get("XSRF-TOKEN");
     axios.defaults.headers.common["X-XSRF-TOKEN"] = csrf;
-    const response = await api.post(
-      `/login`,
+    const response = await axios.post(
+      `${API_URL}/login`,
       { email: username, password },
       { withCredentials: true }
     );
@@ -45,11 +46,11 @@ const Login = () => {
   };
 
   const registerUser = async (username, password, rol) => {
-    await api.get(`/sanctum/csrf-cookie`, { withCredentials: true });
+    await axios.get(`http://localhost:8000/sanctum/csrf-cookie`, { withCredentials: true });
     const csrf = Cookies.get("XSRF-TOKEN");
     axios.defaults.headers.common["X-XSRF-TOKEN"] = csrf;
-    const response = await api.post(
-      `/registro`,
+    const response = await axios.post(
+      `http://localhost:8000/registro`,
       {
         name: username,
         email: username,

@@ -1,7 +1,8 @@
 import { useState,useEffect, useReducer } from "react";
 import { FaCloudUploadAlt } from "react-icons/fa";
 import ImageCropper from "./ImageCropper";
-import api from "../../utils/api";
+import api, { API_URL } from "../../utils/api";
+import axios from "axios";
 
 
 const SubirComprobante = () => {
@@ -262,8 +263,8 @@ const SubirComprobante = () => {
     }
 
     try {
-      const response = await api.post(
-        `/api/guardar-comprobante`,
+      const response = await axios.post(
+        `${API_URL}/api/guardar-comprobante`,
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },

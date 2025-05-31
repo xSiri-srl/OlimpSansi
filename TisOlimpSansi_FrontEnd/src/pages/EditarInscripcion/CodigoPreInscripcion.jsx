@@ -18,7 +18,7 @@ import {
 } from "react-icons/fa";
 import EditarEstudianteModal from "./Modales/EditarEstudianteModal";
 import ModalPeriodo from "./Modales/ModalPeriodo";
-import api from "../../utils/api";
+import api, { API_URL } from "../../utils/api";
 
 
 const CodigoPreInscripcion = () => {
@@ -116,7 +116,7 @@ const CodigoPreInscripcion = () => {
 
         try {
           // Obtener datos completos de la olimpiada
-          const olimpiadaResponse = await api.get(`/api/olimpiada/${idOlimpiada}`);
+          const olimpiadaResponse = await axios.get(`${API_URL}/api/olimpiada/${idOlimpiada}`);
           const olimpiada = olimpiadaResponse.data;
 
           const fechaIni = olimpiada.fecha_ini + "T00:00:00";
@@ -132,7 +132,7 @@ const CodigoPreInscripcion = () => {
 
           // Si está en período, cargar áreas/categorías
           try {
-            const response = await api.get(`/api/cursoAreaCategoriaPorOlimpiada?id=${idOlimpiada}`);
+            const response = await axios.get(`${API_URL}/api/cursoAreaCategoriaPorOlimpiada?id=${idOlimpiada}`);
             setCursoAreaCategoria(response.data);
           } catch (err2) {
             console.error("Error al obtener las áreas y categorías:", err2);
@@ -154,7 +154,7 @@ const CodigoPreInscripcion = () => {
 
       if (estudiantesLista?.length > 0 && estudiantesLista[0].id_olimpiada) {
         try {
-          const response = await api.get(`/api/cursoAreaCategoriaPorOlimpiada?id=${estudiantesLista[0].id_olimpiada}`);
+          const response = await axios.get(`${API_URL}/api/cursoAreaCategoriaPorOlimpiada?id=${estudiantesLista[0].id_olimpiada}`);
           setCursoAreaCategoria(response.data);
         } catch (err2) {
           console.error("Error al obtener las áreas y categorías:", err2);
@@ -331,7 +331,7 @@ const handleCloseModal2 = () => {
         estudiantes: estudiantes
       };
       console.log("ENVIANDO",datosParaEnviar)
-      const response = await api.post(`/api/editarLista`, datosParaEnviar);
+      const response = await axios.post(`${API_URL}/api/editarLista`, datosParaEnviar);
 
       if (response.data.success || response.status === 200) {
         // Mostrar mensaje de éxito

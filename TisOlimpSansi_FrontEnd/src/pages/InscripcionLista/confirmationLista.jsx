@@ -10,7 +10,8 @@ import {
   FaTimesCircle,
   FaExclamationTriangle,
 } from "react-icons/fa";
-import api from "../../utils/api";
+import api, { API_URL } from "../../utils/api";
+import axios from "axios";
 
 const ConfirmationLista = ({ setStep }) => {
   const { globalData, setGlobalData } = useFormData();
@@ -149,8 +150,8 @@ const ConfirmationLista = ({ setStep }) => {
 
     try {
       console.log(datosPreparados);
-      const response = await api.post(
-        "/api/inscribir-lista",
+      const response = await axios.post(
+        `${API_URL}/api/inscribir-lista`,
         datosPreparados
       );
 

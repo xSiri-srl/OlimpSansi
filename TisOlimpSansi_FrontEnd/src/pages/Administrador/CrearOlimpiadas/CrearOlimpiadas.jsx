@@ -17,6 +17,7 @@ import {
   FaExclamationTriangle,
 } from "react-icons/fa";
 import api from "../../../utils/api";
+import { API_URL } from "../../../utils/api";
 
 const CrearOlimpiadas = () => {
   const [titulo, setTitulo] = useState("");
@@ -32,7 +33,7 @@ const CrearOlimpiadas = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [olimpiadaCreada, setOlimpiadaCreada] = useState(null);
-  const endpoint = "http://localhost:8000";
+
   const years = Array.from({ length: 2030 - 2025 + 1 }, (_, i) => 2025 + i);
 
 const validarCampos = () => {
@@ -90,7 +91,7 @@ const validarCampos = () => {
     try {
       //--------------------
       //esto solo se utiliza en todo menos get
-      await api.get("/sanctum/csrf-cookie", {
+      await axios.get(`${API_URL}/sanctum/csrf-cookie`, {
         withCredentials: true,
       });
       const csrfToken = Cookies.get("XSRF-TOKEN");
@@ -107,9 +108,9 @@ const validarCampos = () => {
         fecha_fin: fechaFinal,
       };
 
-      const response = await api
+      const response = await axios
       .post(
-        "/agregarOlimpiada",
+        `${API_URL}/agregarOlimpiada`,
         olimpiadaData,
         { withCredentials: true }
       );

@@ -4,7 +4,8 @@ import HeaderSelector from "./AreasCompetencia/HeaderSelector";
 import AreaCompetencia from "./AreasCompetencia/AreaCompetencia";
 import AccionesFooter from "./AreasCompetencia/AccionesFooter";
 import { gradosDisponibles } from "./AreasCompetencia/constants";
-import api from "../../../utils/api";
+import api, { API_URL } from "../../../utils/api";
+import axios from "axios";
 
 const DesasignarAreaNivel = () => {
   const [olimpiadas, setOlimpiadas] = useState([]);
@@ -61,7 +62,7 @@ const DesasignarAreaNivel = () => {
   useEffect(() => {
     const cargarGrados = async () => {
       try {
-        const response = await api.get('/grados', {
+        const response = await axios.get(`${API_URL}/grados`, {
           withCredentials: true
         });
         
@@ -83,7 +84,7 @@ const DesasignarAreaNivel = () => {
       
       try {
         // Obtener CSRF token para autenticación
-        await api.get('/sanctum/csrf-cookie', {
+        await axios.get(`${API_URL}/sanctum/csrf-cookie`, {
           withCredentials: true,
         });
         
@@ -100,7 +101,7 @@ const DesasignarAreaNivel = () => {
         };
         
         // Usar la ruta correcta según web.php (protegida por middleware)
-        const response = await api.get('/getOlimpiadas', config);
+        const response = await axios.get(`${API_URL}/getOlimpiadas`, config);
         
         console.log("Respuesta de olimpiadas:", response);
         
@@ -166,7 +167,7 @@ const DesasignarAreaNivel = () => {
     
     try {
       // Obtener CSRF token para autenticación
-      await api.get('/sanctum/csrf-cookie', {
+      await axios.get(`${API_URL}/sanctum/csrf-cookie`, {
         withCredentials: true,
       });
       
@@ -182,7 +183,7 @@ const DesasignarAreaNivel = () => {
         withCredentials: true
       };
       
-      const response = await api.get(`/areas-olimpiada/${idOlimpiada}`, config);
+      const response = await axios.get(`${API_URL}/areas-olimpiada/${idOlimpiada}`, config);
       
       console.log("Áreas asociadas (respuesta del backend):", response.data);
       
@@ -269,7 +270,7 @@ const DesasignarAreaNivel = () => {
 
     try {
       // Obtener CSRF token para autenticación
-      await api.get('/sanctum/csrf-cookie', {
+      await axios.get(`${API_URL}/sanctum/csrf-cookie`, {
         withCredentials: true,
       });
       
@@ -299,8 +300,8 @@ const DesasignarAreaNivel = () => {
       console.log("Desasociando áreas:", datosAEnviar);
 
       // Enviar la solicitud al servidor
-      const response = await api.post(
-        '/desasociar-areas-olimpiada', 
+      const response = await axios.post(
+        `${API_URL}/desasociar-areas-olimpiada`, 
         datosAEnviar,
         config
       );

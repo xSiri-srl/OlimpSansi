@@ -4,7 +4,8 @@ import { FaUserAlt, FaUsers } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { useFormData } from "./form-data-context";
 import ModalPeriodo from "./modales/ModalPeriodo";
-import api from "../../utils/api";
+import api, { API_URL } from "../../utils/api";
+import axios from "axios";
 
 export default function FormularioEstudiante() {
   const navigate = useNavigate();
@@ -103,7 +104,7 @@ export default function FormularioEstudiante() {
       setErrorCarga("");
       
       try {
-        const response = await api.get("/olimpiadas-publicas");
+        const response = await axios.get(`${API_URL}/olimpiadas-publicas`);
         
         if (response.status === 200) {
           setOlimpiadas(response.data.data || []);

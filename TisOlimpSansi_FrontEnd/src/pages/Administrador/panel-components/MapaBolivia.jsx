@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 
-import api from "../../../utils/api";
+import api, { API_URL } from "../../../utils/api";
+import axios from "axios";
 
 const boliviaGeoFeatures = {
   type: "FeatureCollection",
@@ -107,12 +108,12 @@ const MapaBolivia = ({ darkMode }) => {
       // Seleccionar endpoint según tipo de inscripción
       const endpoint =
         tipoInscripcion === "inscritos"
-          ? "/api/estudiantes/inscritos/bydepartamento"
-          : "/api/estudiantes/preinscritos/bydepartamento";
+          ? `${API_URL}/api/estudiantes/inscritos/bydepartamento`
+          : `${API_URL}/api/estudiantes/preinscritos/bydepartamento`;
 
       // Hacer solicitudes para cada departamento
       const promises = departamentos.map(async (departamento) => {
-        const response = await api.post(`${endpoint}`, {
+        const response = await axios.post(`${endpoint}`, {
           departamento,
         });
 

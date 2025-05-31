@@ -7,7 +7,8 @@ import {
   FaChevronUp,
 } from "react-icons/fa";
 import { useFormData } from "./form-data-context";
-import api from "../../utils/api";
+import { API_URL } from "../../utils/api";
+import axios from "axios";
 
 export default function FormularioTutoresAcademicos({
   formData,
@@ -34,10 +35,10 @@ export default function FormularioTutoresAcademicos({
       }));
 
       try {
-        const apiUrl = `/api/buscarTutor/${ci}`;
+        const apiUrl = `${API_URL}/api/buscarTutor/${ci}`;
         console.log(`Buscando tutor para ${area} con CI: ${ci}`);
 
-        const response = await api.get(apiUrl);
+        const response = await axios.get(apiUrl);
 
         if (response.data.found) {
           const tutor = response.data.tutor;

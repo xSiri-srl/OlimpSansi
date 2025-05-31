@@ -8,6 +8,7 @@ import {
 } from "react-icons/fa";
 import ExitoModal from "./../InscripcionLista/Modales/ExitoModal";
 import api from "../../utils/api";
+import axios from "axios";
 const Confirmation = ({ navigate, handleBack }) => {
   const { globalData } = useFormData();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -55,8 +56,8 @@ const Confirmation = ({ navigate, handleBack }) => {
     }, 100);
 
     try {
-      const response = await api.post(
-        "/api/inscribir",
+      const response = await axios.post(
+        "${API_URL}/api/inscribir",
         globalData
       );
       const codigoGenerado = response.data.codigo_generado;

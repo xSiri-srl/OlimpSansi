@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 
 import { ResponsiveBar } from '@nivo/bar';
 import { FaSpinner } from 'react-icons/fa';
-import api from '../../../utils/api';
+import api, { API_URL } from '../../../utils/api';
+import axios from 'axios';
 
 const GraficoCompararInscripciones = ({ darkMode }) => {
   const [vistaActual, setVistaActual] = useState('area');
@@ -19,10 +20,10 @@ const GraficoCompararInscripciones = ({ darkMode }) => {
         
         // Determinar el endpoint según la vista seleccionada
         const endpoint = vistaActual === 'area' 
-          ? `/api/inscripciones/por-area` 
-          : `/api/inscripciones/por-categoria`;
+          ? `${API_URL}/api/inscripciones/por-area` 
+          : `${API_URL}/api/inscripciones/por-categoria`;
         
-        const response = await api.get(endpoint);
+        const response = await axios.get(endpoint);
         setDatosGrafico(response.data || []);
       } catch (err) {
         console.error("Error al cargar datos:", err);

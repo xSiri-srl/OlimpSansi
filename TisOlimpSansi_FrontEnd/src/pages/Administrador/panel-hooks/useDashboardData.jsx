@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../../../utils/api';
+import axios from 'axios';
 
 const useDashboardData = () => {
   const [chartData, setChartData] = useState([]);
@@ -20,8 +21,8 @@ const useDashboardData = () => {
         setLoading(true);
 
         // Obtener lista de todos los inscritos
-        const inscritosResponse = await api.get(
-          `/api/lista-inscritos`
+        const inscritosResponse = await axios.get(
+          `${API_URL}/api/lista-inscritos`
         );
 
         // Obtener información de todas las órdenes de pago

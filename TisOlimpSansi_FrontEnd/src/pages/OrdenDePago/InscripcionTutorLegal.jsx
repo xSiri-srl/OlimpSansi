@@ -4,6 +4,7 @@ import { useFormData } from "./form-data-context";
 import { TextField, RadioGroupField } from "./components/FormComponents";
 import { useFormValidation } from "./hooks/useFormValidation";
 import api from "../../utils/api";
+import axios from "axios";
 
 export default function InscripcionTutorLegal({
   formData,
@@ -45,10 +46,10 @@ export default function InscripcionTutorLegal({
       console.log("Buscando tutor legal con CI:", ci);
 
       try {
-        const apiUrl = `/api/buscarTutorLegal/${ci}`;
+        const apiUrl = `${API_URL}/api/buscarTutorLegal/${ci}`;
         console.log("Consultando API en:", apiUrl);
 
-        const response = await api.get(apiUrl);
+        const response = await axios.get(apiUrl);
         console.log("Respuesta recibida:", response.data);
 
         if (response.data.found) {

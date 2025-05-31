@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { SiGoogledocs } from "react-icons/si";
-import api from "../../../utils/api";
+import api, { API_URL } from "../../../utils/api";
+import axios from "axios";
 
 const EditarConvocatoria = () => {
   const { id } = useParams();
@@ -27,7 +28,7 @@ const EditarConvocatoria = () => {
   useEffect(() => {
     const fetchAreas = async () => {
       try {
-        const response = await api.get("/api/areas");
+        const response = await axios.get(`${API_URL}/api/areas`);
         setAreas(response.data?.data);
       } catch (error) {
         console.error("Error al obtener áreas:", error);

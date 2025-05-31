@@ -5,7 +5,8 @@ import DatosColegioForm from "./DatosColegioForm";
 import useFormValidation from "./hooks/useFormValidation";
 import useColegioData from "./hooks/useColegioData";
 import { CURSOS } from "./constants";
-import api from "../../../utils/api";
+import  { API_URL } from "../../../utils/api";
+import axios from "axios";
 
 const transformarFormatoCurso = (curso) => {
   if (!curso) return "";
@@ -34,10 +35,10 @@ export default function InscripcionEstudiante({
       console.log("Buscando estudiante con CI:", ci);
 
       try {
-        const apiUrl = `/api/buscarEstudiante/${ci}`;
+        const apiUrl = `${API_URL}/api/buscarEstudiante/${ci}`;
         console.log("Consultando API en:", apiUrl);
 
-        const response = await api.get(apiUrl);
+        const response = await axios.get(apiUrl);
         console.log("Respuesta recibida:", response.data);
 
         if (response.data.found) {

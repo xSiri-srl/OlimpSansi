@@ -9,6 +9,8 @@ import {
   FaExclamationTriangle,
 } from "react-icons/fa";
 import api from "../../utils/api";
+import { API_URL } from "../../utils/api";
+import axios from "axios";
 const GenerarOrdenPago = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -42,7 +44,7 @@ const GenerarOrdenPago = () => {
   // Nueva función para obtener el PDF
   const obtenerPdf = async () => {
     try {
-      const pdfResponse = await api.get(`/api/orden-pago/${codigoGenerado}`,
+      const pdfResponse = await axios.get(`${API_URL}/api/orden-pago/${codigoGenerado}`,
         { responseType: "blob" }
       );
       const pdfBlob = new Blob([pdfResponse.data], { type: "application/pdf" });
@@ -60,14 +62,14 @@ const GenerarOrdenPago = () => {
     setLoading(true);
     setError("");
     try {
-      const response = await api.get(
-        `/api/obtener-orden-pago/${codigoGenerado}`
+      const response = await axios.get(
+        `${API_URL}/api/obtener-orden-pago/${codigoGenerado}`
       );
       if (response.status === 200) {
         await obtenerResumen(codigoGenerado);
         // Verificar si la orden ya está generada
-        const existeResponse = await api.get(
-          `/api/orden-pago-existe/${codigoGenerado}`
+        const existeResponse = await axios.get(
+          `${API_URL}/api/orden-pago-existe/${codigoGenerado}`
         );
         setOrdenYaGenerada(existeResponse.data.existe);
         if (existeResponse.data.existe) {
@@ -89,8 +91,8 @@ const GenerarOrdenPago = () => {
   // Obtener el resumen de la orden
   const obtenerResumen = async (codigo) => {
     try {
-      const response = await api.get(
-        `/api/resumen-orden-pago/${codigo}`
+      const response = await axios.get(
+        `${API_URL}/api/resumen-orden-pago/${codigo}`
       );
       setResumen(response.data.resumen);
     } catch (error) {
@@ -106,8 +108,8 @@ const GenerarOrdenPago = () => {
     setProgreso(0);
 
     try {
-      const response = await api.get(
-        `/api/orden-pago-existe/${codigoGenerado}`
+      const response = await axios.get(
+        `${API_URL}/api/orden-pago-existe/${codigoGenerado}`
       );
       if (response.data.existe) {
         setOrdenYaGenerada(true);
@@ -116,8 +118,8 @@ const GenerarOrdenPago = () => {
         return;
       }
 
-      await api.post(
-        `/api/orden-pago/pdf`,
+      await axios.post(
+        `${API_URL}/api/orden-pago/pdf`,
         { codigo_generado: codigoGenerado },
         { responseType: "blob" }
       );
