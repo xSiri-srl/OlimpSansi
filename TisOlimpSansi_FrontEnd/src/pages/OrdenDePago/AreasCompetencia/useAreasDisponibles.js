@@ -52,8 +52,18 @@ export function useAreasDisponibles(olimpiadaId) {
             categoriasMap[area.area] = area.categorias || [];
           });
           
+          // Guardar primero el mapa y luego imprimir con el mapa obtenido
           setAreasCategorias(categoriasMap);
-
+          
+          // Usar el mapa recién creado directamente en lugar de depender del state
+          console.log("ÁREAS CATEGORÍAS DISPONIBLES:", categoriasMap);
+          for (const area in categoriasMap) {
+            console.log(`Área: ${area}`);
+            if (categoriasMap[area] && Array.isArray(categoriasMap[area])) {
+              console.log(`Categorías: `, categoriasMap[area].map(c => c.nombre).join(", "));
+            }
+          }
+          
           const areasNormalizadas = areas.map(area => ({
             id: area.id,
             original: area.area,
@@ -62,13 +72,14 @@ export function useAreasDisponibles(olimpiadaId) {
           })).filter(area => area.normalizado !== "");
           
           setAreasDisponibles(areasNormalizadas);
-        }  else {
+        } else {
           setAreasDisponibles([]);
           setAreasCategorias({});
         }
       }
       
       setCargaCompleta(true);
+      
     } catch (error) {
       console.error("Error al cargar áreas asociadas:", error);
       setErrorCarga("No se pudieron cargar las áreas de competencia");
@@ -136,6 +147,7 @@ export function useAreasDisponibles(olimpiadaId) {
     
     return false;
   };
+  
 
   return { 
     areasDisponibles, 

@@ -28,6 +28,19 @@ export default function AreasCompetencia({
   
   const olimpiadaId = globalData?.olimpiada?.id;
 
+  const { 
+    cargandoAreas, 
+    errorCarga, 
+    areaEstaDisponible,
+    areasCategorias
+  } = useAreasDisponibles(olimpiadaId);
+
+  // Ahora el useEffect se ubica DESPUÉS de obtener areasCategorias
+  useEffect(() => {
+    if (Object.keys(areasCategorias).length > 0) {
+      console.log("Categorías disponibles por área:", areasCategorias);
+    }
+  }, [areasCategorias]);
 
   useEffect(() => {
     if (olimpiadaId) {
@@ -51,18 +64,11 @@ export default function AreasCompetencia({
     }
   }, [olimpiadaId]);
 
-  const { 
-    cargandoAreas, 
-    errorCarga, 
-    areaEstaDisponible,
-    areasCategorias
-  } = useAreasDisponibles(olimpiadaId);
-
- // const { obtenerCategoriaAutomatica, obtenerCategorias } = useCategoriasHandler(cursoEstudiante);
-   const { obtenerCategoriaAutomatica, obtenerCategorias } = useCategoriasHandler(
+  const { obtenerCategoriaAutomatica, obtenerCategorias } = useCategoriasHandler(
     cursoEstudiante,
     areasCategorias
-  ); 
+  );
+   
   const { manejarSeleccion, handleCategoriaChange } = useAreasSeleccion(
     seleccionadas, 
     categoriasSeleccionadas, 
@@ -71,9 +77,12 @@ export default function AreasCompetencia({
     maxAreas
   );
 
+  // Simplificar la validación para que coincida con la implementación
+  const isFormValid = validarFormulario(seleccionadas, categoriasSeleccionadas);
+
   // Manejo del envío y avance
   const handleSubmitAndNext = () => {
-    if (!validarFormulario(seleccionadas, categoriasSeleccionadas, obtenerCategorias, obtenerCategoriaAutomatica)) {
+    if (!isFormValid) {
       return;
     }
 
@@ -96,14 +105,6 @@ export default function AreasCompetencia({
       console.error("Error al procesar los datos de áreas:", error);
     }
   };
-
-  // Validación para activar/desactivar botón de siguiente
-  const isFormValid = validarFormulario(
-    seleccionadas, 
-    categoriasSeleccionadas, 
-    obtenerCategorias, 
-    obtenerCategoriaAutomatica
-  );
 
   return (
     <div className="grid grid-cols-1 gap-6">
