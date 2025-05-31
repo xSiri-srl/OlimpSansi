@@ -19,12 +19,29 @@ npm run dev
 ## 
 Iniciar BackEnd
 
-1. Redirigirse a la carpeta TisOlimSansi_FrontEND
+1. Redirigirse a la carpeta TisOlimSansi_BackEND
 ```sh
 cd TisOlimpSansi_BackEnd
 ```
-
-2. Hacer correr el servidor FrontEnd
+2. Instalar composer
+```sh
+composer install
+```
+3. Habilitar php key
+```sh
+php artisan key:generate
+```
+4. Copiar y pegar el archivo .env
+   
+⭐ por si te sale el error de sessions
+```sh
+php artisan session:table
+```
+5. Crear la estructura de la base de datos
+```sh
+php artisan migrate
+```
+6. Hacer correr el servidor FrontEnd
 ```sh
 php artisan serve
 ```
@@ -32,4 +49,20 @@ php artisan serve
 F. Formato de migraciones
 ```sh
 php artisan make:migration create_nombre_tabla_table
+```
+
+##
+ ARREGLAR XAMPP MYSQL 3306
+ 
+ 1. Identificar procesos en cmd como administrador
+```sh
+netstat -ano | findstr :3306
+```
+2. Encontrar la lista de tareas por PID [el número del final]
+```sh
+tasklist | findstr [PID]
+```
+3. Matar el proceso cuantas veces aparezca en el comando anterior.
+```sh
+taskkill /F /PID [PID]
 ```
