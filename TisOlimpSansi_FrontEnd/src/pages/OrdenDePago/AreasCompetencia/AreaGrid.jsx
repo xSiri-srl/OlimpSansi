@@ -10,13 +10,27 @@ const AreaGrid = ({
   manejarSeleccion,
   handleCategoriaChange,
   cargandoAreas,
-  maxAreas = 0
+  maxAreas = 0,
+  areasCategorias = {}
 }) => {
   const renderizarArea = (area, index) => {
     const estaSeleccionada = seleccionadas.includes(area.nombre);
-    const categorias = obtenerCategorias(area.nombre);
+    
+    // Obtener categorías del backend para esta área específica
+    let categorias;
+    const nombreArea = area.nombre;
+    
+    // Buscar categorías en areasCategorias (puede estar con o sin acentos)
+    if (areasCategorias[nombreArea]) {
+      categorias = areasCategorias[nombreArea].map(cat => cat.nombre);
+    } else if (areasCategorias[nombreArea.toUpperCase()]) {
+      categorias = areasCategorias[nombreArea.toUpperCase()].map(cat => cat.nombre);
+    } else {
+      // Fallback al método anterior
+      categorias = obtenerCategorias(nombreArea);
+    }
+    
     const categoriaSeleccionada = categoriasSeleccionadas[area.nombre] || "";
-    // Durante la carga, todas las áreas aparecen como no disponibles
     const estaDisponible = !cargandoAreas && maxAreas > 0 && areaEstaDisponible(area.nombre);
 
     return (
@@ -29,7 +43,6 @@ const AreaGrid = ({
         categoriaSeleccionada={categoriaSeleccionada}
         manejarSeleccion={manejarSeleccion}
         handleCategoriaChange={handleCategoriaChange}
-        //cargandoAreas={cargandoAreas}
       />
     );
   };

@@ -37,9 +37,7 @@ export default function AreasCompetencia({
           const response = await axios.get(`http://localhost:8000/olimpiada/${olimpiadaId}`);
           
           if (response.status === 200 && response.data) {
-            // Forzar la conversión a número entero
             const maxMateriasValue = parseInt(response.data.max_materias, 10);
-            // Usar el valor real incluso si es 0, solo usar 0 si es NaN
             setMaxAreas(isNaN(maxMateriasValue) ? 0 : maxMateriasValue);
           }
         } catch (error) {
@@ -56,10 +54,15 @@ export default function AreasCompetencia({
   const { 
     cargandoAreas, 
     errorCarga, 
-    areaEstaDisponible, 
+    areaEstaDisponible,
+    areasCategorias
   } = useAreasDisponibles(olimpiadaId);
 
-  const { obtenerCategoriaAutomatica, obtenerCategorias } = useCategoriasHandler(cursoEstudiante);
+ // const { obtenerCategoriaAutomatica, obtenerCategorias } = useCategoriasHandler(cursoEstudiante);
+   const { obtenerCategoriaAutomatica, obtenerCategorias } = useCategoriasHandler(
+    cursoEstudiante,
+    areasCategorias
+  ); 
   const { manejarSeleccion, handleCategoriaChange } = useAreasSeleccion(
     seleccionadas, 
     categoriasSeleccionadas, 
@@ -122,6 +125,7 @@ export default function AreasCompetencia({
         handleCategoriaChange={handleCategoriaChange}
         cargandoAreas={cargandoAreas}
         maxAreas={maxAreas}
+        areasCategorias={areasCategorias}
       />
 
       <AreaSummary 
