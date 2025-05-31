@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { FaCircle } from "react-icons/fa";
 
-import api from "../../../utils/api";
+import  { API_URL } from "../../../utils/api";
+import axios from "axios";
 
 const OrdenesRecientes = ({ darkMode }) => {
   const [orders, setOrders] = useState([]);
@@ -15,7 +16,7 @@ const OrdenesRecientes = ({ darkMode }) => {
         setLoading(true);
         
         // Usar el endpoint optimizado para órdenes recientes
-        const response = await api.get(`/api/ordenes-recientes`);
+        const response = await axios.get(`${API_URL}/api/ordenes-recientes`);
         
         // Establecer las órdenes directamente desde la respuesta
         setOrders(response.data);

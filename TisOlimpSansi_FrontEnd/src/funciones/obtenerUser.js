@@ -1,6 +1,6 @@
 
 import axios from 'axios';
-import api, { API_URL } from '../utils/api';
+import { API_URL } from '../utils/api';
 
 const obtenerUsuario = async () => {
   try {
