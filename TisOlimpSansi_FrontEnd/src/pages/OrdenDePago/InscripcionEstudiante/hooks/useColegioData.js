@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import api from "../../../../utils/api";
+import api, { API_URL } from "../../../../utils/api";
 
 export default function useColegioData(formData, handleInputChange) {
   // Estados para manejar datos de colegios
@@ -17,8 +17,8 @@ export default function useColegioData(formData, handleInputChange) {
 
   // Cargar datos de colegios al iniciar
   useEffect(() => {
-    api
-      .post("/colegios/filtro", {})
+    await
+      .post(`${API_URL}/colegios/filtro`, {})
       .then((res) => {
         setColegiosData(res.data);
         const departamentosUnicos = [
