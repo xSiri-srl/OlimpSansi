@@ -35,11 +35,14 @@ import AsociarLimite from "./pages/Administrador/CrearOlimpiadas/AsociarLimiteAr
 import RutaPrivada from "./components/RutasPrivadas";
 import DesasignarAreaNivel from "./pages/Administrador/CrearOlimpiadas/DesasignarAreaNivel";
 import CodigoPreInscripcion from "./pages/EditarInscripcion/CodigoPreInscripcion";
+import { useState } from "react";
+import { FormDataContext } from "./pages/OrdenDePago/form-data-context";
 
 export default function App() {
+  const [globalData, setGlobalData] = useState({});
   return (
     <ThemeProvider>
-      <>
+      <FormDataContext.Provider value={{ globalData, setGlobalData }}>
         <Navbar />
         <div className="pt-20">
           <FormProvider>
@@ -160,7 +163,7 @@ export default function App() {
             </Routes>
           </FormProvider>
         </div>
-      </>
+      </FormDataContext.Provider>
     </ThemeProvider>
   );
 }

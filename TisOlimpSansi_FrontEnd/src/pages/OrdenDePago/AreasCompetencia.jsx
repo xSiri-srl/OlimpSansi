@@ -1,4 +1,3 @@
-import { useLocation } from "react-router-dom";
 import { useFormData } from "./form-data-context";
 import { useAreasDisponibles } from './AreasCompetencia/useAreasDisponibles';
 import { useCategoriasHandler } from './AreasCompetencia/useCategoriasHandler';
@@ -27,10 +26,8 @@ export default function AreasCompetencia({
   const [maxAreas, setMaxAreas] = useState(0); 
   const [cargandoMaxAreas, setCargandoMaxAreas] = useState(false);
   
-  // Obtener ID de olimpiada de la URL (CAMBIAR AQUÍ)
-  const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
-  const olimpiadaId = queryParams.get("olimpiada");
+  const olimpiadaId = globalData?.olimpiada?.id;
+
 
   useEffect(() => {
     if (olimpiadaId) {
