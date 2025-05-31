@@ -3,7 +3,7 @@ import { FaUser, FaIdCard, FaEnvelope, FaPhoneAlt } from "react-icons/fa";
 import { useFormData } from "./form-data-context";
 import { TextField, RadioGroupField } from "./components/FormComponents";
 import { useFormValidation } from "./hooks/useFormValidation";
-import axios from "axios";
+import api from "../../utils/api";
 
 export default function InscripcionTutorLegal({
   formData,
@@ -45,10 +45,10 @@ export default function InscripcionTutorLegal({
       console.log("Buscando tutor legal con CI:", ci);
 
       try {
-        const apiUrl = `http://localhost:8000/api/buscarTutorLegal/${ci}`;
+        const apiUrl = `/api/buscarTutorLegal/${ci}`;
         console.log("Consultando API en:", apiUrl);
 
-        const response = await axios.get(apiUrl);
+        const response = await api.get(apiUrl);
         console.log("Respuesta recibida:", response.data);
 
         if (response.data.found) {

@@ -1,8 +1,8 @@
 import React, { useRef, useState, useEffect } from "react";
-import axios from "axios";
 import SeccionPrincipal from "./SeccionPrincipal";
 import VisualizadoresPdf from "./VisualizadoresPdf";
 import SeccionInformativa from "./SeccionInformativa";
+import api from "../../utils/api";
 
 const Inicio = () => {
   const requisitosRef = useRef(null);
@@ -29,8 +29,8 @@ const Inicio = () => {
         
         // Fetch both convocatorias and areas in parallel
         const [convocatoriasResponse, areasResponse] = await Promise.all([
-          axios.get("http://localhost:8000/api/convocatorias"),
-          axios.get("http://localhost:8000/api/areas")
+          api.get("/convocatorias"),
+          api.get("/areas")
         ]);
         
         setConvocatorias(convocatoriasResponse.data);
