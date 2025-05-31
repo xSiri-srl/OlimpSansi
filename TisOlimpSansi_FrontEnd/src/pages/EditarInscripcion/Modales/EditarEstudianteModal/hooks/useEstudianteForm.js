@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 
-export const useEstudianteForm = (estudiante) => {
+export const useEstudianteForm = (estudiante, ests, onEstudiantesChange) => {
   const [estudianteData, setEstudianteData] = useState(null);
   const [errores, setErrores] = useState({});
+  const [estudiantes, setEstudiantes] = useState(ests)
 
   useEffect(() => {
     if (estudiante?.originalData) {
@@ -15,31 +16,120 @@ export const useEstudianteForm = (estudiante) => {
     }
   }, [estudiante]);
 
+  useEffect(() => {
+    setEstudiantes(ests)
+  }, [ests]);
+
   const handleChange = (section, field, value) => {
     setEstudianteData(prev => {
       const newData = {...prev};
       
       if (section === 'estudiante') {
-        newData.estudiante = {...newData.estudiante, [field]: value};
-      } else if (section === 'colegio') {
+      newData.estudiante = { ...newData.estudiante, [field]: value };
+
+      // Si se cambia el correo del estudiante (competidor), sincronizar todos los datos del estudiante
+      if (field === 'correo') {
+        const correoAnterior = prev.estudiante?.correo;
+        if (correoAnterior && correoAnterior !== value) {
+          setEstudiantes(prevEstudiantes => {
+            const actualizados = prevEstudiantes.map(est => {
+              if (
+                est.estudiante?.correo === correoAnterior &&
+                est.estudiante?.ci === newData.estudiante?.ci
+              ) {
+                return {
+                  ...est,
+                  estudiante: {
+                    ...est.estudiante,
+                    ...newData.estudiante // sincronizar datos
+                  }
+                };
+              }
+              return est;
+            });
+
+            if (onEstudiantesChange) {
+              onEstudiantesChange(actualizados);
+            }
+
+            return actualizados;
+          });
+        }
+      }
+    } else if (section === 'colegio') {
         newData.colegio = {...newData.colegio, [field]: value};
       } else if (section === 'tutor_legal') {
-        newData.tutor_legal = {...newData.tutor_legal, [field]: value};
+        const ciTutor = newData.tutor_legal.ci;
+
+        setEstudiantes(prevEstudiantes => {
+          const actualizados = prevEstudiantes.map(est => {
+            if (est.tutor_legal?.ci === ciTutor && est.id_inscripcion !== newData.id_inscripcion) {
+              return {
+                ...est,
+                tutor_legal: {
+                  ...est.tutor_legal,
+                  ...newData.tutor_legal // sincronizar datos
+                }
+              };
+            }
+            return est;
+          });
+
+          if (onEstudiantesChange) {
+            onEstudiantesChange(actualizados);
+          }
+
+          return actualizados;
+        });
       } else if (section.startsWith('tutor_academico_')) {
-        const index = parseInt(section.split('_')[2]);
         if (!newData.tutores_academicos) newData.tutores_academicos = [];
-        if (!newData.tutores_academicos[index]) {
-          newData.tutores_academicos[index] = {
-            nombre_area: newData.areas_competencia?.[index]?.nombre_area || '',
+        if (!newData.tutores_academicos[0]) {
+          newData.tutores_academicos[0] = {
+            nombre_area: newData.areas_competencia?.[0]?.nombre_area || '',
             tutor: {}
           };
         }
-        newData.tutores_academicos[index].tutor = {
-          ...newData.tutores_academicos[index].tutor,
+        
+        // Actualizar el tutor académico local
+        newData.tutores_academicos[0].tutor = {
+          ...newData.tutores_academicos[0].tutor,
           [field]: value
         };
+        
+        // Si se cambia cualquier campo del tutor académico y tiene CI, sincronizar con otros estudiantes
+        const tutorActualizado = newData.tutores_academicos[0].tutor;
+        if (tutorActualizado.ci) {
+          const ciTutorAcademico = tutorActualizado.ci;
+          
+          setEstudiantes(prevEstudiantes => 
+            prevEstudiantes.map(est => {
+              if (est.tutores_academicos[0].tutor.ci == newData.tutores_academicos[0].tutor.ci) {
+                const tutoresActualizados = est.tutores_academicos?.map(tutorAcademico => {
+                  if (tutorAcademico.tutor?.ci === ciTutorAcademico) {
+                    return {
+                      ...tutorAcademico,
+                      tutor: {
+                        ...tutorAcademico.tutor,
+                        ...tutorActualizado // Sincronizar todos los campos del tutor académico
+                      }
+                    };
+                  }
+                  return tutorAcademico;
+                });
+                
+                // Si se encontraron tutores para actualizar, devolver el estudiante actualizado
+                if (tutoresActualizados && tutoresActualizados.some(t => t.tutor?.ci === ciTutorAcademico)) {
+                  return {
+                    ...est,
+                    tutores_academicos: tutoresActualizados
+                  };
+                }
+              }
+              return est;
+            })
+          );
+        }
       } else if (section.startsWith('area_')) {
-        console.log(section)
         const index = parseInt(section.split('_')[1]);
         if (!newData.areas_competencia) newData.areas_competencia = [];
         if (!newData.areas_competencia[index]) {

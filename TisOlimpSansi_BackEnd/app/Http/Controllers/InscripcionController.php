@@ -670,16 +670,6 @@ public function actualizarLista(Request $request)
             throw new \Exception("No se encontraron estudiantes para actualizar.");
         }
 
-        // Actualizar Responsable de inscripción una sola vez
-        // Obtenemos el responsable del primer estudiante (ya que es el mismo para todos)
-        $responsableData = $data['estudiantes'][0]['responsable_inscripcion'];
-        $responsable = ResponsableInscripcionModel::where('ci', $responsableData['ci'])->first();
-        if ($responsable) {
-            $responsable->update($responsableData);
-        } else {
-            throw new \Exception("No se encontró el responsable de inscripción con CI: {$responsableData['ci']}");
-        }
-
         // Procesar cada estudiante
         foreach ($data['estudiantes'] as $item) {
             // Validar que existe el id_inscripcion
@@ -693,20 +683,7 @@ public function actualizarLista(Request $request)
                 throw new \Exception("No se encontró la inscripción con ID: {$item['id_inscripcion']}");
             }
 
-            // Actualizar o crear Colegio
             $colegio = ColegioModel::where('nombre_colegio', $item['colegio']['nombre_colegio'])->first();
-            if ($colegio) {
-                $colegio->update([
-                    'departamento' => $item['colegio']['departamento'],
-                    'distrito'     => $item['colegio']['distrito'],
-                ]);
-            } else {
-                $colegio = ColegioModel::create([
-                    'nombre_colegio' => $item['colegio']['nombre_colegio'],
-                    'departamento'   => $item['colegio']['departamento'],
-                    'distrito'       => $item['colegio']['distrito'],
-                ]);
-            }
 
             // Buscar grado por nombre del curso
             $grado = GradoModel::where('nombre_grado', $item['colegio']['curso'])->first();
@@ -732,35 +709,26 @@ public function actualizarLista(Request $request)
                 throw new \Exception("No se encontró el estudiante asociado a la inscripción ID: {$item['id_inscripcion']}");
             }
 
-            // Actualizar Tutor Legal
+            // Si ya tiene un tutor legal asignado, actualizarlo
             $tutorLegal = TutorLegalModel::find($inscripcion->id_tutor_legal);
             if ($tutorLegal) {
-                // Actualizar tutor existente
-                $tutorLegal->update([
+                // Preparar datos para actualización
+                $datosActualizacion = [
                     'nombre'         => $item['tutor_legal']['nombre'],
                     'apellido_pa'    => $item['tutor_legal']['apellido_pa'],
                     'apellido_ma'    => $item['tutor_legal']['apellido_ma'],
                     'ci'             => $item['tutor_legal']['ci'],
+                    'complemento'    => $item['tutor_legal']['complemento'] ?? null,
                     'correo'         => $item['tutor_legal']['correo'],
                     'numero_celular' => $item['tutor_legal']['numero_celular'],
                     'tipo'           => $item['tutor_legal']['tipo'],
-                ]);
+                ];
+                                    
+                $resultado = $tutorLegal->update($datosActualizacion);
             } else {
-                // Crear nuevo tutor legal
-                $tutorLegal = TutorLegalModel::firstOrCreate(
-                    ['ci' => $item['tutor_legal']['ci']],
-                    [
-                        'nombre'         => $item['tutor_legal']['nombre'],
-                        'apellido_pa'    => $item['tutor_legal']['apellido_pa'],
-                        'apellido_ma'    => $item['tutor_legal']['apellido_ma'],
-                        'ci'             => $item['tutor_legal']['ci'],
-                        'correo'         => $item['tutor_legal']['correo'],
-                        'numero_celular' => $item['tutor_legal']['numero_celular'],
-                        'tipo'           => $item['tutor_legal']['tipo'],
-                    ]
-                );
-                $inscripcion->update(['id_tutor_legal' => $tutorLegal->id]);
+                throw new \Exception("No se encontró el tutor legal con ID: {$inscripcion->id_tutor_legal}");
             }
+            
 
             // Actualizar área de competencia de la inscripción
             if (!empty($item['areas_competencia']) && is_array($item['areas_competencia']) && count($item['areas_competencia']) > 0) {
@@ -795,7 +763,7 @@ public function actualizarLista(Request $request)
                 ]);
             }
 
-            // Actualizar Tutores Académicos
+            // CORRECCIÓN: Actualizar Tutores Académicos
             if (!empty($item['tutores_academicos']) && is_array($item['tutores_academicos'])) {
                 foreach ($item['tutores_academicos'] as $tutorItem) {
                     $area = AreaModel::where('nombre_area', $tutorItem['nombre_area'])->first();
@@ -810,29 +778,34 @@ public function actualizarLista(Request $request)
                         ->first();
 
                     if ($inscripcionActual) {
-                        // Verificar si el tutor tiene datos válidos (no vacíos)
-                        if (!empty($tutorItem['tutor']['ci']) && !empty($tutorItem['tutor']['nombre'])) {
-                            $tutor = TutorAcademicoModel::firstOrCreate(
-                                ['ci' => $tutorItem['tutor']['ci']],
-                                [
-                                    'nombre'      => $tutorItem['tutor']['nombre'],
-                                    'apellido_pa' => $tutorItem['tutor']['apellido_pa'],
-                                    'apellido_ma' => $tutorItem['tutor']['apellido_ma'],
-                                    'ci'          => $tutorItem['tutor']['ci'],
-                                    'correo'      => $tutorItem['tutor']['correo'],
-                                ]
-                            );
-
-                            // Actualizar la inscripción con el tutor académico
-                            $inscripcion->update([
-                                'id_tutor_academico' => $tutor->id,
-                            ]);
-                        } else {
-                            // Si no hay datos del tutor, remover la asignación
-                            $inscripcion->update([
-                                'id_tutor_academico' => null,
-                            ]);
+                        // Solo procesar si la inscripción ya tiene un tutor académico asignado
+                        if ($inscripcion->id_tutor_academico) {
+                            // Verificar si el CI está vacío o es cadena vacía
+                            if (empty($tutorItem['tutor']['ci']) || $tutorItem['tutor']['ci'] === '') {
+                                // Si el CI está vacío, remover la asignación del tutor académico
+                                $inscripcion->update([
+                                    'id_tutor_academico' => null,
+                                ]);
+                            } else {
+                                // Verificar si el tutor tiene datos válidos (no vacíos)
+                                if (!empty($tutorItem['tutor']['nombre'])) {
+                                    // Actualizar el tutor académico existente
+                                    $tutorAcademico = TutorAcademicoModel::find($inscripcion->id_tutor_academico);
+                                    if ($tutorAcademico) {
+                                        $tutorAcademico->update([
+                                            'nombre'      => $tutorItem['tutor']['nombre'],
+                                            'apellido_pa' => $tutorItem['tutor']['apellido_pa'],
+                                            'apellido_ma' => $tutorItem['tutor']['apellido_ma'],
+                                            'ci'          => $tutorItem['tutor']['ci'],
+                                            'correo'      => $tutorItem['tutor']['correo'],
+                                        ]);
+                                    } else {
+                                        throw new \Exception("No se encontró el tutor académico con ID: {$inscripcion->id_tutor_academico}");
+                                    }
+                                }
+                            }
                         }
+                        // Si id_tutor_academico es null, mantenerlo null (no hacer nada)
                     }
                 }
             }
