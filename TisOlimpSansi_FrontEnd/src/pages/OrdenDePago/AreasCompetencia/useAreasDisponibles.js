@@ -7,7 +7,7 @@ export function useAreasDisponibles(olimpiadaId) {
   const [cargandoAreas, setCargandoAreas] = useState(false);
   const [errorCarga, setErrorCarga] = useState("");
   const [cargaCompleta, setCargaCompleta] = useState(false);
-  
+  const [areasCategorias, setAreasCategorias] = useState({});
 
   const normalizarNombre = (nombre) => {
     if (!nombre) return '';
@@ -25,6 +25,7 @@ export function useAreasDisponibles(olimpiadaId) {
     } else {
       setAreasDisponibles([]);
       setAreasObjetos([]);
+      setAreasCategorias({});
       setCargaCompleta(false);
       setErrorCarga("");
     }
@@ -42,18 +43,28 @@ export function useAreasDisponibles(olimpiadaId) {
       
       if (response.status === 200) {
         if (response.data.data && Array.isArray(response.data.data)) {
+          const areas = response.data.data;
+          setAreasObjetos(areas);
 
-          setAreasObjetos(response.data.data);
+          // Construir mapa de áreas/categorías para fácil acceso
+          const categoriasMap = {};
+          areas.forEach(area => {
+            categoriasMap[area.area] = area.categorias || [];
+          });
+          
+          setAreasCategorias(categoriasMap);
 
-          const areasNormalizadas = response.data.data.map(area => ({
+          const areasNormalizadas = areas.map(area => ({
             id: area.id,
             original: area.area,
-            normalizado: normalizarNombre(area.area)
+            normalizado: normalizarNombre(area.area),
+            categorias: area.categorias || []
           })).filter(area => area.normalizado !== "");
           
           setAreasDisponibles(areasNormalizadas);
-        } else {
+        }  else {
           setAreasDisponibles([]);
+          setAreasCategorias({});
         }
       }
       
@@ -62,6 +73,7 @@ export function useAreasDisponibles(olimpiadaId) {
       console.error("Error al cargar áreas asociadas:", error);
       setErrorCarga("No se pudieron cargar las áreas de competencia");
       setAreasDisponibles([]);
+      setAreasCategorias({});
       setCargaCompleta(true);
     } finally {
       setCargandoAreas(false);
@@ -127,7 +139,8 @@ export function useAreasDisponibles(olimpiadaId) {
 
   return { 
     areasDisponibles, 
-    areasObjetos, 
+    areasObjetos,
+    areasCategorias, 
     cargandoAreas, 
     errorCarga, 
     areaEstaDisponible, 

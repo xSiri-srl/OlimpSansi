@@ -43,8 +43,8 @@ const AreaCard = ({
         {!estaDisponible && <span className="block text-xs text-red-500">(No disponible)</span>}
       </p>
 
-      {/* Selector de categoría si está seleccionada y tiene categorías */}
-      {estaSeleccionada && categorias && categorias.length > 0 && (
+      {/* Selector de categoría si está seleccionada - ahora para todas las áreas */}
+      {estaSeleccionada && (
         <div className="mt-3">
           <label className="block text-xs text-gray-700 mb-1 font-medium">
             Selecciona una categoría:
@@ -58,11 +58,15 @@ const AreaCard = ({
             required
           >
             <option value="">-- Seleccionar --</option>
-            {categorias.map((cat, i) => (
-              <option key={i} value={cat}>
-                {cat}
-              </option>
-            ))}
+            {categorias && categorias.length > 0 ? (
+              categorias.map((cat, i) => (
+                <option key={i} value={cat}>
+                  {cat}
+                </option>
+              ))
+            ) : (
+              <option value="categoria-predeterminada">Categoría predeterminada</option>
+            )}
           </select>
         </div>
       )}

@@ -1,7 +1,38 @@
 import { categoriasMap } from './areasConfig';
 
-export function useCategoriasHandler(cursoEstudiante) {
+export function useCategoriasHandler(cursoEstudiante, areasCategorias = {}) {
+  // Extraer el grado numérico del curso
+  const obtenerNumeroGrado = () => {
+    const match = cursoEstudiante.match(/\d+/);
+    return match ? parseInt(match[0], 10) : 0;
+  };
+
+  const esSecundaria = cursoEstudiante.includes("Secundaria");
+  const gradoNumero = obtenerNumeroGrado();
+
   const obtenerCategoriaAutomatica = (area) => {
+    // Verificar primero si hay categorías disponibles del backend
+    const nombreAreaNormalizado = area.toUpperCase();
+    
+    if (areasCategorias[area] || areasCategorias[nombreAreaNormalizado]) {
+      const categorias = areasCategorias[area] || areasCategorias[nombreAreaNormalizado] || [];
+      
+      // Si solo hay una categoría, la devolvemos automáticamente
+      if (categorias.length === 1) {
+        return categorias[0].nombre;
+      }
+      
+      // Si hay múltiples, intentamos encontrar una que coincida con el grado
+      const categoriaCompatible = categorias.find(cat => {
+        // Aquí iría lógica para determinar si la categoría es compatible con el grado
+        // Por ejemplo, si la categoría menciona el grado específico o un rango que lo incluya
+        return true; // Por defecto permitimos todas las categorías
+      });
+      
+      return categoriaCompatible ? categoriaCompatible.nombre : null;
+    }
+    
+    // Fallback al sistema anterior si no hay categorías del backend
     let areaNormalizada = area.toUpperCase();
     if (areaNormalizada === "ASTRONOMÍA Y ASTROFÍSICA") {
       areaNormalizada = "ASTRONOMÍA - ASTROFÍSICA";
@@ -18,6 +49,21 @@ export function useCategoriasHandler(cursoEstudiante) {
   };
 
   const obtenerCategorias = (area) => {
+    // Verificar primero si tenemos categorías del backend
+    if (areasCategorias[area] || areasCategorias[area.toUpperCase()]) {
+      const categorias = areasCategorias[area] || areasCategorias[area.toUpperCase()] || [];
+      
+      // Filtrar categorías relevantes para el grado actual
+      const categoriasFiltradas = categorias.filter(cat => {
+        // Aquí implementaríamos la lógica para filtrar categorías por grado
+        // Por ahora retornamos todas
+        return true;
+      });
+      
+      return categoriasFiltradas.map(cat => cat.nombre);
+    }
+    
+    // Implementación anterior como fallback
     if (area !== "Informática" && area !== "Robótica") {
       return null;
     }
