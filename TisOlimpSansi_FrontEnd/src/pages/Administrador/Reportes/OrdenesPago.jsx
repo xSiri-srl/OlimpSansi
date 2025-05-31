@@ -5,7 +5,8 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { useNavigate } from "react-router-dom";
 import { HiArrowCircleRight } from "react-icons/hi";
-import api from "../../../utils/api";
+import api, { API_URL } from "../../../utils/api";
+import axios from "axios";
 
 function OrdenesPago() {
   const [estado, setEstado] = useState("");
@@ -19,8 +20,8 @@ function OrdenesPago() {
   const [contadorNumeracion, setContadorNumeracion] = useState(1);
 
   useEffect(() => {
-    api
-      .get("/orden-de-pago/info")
+    axios
+      .get(`${API_URL}/orden-de-pago/info`)
       .then((response) => {
         if (Array.isArray(response.data.ordenes)) {
           setOrdenesPago(response.data.ordenes);
