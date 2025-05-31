@@ -661,6 +661,7 @@ const handleCloseModal2 = () => {
             onSave={handleSaveEdit}
             cursoAreaCategoria={cursoAreaCategoria}
             estudiantes={estudiantes}
+            onEstudiantesChange={setEstudiantes}
         />
       )}
 
