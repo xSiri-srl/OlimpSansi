@@ -287,9 +287,24 @@ public function registrarLista(Request $request)
                     ['id_categoria', $categoria->id],
                 ])->first();
 
-                if (!$oac) {
-                    throw new \Exception("No está asociado esa área y/o categoría en esta olimpiada.");
+               if (!$oac) {
+                   $combinacionesValidas = DB::table('olimpiada_area_categorias as oac')
+                        ->join('area as a', 'a.id', '=', 'oac.id_area')
+                        ->join('categoria as c', 'c.id', '=', 'oac.id_categoria')
+                        ->where('oac.id_olimpiada', $olimpiadaId)
+                        ->select('a.nombre_area', 'c.nombre_categoria')
+                        ->get();
+
+
+                    $mensaje = "No está asociada esta área y/o categoría en la olimpiada. Combinaciones válidas:\n";
+
+                    foreach ($combinacionesValidas as $combo) {
+                        $mensaje .= "- {$combo->nombre_area} / {$combo->nombre_categoria}\n";
+                    }
+
+                    throw new \Exception($mensaje);
                 }
+
 
                 // Validar si ya está inscrito a esta misma combinación
                 $yaInscrito = InscripcionModel::where([
