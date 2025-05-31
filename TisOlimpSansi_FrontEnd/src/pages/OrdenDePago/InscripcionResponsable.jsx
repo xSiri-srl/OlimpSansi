@@ -10,7 +10,6 @@ import Confirmation from "./Confirmation";
 import { FormDataContext, useFormData } from "./form-data-context";
 import { TextField } from "./components/FormComponents";
 import { validateField, validateCI } from "./utils/validationsUtils";
-import { useSearchParams } from "react-router-dom";
 
 const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
   const [errors, setErrors] = useState({});
@@ -18,8 +17,7 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
   const [isSearching, setIsSearching] = useState(false);
   const [responsableFound, setResponsableFound] = useState(false);
   const { globalData, setGlobalData } = useFormData();
-  const [searchParams] = useSearchParams();
-  const olimpiada = searchParams.get("olimpiada");
+
 
 
   // Función para validar campos del formulario
@@ -126,8 +124,7 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
     try {
       // Actualizar el objeto global con los datos del responsable
       const updatedData = {
-        ...globalData,
-        olimpiada: { id: olimpiada},  
+        ...globalData, 
         responsable_inscripcion: {
           nombre: formData.responsable?.nombres,
           apellido_pa: formData.responsable?.apellidoPaterno,
@@ -285,7 +282,7 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
 };
 
 const InscripcionResponsable = () => {
-  const [globalData, setGlobalData] = useState({});
+  //const [globalData, setGlobalData] = useState({});
   const steps = [
     "Responsable de Inscripción",
     "Competidor",
@@ -296,7 +293,7 @@ const InscripcionResponsable = () => {
   ];
 
   return (
-    <FormDataContext.Provider value={{ globalData, setGlobalData }}>
+    //<FormDataContext.Provider value={{ globalData, setGlobalData }}>
       <ProcesoRegistro
         steps={steps}
         nextRoute="/subirComprobante"
@@ -309,7 +306,7 @@ const InscripcionResponsable = () => {
         <InscripcionTutorAcademico />
         <Confirmation />
       </ProcesoRegistro>
-    </FormDataContext.Provider>
+    //</FormDataContext.Provider>
   );
 };
 

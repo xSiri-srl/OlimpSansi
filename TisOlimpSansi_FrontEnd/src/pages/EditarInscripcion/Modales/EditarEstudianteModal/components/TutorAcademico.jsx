@@ -89,10 +89,15 @@ const TutorAcademico = ({
         </label>
         <input
           type="email"
-          className={`mt-1 p-2 w-full border rounded-md ${tieneError(`tutor_academico_${areaIndex}_correo`) ? 'border-red-500' : ''}`}
+          className={`mt-1 p-2 w-full border rounded-md ${tieneError(`tutor_academico_${areaIndex}_correo`) ? 'border-red-500 bg-red-50' : ''}`}
           value={estudianteData.tutores_academicos?.[areaIndex]?.tutor?.correo || ''}
-          onChange={(e) => handleChange(`tutor_academico_${areaIndex}`, 'correo', e.target.value)}
+          onChange={(e) => {
+            handleChange(`tutor_academico_${areaIndex}`, 'correo', e.target.value);
+          }}
         />
+        {tieneError(`tutor_academico_${areaIndex}_correo`) && (
+          <p className="text-red-500 text-xs mt-1">{errores[`tutor_academico_${areaIndex}_correo`]}</p>
+        )}
       </div>
       
 

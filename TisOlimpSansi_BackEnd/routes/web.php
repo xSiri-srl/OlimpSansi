@@ -7,6 +7,9 @@ use App\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Http\Controllers\CategoriaGradoController;
+use App\Http\Controllers\InscripcionController;
+use App\Http\Controllers\OrdenPagoController;
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -54,7 +57,7 @@ Route::middleware('auth:sanctum')->group(function () {
    
     });
 });
-    
+
 Route::controller(OlimpiadaController::class)->group(function(){
     //crear olimpiadas
     Route::post('/agregarOlimpiada', [OlimpiadaController::class, 'store'])
@@ -63,4 +66,3 @@ Route::controller(OlimpiadaController::class)->group(function(){
 
 Route::get('/areas-olimpiada/{id}', [OlimpiadaAreaController::class, 'getAreasPorOlimpiada']);
 
-Route::get('/cursoAreaCategoriaPorOlimpiada', [CategoriaGradoController::class, 'obtenerCategoriasPorGrado']);

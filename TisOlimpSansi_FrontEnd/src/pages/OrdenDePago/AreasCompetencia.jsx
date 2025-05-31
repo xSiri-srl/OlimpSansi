@@ -1,4 +1,3 @@
-import { useLocation } from "react-router-dom";
 import { useFormData } from "./form-data-context";
 import { useAreasDisponibles } from './AreasCompetencia/useAreasDisponibles';
 import { useCategoriasHandler } from './AreasCompetencia/useCategoriasHandler';
@@ -27,41 +26,39 @@ export default function AreasCompetencia({
   const [maxAreas, setMaxAreas] = useState(0); 
   const [cargandoMaxAreas, setCargandoMaxAreas] = useState(false);
   
-  // Obtener ID de olimpiada de la URL
-  const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
-  const olimpiadaId = queryParams.get("olimpiada");
+  const olimpiadaId = globalData?.olimpiada?.id;
 
-useEffect(() => {
-  if (olimpiadaId) {
-    const cargarMaxAreas = async () => {
-      setCargandoMaxAreas(true);
-      try {
-        const response = await axios.get(`http://localhost:8000/olimpiada/${olimpiadaId}`);
-        
-        if (response.status === 200 && response.data) {
-          // Forzar la conversión a número entero
-          const maxMateriasValue = parseInt(response.data.max_materias, 10);
-          // Usar el valor real incluso si es 0, solo usar 0 si es NaN
-          setMaxAreas(isNaN(maxMateriasValue) ? 0 : maxMateriasValue);
+
+  useEffect(() => {
+    if (olimpiadaId) {
+      const cargarMaxAreas = async () => {
+        setCargandoMaxAreas(true);
+        try {
+          const response = await axios.get(`http://localhost:8000/olimpiada/${olimpiadaId}`);
+          
+          if (response.status === 200 && response.data) {
+            // Forzar la conversión a número entero
+            const maxMateriasValue = parseInt(response.data.max_materias, 10);
+            // Usar el valor real incluso si es 0, solo usar 0 si es NaN
+            setMaxAreas(isNaN(maxMateriasValue) ? 0 : maxMateriasValue);
+          }
+        } catch (error) {
+          console.error("Error al cargar máximo de áreas:", error);
+        } finally {
+          setCargandoMaxAreas(false);
         }
-      } catch (error) {
-        console.error("Error al cargar máximo de áreas:", error);
-      } finally {
-        setCargandoMaxAreas(false);
-      }
-    };
-    
-    cargarMaxAreas();
-  }
-}, [olimpiadaId]);
+      };
+      
+      cargarMaxAreas();
+    }
+  }, [olimpiadaId]);
 
-useEffect(() => {
-  console.log("maxAreas actualizado a:", maxAreas);
-}, [maxAreas]);
+  const { 
+    cargandoAreas, 
+    errorCarga, 
+    areaEstaDisponible, 
+  } = useAreasDisponibles(olimpiadaId);
 
-  // Usar hooks personalizados
-  const { cargandoAreas, errorCarga, areaEstaDisponible } = useAreasDisponibles(olimpiadaId);
   const { obtenerCategoriaAutomatica, obtenerCategorias } = useCategoriasHandler(cursoEstudiante);
   const { manejarSeleccion, handleCategoriaChange } = useAreasSeleccion(
     seleccionadas, 

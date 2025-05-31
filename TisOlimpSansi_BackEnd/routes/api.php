@@ -202,11 +202,10 @@ Route::get('/getOlimpiadasActuales', [OlimpiadaController::class, 'getOlimpiadas
 Route::post('/olimpiadas/areas', [OlimpiadaController::class, 'getAreasPorOlimpiada']);
 
 
-Route::get('/areasCategoriasOlimpiada', [OlimpiadaController::class, 'obtenerCategoriasPorGrado']);
+Route::get('/areasCategoriasOlimpiada', [OlimpiadaController::class, 'getAreasCategoriasPorOlimpiada']);
 
 
 Route::get('/cursoAreaCategoriaPorOlimpiada', [CategoriaGradoController::class, 'obtenerCategoriasPorGrado']);
-Route::post('/agregarCategoriaGrado', [CategoriaGradoController::class, 'store']);
 
 //mostrar todas las categorias de esa materia de una olimpiada
 
