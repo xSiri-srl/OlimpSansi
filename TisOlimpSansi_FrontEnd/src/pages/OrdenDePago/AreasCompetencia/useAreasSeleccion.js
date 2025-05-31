@@ -3,9 +3,8 @@ export function useAreasSeleccion(
   categoriasSeleccionadas, 
   obtenerCategorias,
   handleInputChange,
-  maxAreas = 0 // Valor por defecto ahora es 0
+  maxAreas = 0
 ) {
-  // Añadir log para verificar que maxAreas se recibe correctamente
   console.log("useAreasSeleccion recibió maxAreas:", maxAreas);
   
   const manejarSeleccion = (nombre) => {
@@ -22,21 +21,26 @@ export function useAreasSeleccion(
         return;
       }
       
-      // Log para depurar la comparación
       console.log("Comparando", seleccionadas.length, "<", maxAreas, "=", seleccionadas.length < maxAreas);
       
       if (seleccionadas.length < maxAreas) {
         nuevasSeleccionadas = [...seleccionadas, nombre];
 
-        if (nombre === "Informática" || nombre === "Robótica") {
-          const categorias = obtenerCategorias(nombre);
-          if (categorias && categorias.length > 0) {
-            nuevasCategoriasSeleccionadas[nombre] = "";
-          }
+        // Intentar obtener categorías para esta área
+        const categorias = obtenerCategorias(nombre);
+        
+        // Auto-seleccionar si hay una sola categoría disponible y válida
+        if (categorias && categorias.length === 1 && 
+            categorias[0] !== "Sin categorías disponibles" && 
+            categorias[0] !== "Categoría no disponible para este curso") {
+          nuevasCategoriasSeleccionadas[nombre] = categorias[0];
+          console.log(`Auto-seleccionada categoría "${categorias[0]}" para área ${nombre}`);
+        } else {
+          nuevasCategoriasSeleccionadas[nombre] = "";
         }
       } else {
         console.log("No se puede seleccionar más áreas, límite alcanzado:", maxAreas);
-        return; // Ya hay suficientes áreas seleccionadas
+        return; 
       }
     }
     
@@ -47,7 +51,7 @@ export function useAreasSeleccion(
       nuevasCategoriasSeleccionadas
     );
   };
-  // Definir la función handleCategoriaChange que falta
+
   const handleCategoriaChange = (area, valor) => {
     const nuevasCategoriasSeleccionadas = {
       ...categoriasSeleccionadas,

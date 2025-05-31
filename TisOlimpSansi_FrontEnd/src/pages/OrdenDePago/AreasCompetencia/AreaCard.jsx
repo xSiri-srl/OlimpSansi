@@ -9,6 +9,11 @@ const AreaCard = ({
   manejarSeleccion, 
   handleCategoriaChange 
 }) => {
+  // Información de depuración para ayudar a identificar problemas
+  const categoriasDisponibles = categorias && categorias.length > 0 
+    ? categorias 
+    : ["Sin categorías disponibles"];
+  
   return (
     <div
       className={`w-40 p-4 rounded-lg text-center shadow-md relative ${
@@ -43,7 +48,7 @@ const AreaCard = ({
         {!estaDisponible && <span className="block text-xs text-red-500">(No disponible)</span>}
       </p>
 
-      {/* Selector de categoría si está seleccionada - ahora para todas las áreas */}
+      {/* Selector de categoría para todas las áreas disponibles */}
       {estaSeleccionada && (
         <div className="mt-3">
           <label className="block text-xs text-gray-700 mb-1 font-medium">
@@ -51,23 +56,32 @@ const AreaCard = ({
           </label>
           <select
             className="w-full p-1 text-xs border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={categoriaSeleccionada}
+            value={categoriaSeleccionada || ""}
             onChange={(e) =>
               handleCategoriaChange(area.nombre, e.target.value)
             }
             required
           >
             <option value="">-- Seleccionar --</option>
-            {categorias && categorias.length > 0 ? (
-              categorias.map((cat, i) => (
-                <option key={i} value={cat}>
-                  {cat}
-                </option>
-              ))
-            ) : (
-              <option value="categoria-predeterminada">Categoría predeterminada</option>
-            )}
+            {categoriasDisponibles.map((cat, i) => (
+              <option key={i} value={cat}>
+                {cat}
+              </option>
+            ))}
           </select>
+          
+          {categoriasDisponibles.length === 1 && categoriasDisponibles[0] === "Sin categorías disponibles" && (
+            <div className="text-xs text-red-500 mt-1">
+              No hay categorías disponibles para tu grado
+            </div>
+          )}
+          
+          {/* Auto-seleccionar si hay una sola opción */}
+          {estaSeleccionada && !categoriaSeleccionada && categoriasDisponibles.length === 1 && 
+           categoriasDisponibles[0] !== "Sin categorías disponibles" && 
+           categoriasDisponibles[0] !== "Categoría no disponible para este curso" && (
+            setTimeout(() => handleCategoriaChange(area.nombre, categoriasDisponibles[0]), 100)
+          )}
         </div>
       )}
     </div>
