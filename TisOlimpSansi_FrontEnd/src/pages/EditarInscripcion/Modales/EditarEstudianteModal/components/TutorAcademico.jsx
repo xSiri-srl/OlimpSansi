@@ -23,9 +23,9 @@ const TutorAcademico = ({
           </label>
           <input
             type="text"
-            className={`mt-1 p-2 w-full border rounded-md ${tieneError(`tutor_academico_${areaIndex}_apellido_pa`) ? 'border-red-500' : ''}`}
+            className={`mt-1 p-2 w-full border bg-gray-100 rounded-md ${tieneError(`tutor_academico_${areaIndex}_apellido_pa`) ? 'border-red-500' : ''}`}
             value={estudianteData.tutores_academicos?.[areaIndex]?.tutor?.apellido_pa || ''}
-            onChange={(e) => handleChange(`tutor_academico_${areaIndex}`, 'apellido_pa', e.target.value.toUpperCase())}
+            disabled={true}
           />
           {tieneError(`tutor_academico_${areaIndex}_apellido_pa`) && (
             <p className="text-red-500 text-xs mt-1">{errores[`tutor_academico_${areaIndex}_apellido_pa`]}</p>
@@ -38,9 +38,9 @@ const TutorAcademico = ({
           </label>
           <input
             type="text"
-            className={`mt-1 p-2 w-full border rounded-md ${tieneError(`tutor_academico_${areaIndex}_apellido_ma`) ? 'border-red-500' : ''}`}
+            className={`mt-1 p-2 w-full border bg-gray-100 rounded-md ${tieneError(`tutor_academico_${areaIndex}_apellido_ma`) ? 'border-red-500' : ''}`}
             value={estudianteData.tutores_academicos?.[areaIndex]?.tutor?.apellido_ma || ''}
-            onChange={(e) => handleChange(`tutor_academico_${areaIndex}`, 'apellido_ma', e.target.value.toUpperCase())}
+            disabled={true}
           />
           {tieneError(`tutor_academico_${areaIndex}_apellido_ma`) && (
             <p className="text-red-500 text-xs mt-1">{errores[`tutor_academico_${areaIndex}_apellido_ma`]}</p>
@@ -54,9 +54,9 @@ const TutorAcademico = ({
         </label>
         <input
           type="text"
-          className={`mt-1 p-2 w-full border rounded-md ${tieneError(`tutor_academico_${areaIndex}_nombre`) ? 'border-red-500' : ''}`}
+          className={`mt-1 p-2 w-full border bg-gray-100 rounded-md ${tieneError(`tutor_academico_${areaIndex}_nombre`) ? 'border-red-500' : ''}`}
           value={estudianteData.tutores_academicos?.[areaIndex]?.tutor?.nombre || ''}
-          onChange={(e) => handleChange(`tutor_academico_${areaIndex}`, 'nombre', e.target.value.toUpperCase())}
+          disabled={true}
         />
         {tieneError(`tutor_academico_${areaIndex}_nombre`) && (
           <p className="text-red-500 text-xs mt-1">{errores[`tutor_academico_${areaIndex}_nombre`]}</p>
@@ -69,12 +69,9 @@ const TutorAcademico = ({
         </label>
         <input
           type="text"
-          className={`mt-1 p-2 w-full border rounded-md ${tieneError(`tutor_academico_${areaIndex}_ci`) ? 'border-red-500' : ''}`}
+          className={`mt-1 p-2 w-full border bg-gray-100 rounded-md ${tieneError(`tutor_academico_${areaIndex}_ci`) ? 'border-red-500' : ''}`}
           value={estudianteData.tutores_academicos?.[areaIndex]?.tutor?.ci || ''}
-          onChange={(e) => {
-            const formattedValue = validarFormatoCI(e.target.value);
-            handleChange(`tutor_academico_${areaIndex}`, 'ci', formattedValue);
-          }}
+          disabled={true}
           pattern="\d{7,8}"
           title="El CI debe contener entre 7 y 8 dígitos"
         />
@@ -89,11 +86,12 @@ const TutorAcademico = ({
         </label>
         <input
           type="email"
-          className={`mt-1 p-2 w-full border rounded-md ${tieneError(`tutor_academico_${areaIndex}_correo`) ? 'border-red-500 bg-red-50' : ''}`}
+          className={`mt-1 p-2 w-full border rounded-md ${estudianteData.tutores_academicos?.[0]?.tutor?.ci == ""? 'bg-gray-100' : ''} ${tieneError(`tutor_academico_${areaIndex}_correo`) ? 'border-red-500 bg-red-50' : ''}`}
           value={estudianteData.tutores_academicos?.[areaIndex]?.tutor?.correo || ''}
           onChange={(e) => {
             handleChange(`tutor_academico_${areaIndex}`, 'correo', e.target.value);
           }}
+          disabled={estudianteData.tutores_academicos?.[0]?.tutor?.ci == ""}
         />
         {tieneError(`tutor_academico_${areaIndex}_correo`) && (
           <p className="text-red-500 text-xs mt-1">{errores[`tutor_academico_${areaIndex}_correo`]}</p>
