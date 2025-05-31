@@ -3,11 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { FaUserAlt, FaUsers } from "react-icons/fa";
 import { motion } from "framer-motion";
 import axios from "axios";
-import Cookies from 'js-cookie';
+import { useFormData } from "./form-data-context";
 import ModalPeriodo from "./modales/ModalPeriodo";
 
 export default function FormularioEstudiante() {
   const navigate = useNavigate();
+  const { setGlobalData } = useFormData();
   const [olimpiadas, setOlimpiadas] = useState([]);
   const [olimpiadaSeleccionada, setOlimpiadaSeleccionada] = useState("");
   const [nombreOlimpiada, setNombreOlimpiada] = useState("");
@@ -22,11 +23,31 @@ export default function FormularioEstudiante() {
   });
 
   const handleSeleccion = () => {
-    navigate(`/inscripcion/responsable?olimpiada=${olimpiadaSeleccionada}`);
+    // Guardar el ID de olimpiada en el contexto global
+    setGlobalData(prevState => ({
+      ...prevState,
+      olimpiada: {
+        id: olimpiadaSeleccionada,
+        titulo: nombreOlimpiada
+      }
+    }));
+    
+    // Navegar sin pasar el ID por URL
+    navigate(`/inscripcion/responsable`);
   };
 
   const handleSeleccionLista = () => {
-    navigate(`/inscripcion-lista/tutorial?olimpiada=${olimpiadaSeleccionada}`);
+    // Guardar el ID de olimpiada en el contexto global
+    setGlobalData(prevState => ({
+      ...prevState,
+      olimpiada: {
+        id: olimpiadaSeleccionada,
+        titulo: nombreOlimpiada
+      }
+    }));
+    
+    // Navegar sin pasar el ID por URL
+    navigate(`/inscripcion-lista/tutorial`);
   };
 
   // Función para verificar si estamos dentro del período de inscripción
