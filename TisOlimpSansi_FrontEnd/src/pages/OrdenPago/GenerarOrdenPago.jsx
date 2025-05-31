@@ -8,8 +8,7 @@ import {
   FaTimesCircle,
   FaExclamationTriangle,
 } from "react-icons/fa";
-import axios from "axios";
-
+import api from "../../utils/api";
 const GenerarOrdenPago = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -20,11 +19,8 @@ const GenerarOrdenPago = () => {
   const [mostrarModal, setMostrarModal] = useState(false);
   const [ordenYaGenerada, setOrdenYaGenerada] = useState(false);
   const [progreso, setProgreso] = useState(0);
-  const [pdfUrl, setPdfUrl] = useState(null); // Estado para la previsualización
-  const [mostrarPrevisualizacion, setMostrarPrevisualizacion] = useState(false); // Estado para mostrar/ocultar previsualización
-
-  const endpoint = "http://localhost:8000/api";
-
+  const [pdfUrl, setPdfUrl] = useState(null);
+  const [mostrarPrevisualizacion, setMostrarPrevisualizacion] = useState(false); 
   // Efecto para la barra de progreso
   useEffect(() => {
     let timer;
@@ -46,8 +42,7 @@ const GenerarOrdenPago = () => {
   // Nueva función para obtener el PDF
   const obtenerPdf = async () => {
     try {
-      const pdfResponse = await axios.get(
-        `${endpoint}/orden-pago/${codigoGenerado}`,
+      const pdfResponse = await api.get(`/orden-pago/${codigoGenerado}`,
         { responseType: "blob" }
       );
       const pdfBlob = new Blob([pdfResponse.data], { type: "application/pdf" });
@@ -65,14 +60,14 @@ const GenerarOrdenPago = () => {
     setLoading(true);
     setError("");
     try {
-      const response = await axios.get(
-        `${endpoint}/obtener-orden-pago/${codigoGenerado}`
+      const response = await api.get(
+        `/obtener-orden-pago/${codigoGenerado}`
       );
       if (response.status === 200) {
         await obtenerResumen(codigoGenerado);
         // Verificar si la orden ya está generada
-        const existeResponse = await axios.get(
-          `${endpoint}/orden-pago-existe/${codigoGenerado}`
+        const existeResponse = await api.get(
+          `/orden-pago-existe/${codigoGenerado}`
         );
         setOrdenYaGenerada(existeResponse.data.existe);
         if (existeResponse.data.existe) {
@@ -94,8 +89,8 @@ const GenerarOrdenPago = () => {
   // Obtener el resumen de la orden
   const obtenerResumen = async (codigo) => {
     try {
-      const response = await axios.get(
-        `${endpoint}/resumen-orden-pago/${codigo}`
+      const response = await api.get(
+        `/resumen-orden-pago/${codigo}`
       );
       setResumen(response.data.resumen);
     } catch (error) {
@@ -111,8 +106,8 @@ const GenerarOrdenPago = () => {
     setProgreso(0);
 
     try {
-      const response = await axios.get(
-        `${endpoint}/orden-pago-existe/${codigoGenerado}`
+      const response = await api.get(
+        `/orden-pago-existe/${codigoGenerado}`
       );
       if (response.data.existe) {
         setOrdenYaGenerada(true);
@@ -121,8 +116,8 @@ const GenerarOrdenPago = () => {
         return;
       }
 
-      await axios.post(
-        `${endpoint}/orden-pago/pdf`,
+      await api.post(
+        `/orden-pago/pdf`,
         { codigo_generado: codigoGenerado },
         { responseType: "blob" }
       );
