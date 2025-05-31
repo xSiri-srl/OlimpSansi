@@ -415,7 +415,7 @@ const ConfirmationLista = ({ setStep }) => {
                 className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-5 py-2.5 rounded-full shadow-xl drop-shadow-lg transition duration-300"
               >
                 <FaCheckCircle className="text-lg" />
-                Sí, crear
+                Aceptar
               </button>
               <button
                 onClick={() => setMostrarModal(false)}
