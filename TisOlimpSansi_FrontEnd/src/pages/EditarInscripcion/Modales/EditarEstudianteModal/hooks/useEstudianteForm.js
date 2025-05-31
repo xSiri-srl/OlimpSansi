@@ -63,7 +63,7 @@ export const useEstudianteForm = (estudiante, ests, onEstudiantesChange) => {
 
         setEstudiantes(prevEstudiantes => {
           const actualizados = prevEstudiantes.map(est => {
-            if (est.tutor_legal?.ci === ciTutor && est.id_inscripcion !== newData.id_inscripcion) {
+            if (est.tutor_legal?.ci === ciTutor) {
               return {
                 ...est,
                 tutor_legal: {
