@@ -23,8 +23,7 @@ export default function FormularioEstudiante() {
   });
 
   const handleSeleccion = () => {
-    // Guardar el ID de olimpiada en el contexto global
-    setGlobalData(prevState => ({
+   setGlobalData(prevState => ({
       ...prevState,
       olimpiada: {
         id: olimpiadaSeleccionada,
@@ -32,8 +31,8 @@ export default function FormularioEstudiante() {
       }
     }));
     
-    // Navegar sin pasar el ID por URL
-    navigate(`/inscripcion/responsable`);
+    navigate("/inscripcion/responsable");
+
   };
 
   const handleSeleccionLista = () => {
@@ -46,8 +45,10 @@ export default function FormularioEstudiante() {
       }
     }));
     
-    // Navegar sin pasar el ID por URL
-    navigate(`/inscripcion-lista/tutorial`);
+    navigate(`/inscripcion-lista/tutorial`, {
+      
+    state: { id: olimpiadaSeleccionada }
+  });
   };
 
   // Función para verificar si estamos dentro del período de inscripción
