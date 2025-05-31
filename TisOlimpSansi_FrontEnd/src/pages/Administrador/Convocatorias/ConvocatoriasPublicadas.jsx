@@ -34,7 +34,7 @@ const ConvocatoriasPublicadas = () => {
 
   const handleDelete = async () => {
     try {
-      await api.delete(`/api/eliminarConvocatoria/${selectedConvocatoriaId}`);
+      await axios.delete(`${API_URL}/api/eliminarConvocatoria/${selectedConvocatoriaId}`);
       setConvocatorias((prev) => prev.filter((c) => c.id !== selectedConvocatoriaId));
       setShowDeleteModal(false);
       setShowSuccessModal(true);

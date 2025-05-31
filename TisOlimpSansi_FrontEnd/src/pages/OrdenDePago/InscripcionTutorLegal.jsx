@@ -3,7 +3,7 @@ import { FaUser, FaIdCard, FaEnvelope, FaPhoneAlt } from "react-icons/fa";
 import { useFormData } from "./form-data-context";
 import { TextField, RadioGroupField } from "./components/FormComponents";
 import { useFormValidation } from "./hooks/useFormValidation";
-import api from "../../utils/api";
+import { API_URL } from "../../utils/api";
 import axios from "axios";
 
 export default function InscripcionTutorLegal({

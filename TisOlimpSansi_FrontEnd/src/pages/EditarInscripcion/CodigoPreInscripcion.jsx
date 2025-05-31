@@ -81,7 +81,7 @@ const CodigoPreInscripcion = () => {
 
     try {
       // Paso 1: Verificar si ya se generó una orden de pago
-      const ordenPagoResponse = await api.get(`/api/orden-pago-existe/${codigoPreInscripcion}`);
+      const ordenPagoResponse = await axios.get(`${API_URL}/api/orden-pago-existe/${codigoPreInscripcion}`);
       if (ordenPagoResponse.data?.existe) {
         setError("Ya se generó una orden de pago. Solo se puede editar la inscripción antes de generarla.");
         setLoading(false);
@@ -100,7 +100,7 @@ const CodigoPreInscripcion = () => {
 
     try {
       // Paso 2: Buscar preinscripciones si no hay orden generada
-      const response = await api.get(`/api/preinscritos-por-codigo`, {
+      const response = await axios.get(`${API_URL}/api/preinscritos-por-codigo`, {
         params: { codigo: codigoPreInscripcion },
       });
       setResumen(response.data);

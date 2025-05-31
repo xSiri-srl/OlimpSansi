@@ -10,7 +10,8 @@ import AreaGrid from './AreasCompetencia/AreaGrid';
 import AreaSummary from './AreasCompetencia/AreaSummary';
 import NavigationButtons from './AreasCompetencia/NavigationButtons';
 import { useState, useEffect } from "react";
-import api from "../../utils/api";
+import api, { API_URL } from "../../utils/api";
+import axios from "axios";
 
 export default function AreasCompetencia({
   formData,
@@ -47,7 +48,7 @@ export default function AreasCompetencia({
       const cargarMaxAreas = async () => {
         setCargandoMaxAreas(true);
         try {
-          const response = await api.get(`/olimpiada/${olimpiadaId}`);
+          const response = await axios.get(`${API_URL}/olimpiada/${olimpiadaId}`);
           
           if (response.status === 200 && response.data) {
             const maxMateriasValue = parseInt(response.data.max_materias, 10);

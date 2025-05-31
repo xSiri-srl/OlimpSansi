@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import api from '../../../utils/api';
+import api, { API_URL } from '../../../utils/api';
 import axios from 'axios';
 
 const useDashboardData = () => {
@@ -26,8 +26,8 @@ const useDashboardData = () => {
         );
 
         // Obtener información de todas las órdenes de pago
-        const ordenesPagoResponse = await api.get(
-          `/api/orden-pago`
+        const ordenesPagoResponse = await axios.get(
+          `${API_URL}/api/orden-pago`
         );
 
         // Procesar datos para estadísticas

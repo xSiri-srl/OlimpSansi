@@ -7,7 +7,8 @@ import * as XLSX from "xlsx"
 import { saveAs } from "file-saver"
 import { useNavigate } from "react-router-dom"
 import { HiArrowCircleRight } from "react-icons/hi"
-import api from "../../../utils/api"
+import api, { API_URL } from "../../../utils/api"
+import axios from "axios"
 
 function DescargarListas() {
   const [busqueda, setBusqueda] = useState("")
@@ -22,7 +23,7 @@ function DescargarListas() {
   const [contadorNumeracion, setContadorNumeracion] = useState(1)
 
   useEffect(() => {
-    api.get("/estudiantes/pre-inscritos").then((response) => {
+    axios.get(`${API_URL}/estudiantes/pre-inscritos`).then((response) => {
       setInscritos(response.data.estudiantes_no_pagados)
       console.log("Inscritos:", response.data.estudiantes_no_pagados)
     })

@@ -42,7 +42,7 @@ const EditarConvocatoria = () => {
   useEffect(() => {
     const fetchConvocatoria = async () => {
       try {
-        const response = await api.get(`/api/convocatoria/${id}`);
+        const response = await axios.get(`${API_URL}/api/convocatoria/${id}`);
         const data = response.data;
         setTitulo(data.titulo);
         setArea(data.id_area);
@@ -83,7 +83,7 @@ const EditarConvocatoria = () => {
     }
 
     try {
-      await api.post(`/api/actualizarConvocatoria/${id}`, formData, {
+      await axios.post(`${API_URL}/api/actualizarConvocatoria/${id}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

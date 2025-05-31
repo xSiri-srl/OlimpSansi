@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import api from "../../../utils/api";
+import { API_URL } from "../../../utils/api";
+import axios from "axios";
 
 export function useAreasDisponibles(olimpiadaId) {
   const [areasDisponibles, setAreasDisponibles] = useState([]);
@@ -39,7 +40,7 @@ export function useAreasDisponibles(olimpiadaId) {
     setCargaCompleta(false);
     
     try {
-      const response = await api.get(`/api/areas-olimpiada/${olimpiadaId}`);
+      const response = await axios.get(`${API_URL}/api/areas-olimpiada/${olimpiadaId}`);
       
       if (response.status === 200) {
         if (response.data.data && Array.isArray(response.data.data)) {
