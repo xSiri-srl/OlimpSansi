@@ -82,6 +82,7 @@ const DatosCompetidor = ({
             className={`mt-1 p-2 w-full border rounded-md ${tieneError('correo') ? 'border-red-500' : ''}`}
             value={estudianteData.estudiante?.correo || ''}
             onChange={(e) => handleChange('estudiante', 'correo', e.target.value)}
+            maxLength={30}
           />
           {tieneError('correo') && (
             <p className="text-red-500 text-xs mt-1">{errores.correo}</p>

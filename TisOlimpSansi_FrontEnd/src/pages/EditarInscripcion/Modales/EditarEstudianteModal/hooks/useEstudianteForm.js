@@ -16,10 +16,6 @@ export const useEstudianteForm = (estudiante, ests, onEstudiantesChange) => {
     }
   }, [estudiante]);
 
-  useEffect(() => {
-    setEstudiantes(ests)
-  }, [ests]);
-
   const handleChange = (section, field, value) => {
     setEstudianteData(prev => {
       const newData = {...prev};
@@ -59,6 +55,7 @@ export const useEstudianteForm = (estudiante, ests, onEstudiantesChange) => {
     } else if (section === 'colegio') {
         newData.colegio = {...newData.colegio, [field]: value};
       } else if (section === 'tutor_legal') {
+        newData.tutor_legal = { ...newData.tutor_legal, [field]: value };
         const ciTutor = newData.tutor_legal.ci;
 
         setEstudiantes(prevEstudiantes => {
@@ -82,27 +79,19 @@ export const useEstudianteForm = (estudiante, ests, onEstudiantesChange) => {
           return actualizados;
         });
       } else if (section.startsWith('tutor_academico_')) {
-        if (!newData.tutores_academicos) newData.tutores_academicos = [];
-        if (!newData.tutores_academicos[0]) {
-          newData.tutores_academicos[0] = {
-            nombre_area: newData.areas_competencia?.[0]?.nombre_area || '',
-            tutor: {}
-          };
-        }
-        
         // Actualizar el tutor académico local
         newData.tutores_academicos[0].tutor = {
           ...newData.tutores_academicos[0].tutor,
           [field]: value
         };
-        
-        // Si se cambia cualquier campo del tutor académico y tiene CI, sincronizar con otros estudiantes
+
         const tutorActualizado = newData.tutores_academicos[0].tutor;
-        if (tutorActualizado.ci) {
+        // Solo si el CI existe y no está vacío
+        if (tutorActualizado.ci && tutorActualizado.ci !== '') {
           const ciTutorAcademico = tutorActualizado.ci;
-          
-          setEstudiantes(prevEstudiantes => 
-            prevEstudiantes.map(est => {
+
+          setEstudiantes(prevEstudiantes => {
+            const actualizados = prevEstudiantes.map(est => {
               if (est.tutores_academicos[0].tutor.ci == newData.tutores_academicos[0].tutor.ci) {
                 const tutoresActualizados = est.tutores_academicos?.map(tutorAcademico => {
                   if (tutorAcademico.tutor?.ci === ciTutorAcademico) {
@@ -110,14 +99,13 @@ export const useEstudianteForm = (estudiante, ests, onEstudiantesChange) => {
                       ...tutorAcademico,
                       tutor: {
                         ...tutorAcademico.tutor,
-                        ...tutorActualizado // Sincronizar todos los campos del tutor académico
+                        ...tutorActualizado
                       }
                     };
                   }
                   return tutorAcademico;
                 });
-                
-                // Si se encontraron tutores para actualizar, devolver el estudiante actualizado
+
                 if (tutoresActualizados && tutoresActualizados.some(t => t.tutor?.ci === ciTutorAcademico)) {
                   return {
                     ...est,
@@ -126,8 +114,15 @@ export const useEstudianteForm = (estudiante, ests, onEstudiantesChange) => {
                 }
               }
               return est;
-            })
-          );
+            });
+
+            // 👇 Esta es la clave que faltaba
+            if (onEstudiantesChange) {
+              onEstudiantesChange(actualizados);
+            }
+
+            return actualizados;
+          });
         }
       } else if (section.startsWith('area_')) {
         const index = parseInt(section.split('_')[1]);
@@ -159,7 +154,6 @@ export const useEstudianteForm = (estudiante, ests, onEstudiantesChange) => {
         }
       }
       
-      console.log("Datos actualizados:", newData);
       return newData;
     });
   };
