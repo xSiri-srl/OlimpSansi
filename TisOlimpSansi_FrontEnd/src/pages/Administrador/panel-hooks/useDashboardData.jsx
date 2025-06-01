@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { API_URL } from '../../../utils/api';
 
 const useDashboardData = () => {
   const [chartData, setChartData] = useState([]);
@@ -14,8 +15,6 @@ const useDashboardData = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const API_BASE_URL = "http://localhost:8000/api";
-
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -23,12 +22,12 @@ const useDashboardData = () => {
 
         // Obtener lista de todos los inscritos
         const inscritosResponse = await axios.get(
-          `${API_BASE_URL}/lista-inscritos`
+          `${API_URL}/api/lista-inscritos`
         );
 
         // Obtener información de todas las órdenes de pago
         const ordenesPagoResponse = await axios.get(
-          `${API_BASE_URL}/orden-pago`
+          `${API_URL}/api/orden-pago`
         );
 
         // Procesar datos para estadísticas

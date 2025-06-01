@@ -6,6 +6,7 @@ import { saveAs } from "file-saver";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { HiArrowCircleRight } from "react-icons/hi";
+import { API_URL } from "../../../utils/api";
 
 function OrdenesPago() {
   const [estado, setEstado] = useState("");
@@ -20,7 +21,7 @@ function OrdenesPago() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:8000/api/orden-de-pago/info")
+      .get(`${API_URL}/api/orden-de-pago/info`)
       .then((response) => {
         if (Array.isArray(response.data.ordenes)) {
           setOrdenesPago(response.data.ordenes);

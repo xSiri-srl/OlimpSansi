@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { FaSchool, FaBuilding, FaMapMarkedAlt } from "react-icons/fa";
-import axios from "axios";
 
 const DatosColegio = ({
   estudianteData,

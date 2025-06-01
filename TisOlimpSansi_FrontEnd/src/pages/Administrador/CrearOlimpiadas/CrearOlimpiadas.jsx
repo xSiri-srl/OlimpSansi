@@ -16,6 +16,7 @@ import {
   FaTimesCircle,
   FaExclamationTriangle,
 } from "react-icons/fa";
+import { API_URL } from "../../../utils/api";
 
 const CrearOlimpiadas = () => {
   const [titulo, setTitulo] = useState("");
@@ -89,7 +90,7 @@ const validarCampos = () => {
     try {
       //--------------------
       //esto solo se utiliza en todo menos get
-      await axios.get("http://localhost:8000/sanctum/csrf-cookie", {
+      await axios.get(`${API_URL}/sanctum/csrf-cookie`, {
         withCredentials: true,
       });
       const csrfToken = Cookies.get("XSRF-TOKEN");
@@ -107,7 +108,7 @@ const validarCampos = () => {
       };
 
       const response = await axios.post(
-        "http://localhost:8000/agregarOlimpiada",
+        `${API_URL}/agregarOlimpiada`,
         olimpiadaData,
         { withCredentials: true }
       );

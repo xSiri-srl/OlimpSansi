@@ -4,6 +4,7 @@ import Cookies from 'js-cookie';
 import HeaderSelector from "./AreasCompetencia/HeaderSelector";
 import AreaCosto from "./AreasCompetencia/AreaCosto";
 import AccionesFooter from "./AreasCompetencia/AccionesFooter";
+import { API_URL } from "../../../utils/api";
 
 const AsociarCosto = () => {
   const [olimpiadas, setOlimpiadas] = useState([]);
@@ -23,7 +24,7 @@ const AsociarCosto = () => {
       setErrorCarga("");
       
       try {
-        await axios.get('http://localhost:8000/sanctum/csrf-cookie', {
+        await axios.get(`${API_URL}/sanctum/csrf-cookie`, {
           withCredentials: true,
         });
         
@@ -38,7 +39,7 @@ const AsociarCosto = () => {
           withCredentials: true
         };
         
-        const response = await axios.get('http://localhost:8000/getOlimpiadas', config);
+        const response = await axios.get(`${API_URL}/getOlimpiadas`, config);
         
         if (response.status === 200) {
           if (response.data && response.data.data && Array.isArray(response.data.data)) {
@@ -97,7 +98,7 @@ const AsociarCosto = () => {
   const cargarAreasAsociadas = async (idOlimpiada) => {
     setCargando(true);
     try {
-      await axios.get('http://localhost:8000/sanctum/csrf-cookie', {
+      await axios.get(`${API_URL}/sanctum/csrf-cookie`, {
         withCredentials: true,
       });
       
@@ -112,7 +113,7 @@ const AsociarCosto = () => {
         withCredentials: true
       };
       
-      const response = await axios.get(`http://localhost:8000/areas-olimpiada/${idOlimpiada}`, config);
+      const response = await axios.get(`${API_URL}/areas-olimpiada/${idOlimpiada}`, config);
       
       console.log("Áreas asociadas:", response.data);
       
@@ -156,7 +157,7 @@ const AsociarCosto = () => {
     setGuardando(true);
 
     try {
-      await axios.get('http://localhost:8000/sanctum/csrf-cookie', {
+      await axios.get(`${API_URL}/sanctum/csrf-cookie`, {
         withCredentials: true,
       });
       
@@ -176,7 +177,7 @@ const AsociarCosto = () => {
 
       // Endpoint específico para actualizar solo los costos
       const response = await axios.post(
-        'http://localhost:8000/actualizar-costos-olimpiada',
+        `${API_URL}/actualizar-costos-olimpiada`,
         datosAEnviar,
         { withCredentials: true }
       );
