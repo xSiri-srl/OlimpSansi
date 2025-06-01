@@ -104,10 +104,11 @@ export default function FormularioEstudiante() {
       setErrorCarga("");
       
       try {
-        const response = await axios.get(`${API_URL}/olimpiadas-publicas`);
+        const response = await axios.get(`${API_URL}/api/getOlimpiadaz`);
         
         if (response.status === 200) {
           setOlimpiadas(response.data.data || []);
+          console.log(olimpiadas)
         } else {
           throw new Error("No se pudieron cargar las olimpiadas");
         }

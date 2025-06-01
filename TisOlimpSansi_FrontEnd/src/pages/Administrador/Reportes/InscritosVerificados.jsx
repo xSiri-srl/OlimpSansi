@@ -22,7 +22,7 @@ function InscritosVerificados() {
   const [contadorNumeracion, setContadorNumeracion] = useState(1)
 
   useEffect(() => {
-      axios.get(`${API_URL}/estudiantes/inscritos`) // AQUI PONER LA LLAMADA
+      axios.get(`${API_URL}/api/estudiantes/inscritos`) // AQUI PONER LA LLAMADA
       .then((response) => {
         setInscritos(response.data.estudiantes_que_pagaron) // CAMBIAR
         console.log("Inscritos:", response.data.estudiantes_que_pagaron) // CAMBIAR

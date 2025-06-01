@@ -6,6 +6,7 @@ import ResponsiveMenu from "./ResponsiveMenu"
 import axios from "axios"
 import { useNavigate, useLocation, Link } from "react-router-dom"
 import Cookies from "js-cookie"
+import {API_URL} from "../utils/api"
 
 
 const Navbar = () => {
@@ -29,7 +30,7 @@ const Navbar = () => {
     const csrf = Cookies.get("XSRF-TOKEN")
     axios.defaults.headers.common["X-XSRF-TOKEN"] = csrf
 
-    await axios.post("http://localhost:8000/logout", {}, { withCredentials: true })
+    await axios.post(`${API_URL}/logout`, {}, { withCredentials: true })
     localStorage.removeItem("user")
     localStorage.clear();
     setRole("responsable")

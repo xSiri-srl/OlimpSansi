@@ -55,7 +55,7 @@ function RegistroColegio({ setStep }) {
 
   useEffect(() => {
     
-      axios.post(`${API_URL}/colegios/filtro`, {})
+      axios.post(`${API_URL}/api/colegios/filtro`, {})
       .then((res) => {
         setColegiosData(res.data);
         const departamentosUnicos = [

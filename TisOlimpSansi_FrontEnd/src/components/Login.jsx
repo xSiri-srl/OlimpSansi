@@ -34,7 +34,7 @@ const Login = () => {
 
 
   const loginUser = async (username, password) => {
-    await axios.get(`http://localhost:8000/sanctum/csrf-cookie`, { withCredentials: true });
+    await axios.get(`${API_URL}/sanctum/csrf-cookie`, { withCredentials: true });
     const csrf = Cookies.get("XSRF-TOKEN");
     axios.defaults.headers.common["X-XSRF-TOKEN"] = csrf;
     const response = await axios.post(
@@ -46,11 +46,11 @@ const Login = () => {
   };
 
   const registerUser = async (username, password, rol) => {
-    await axios.get(`http://localhost:8000/sanctum/csrf-cookie`, { withCredentials: true });
+    await axios.get(`${API_URL}/sanctum/csrf-cookie`, { withCredentials: true });
     const csrf = Cookies.get("XSRF-TOKEN");
     axios.defaults.headers.common["X-XSRF-TOKEN"] = csrf;
     const response = await axios.post(
-      `http://localhost:8000/registro`,
+      `${API_URL}/registro`,
       {
         name: username,
         email: username,
@@ -166,7 +166,7 @@ const Login = () => {
             </button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-gray-600">
+         {/*<p className="mt-6 text-center text-sm text-gray-600">
             {showRegister ? "¿Ya tienes cuenta?" : "¿No tienes cuenta?"}{" "}
             <button
               onClick={() => setShowRegister(!showRegister)}
@@ -174,7 +174,7 @@ const Login = () => {
             >
               {showRegister ? "Iniciar sesión" : "Registrarse"}
             </button>
-          </p>
+          </p>*/ } 
         </div>
       </div>
     </div>

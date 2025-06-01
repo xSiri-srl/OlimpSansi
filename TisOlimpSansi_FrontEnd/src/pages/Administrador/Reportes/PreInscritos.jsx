@@ -23,7 +23,7 @@ function DescargarListas() {
   const [contadorNumeracion, setContadorNumeracion] = useState(1)
 
   useEffect(() => {
-    axios.get(`${API_URL}/estudiantes/pre-inscritos`).then((response) => {
+    axios.get(`${API_URL}/api/estudiantes/pre-inscritos`).then((response) => {
       setInscritos(response.data.estudiantes_no_pagados)
       console.log("Inscritos:", response.data.estudiantes_no_pagados)
     })

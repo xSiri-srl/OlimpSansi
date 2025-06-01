@@ -92,7 +92,7 @@ function DescargarListas() {
   ];
 
   useEffect(() => {
-    axios.get(`${API_URL}/lista-inscritos`).then((response) => {
+    axios.get(`${API_URL}/api/lista-inscritos`).then((response) => {
       setInscritos(response.data);
     });
   }, []);

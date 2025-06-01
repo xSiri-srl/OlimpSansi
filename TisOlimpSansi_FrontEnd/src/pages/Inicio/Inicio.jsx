@@ -30,8 +30,8 @@ const Inicio = () => {
         
         // Fetch both convocatorias and areas in parallel
         const [convocatoriasResponse, areasResponse] = await Promise.all([
-          axios.get(`${API_URL}/convocatorias`),
-          axios.get(`${API_URL}/areas`)
+          axios.get(`${API_URL}/api/convocatorias`),
+          axios.get(`${API_URL}/api/areas`)
         ]);
         
         setConvocatorias(convocatoriasResponse.data);
