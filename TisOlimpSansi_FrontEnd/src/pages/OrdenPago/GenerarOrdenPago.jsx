@@ -24,7 +24,6 @@ const GenerarOrdenPago = () => {
   const [pdfUrl, setPdfUrl] = useState(null); // Estado para la previsualización
   const [mostrarPrevisualizacion, setMostrarPrevisualizacion] = useState(false); // Estado para mostrar/ocultar previsualización
 
-  const endpoint = "http://localhost:8000/api";
 
   // Efecto para la barra de progreso
   useEffect(() => {

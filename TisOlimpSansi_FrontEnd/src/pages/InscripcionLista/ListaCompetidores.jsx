@@ -38,8 +38,7 @@ const ListaCompetidores = ({ setStep }) => {
 
   // Get students from context
   const { estudiantes, setEstudiantes } = useFormData();
-  const endpoint = "http://localhost:8000/api";
-
+ 
   // Map area names to icons
   const areaIcons = {
     Matemáticas: <FaCalculator className="text-blue-600" />,

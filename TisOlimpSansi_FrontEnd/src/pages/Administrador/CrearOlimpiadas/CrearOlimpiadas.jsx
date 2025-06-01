@@ -32,7 +32,7 @@ const CrearOlimpiadas = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [olimpiadaCreada, setOlimpiadaCreada] = useState(null);
-  const endpoint = "http://localhost:8000";
+  
   const years = Array.from({ length: 2030 - 2025 + 1 }, (_, i) => 2025 + i);
 
 const validarCampos = () => {
