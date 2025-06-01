@@ -11,6 +11,11 @@ use App\Http\Controllers\InscripcionController;
 use App\Http\Controllers\OrdenPagoController;
 
 
+Route::get('/{any}', function () {
+    return view('index');
+})->where('any','.*');
+
+
 Route::get('/', function () {
     return view('welcome');
 });
@@ -19,7 +24,7 @@ Route::post('/login', [AuthController::class, 'login']);
 
 Route::post('/registro', [AuthController::class, 'register']);
 
-Route::get('/olimpiadas-publicas', [OlimpiadaController::class, 'getOlimpiadasPublicas']);
+Route::get('/olimpiadas-publicas', [OlimcpiadaController::class, 'getTodasLasOlimpiadas']);
 
 Route::get('/olimpiada/{id}', [OlimpiadaController::class, 'show']);
 
