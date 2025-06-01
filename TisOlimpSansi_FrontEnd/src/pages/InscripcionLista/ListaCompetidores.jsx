@@ -38,11 +38,7 @@ const ListaCompetidores = ({ setStep }) => {
 
   // Get students from context
   const { estudiantes, setEstudiantes } = useFormData();
-<<<<<<< HEAD
-
-=======
  
->>>>>>> c9ba84c2a2a1a1dd874698962ce36dc68757665d
   // Map area names to icons
   const areaIcons = {
     Matemáticas: <FaCalculator className="text-blue-600" />,

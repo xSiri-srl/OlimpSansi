@@ -10,7 +10,7 @@ import {
 } from "react-icons/fa";
 import { API_URL } from "../../utils/api";
 import axios from "axios";
-import { API_URL } from "../../utils/api";
+
 
 const GenerarOrdenPago = () => {
   const [error, setError] = useState("");

@@ -9,7 +9,6 @@ import {
 import { motion } from "framer-motion";
 import  { API_URL } from "../../../utils/api";
 import axios from "axios";
-import { API_URL } from "../../../utils/api";
 
 const ConvocatoriasPublicadas = () => {
   const [convocatorias, setConvocatorias] = useState([]);

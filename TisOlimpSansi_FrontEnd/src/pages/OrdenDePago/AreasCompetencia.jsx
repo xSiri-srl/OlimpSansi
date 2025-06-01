@@ -11,6 +11,7 @@ import AreaSummary from './AreasCompetencia/AreaSummary';
 import NavigationButtons from './AreasCompetencia/NavigationButtons';
 import { useState, useEffect } from "react";
 import { API_URL } from "../../utils/api";
+import axios from "axios"
 
 export default function AreasCompetencia({
   formData,

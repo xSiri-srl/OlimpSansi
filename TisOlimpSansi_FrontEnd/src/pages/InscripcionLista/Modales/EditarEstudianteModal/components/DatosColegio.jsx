@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { FaSchool, FaBuilding, FaMapMarkedAlt } from "react-icons/fa";
 import { API_URL } from "../../../../../utils/api";
 import axios from "axios";
-import { API_URL } from "../../../../../utils/api";
 
 const DatosColegio = ({
   estudianteData,
@@ -19,11 +18,7 @@ const DatosColegio = ({
 
   useEffect(() => {
     axios
-<<<<<<< HEAD
-      .post(`${API_URL}/colegios/filtro`, {})
-=======
       .post(`${API_URL}/api/colegios/filtro`, {})
->>>>>>> c9ba84c2a2a1a1dd874698962ce36dc68757665d
       .then((res) => {
         setColegiosData(res.data);
         const departamentosUnicos = [

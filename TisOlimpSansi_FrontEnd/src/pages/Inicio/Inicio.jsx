@@ -3,10 +3,7 @@ import SeccionPrincipal from "./SeccionPrincipal";
 import VisualizadoresPdf from "./VisualizadoresPdf";
 import SeccionInformativa from "./SeccionInformativa";
 import { API_URL } from "../../utils/api";
-<<<<<<< HEAD
-import axios from "axios";
-=======
->>>>>>> c9ba84c2a2a1a1dd874698962ce36dc68757665d
+import axios from "axios"
 
 const Inicio = () => {
   const requisitosRef = useRef(null);

@@ -6,8 +6,6 @@ import { motion } from "framer-motion";
 import obtenerUsuario from "../funciones/obtenerUser";
 import { API_URL } from "../utils/api";
 
-import { API_URL } from "../utils/api";
-
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");

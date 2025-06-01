@@ -9,7 +9,6 @@ import {
 import { useFormData } from "./form-data-context";
 import { API_URL } from "../../utils/api";
 import axios from "axios";
-import { API_URL } from "../../utils/api";
 
 export default function FormularioTutoresAcademicos({
   formData,

@@ -5,7 +5,6 @@ import { TextField, RadioGroupField } from "./components/FormComponents";
 import { useFormValidation } from "./hooks/useFormValidation";
 import { API_URL } from "../../utils/api";
 import axios from "axios";
-import { API_URL } from "../../utils/api";
 
 export default function InscripcionTutorLegal({
   formData,

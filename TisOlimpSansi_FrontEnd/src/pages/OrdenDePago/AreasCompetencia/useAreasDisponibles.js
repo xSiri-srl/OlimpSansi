@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { API_URL } from "../../../utils/api";
 import axios from "axios";
-import { API_URL } from "../../../utils/api";
 
 export function useAreasDisponibles(olimpiadaId) {
   const [areasDisponibles, setAreasDisponibles] = useState([]);

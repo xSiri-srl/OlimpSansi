@@ -3,10 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { FaCheckCircle } from "react-icons/fa";
 import { SiGoogledocs } from "react-icons/si";
 import { API_URL } from "../../../utils/api";
-<<<<<<< HEAD
 import axios from "axios";
-=======
->>>>>>> c9ba84c2a2a1a1dd874698962ce36dc68757665d
 
 const SubirConvocatoria = () => {
   const [titulo, setTitulo] = useState("");
