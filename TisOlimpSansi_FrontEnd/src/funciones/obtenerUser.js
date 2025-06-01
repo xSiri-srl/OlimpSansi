@@ -1,8 +1,9 @@
 import axios from 'axios';
+import { API_URL } from '../utils/api';
 
 const obtenerUsuario = async () => {
   try {
-    const response = await axios.get("http://localhost:8000/user", {
+    const response = await axios.get(`${API_URL}/user`, {
       withCredentials: true,
     });
     return response.data;
