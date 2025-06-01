@@ -4,6 +4,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import { motion } from "framer-motion";
 import obtenerUsuario from "../funciones/obtenerUser";
+import { API_URL } from "../utils/api";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -37,7 +38,7 @@ const Login = () => {
 
 
   const loginUser = async (username, password) => {
-    await axios.get(`${endpoint}/sanctum/csrf-cookie`, { withCredentials: true });
+    await axios.get(`${API_URL}/sanctum/csrf-cookie`, { withCredentials: true });
     const csrf = Cookies.get("XSRF-TOKEN");
     axios.defaults.headers.common["X-XSRF-TOKEN"] = csrf;
     const response = await axios.post(
