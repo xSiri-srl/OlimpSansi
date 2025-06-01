@@ -4,7 +4,7 @@ import { FaUserAlt, FaUsers } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { useFormData } from "./form-data-context";
 import ModalPeriodo from "./modales/ModalPeriodo";
-import api, { API_URL } from "../../utils/api";
+import { API_URL } from "../../utils/api";
 import axios from "axios";
 
 export default function FormularioEstudiante() {

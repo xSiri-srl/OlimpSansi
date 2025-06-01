@@ -4,7 +4,7 @@ import HeaderSelector from "./AreasCompetencia/HeaderSelector";
 import AreaCompetencia from "./AreasCompetencia/AreaCompetencia";
 import AccionesFooter from "./AreasCompetencia/AccionesFooter";
 import { gradosDisponibles } from "./AreasCompetencia/constants";
-import api, { API_URL } from "../../../utils/api";
+import { API_URL } from "../../../utils/api";
 import axios from "axios";
 
 const SelectorAreaGrado = () => {

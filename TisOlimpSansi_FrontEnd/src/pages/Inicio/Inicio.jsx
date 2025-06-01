@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from "react";
 import SeccionPrincipal from "./SeccionPrincipal";
 import VisualizadoresPdf from "./VisualizadoresPdf";
 import SeccionInformativa from "./SeccionInformativa";
-import api, { API_URL } from "../../utils/api";
+import { API_URL } from "../../utils/api";
 import axios from "axios";
 
 const Inicio = () => {

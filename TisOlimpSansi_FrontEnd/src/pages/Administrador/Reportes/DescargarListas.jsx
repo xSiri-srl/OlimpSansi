@@ -5,7 +5,7 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { useNavigate } from "react-router-dom";
 import { HiArrowCircleRight } from "react-icons/hi";
-import api, { API_URL } from "../../../utils/api";
+import { API_URL } from "../../../utils/api";
 import axios from "axios";
 
 const datos = {

@@ -10,7 +10,7 @@ import {
   FaTimesCircle,
   FaExclamationTriangle,
 } from "react-icons/fa";
-import api, { API_URL } from "../../utils/api";
+import { API_URL } from "../../utils/api";
 import axios from "axios";
 
 const ConfirmationLista = ({ setStep }) => {

@@ -18,7 +18,7 @@ import {
 } from "react-icons/fa";
 import EditarEstudianteModal from "./Modales/EditarEstudianteModal";
 import ModalPeriodo from "./Modales/ModalPeriodo";
-import api, { API_URL } from "../../utils/api";
+import { API_URL } from "../../utils/api";
 
 
 const CodigoPreInscripcion = () => {

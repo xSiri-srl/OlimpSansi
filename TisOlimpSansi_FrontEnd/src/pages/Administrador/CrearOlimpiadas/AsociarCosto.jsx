@@ -4,7 +4,7 @@ import Cookies from 'js-cookie';
 import HeaderSelector from "./AreasCompetencia/HeaderSelector";
 import AreaCosto from "./AreasCompetencia/AreaCosto";
 import AccionesFooter from "./AreasCompetencia/AccionesFooter";
-import api, { API_URL } from "../../../utils/api";
+import { API_URL } from "../../../utils/api";
 
 const AsociarCosto = () => {
   const [olimpiadas, setOlimpiadas] = useState([]);

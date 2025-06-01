@@ -8,7 +8,7 @@ import {
 } from "react-icons/fa";
 import { useFormData } from "./form-context";
 import axios from "axios";
-import api, { API_URL } from "../../utils/api";
+import { API_URL } from "../../utils/api";
 
 function RegistroColegio({ setStep }) {
   const [formData, setFormData] = useState({

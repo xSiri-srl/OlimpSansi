@@ -7,7 +7,7 @@ import {
   FaExclamationTriangle,
 } from "react-icons/fa";
 import ExitoModal from "./../InscripcionLista/Modales/ExitoModal";
-import api, { API_URL } from "../../utils/api";
+import { API_URL } from "../../utils/api";
 import axios from "axios";
 const Confirmation = ({ navigate, handleBack }) => {
   const { globalData } = useFormData();

@@ -1,7 +1,7 @@
 import { useState,useEffect, useReducer } from "react";
 import { FaCloudUploadAlt } from "react-icons/fa";
 import ImageCropper from "./ImageCropper";
-import api, { API_URL } from "../../utils/api";
+import { API_URL } from "../../utils/api";
 import axios from "axios";
 
 

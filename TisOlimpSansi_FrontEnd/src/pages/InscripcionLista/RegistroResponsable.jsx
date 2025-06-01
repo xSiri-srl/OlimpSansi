@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { FaUser, FaIdCard } from "react-icons/fa"
 import { useFormData } from "./form-context"
 import { useLocation } from "react-router-dom";
-import api, { API_URL } from "../../utils/api";
+import { API_URL } from "../../utils/api";
 import axios from "axios";
 
 function RegistroResponsable({ setStep }) {

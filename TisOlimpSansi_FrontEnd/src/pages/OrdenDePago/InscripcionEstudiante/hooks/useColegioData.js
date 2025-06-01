@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import api, { API_URL } from "../../../../utils/api";
+import { API_URL } from "../../../../utils/api";
 import axios from "axios";
 
 export default function useColegioData(formData, handleInputChange) {

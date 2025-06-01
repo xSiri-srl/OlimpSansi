@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaCheckCircle } from "react-icons/fa";
 import { SiGoogledocs } from "react-icons/si";
-import api, { API_URL } from "../../../utils/api";
+import { API_URL } from "../../../utils/api";
 import axios from "axios";
 
 const SubirConvocatoria = () => {

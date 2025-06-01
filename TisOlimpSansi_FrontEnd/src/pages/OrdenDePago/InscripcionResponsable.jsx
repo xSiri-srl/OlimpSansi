@@ -9,7 +9,7 @@ import Confirmation from "./Confirmation";
 import { FormDataContext, useFormData } from "./form-data-context";
 import { TextField } from "./components/FormComponents";
 import { validateField, validateCI } from "./utils/validationsUtils";
-import api, { API_URL } from "../../utils/api";
+import { API_URL } from "../../utils/api";
 import axios from "axios";
 
 const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { SiGoogledocs } from "react-icons/si";
-import api, { API_URL } from "../../../utils/api";
+import { API_URL } from "../../../utils/api";
 import axios from "axios";
 
 const EditarConvocatoria = () => {
