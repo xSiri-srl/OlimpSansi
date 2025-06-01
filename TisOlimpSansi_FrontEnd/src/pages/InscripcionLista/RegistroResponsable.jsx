@@ -3,6 +3,7 @@ import { FaUser, FaIdCard } from "react-icons/fa"
 import { useFormData } from "./form-context"
 import axios from "axios"
 import { useLocation } from "react-router-dom";
+import { API_URL } from "../../utils/api";
 
 function RegistroResponsable({ setStep }) {
   const [formData, setFormData] = useState({
@@ -51,8 +52,8 @@ console.log(olimpiada)
     if (ci?.length >= 7 && ci?.length <= 8) {
       setIsSearching(true)
       try {
-        const apiUrl = `http://localhost:8000/api/buscarResponsable/${ci}`
-        const response = await axios.get(apiUrl)
+  
+        const response = await axios.get(`${API_URL}/api/buscarResponsable/${ci}`)
         if (response.data.found) {
           const responsable = response.data.responsable
           handleInputChange('responsable', 'nombres', responsable.nombre)

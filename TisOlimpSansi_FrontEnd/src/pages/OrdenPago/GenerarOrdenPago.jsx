@@ -9,6 +9,7 @@ import {
   FaExclamationTriangle,
 } from "react-icons/fa";
 import axios from "axios";
+import { API_URL } from "../../utils/api";
 
 const GenerarOrdenPago = () => {
   const [error, setError] = useState("");
@@ -47,7 +48,7 @@ const GenerarOrdenPago = () => {
   const obtenerPdf = async () => {
     try {
       const pdfResponse = await axios.get(
-        `${endpoint}/orden-pago/${codigoGenerado}`,
+        `${API_URL}/api/orden-pago/${codigoGenerado}`,
         { responseType: "blob" }
       );
       const pdfBlob = new Blob([pdfResponse.data], { type: "application/pdf" });
@@ -66,13 +67,13 @@ const GenerarOrdenPago = () => {
     setError("");
     try {
       const response = await axios.get(
-        `${endpoint}/obtener-orden-pago/${codigoGenerado}`
+        `${API_URL}/api/obtener-orden-pago/${codigoGenerado}`
       );
       if (response.status === 200) {
         await obtenerResumen(codigoGenerado);
         // Verificar si la orden ya está generada
         const existeResponse = await axios.get(
-          `${endpoint}/orden-pago-existe/${codigoGenerado}`
+          `${API_URL}/api/orden-pago-existe/${codigoGenerado}`
         );
         setOrdenYaGenerada(existeResponse.data.existe);
         if (existeResponse.data.existe) {
@@ -95,7 +96,7 @@ const GenerarOrdenPago = () => {
   const obtenerResumen = async (codigo) => {
     try {
       const response = await axios.get(
-        `${endpoint}/resumen-orden-pago/${codigo}`
+        `${API_URL}/api/resumen-orden-pago/${codigo}`
       );
       setResumen(response.data.resumen);
     } catch (error) {
@@ -112,7 +113,7 @@ const GenerarOrdenPago = () => {
 
     try {
       const response = await axios.get(
-        `${endpoint}/orden-pago-existe/${codigoGenerado}`
+        `${API_URL}/api/orden-pago-existe/${codigoGenerado}`
       );
       if (response.data.existe) {
         setOrdenYaGenerada(true);
@@ -122,7 +123,7 @@ const GenerarOrdenPago = () => {
       }
 
       await axios.post(
-        `${endpoint}/orden-pago/pdf`,
+        `${API_URL}/api/orden-pago/pdf`,
         { codigo_generado: codigoGenerado },
         { responseType: "blob" }
       );

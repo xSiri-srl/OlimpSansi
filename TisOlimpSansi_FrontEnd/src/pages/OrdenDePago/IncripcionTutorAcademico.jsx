@@ -8,6 +8,7 @@ import {
 } from "react-icons/fa";
 import { useFormData } from "./form-data-context";
 import axios from "axios";
+import { API_URL } from "../../utils/api";
 
 export default function FormularioTutoresAcademicos({
   formData,
@@ -34,10 +35,8 @@ export default function FormularioTutoresAcademicos({
       }));
 
       try {
-        const apiUrl = `http://localhost:8000/api/buscarTutor/${ci}`;
-        console.log(`Buscando tutor para ${area} con CI: ${ci}`);
-
-        const response = await axios.get(apiUrl);
+  
+        const response = await axios.get(`${API_URL}/api/buscarTutor/${ci}`);
 
         if (response.data.found) {
           const tutor = response.data.tutor;
