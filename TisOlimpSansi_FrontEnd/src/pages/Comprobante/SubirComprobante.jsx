@@ -2,7 +2,10 @@ import { useState,useEffect, useReducer } from "react";
 import { FaCloudUploadAlt } from "react-icons/fa";
 import ImageCropper from "./ImageCropper";
 import { API_URL } from "../../utils/api";
+<<<<<<< HEAD
 import axios from "axios";
+=======
+>>>>>>> c9ba84c2a2a1a1dd874698962ce36dc68757665d
 
 
 const SubirComprobante = () => {
@@ -36,6 +39,11 @@ const SubirComprobante = () => {
       localStorage.setItem("codigoGenerado", codigoGenerado);
     }
   }, [codigoGenerado]);
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> c9ba84c2a2a1a1dd874698962ce36dc68757665d
   const handleFinalizar = () => {
     let valid = true;
   

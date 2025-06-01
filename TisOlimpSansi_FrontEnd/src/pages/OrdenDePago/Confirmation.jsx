@@ -8,7 +8,6 @@ import {
 } from "react-icons/fa";
 import ExitoModal from "./../InscripcionLista/Modales/ExitoModal";
 import { API_URL } from "../../utils/api";
-import axios from "axios";
 const Confirmation = ({ navigate, handleBack }) => {
   const { globalData } = useFormData();
   const [isSubmitting, setIsSubmitting] = useState(false);

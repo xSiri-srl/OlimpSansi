@@ -10,6 +10,8 @@ import {
 } from "react-icons/fa";
 import { API_URL } from "../../utils/api";
 import axios from "axios";
+import { API_URL } from "../../utils/api";
+
 const GenerarOrdenPago = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -20,8 +22,10 @@ const GenerarOrdenPago = () => {
   const [mostrarModal, setMostrarModal] = useState(false);
   const [ordenYaGenerada, setOrdenYaGenerada] = useState(false);
   const [progreso, setProgreso] = useState(0);
-  const [pdfUrl, setPdfUrl] = useState(null);
-  const [mostrarPrevisualizacion, setMostrarPrevisualizacion] = useState(false); 
+  const [pdfUrl, setPdfUrl] = useState(null); // Estado para la previsualización
+  const [mostrarPrevisualizacion, setMostrarPrevisualizacion] = useState(false); // Estado para mostrar/ocultar previsualización
+
+
   // Efecto para la barra de progreso
   useEffect(() => {
     let timer;
@@ -43,7 +47,8 @@ const GenerarOrdenPago = () => {
   // Nueva función para obtener el PDF
   const obtenerPdf = async () => {
     try {
-      const pdfResponse = await axios.get(`${API_URL}/api/orden-pago/${codigoGenerado}`,
+      const pdfResponse = await axios.get(
+        `${API_URL}/api/orden-pago/${codigoGenerado}`,
         { responseType: "blob" }
       );
       const pdfBlob = new Blob([pdfResponse.data], { type: "application/pdf" });

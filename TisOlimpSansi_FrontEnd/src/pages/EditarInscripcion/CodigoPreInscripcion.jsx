@@ -28,8 +28,7 @@ const CodigoPreInscripcion = () => {
   const [resumen, setResumen] = useState(null);
   const [loading, setLoading] = useState(false);
   const [savingChanges, setSavingChanges] = useState(false);
-  const endpoint = "http://127.0.0.1:8000/api";
-  
+    
   // Estado para manejar la lista de estudiantes
   const [estudiantes, setEstudiantes] = useState([]);
   const [cursoAreaCategoria, setCursoAreaCategoria] = useState(null);

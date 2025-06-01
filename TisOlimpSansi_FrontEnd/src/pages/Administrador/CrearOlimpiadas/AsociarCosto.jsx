@@ -175,7 +175,7 @@ const AsociarCosto = () => {
 
       console.log("Guardando configuración de costos:", datosAEnviar);
 
-      // Endpoint específico para actualizar solo los costos
+   
       const response = await axios.post(
         `${API_URL}/actualizar-costos-olimpiada`,
         datosAEnviar,

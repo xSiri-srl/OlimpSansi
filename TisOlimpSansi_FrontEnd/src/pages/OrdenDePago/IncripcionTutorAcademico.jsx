@@ -9,6 +9,7 @@ import {
 import { useFormData } from "./form-data-context";
 import { API_URL } from "../../utils/api";
 import axios from "axios";
+import { API_URL } from "../../utils/api";
 
 export default function FormularioTutoresAcademicos({
   formData,
@@ -35,10 +36,8 @@ export default function FormularioTutoresAcademicos({
       }));
 
       try {
-        const apiUrl = `${API_URL}/api/buscarTutor/${ci}`;
-        console.log(`Buscando tutor para ${area} con CI: ${ci}`);
-
-        const response = await axios.get(apiUrl);
+  
+        const response = await axios.get(`${API_URL}/api/buscarTutor/${ci}`);
 
         if (response.data.found) {
           const tutor = response.data.tutor;

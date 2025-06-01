@@ -3,13 +3,17 @@ import { FaCircle } from "react-icons/fa";
 
 import  { API_URL } from "../../../utils/api";
 import axios from "axios";
+import { API_URL } from "../../../utils/api";
 
 const OrdenesRecientes = ({ darkMode }) => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
+<<<<<<< HEAD
 
+=======
+>>>>>>> c9ba84c2a2a1a1dd874698962ce36dc68757665d
   useEffect(() => {
     const fetchOrdenesRecientes = async () => {
       try {

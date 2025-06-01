@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 
 import { API_URL } from "../../../utils/api";
 import axios from "axios";
+import { API_URL } from "../../../utils/api";
 
 const boliviaGeoFeatures = {
   type: "FeatureCollection",
@@ -70,7 +71,10 @@ const MapaBolivia = ({ darkMode }) => {
   const [error, setError] = useState(null);
   const [tipoInscripcion, setTipoInscripcion] = useState("inscritos"); // inscritos o preinscritos
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> c9ba84c2a2a1a1dd874698962ce36dc68757665d
   useEffect(() => {
     fetchDepartamentoData();
   }, [tipoInscripcion]); // Re-fetch cuando cambia el tipo de inscripción
@@ -108,12 +112,21 @@ const MapaBolivia = ({ darkMode }) => {
       // Seleccionar endpoint según tipo de inscripción
       const endpoint =
         tipoInscripcion === "inscritos"
+<<<<<<< HEAD
           ? `${API_URL}/api/estudiantes/inscritos/bydepartamento`
           : `${API_URL}/api/estudiantes/preinscritos/bydepartamento`;
 
       // Hacer solicitudes para cada departamento
       const promises = departamentos.map(async (departamento) => {
         const response = await axios.post(`${endpoint}`, {
+=======
+          ? "/api/estudiantes/inscritos/bydepartamento"
+          : "/api/estudiantes/preinscritos/bydepartamento";
+
+      // Hacer solicitudes para cada departamento
+      const promises = departamentos.map(async (departamento) => {
+        const response = await axios.post(`${API_URL}${endpoint}`, {
+>>>>>>> c9ba84c2a2a1a1dd874698962ce36dc68757665d
           departamento,
         });
 

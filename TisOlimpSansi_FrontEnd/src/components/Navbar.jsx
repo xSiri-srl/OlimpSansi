@@ -6,8 +6,7 @@ import ResponsiveMenu from "./ResponsiveMenu"
 import axios from "axios"
 import { useNavigate, useLocation, Link } from "react-router-dom"
 import Cookies from "js-cookie"
-import {API_URL} from "../utils/api"
-
+import { API_URL } from "../utils/api"
 
 const Navbar = () => {
   const [open, setOpen] = useState(false)

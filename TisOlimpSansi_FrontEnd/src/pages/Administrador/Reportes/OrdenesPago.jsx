@@ -6,7 +6,6 @@ import { saveAs } from "file-saver";
 import { useNavigate } from "react-router-dom";
 import { HiArrowCircleRight } from "react-icons/hi";
 import { API_URL } from "../../../utils/api";
-import axios from "axios";
 
 function OrdenesPago() {
   const [estado, setEstado] = useState("");

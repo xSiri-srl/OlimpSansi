@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { API_URL } from "../../../../utils/api";
 import axios from "axios";
+import { API_URL } from "../../../../utils/api";
 
 export default function useColegioData(formData, handleInputChange) {
   // Estados para manejar datos de colegios

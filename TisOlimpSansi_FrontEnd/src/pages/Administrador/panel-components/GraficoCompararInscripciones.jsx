@@ -3,15 +3,22 @@ import React, { useState, useEffect } from 'react';
 import { ResponsiveBar } from '@nivo/bar';
 import { FaSpinner } from 'react-icons/fa';
 import { API_URL } from '../../../utils/api';
+<<<<<<< HEAD
 import axios from 'axios';
+=======
+>>>>>>> c9ba84c2a2a1a1dd874698962ce36dc68757665d
 
 const GraficoCompararInscripciones = ({ darkMode }) => {
   const [vistaActual, setVistaActual] = useState('area');
   const [datosGrafico, setDatosGrafico] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+<<<<<<< HEAD
   
 
+=======
+    
+>>>>>>> c9ba84c2a2a1a1dd874698962ce36dc68757665d
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -23,7 +30,7 @@ const GraficoCompararInscripciones = ({ darkMode }) => {
           ? `${API_URL}/api/inscripciones/por-area` 
           : `${API_URL}/api/inscripciones/por-categoria`;
         
-        const response = await axios.get(endpoint);
+        const response = await axios.get(`${API_URL}/api`);
         setDatosGrafico(response.data || []);
       } catch (err) {
         console.error("Error al cargar datos:", err);

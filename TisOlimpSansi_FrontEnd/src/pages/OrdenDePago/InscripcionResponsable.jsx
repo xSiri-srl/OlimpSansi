@@ -10,7 +10,6 @@ import { FormDataContext, useFormData } from "./form-data-context";
 import { TextField } from "./components/FormComponents";
 import { validateField, validateCI } from "./utils/validationsUtils";
 import { API_URL } from "../../utils/api";
-import axios from "axios";
 
 const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
   const [errors, setErrors] = useState({});
@@ -35,10 +34,8 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
       console.log("Buscando responsable con CI:", ci);
       
       try {
-        const apiUrl = `${API_URL}/api/buscarResponsable/${ci}`;
-        console.log("Consultando API en:", apiUrl);
-        
-        const response = await axios.get(apiUrl);
+     
+        const response = await axios.get(`${API_URL}/api/buscarResponsable/${ci}`);
         console.log("Respuesta recibida:", response.data);
         
         if (response.data.found) {

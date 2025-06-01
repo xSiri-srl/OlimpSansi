@@ -4,6 +4,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import { motion } from "framer-motion";
 import obtenerUsuario from "../funciones/obtenerUser";
+import { API_URL } from "../utils/api";
 
 import { API_URL } from "../utils/api";
 

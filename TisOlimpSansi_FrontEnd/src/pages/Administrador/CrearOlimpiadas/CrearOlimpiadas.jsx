@@ -32,7 +32,11 @@ const CrearOlimpiadas = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [olimpiadaCreada, setOlimpiadaCreada] = useState(null);
+<<<<<<< HEAD
 
+=======
+  
+>>>>>>> c9ba84c2a2a1a1dd874698962ce36dc68757665d
   const years = Array.from({ length: 2030 - 2025 + 1 }, (_, i) => 2025 + i);
 
 const validarCampos = () => {
@@ -107,8 +111,12 @@ const validarCampos = () => {
         fecha_fin: fechaFinal,
       };
 
+<<<<<<< HEAD
       const response = await axios
       .post(
+=======
+      const response = await axios.post(
+>>>>>>> c9ba84c2a2a1a1dd874698962ce36dc68757665d
         `${API_URL}/agregarOlimpiada`,
         olimpiadaData,
         { withCredentials: true }

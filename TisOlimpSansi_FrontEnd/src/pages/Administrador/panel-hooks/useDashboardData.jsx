@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { API_URL } from '../../../utils/api';
 import axios from 'axios';
+import { API_URL } from '../../../utils/api';
 
 const useDashboardData = () => {
   const [chartData, setChartData] = useState([]);
