@@ -90,7 +90,7 @@ const validarCampos = () => {
     try {
       //--------------------
       //esto solo se utiliza en todo menos get
-      await axios.get(`${API_URL}/sanctum/csrf-cookie`, {
+      await axios.get(`${API_URL}/api/sanctum/csrf-cookie`, {
         withCredentials: true,
       });
       const csrfToken = Cookies.get("XSRF-TOKEN");

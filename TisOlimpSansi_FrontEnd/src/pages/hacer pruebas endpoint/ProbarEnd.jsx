@@ -11,7 +11,7 @@ export default function ProbarEnd() {
     try {
       const data = JSON.parse(jsonInput);
 
-      await axios.get(`${API_URL}/sanctum/csrf-cookie`, {
+      await axios.get(`${API_URL}/api/sanctum/csrf-cookie`, {
         withCredentials: true,
       });
 

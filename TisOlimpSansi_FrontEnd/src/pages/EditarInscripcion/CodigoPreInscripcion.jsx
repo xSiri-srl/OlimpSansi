@@ -115,7 +115,7 @@ const CodigoPreInscripcion = () => {
 
         try {
           // Obtener datos completos de la olimpiada
-          const olimpiadaResponse = await axios.get(`${API_URL}/api/olimpiada/${idOlimpiada}`);
+          const olimpiadaResponse = await axios.get(`${API_URL}/olimpiada/${idOlimpiada}`);
           const olimpiada = olimpiadaResponse.data;
 
           const fechaIni = olimpiada.fecha_ini + "T00:00:00";
