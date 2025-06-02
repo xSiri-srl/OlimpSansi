@@ -15,13 +15,14 @@ const AsociarLimiteAreas = () => {
   const [errorCarga, setErrorCarga] = useState("");
   const [contador, setContador] = useState(1);
 
+  // Cargar lista de olimpiadas al montar el componente
   useEffect(() => {
     const cargarOlimpiadas = async () => {
       setCargandoOlimpiadas(true);
       setErrorCarga("");
 
       try {
-        
+        // Obtener token CSRF
         await axios.get("http://localhost:8000/sanctum/csrf-cookie", {
           withCredentials: true,
         });
@@ -78,7 +79,7 @@ const AsociarLimiteAreas = () => {
     cargarOlimpiadas();
   }, []);
 
- 
+  
   useEffect(() => {
     if (olimpiadaSeleccionada) {
       const olimpiada = olimpiadas.find(
@@ -88,7 +89,7 @@ const AsociarLimiteAreas = () => {
 
       const cargarNumeroMaximo = async () => {
         try {
-          
+       
           await axios.get("http://localhost:8000/sanctum/csrf-cookie", {
             withCredentials: true,
           });
@@ -104,17 +105,19 @@ const AsociarLimiteAreas = () => {
             withCredentials: true,
           };
 
-          
+  
           const response = await axios.get(
             `http://localhost:8000/olimpiada/${olimpiadaSeleccionada}`,
             config
           );
 
 
-          if (response.status === 200 && response.data.max_materias !== null && response.data.max_materias !== undefined) {
-            setContador(Number(response.data.max_materias)); 
+        
+          const maxMaterias = Number(response.data.max_materias);
+          if (response.status === 200 && !isNaN(maxMaterias) && maxMaterias > 0) {
+            setContador(maxMaterias);
           } else {
-            setContador(1);
+            setContador(1); 
           }
         } catch (error) {
           console.error("Error al cargar el número máximo de áreas:", error);
@@ -132,7 +135,7 @@ const AsociarLimiteAreas = () => {
     }
   }, [olimpiadaSeleccionada, olimpiadas]);
 
- 
+
   const guardarConfiguracion = async () => {
     if (!olimpiadaSeleccionada) {
       alert("Por favor seleccione una olimpiada");
@@ -226,9 +229,6 @@ const AsociarLimiteAreas = () => {
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
-      Asignación de límite de áreas
-     </h2>
       <HeaderSelector
         nombreOlimpiada={nombreOlimpiada}
         olimpiadas={olimpiadas}
