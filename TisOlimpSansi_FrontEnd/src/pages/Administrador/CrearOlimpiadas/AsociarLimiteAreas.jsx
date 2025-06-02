@@ -4,6 +4,7 @@ import Cookies from "js-cookie";
 import HeaderSelector from "./AreasCompetencia/HeaderSelector";
 import AccionesFooter from "./AreasCompetencia/AccionesFooter";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { API_URL } from "../../../utils/api";
 
 const AsociarLimiteAreas = () => {
   const [olimpiadas, setOlimpiadas] = useState([]);
@@ -22,8 +23,7 @@ const AsociarLimiteAreas = () => {
       setErrorCarga("");
 
       try {
-        // Obtener token CSRF
-        await axios.get("http://localhost:8000/sanctum/csrf-cookie", {
+        await axios.get(`${API_URL}/sanctum/csrf-cookie`, {
           withCredentials: true,
         });
 
@@ -39,7 +39,7 @@ const AsociarLimiteAreas = () => {
         };
 
         const response = await axios.get(
-          "http://localhost:8000/getOlimpiadas",
+          `${API_URL}/getOlimpiadas`,
           config
         );
 
@@ -145,8 +145,7 @@ const AsociarLimiteAreas = () => {
     setGuardando(true);
     setMensajeExito("");
     try {
-      // Obtener token CSRF
-      await axios.get("http://localhost:8000/sanctum/csrf-cookie", {
+      await axios.get(`${API_URL}/sanctum/csrf-cookie`, {
         withCredentials: true,
       });
 
@@ -167,7 +166,7 @@ const AsociarLimiteAreas = () => {
       };
 
       const response = await axios.post(
-        "http://localhost:8000/olimpiada/max-materias",
+        `${API_URL}/olimpiada/max-materias`,
         datosAEnviar,
         config
       );

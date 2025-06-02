@@ -8,6 +8,7 @@ import { saveAs } from "file-saver"
 import axios from "axios"
 import { useNavigate } from "react-router-dom"
 import { HiArrowCircleRight } from "react-icons/hi"
+import { API_URL } from "../../../utils/api"
 
 function InscritosVerificados() {
   const [busqueda, setBusqueda] = useState("")
@@ -23,7 +24,7 @@ function InscritosVerificados() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:8000/api/estudiantes/inscritos") // AQUI PONER LA LLAMADA
+      .get(`${API_URL}/api/estudiantes/inscritos`) // AQUI PONER LA LLAMADA
       .then((response) => {
         setInscritos(response.data.estudiantes_que_pagaron) // CAMBIAR
         console.log("Inscritos:", response.data.estudiantes_que_pagaron) // CAMBIAR

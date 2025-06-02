@@ -13,7 +13,6 @@ import {
   FaExclamationCircle,
 } from "react-icons/fa";
 import { useFormData } from "./form-context";
-import axios from "axios";
 import ErrorModal from "./Modales/RegistrosInvalidosModal";
 import DemasiadosErroresModal from "./Modales/DemasiadosErroresModal";
 import ExitoModal from "./Modales/ExitoModal";
@@ -39,8 +38,7 @@ const ListaCompetidores = ({ setStep }) => {
 
   // Get students from context
   const { estudiantes, setEstudiantes } = useFormData();
-  const endpoint = "http://localhost:8000/api";
-
+ 
   // Map area names to icons
   const areaIcons = {
     Matemáticas: <FaCalculator className="text-blue-600" />,

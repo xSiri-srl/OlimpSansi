@@ -31,11 +31,11 @@ class CategoriaGradoController extends Controller
 
     public function obtenerCategoriasPorGrado(Request $request)
     {
-        $olimpiadaId = $request->id_olimpiada;
+        $olimpiadaId = $request->id;
 
         $datos = olimpiada_area_categoria::with([
             'area',
-            'categoria.grado.grados'
+            'categoria.grado.grado'
         ])->where('id_olimpiada', $olimpiadaId)->get();
 
         $resultado = [];
@@ -45,7 +45,7 @@ class CategoriaGradoController extends Controller
             $area = $registro->area;
 
             foreach ($categoria->grado as $categoriaGrado) {
-                $grado = $categoriaGrado->grados;
+                $grado = $categoriaGrado->grado;
 
                 if (!$grado) continue;
 

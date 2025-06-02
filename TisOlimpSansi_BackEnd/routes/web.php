@@ -6,10 +6,10 @@ use App\Http\Controllers\OlimpiadaAreaController;
 use App\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
-use App\Http\Controllers\CategoriaGradoController;
-use App\Http\Controllers\InscripcionController;
-use App\Http\Controllers\OrdenPagoController;
 
+Route::get('/{any}', function () {
+    return view('index');
+})->where('any','.*');
 
 Route::get('/', function () {
     return view('welcome');

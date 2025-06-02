@@ -8,6 +8,7 @@ import {
 } from "react-icons/fa";
 import { useFormData } from "./form-context";
 import axios from "axios";
+import { API_URL } from "../../utils/api";
 
 function RegistroColegio({ setStep }) {
   const [formData, setFormData] = useState({
@@ -54,7 +55,7 @@ function RegistroColegio({ setStep }) {
 
   useEffect(() => {
     axios
-      .post("http://localhost:8000/api/colegios/filtro", {})
+      .post(`${API_URL}/api/colegios/filtro`, {})
       .then((res) => {
         setColegiosData(res.data);
         const departamentosUnicos = [

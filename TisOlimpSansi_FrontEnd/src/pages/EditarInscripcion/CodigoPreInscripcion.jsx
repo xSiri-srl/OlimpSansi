@@ -17,6 +17,9 @@ import {
   FaSave,
 } from "react-icons/fa";
 import EditarEstudianteModal from "./Modales/EditarEstudianteModal";
+import ModalPeriodo from "./Modales/ModalPeriodo";
+import { API_URL } from "../../utils/api";
+
 
 const CodigoPreInscripcion = () => {
   const navigate = useNavigate();
@@ -25,8 +28,7 @@ const CodigoPreInscripcion = () => {
   const [resumen, setResumen] = useState(null);
   const [loading, setLoading] = useState(false);
   const [savingChanges, setSavingChanges] = useState(false);
-  const endpoint = "http://127.0.0.1:8000/api";
-  
+    
   // Estado para manejar la lista de estudiantes
   const [estudiantes, setEstudiantes] = useState([]);
   const [cursoAreaCategoria, setCursoAreaCategoria] = useState(null);
@@ -37,6 +39,12 @@ const CodigoPreInscripcion = () => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [filter, setFilter] = useState("todos"); // 'todos', 'errores'
   const [searchTerm, setSearchTerm] = useState("");
+
+  const [showPeriodoModal, setShowPeriodoModal] = useState(false);
+  const [olimpiadaSeleccionadaInfo, setOlimpiadaSeleccionadaInfo] = useState({
+    fechaIni: "",
+    fechaFin: ""
+  });
   
   // Estados para modales personalizados
   const [showModal, setShowModal] = useState(false);
@@ -46,6 +54,19 @@ const CodigoPreInscripcion = () => {
     type: ""
   });
   const [selectedStudent, setSelectedStudent] = useState(null);
+
+  const estaEnPeriodo = (fechaIni, fechaFin) => {
+    const ahora = new Date();
+    const inicio = new Date(fechaIni);
+    const fin = new Date(fechaFin);
+
+    ahora.setHours(0, 0, 0, 0);
+    inicio.setHours(0, 0, 0, 0);
+    fin.setHours(23, 59, 59, 999);
+
+    return ahora > inicio && ahora <= fin;
+  };
+
 
   // Verificar código y obtener datos
   const verificarCodigo = async () => {
@@ -59,7 +80,7 @@ const CodigoPreInscripcion = () => {
 
     try {
       // Paso 1: Verificar si ya se generó una orden de pago
-      const ordenPagoResponse = await axios.get(`${endpoint}/orden-pago-existe/${codigoPreInscripcion}`);
+      const ordenPagoResponse = await axios.get(`${API_URL}/api/orden-pago-existe/${codigoPreInscripcion}`);
       if (ordenPagoResponse.data?.existe) {
         setError("Ya se generó una orden de pago. Solo se puede editar la inscripción antes de generarla.");
         setLoading(false);
@@ -67,22 +88,20 @@ const CodigoPreInscripcion = () => {
       }
     } catch (ordenError) {
       if (axios.isAxiosError(ordenError) && ordenError.response?.status === 404) {
-        setError("Código no encontrado.");
+        setError("No se encontraron inscripciones asociadas a este código.");
       } else {
         setError("Error al verificar si existe una orden de pago.");
       }
-      console.error(ordenError);
+      //console.error(ordenError);
       setLoading(false);
       return;
     }
 
     try {
       // Paso 2: Buscar preinscripciones si no hay orden generada
-      const response = await axios.get(`${endpoint}/preinscritos-por-codigo`, {
+      const response = await axios.get(`${API_URL}/api/preinscritos-por-codigo`, {
         params: { codigo: codigoPreInscripcion },
       });
-
-      console.log(response.data);
       setResumen(response.data);
 
       // Paso 3: Si hay estudiantes y hay un id_olimpiada, cargar áreas y categorías
@@ -90,9 +109,51 @@ const CodigoPreInscripcion = () => {
         ? response.data
         : response.data.estudiantes;
 
+        // Obtener olimpiada para verificar el periodo
+      if (estudiantesLista?.length > 0 && estudiantesLista[0].id_olimpiada) {
+        const idOlimpiada = estudiantesLista[0].id_olimpiada;
+
+        try {
+          // Obtener datos completos de la olimpiada
+          const olimpiadaResponse = await axios.get(`${API_URL}/api/olimpiada/${idOlimpiada}`);
+          const olimpiada = olimpiadaResponse.data;
+
+          const fechaIni = olimpiada.fecha_ini + "T00:00:00";
+          const fechaFin = olimpiada.fecha_fin + "T00:00:00";
+
+          // Verificar si está en período
+          if (!estaEnPeriodo(fechaIni, fechaFin)) {
+            setOlimpiadaSeleccionadaInfo({ fechaIni, fechaFin });
+            setShowPeriodoModal(true);
+            setLoading(false);
+            return; // Detener flujo
+          }
+
+          // Si está en período, cargar áreas/categorías
+          try {
+            const response = await axios.get(`${API_URL}/api/cursoAreaCategoriaPorOlimpiada?id=${idOlimpiada}`);
+            setCursoAreaCategoria(response.data);
+          } catch (err2) {
+            console.error("Error al obtener las áreas y categorías:", err2);
+            setError("No se pudieron cargar las áreas y categorías.");
+          }
+        } catch (olimpiadaError) {
+          console.error("Error al obtener la olimpiada:", olimpiadaError);
+          setError("No se pudo verificar el período de inscripción.");
+          setLoading(false);
+          return;
+        }
+
+        // Si todo va bien, guardar estudiantes
+        if (Array.isArray(estudiantesLista)) {
+          setEstudiantes(estudiantesLista);
+          processStudents(estudiantesLista);
+        }
+      }
+
       if (estudiantesLista?.length > 0 && estudiantesLista[0].id_olimpiada) {
         try {
-          const response = await axios.get(`${endpoint}/cursoAreaCategoriaPorOlimpiada?id=${estudiantesLista[0].id_olimpiada}`);
+          const response = await axios.get(`${API_URL}/api/cursoAreaCategoriaPorOlimpiada?id=${estudiantesLista[0].id_olimpiada}`);
           setCursoAreaCategoria(response.data);
         } catch (err2) {
           console.error("Error al obtener las áreas y categorías:", err2);
@@ -269,7 +330,7 @@ const handleCloseModal2 = () => {
         estudiantes: estudiantes
       };
       console.log("ENVIANDO",datosParaEnviar)
-      const response = await axios.post(`${endpoint}/editarLista`, datosParaEnviar);
+      const response = await axios.post(`${API_URL}/api/editarLista`, datosParaEnviar);
 
       if (response.data.success || response.status === 200) {
         // Mostrar mensaje de éxito
@@ -371,6 +432,7 @@ const handleCloseModal2 = () => {
             }}
             className="w-full p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             placeholder="Ingrese el código"
+            maxLength={30}
           />
           {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
           <div className="flex justify-center mt-6">
@@ -681,6 +743,14 @@ const handleCloseModal2 = () => {
           </div>
         </Modal>
       )}
+
+      <ModalPeriodo
+        isOpen={showPeriodoModal}
+        onClose={() => setShowPeriodoModal(false)}
+        fechaIni={olimpiadaSeleccionadaInfo.fechaIni}
+        fechaFin={olimpiadaSeleccionadaInfo.fechaFin}
+      />
+
     </div>
   );
 };

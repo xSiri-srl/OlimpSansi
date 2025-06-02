@@ -8,6 +8,7 @@ import {
   FaExclamationTriangle,
 } from "react-icons/fa";
 import ExitoModal from "./../InscripcionLista/Modales/ExitoModal";
+import { API_URL } from "../../utils/api";
 const Confirmation = ({ navigate, handleBack }) => {
   const { globalData } = useFormData();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -56,7 +57,7 @@ const Confirmation = ({ navigate, handleBack }) => {
 
     try {
       const response = await axios.post(
-        "http://localhost:8000/api/inscribir",
+        `${API_URL}/api/inscribir`,
         globalData
       );
       const codigoGenerado = response.data.codigo_generado;
