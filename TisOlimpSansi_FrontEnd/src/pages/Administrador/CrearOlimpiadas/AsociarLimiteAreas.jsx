@@ -22,7 +22,7 @@ const AsociarLimiteAreas = () => {
       setErrorCarga("");
 
       try {
-        await axios.get(`${API_URL}/sanctum/csrf-cookie`, {
+        await axios.get(`${API_URL}/api/sanctum/csrf-cookie`, {
           withCredentials: true,
         });
 
@@ -105,7 +105,7 @@ const AsociarLimiteAreas = () => {
     setGuardando(true);
     setMensajeExito("");
     try {
-      await axios.get(`${API_URL}/sanctum/csrf-cookie`, {
+      await axios.get(`${API_URL}/api/sanctum/csrf-cookie`, {
         withCredentials: true,
       });
 

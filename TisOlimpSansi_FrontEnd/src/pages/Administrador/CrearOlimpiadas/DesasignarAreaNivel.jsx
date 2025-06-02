@@ -84,7 +84,7 @@ const DesasignarAreaNivel = () => {
       
       try {
         // Obtener CSRF token para autenticación
-        await axios.get(`${API_URL}/sanctum/csrf-cookie`, {
+        await axios.get(`${API_URL}/api/sanctum/csrf-cookie`, {
           withCredentials: true,
         });
         
@@ -167,7 +167,7 @@ const DesasignarAreaNivel = () => {
     
     try {
       // Obtener CSRF token para autenticación
-      await axios.get(`${API_URL}/sanctum/csrf-cookie`, {
+      await axios.get(`${API_URL}/api/sanctum/csrf-cookie`, {
         withCredentials: true,
       });
       
@@ -270,7 +270,7 @@ const DesasignarAreaNivel = () => {
 
     try {
       // Obtener CSRF token para autenticación
-      await axios.get(`${API_URL}/sanctum/csrf-cookie`, {
+      await axios.get(`${API_URL}/api/sanctum/csrf-cookie`, {
         withCredentials: true,
       });
       

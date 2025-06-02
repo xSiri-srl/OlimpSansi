@@ -8,16 +8,8 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 
 
-Route::get('/{any}', function () {
-    return view('index');
-})->where('any','.*');
-
-
-Route::get('/', function () {
-    return view('welcome');
-});
-
 Route::post('/login', [AuthController::class, 'login']);
+
 
 Route::post('/registro', [AuthController::class, 'register']);
 
@@ -68,3 +60,6 @@ Route::controller(OlimpiadaController::class)->group(function(){
 
 Route::get('/areas-olimpiada/{id}', [OlimpiadaAreaController::class, 'getAreasPorOlimpiada']);
 
+Route::get('/{any}', function () {
+    return view('index');
+})->where('any','.*');
