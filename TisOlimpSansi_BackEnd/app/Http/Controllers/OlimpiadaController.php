@@ -118,6 +118,8 @@ public function show($id)
     {
         $olimpiadas = OlimpiadaModel::select('id', 'titulo', 'fecha_ini', 'fecha_fin')->get();
 
+
+
         return response()->json([
             'status' => 200,
             'data' => $olimpiadas,

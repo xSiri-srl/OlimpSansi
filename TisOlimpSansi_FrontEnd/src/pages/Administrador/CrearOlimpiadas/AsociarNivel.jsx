@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
 import Cookies from 'js-cookie';
 import HeaderSelector from "./AreasCompetencia/HeaderSelector";
 import AreaCompetencia from "./AreasCompetencia/AreaCompetencia";
 import AccionesFooter from "./AreasCompetencia/AccionesFooter";
 import { gradosDisponibles } from "./AreasCompetencia/constants";
 import { API_URL } from "../../../utils/api";
+import axios from "axios";
 
 const SelectorAreaGrado = () => {
   const [olimpiadas, setOlimpiadas] = useState([]);

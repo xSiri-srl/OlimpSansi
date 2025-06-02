@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { FaCircle } from "react-icons/fa";
+
+import  { API_URL } from "../../../utils/api";
 import axios from "axios";
-import { API_URL } from "../../../utils/api";
 
 const OrdenesRecientes = ({ darkMode }) => {
   const [orders, setOrders] = useState([]);

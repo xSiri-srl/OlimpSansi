@@ -4,9 +4,9 @@ import DatosPersonalesForm from "./DatosPersonalesForm";
 import DatosColegioForm from "./DatosColegioForm";
 import useFormValidation from "./hooks/useFormValidation";
 import useColegioData from "./hooks/useColegioData";
-import axios from "axios";
 import { CURSOS } from "./constants";
 import { API_URL } from "../../../utils/api";
+import axios from "axios"
 
 const transformarFormatoCurso = (curso) => {
   if (!curso) return "";

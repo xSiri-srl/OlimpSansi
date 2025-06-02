@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
 import Cookies from "js-cookie";
 import HeaderSelector from "./AreasCompetencia/HeaderSelector";
 import AccionesFooter from "./AreasCompetencia/AccionesFooter";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { API_URL } from "../../../utils/api";
+import axios from "axios";
 
 const AsociarLimiteAreas = () => {
   const [olimpiadas, setOlimpiadas] = useState([]);

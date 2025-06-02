@@ -23,10 +23,7 @@ export default function ProbarEnd() {
         data,                      
         { withCredentials: true }  
       );
-      // const response = await axios.get(
-      //   'http://localhost:8000/user',
-      //   { withCredentials: true }
-      // );
+   
       setResultado(`✅ Éxito:\n${JSON.stringify(response.data, null, 2)}`);
     } catch (error) {
       setResultado(`❌ Error:\n${error.response?.data?.message || error.message}`);

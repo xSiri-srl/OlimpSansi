@@ -16,7 +16,6 @@ const Login = () => {
   const [registerError, setRegisterError] = useState("");
   const [rolBasico] = useState(1);
   const navigate = useNavigate();
-
   const [auth, setAuth] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -166,7 +165,7 @@ const Login = () => {
             </button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-gray-600">
+         {/*<p className="mt-6 text-center text-sm text-gray-600">
             {showRegister ? "¿Ya tienes cuenta?" : "¿No tienes cuenta?"}{" "}
             <button
               onClick={() => setShowRegister(!showRegister)}
@@ -174,7 +173,7 @@ const Login = () => {
             >
               {showRegister ? "Iniciar sesión" : "Registrarse"}
             </button>
-          </p>
+          </p>*/ } 
         </div>
       </div>
     </div>

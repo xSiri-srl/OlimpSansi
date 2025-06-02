@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { SiGoogledocs } from "react-icons/si";
 import { API_URL } from "../../../utils/api";
-
+import axios from "axios"
 const EditarConvocatoria = () => {
   const { id } = useParams();
   const navigate = useNavigate();
