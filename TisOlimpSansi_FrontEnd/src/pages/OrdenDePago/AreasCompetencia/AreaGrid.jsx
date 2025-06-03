@@ -38,8 +38,11 @@ const AreaGrid = ({
       nombreArea === "Biología" ? "BIOLOGIA" : null,
       nombreArea === "Informática" ? "INFORMATICA" : null,
       nombreArea === "Robótica" ? "ROBOTICA" : null,
+      // Variantes para Astronomía y Astrofísica
       nombreArea === "Astronomía y Astrofísica" ? "ASTRONOMIA Y ASTROFISICA" : null,
       nombreArea === "Astronomía y Astrofísica" ? "ASTRONOMIAYASTROFISICA" : null,
+      nombreArea === "Astronomía y Astrofísica" ? "ASTRONOMÍA-ASTROFÍSICA" : null,
+      nombreArea === "Astronomía y Astrofísica" ? "ASTRONOMIA-ASTROFISICA" : null,
     ].filter(Boolean);
     
     console.log(`📋 Buscando categorías con claves:`, posiblesClaves);

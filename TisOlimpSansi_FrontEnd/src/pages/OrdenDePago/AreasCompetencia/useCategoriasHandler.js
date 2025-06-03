@@ -55,13 +55,28 @@ export function useCategoriasHandler(cursoEstudiante, areasCategorias = {}) {
     return gradoEncontrado;
   };
 
-  const obtenerCategoriaAutomatica = (area) => {
+const obtenerCategoriaAutomatica = (area) => {
     if (!area) return null;
     
     console.log(`🎯 Obteniendo categoría automática para área: "${area}"`);
     
-    // Buscar las categorías del área en los datos del backend
-    const categoriasArea = areasCategorias[area] || areasCategorias[area.toUpperCase()] || [];
+    // Buscar las categorías del área en los datos del backend con múltiples variantes
+    const posiblesClaves = [
+      area,
+      area.toUpperCase(),
+      // Casos especiales para Astronomía
+      area === "Astronomía y Astrofísica" ? "ASTRONOMÍA-ASTROFÍSICA" : null,
+      area === "Astronomía y Astrofísica" ? "ASTRONOMIA-ASTROFISICA" : null,
+    ].filter(Boolean);
+    
+    let categoriasArea = [];
+    for (const clave of posiblesClaves) {
+      if (areasCategorias[clave] && Array.isArray(areasCategorias[clave])) {
+        categoriasArea = areasCategorias[clave];
+        console.log(`✅ Encontradas categorías para "${area}" usando clave "${clave}"`);
+        break;
+      }
+    }
     
     if (categoriasArea.length > 0) {
       console.log(`📋 Categorías disponibles para ${area}:`, categoriasArea);
@@ -99,8 +114,23 @@ export function useCategoriasHandler(cursoEstudiante, areasCategorias = {}) {
     console.log(`\n📋 obtenerCategorias para área: "${area}"`);
     console.log(`🔍 areasCategorias disponible:`, Object.keys(areasCategorias));
     
-    // Buscar las categorías del área en los datos del backend
-    const categoriasArea = areasCategorias[area] || areasCategorias[area.toUpperCase()] || [];
+    // Buscar las categorías del área en los datos del backend con múltiples variantes
+    const posiblesClaves = [
+      area,
+      area.toUpperCase(),
+      // Casos especiales para Astronomía
+      area === "Astronomía y Astrofísica" ? "ASTRONOMÍA-ASTROFÍSICA" : null,
+      area === "Astronomía y Astrofísica" ? "ASTRONOMIA-ASTROFISICA" : null,
+    ].filter(Boolean);
+    
+    let categoriasArea = [];
+    for (const clave of posiblesClaves) {
+      if (areasCategorias[clave] && Array.isArray(areasCategorias[clave])) {
+        categoriasArea = areasCategorias[clave];
+        console.log(`✅ Encontradas categorías para "${area}" usando clave "${clave}"`);
+        break;
+      }
+    }
     
     console.log(`🎯 Categorías encontradas para "${area}":`, categoriasArea);
     

@@ -16,7 +16,7 @@ export function useAreasDisponibles(olimpiadaId) {
       .toUpperCase()
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "") 
-      .replace(/[-\s]/g, "") 
+      .replace(/[-\s&Y]/g, "")
       .trim();
   };
 
@@ -134,9 +134,9 @@ export function useAreasDisponibles(olimpiadaId) {
     "FISICA": ["FISICA"],
     "QUIMICA": ["QUIMICA"],
     "BIOLOGIA": ["BIOLOGIA"],
-    "INFORMATICA": ["INFORMATICA", "COMPUTACION"],
+    "INFORMATICA": ["INFORMATICA"],
     "ROBOTICA": ["ROBOTICA"],
-    "ASTRONOMIAYASTROFISICA": ["ASTRONOMIAYASTROFISICA", "ASTRONOMIAASTROFISICA", "ASTRONOMIAA"]
+    "ASTRONOMIAYASTROFISICA": ["ASTRONOMIAYASTROFISICA", "ASTRONOMIAASTROFISICA", "ASTRONOMIAA", "ASTRONOMIA-ASTROFISICA"]
   };
 
   const areaEstaDisponible = (nombreArea) => {
@@ -177,20 +177,7 @@ export function useAreasDisponibles(olimpiadaId) {
         return true;
       }
     }
-    
-    // Caso especial para Astronomía y Astrofísica
-    if (nombreNormalizado === "ASTRONOMIAYASTROFISICA") {
-      const tieneAstronomia = areasDisponibles.some(area => 
-        area.normalizado === "ASTRONOMIAYASTROFISICA" ||
-        area.normalizado === "ASTRONOMIAASTROFISICA"
-      );
-      
-      if (tieneAstronomia) {
-        console.log(`✅ Área "Astronomía y Astrofísica" está disponible`);
-        return true;
-      }
-    }
-    
+   
     console.log(`❌ Área "${nombreArea}" NO está disponible`);
     return false;
   };
