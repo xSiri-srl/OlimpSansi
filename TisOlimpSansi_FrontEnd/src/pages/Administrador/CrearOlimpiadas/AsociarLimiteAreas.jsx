@@ -16,6 +16,7 @@ const AsociarLimiteAreas = () => {
   const [errorCarga, setErrorCarga] = useState("");
   const [contador, setContador] = useState(1);
 
+  // Cargar lista de olimpiadas al montar el componente
   useEffect(() => {
     const cargarOlimpiadas = async () => {
       setCargandoOlimpiadas(true);
@@ -37,20 +38,12 @@ const AsociarLimiteAreas = () => {
           withCredentials: true,
         };
 
-        const response = await axios.get(
-          `${API_URL}/getOlimpiadas`,
-          config
-        );
+        const response = await axios.get(`${API_URL}/getOlimpiadas`, config);
 
         if (response.status === 200) {
-          if (
-            response.data &&
-            response.data.data &&
-            Array.isArray(response.data.data)
-          ) {
-            setOlimpiadas(response.data.data);
-          } else if (response.data && Array.isArray(response.data)) {
-            setOlimpiadas(response.data);
+          const data = response.data.data || response.data;
+          if (Array.isArray(data)) {
+            setOlimpiadas(data);
           } else {
             throw new Error("Formato de datos inesperado");
           }
@@ -85,17 +78,61 @@ const AsociarLimiteAreas = () => {
     cargarOlimpiadas();
   }, []);
 
+  // Cargar nombre y número máximo de áreas cuando cambia la olimpiada seleccionada
   useEffect(() => {
     if (olimpiadaSeleccionada) {
       const olimpiada = olimpiadas.find(
         (o) => o.id.toString() === olimpiadaSeleccionada
       );
       setNombreOlimpiada(olimpiada ? olimpiada.titulo : "");
+
+      const cargarNumeroMaximo = async () => {
+        try {
+          await axios.get(`${API_URL}/sanctum/csrf-cookie`, {
+            withCredentials: true,
+          });
+
+          const csrfToken = Cookies.get("XSRF-TOKEN");
+
+          const config = {
+            headers: {
+              "X-XSRF-TOKEN": csrfToken,
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            withCredentials: true,
+          };
+
+          const response = await axios.get(
+            `${API_URL}/olimpiada/${olimpiadaSeleccionada}`,
+            config
+          );
+
+          console.log("Respuesta de max_materias:", response.data); // Para depuración
+
+          const maxMaterias = Number(response.data.max_materias);
+          if (response.status === 200 && !isNaN(maxMaterias) && maxMaterias > 0) {
+            setContador(maxMaterias);
+          } else {
+            setContador(1); // Valor por defecto si max_materias es 0, null, o undefined
+          }
+        } catch (error) {
+          console.error("Error al cargar el número máximo de áreas:", error);
+          setContador(1); // Valor por defecto en caso de error
+          setErrorCarga(
+            error.response?.data?.message || "Error al cargar el número máximo de áreas"
+          );
+        }
+      };
+
+      cargarNumeroMaximo();
     } else {
       setNombreOlimpiada("");
+      setContador(1); // Resetear el contador si no hay olimpiada seleccionada
     }
   }, [olimpiadaSeleccionada, olimpiadas]);
 
+  // Guardar configuración de número máximo de áreas
   const guardarConfiguracion = async () => {
     if (!olimpiadaSeleccionada) {
       alert("Por favor seleccione una olimpiada");
@@ -119,7 +156,7 @@ const AsociarLimiteAreas = () => {
         },
         withCredentials: true,
       };
-      //ASAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+
       const datosAEnviar = {
         id: parseInt(olimpiadaSeleccionada),
         numMax: contador,
@@ -149,9 +186,7 @@ const AsociarLimiteAreas = () => {
           const errores = error.response.data?.errors;
           if (errores) {
             const mensajesError = Object.values(errores).flat();
-            mensajeError = `Errores de validación:\n${mensajesError.join(
-              "\n"
-            )}`;
+            mensajeError = `Errores de validación:\n${mensajesError.join("\n")}`;
           } else {
             mensajeError = `Error de validación: ${
               error.response.data?.message || "Datos inválidos"
@@ -174,12 +209,14 @@ const AsociarLimiteAreas = () => {
     }
   };
 
+  // Incrementar el contador
   const incrementar = () => {
     if (contador < 7) {
       setContador(contador + 1);
     }
   };
 
+  // Decrementar el contador
   const decrementar = () => {
     if (contador > 1) {
       setContador(contador - 1);
@@ -193,8 +230,8 @@ const AsociarLimiteAreas = () => {
         olimpiadas={olimpiadas}
         olimpiadaSeleccionada={olimpiadaSeleccionada}
         setOlimpiadaSeleccionada={setOlimpiadaSeleccionada}
-        titulo="Asignación de limite de áreas por participante"
-        subtitulo="Defina los limite de áreas por participante"
+        titulo="Asignación de límite de áreas por participante"
+        subtitulo="Defina el límite de áreas por participante"
         cargando={cargandoOlimpiadas}
         error={errorCarga}
       />
@@ -202,8 +239,7 @@ const AsociarLimiteAreas = () => {
       <div className="bg-gray-100 p-4 rounded-lg shadow-md">
         {!olimpiadaSeleccionada ? (
           <div className="p-8 text-center text-gray-600">
-            Seleccione una olimpiada para asignar un limite de áreas por
-            participante.
+            Seleccione una olimpiada para asignar un límite de áreas por participante.
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center p-8 bg-gradient-to-b from-blue-50 to-gray-100 rounded-xl shadow-lg border border-blue-100">
@@ -266,7 +302,7 @@ const AsociarLimiteAreas = () => {
           olimpiadaSeleccionada={olimpiadaSeleccionada}
           guardando={guardando}
           mensajeExito={mensajeExito}
-          textoBoton="Guardar Numero de Areas"
+          textoBoton="Guardar Número de Áreas"
         />
       </div>
     </div>
