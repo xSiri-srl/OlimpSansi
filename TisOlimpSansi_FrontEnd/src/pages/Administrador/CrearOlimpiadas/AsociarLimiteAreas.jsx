@@ -38,10 +38,7 @@ const AsociarLimiteAreas = () => {
           withCredentials: true,
         };
 
-        const response = await axios.get(
-          `${API_URL}/getOlimpiadas`,
-          config
-        );
+        const response = await axios.get(`${API_URL}/getOlimpiadas`, config);
 
         if (response.status === 200) {
           const data = response.data.data || response.data;
@@ -58,9 +55,11 @@ const AsociarLimiteAreas = () => {
 
         if (error.response) {
           if (error.response.status === 401) {
-            mensajeError = "No tienes autorización para acceder a esta información.";
+            mensajeError =
+              "No tienes autorización para acceder a esta información.";
           } else if (error.response.status === 403) {
-            mensajeError = "No tienes permisos suficientes para ver las olimpiadas.";
+            mensajeError =
+              "No tienes permisos suficientes para ver las olimpiadas.";
           } else {
             mensajeError = `Error ${error.response.status}: ${
               error.response.data?.message || "Error del servidor"
@@ -79,7 +78,7 @@ const AsociarLimiteAreas = () => {
     cargarOlimpiadas();
   }, []);
 
-  
+  // Cargar nombre y número máximo de áreas cuando cambia la olimpiada seleccionada
   useEffect(() => {
     if (olimpiadaSeleccionada) {
       const olimpiada = olimpiadas.find(
@@ -89,8 +88,7 @@ const AsociarLimiteAreas = () => {
 
       const cargarNumeroMaximo = async () => {
         try {
-       
-          await axios.get("http://localhost:8000/sanctum/csrf-cookie", {
+          await axios.get(`${API_URL}/sanctum/csrf-cookie`, {
             withCredentials: true,
           });
 
@@ -105,23 +103,22 @@ const AsociarLimiteAreas = () => {
             withCredentials: true,
           };
 
-  
           const response = await axios.get(
-            `http://localhost:8000/olimpiada/${olimpiadaSeleccionada}`,
+            `${API_URL}/olimpiada/${olimpiadaSeleccionada}`,
             config
           );
 
+          console.log("Respuesta de max_materias:", response.data); // Para depuración
 
-        
           const maxMaterias = Number(response.data.max_materias);
           if (response.status === 200 && !isNaN(maxMaterias) && maxMaterias > 0) {
             setContador(maxMaterias);
           } else {
-            setContador(1); 
+            setContador(1); // Valor por defecto si max_materias es 0, null, o undefined
           }
         } catch (error) {
           console.error("Error al cargar el número máximo de áreas:", error);
-          setContador(1); 
+          setContador(1); // Valor por defecto en caso de error
           setErrorCarga(
             error.response?.data?.message || "Error al cargar el número máximo de áreas"
           );
@@ -131,11 +128,11 @@ const AsociarLimiteAreas = () => {
       cargarNumeroMaximo();
     } else {
       setNombreOlimpiada("");
-      setContador(1); 
+      setContador(1); // Resetear el contador si no hay olimpiada seleccionada
     }
   }, [olimpiadaSeleccionada, olimpiadas]);
 
-
+  // Guardar configuración de número máximo de áreas
   const guardarConfiguracion = async () => {
     if (!olimpiadaSeleccionada) {
       alert("Por favor seleccione una olimpiada");
