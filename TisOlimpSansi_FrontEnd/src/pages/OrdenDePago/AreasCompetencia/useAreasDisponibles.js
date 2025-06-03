@@ -22,7 +22,7 @@ export function useAreasDisponibles(olimpiadaId) {
 
   useEffect(() => {
     if (olimpiadaId) {
-      cargarAreasAsociadas();
+      cargarAreasYCategorias();
     } else {
       setAreasDisponibles([]);
       setAreasObjetos([]);
@@ -32,7 +32,7 @@ export function useAreasDisponibles(olimpiadaId) {
     }
   }, [olimpiadaId]);
 
-  const cargarAreasAsociadas = async () => {
+  const cargarAreasYCategorias = async () => {
     if (!olimpiadaId) return;
     
     setCargandoAreas(true);
@@ -42,47 +42,84 @@ export function useAreasDisponibles(olimpiadaId) {
     try {
       const response = await axios.get(`${API_URL}/areas-olimpiada/${olimpiadaId}`);
       
-      if (response.status === 200) {
-        if (response.data.data && Array.isArray(response.data.data)) {
-          const areas = response.data.data;
-          setAreasObjetos(areas);
-
-          // Construir mapa de áreas/categorías para fácil acceso
-          const categoriasMap = {};
-          areas.forEach(area => {
-            categoriasMap[area.area] = area.categorias || [];
-          });
+      if (response.status === 200 && response.data?.data) {
+        const areasData = response.data.data;
+        
+        console.log("🎯 DATOS COMPLETOS DEL BACKEND:", JSON.stringify(areasData, null, 2));
+        
+        // Crear mapa de categorías por área
+        const categoriasMap = {};
+        
+        areasData.forEach(areaItem => {
+          const nombreArea = areaItem.area;
           
-          // Guardar primero el mapa y luego imprimir con el mapa obtenido
-          setAreasCategorias(categoriasMap);
+          console.log(`🔍 Procesando área: "${nombreArea}"`);
+          console.log(`📊 Categorías del área:`, areaItem.categorias);
           
-          // Usar el mapa recién creado directamente en lugar de depender del state
-          console.log("ÁREAS CATEGORÍAS DISPONIBLES:", categoriasMap);
-          for (const area in categoriasMap) {
-            console.log(`Área: ${area}`);
-            if (categoriasMap[area] && Array.isArray(categoriasMap[area])) {
-              console.log(`Categorías: `, categoriasMap[area].map(c => c.nombre).join(", "));
-            }
+          if (areaItem.categorias && Array.isArray(areaItem.categorias)) {
+            // Guardar las categorías tal como vienen del backend
+            categoriasMap[nombreArea] = areaItem.categorias.map(cat => {
+              console.log(`   📝 Categoría: ${cat.nombre}, Grados:`, cat.grados);
+              return {
+                id: cat.id,
+                nombre: cat.nombre,
+                grados: cat.grados || [],
+                desde: cat.desde,
+                hasta: cat.hasta
+              };
+            });
+            
+            // También guardar con nombre en mayúsculas para compatibilidad
+            categoriasMap[nombreArea.toUpperCase()] = categoriasMap[nombreArea];
+            
+            console.log(`✅ Guardadas ${categoriasMap[nombreArea].length} categorías para "${nombreArea}"`);
+          } else {
+            console.log(`⚠️ Área "${nombreArea}" no tiene categorías o no es un array`);
+            categoriasMap[nombreArea] = [];
+            categoriasMap[nombreArea.toUpperCase()] = [];
           }
+        });
+        
+        console.log("🗂️ MAPA FINAL DE CATEGORÍAS:", categoriasMap);
+        
+        // Guardar el mapa de categorías
+        setAreasCategorias(categoriasMap);
+        
+        // Crear lista de áreas disponibles (solo las habilitadas)
+        const areasNombres = areasData
+          .filter(area => area.habilitado !== false)
+          .map(area => area.area);
           
-          const areasNormalizadas = areas.map(area => ({
-            id: area.id,
-            original: area.area,
-            normalizado: normalizarNombre(area.area),
-            categorias: area.categorias || []
-          })).filter(area => area.normalizado !== "");
-          
-          setAreasDisponibles(areasNormalizadas);
-        } else {
-          setAreasDisponibles([]);
-          setAreasCategorias({});
-        }
+        const areasNormalizadas = areasNombres.map(area => ({
+          id: null,
+          original: area,
+          normalizado: normalizarNombre(area),
+          categorias: categoriasMap[area] || []
+        })).filter(area => area.normalizado !== "");
+        
+        setAreasDisponibles(areasNormalizadas);
+        
+        // Para compatibilidad con el código existente
+        const areasObjetos = areasNombres.map(area => ({
+          area: area,
+          categorias: categoriasMap[area] || []
+        }));
+        
+        setAreasObjetos(areasObjetos);
+        
+        console.log("✅ Áreas disponibles cargadas:", areasNombres);
+        console.log("🔍 Categorías por área final:", categoriasMap);
+        
+      } else {
+        console.warn("⚠️ Respuesta no exitosa del servidor o sin datos");
+        setAreasDisponibles([]);
+        setAreasCategorias({});
       }
       
       setCargaCompleta(true);
       
     } catch (error) {
-      console.error("Error al cargar áreas asociadas:", error);
+      console.error("❌ Error al cargar áreas y categorías:", error);
       setErrorCarga("No se pudieron cargar las áreas de competencia");
       setAreasDisponibles([]);
       setAreasCategorias({});
@@ -103,22 +140,27 @@ export function useAreasDisponibles(olimpiadaId) {
   };
 
   const areaEstaDisponible = (nombreArea) => {
-    if (!nombreArea || cargandoAreas || errorCarga || !olimpiadaId || !areasDisponibles) {
+    if (!nombreArea || cargandoAreas || errorCarga || !olimpiadaId) {
       return false;
     }
+    
     if (areasDisponibles.length === 0 && cargaCompleta) {
-      return true;
+      return false;
     }
+    
     const nombreNormalizado = normalizarNombre(nombreArea);
     
-    // buscar coincidencia exacta primero
+    // Buscar coincidencia exacta primero
     const coincidenciaExacta = areasDisponibles.some(area => 
       area.normalizado === nombreNormalizado
     );
     
     if (coincidenciaExacta) {
+      console.log(`✅ Área "${nombreArea}" está disponible (coincidencia exacta)`);
       return true;
     }
+    
+    // Buscar en el mapeo de áreas
     const nombreMapeado = Object.entries(MAPEO_AREAS_EXACTO).find(([key, valores]) => 
       valores.includes(nombreNormalizado)
     );
@@ -127,14 +169,16 @@ export function useAreasDisponibles(olimpiadaId) {
       const [nombreClave, alternativas] = nombreMapeado;
       
       const coincideConMapeado = areasDisponibles.some(area => {
-
         return alternativas.includes(area.normalizado);
       });
       
       if (coincideConMapeado) {
+        console.log(`✅ Área "${nombreArea}" está disponible (mapeo: ${nombreClave})`);
         return true;
       }
     }
+    
+    // Caso especial para Astronomía y Astrofísica
     if (nombreNormalizado === "ASTRONOMIAYASTROFISICA") {
       const tieneAstronomia = areasDisponibles.some(area => 
         area.normalizado === "ASTRONOMIAYASTROFISICA" ||
@@ -142,10 +186,12 @@ export function useAreasDisponibles(olimpiadaId) {
       );
       
       if (tieneAstronomia) {
+        console.log(`✅ Área "Astronomía y Astrofísica" está disponible`);
         return true;
       }
     }
     
+    console.log(`❌ Área "${nombreArea}" NO está disponible`);
     return false;
   };
   

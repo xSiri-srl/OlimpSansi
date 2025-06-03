@@ -9,6 +9,8 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Models\olimpiada_area_categoria;
+use Illuminate\Http\JsonResponse;
+
 
 
 
@@ -239,22 +241,31 @@ public function getAreasCategoriasPorOlimpiada(Request $request)
         $resultado = [];
 
         foreach ($registros as $registro) {
-            $areaId = $registro->area->id;
+            $area = $registro->area;
+            $categoria = $registro->categoria;
 
-            if (!isset($resultado[$areaId])) {
-                $resultado[$areaId] = [
-                    'nombre_area' => $registro->area->nombre_area,
-                    'categorias' => []
-                ];
+            $nombreArea = $area->nombre_area;
+
+            if (!isset($resultado[$nombreArea])) {
+                $resultado[$nombreArea] = [];
             }
 
-            $resultado[$areaId]['categorias'][] = [
-                'nombre_categoria' => $registro->categoria->nombre_categoria,
+            // Obtener los grados asociados a esta categoría
+            $grados = \DB::table('categoria_grado')
+                ->join('grado', 'categoria_grado.id_grado', '=', 'grado.id')
+                ->where('categoria_grado.id_categoria', $categoria->id)
+                ->select('grado.id', 'grado.nombre_grado')
+                ->orderBy('grado.id')
+                ->get();
+
+            $resultado[$nombreArea][] = [
+                'id' => $categoria->id,
+                'nombre' => $categoria->nombre_categoria,
+                'grados' => $grados->toArray(),
+                'desde' => $grados->isNotEmpty() ? $grados->first()->nombre_grado : null,
+                'hasta' => $grados->isNotEmpty() ? $grados->last()->nombre_grado : null
             ];
         }
-
-        // Reindexar como array simple
-        $resultado = array_values($resultado);
 
         return response()->json($resultado);
 
@@ -265,4 +276,5 @@ public function getAreasCategoriasPorOlimpiada(Request $request)
         ], 500);
     }
 }
+
 }
