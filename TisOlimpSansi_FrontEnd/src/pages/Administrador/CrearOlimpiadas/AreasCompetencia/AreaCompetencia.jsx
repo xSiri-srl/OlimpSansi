@@ -10,7 +10,8 @@ const AreaCompetencia = ({
   eliminarCombinacion,
   olimpiadaSeleccionada,
   modoAsociacion = true,
-  todosLosGrados = []
+  todosLosGrados = [],
+  onEliminarCategoria
 }) => {
   const [mostrarDetalles, setMostrarDetalles] = useState(false);
   
@@ -137,10 +138,23 @@ const AreaCompetencia = ({
   };
 
   // Eliminar una categoría existente
-  const eliminarCategoria = (index) => {
-    const copia = [...combinaciones];
-    copia[comboIndex].categorias.splice(index, 1);
-    setCombinaciones(copia);
+  const eliminarCategoria = async (index) => {
+    const categoria = combo.categorias[index];
+    
+    // Si estamos en modo desasociación y es una categoría ya asociada, usar el endpoint específico
+    if (!modoAsociacion && combo.yaAsociada && onEliminarCategoria) {
+      try {
+        await onEliminarCategoria(combo, categoria, index);
+      } catch (error) {
+        console.error('Error al eliminar categoría:', error);
+        alert('Error al eliminar la categoría. Por favor, intente nuevamente.');
+      }
+    } else {
+      // Comportamiento normal para modo asociación
+      const copia = [...combinaciones];
+      copia[comboIndex].categorias.splice(index, 1);
+      setCombinaciones(copia);
+    }
   };
 
   // Preparar categorías para renderizar
@@ -243,108 +257,108 @@ const AreaCompetencia = ({
               </button>
             </div>
 
-            {/* Categorías existentes */}
-            {mostrarDetalles && (
-              <div className="space-y-3 mb-4 mt-2">
-                {categorias.length === 0 ? (
-                  <p className="text-gray-500 italic text-center">No hay categorías definidas para esta área</p>
-                ) : (
-                  categorias.map((categoria, idx) => (
-                    <div key={idx} className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg border border-gray-200 min-h-[80px] w-full">
-                      <div className="flex-1 flex flex-wrap gap-2 items-center">
-                        {/* Selector de Categoría */}
-                        <div className="w-64 flex-none">
-                          <label className="block text-xs text-gray-500 mb-1">Categoría</label>
-                          <select
-                            className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            value={categoria.nombre || ""}
-                            onChange={(e) => handleCategoriaSelect(idx, e.target.value)}
-                            disabled={!estaHabilitada || !modoAsociacion} // Añadir !modoAsociacion para deshabilitar en modo desasignación
-                          >
-                            {categoriasPredefinidas.map((cat) => (
-                              <option key={cat} value={cat}>{cat}</option>
-                            ))}
-                          </select>
-                        </div>
-                        
-                        {/* Visualización de rango inicial (no editable) */}
-                        <div className="w-full sm:w-auto">
-                          <label className="block text-xs text-gray-500 mb-1">Desde</label>
-                          <div className="w-full p-2 border border-gray-200 bg-gray-50 rounded text-gray-700">
-                            {categoria.desde || "N/A"}
-                          </div>
-                        </div>
-                        
-                        {/* Visualización de rango final (no editable) */}
-                        <div className="w-full sm:w-auto">
-                          <label className="block text-xs text-gray-500 mb-1">Hasta</label>
-                          <div className="w-full p-2 border border-gray-200 bg-gray-50 rounded text-gray-700">
-                            {categoria.hasta || "N/A"}
-                          </div>
-                        </div>
-                      </div>
-                      
-                      {/* Botón eliminar (X) - Solo en modo asociación */}
-                      {estaHabilitada && modoAsociacion && (
-                        <div className="flex items-center self-center ml-2">
-                          <button 
-                            className="flex-shrink-0 bg-red-100 hover:bg-red-200 text-red-600 rounded-full w-6 h-6 flex items-center justify-center"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              eliminarCategoria(idx);
-                            }}
-                            title="Eliminar categoría"
-                          >
-                            <FaTimes className="h-3 w-3" />
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  ))
-                )}
-                
-                {/* Botón para agregar categoría predefinida */}
-                {estaHabilitada && modoAsociacion && (
-                  <button
-                    onClick={agregarCategoria}
-                    className="w-full mt-3 py-2 bg-blue-50 border border-blue-200 rounded-lg text-blue-600 font-medium hover:bg-blue-100 transition flex items-center justify-center gap-2"
-                  >
-                    <FaPlus size={14} />
-                    Nueva Categoría
-                  </button>
-                )}
-              </div>
-            )}
-            
-            {/* Resumen cuando no se muestran los detalles */}
-            {!mostrarDetalles && (
-              <div className="text-gray-600 text-sm">
-                {categorias.length > 0 ? (
-                  <div className="flex flex-wrap gap-2">
-                    {categorias.map((cat, idx) => (
-                      <div key={idx} className="inline-flex items-center bg-blue-50 text-blue-700 px-2 py-1 rounded-full text-xs mr-1 mb-1">
-                        <span>{cat.nombre} ({cat.desde} - {cat.hasta})</span>
-                        
-                        {/* Botón eliminar (X) - Solo en modo asociación */}
-                        {estaHabilitada && modoAsociacion && (
-                          <button 
-                            className="ml-1 bg-red-100 hover:bg-red-200 text-red-600 rounded-full w-4 h-4 flex items-center justify-center"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              eliminarCategoria(idx);
-                            }}
-                            title="Eliminar categoría"
-                          >
-                            <FaTimes className="h-2 w-2" />
-                          </button>
-                        )}
-                      </div>
-                    ))}
+      {/* Categorías existentes */}
+      {mostrarDetalles && (
+        <div className="space-y-3 mb-4 mt-2">
+          {categorias.length === 0 ? (
+            <p className="text-gray-500 italic text-center">No hay categorías definidas para esta área</p>
+          ) : (
+            categorias.map((categoria, idx) => (
+              <div key={idx} className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg border border-gray-200 min-h-[80px] w-full">
+                <div className="flex-1 flex flex-wrap gap-2 items-center">
+                  {/* Selector de Categoría */}
+                  <div className="w-64 flex-none">
+                    <label className="block text-xs text-gray-500 mb-1">Categoría</label>
+                    <select
+                      className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      value={categoria.nombre || ""}
+                      onChange={(e) => handleCategoriaSelect(idx, e.target.value)}
+                      disabled={!estaHabilitada || !modoAsociacion}
+                    >
+                      {categoriasPredefinidas.map((cat) => (
+                        <option key={cat} value={cat}>{cat}</option>
+                      ))}
+                    </select>
                   </div>
-                ) : (
-                  <p className="italic">No hay categorías asociadas. {modoAsociacion ? "Haga clic en 'Asociar Categorías' para agregar." : "Este área no tiene categorías configuradas."}</p>
+                  
+                  {/* Visualización de rango inicial (no editable) */}
+                  <div className="w-full sm:w-auto">
+                    <label className="block text-xs text-gray-500 mb-1">Desde</label>
+                    <div className="w-full p-2 border border-gray-200 bg-gray-50 rounded text-gray-700">
+                      {categoria.desde || "N/A"}
+                    </div>
+                  </div>
+                  
+                  {/* Visualización de rango final (no editable) */}
+                  <div className="w-full sm:w-auto">
+                    <label className="block text-xs text-gray-500 mb-1">Hasta</label>
+                    <div className="w-full p-2 border border-gray-200 bg-gray-50 rounded text-gray-700">
+                      {categoria.hasta || "N/A"}
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Botón eliminar (X) - Disponible en ambos modos */}
+                {estaHabilitada && (modoAsociacion || (!modoAsociacion && combo.yaAsociada)) && (
+                  <div className="flex items-center self-center ml-2">
+                    <button 
+                      className="flex-shrink-0 bg-red-100 hover:bg-red-200 text-red-600 rounded-full w-6 h-6 flex items-center justify-center"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        eliminarCategoria(idx);
+                      }}
+                      title="Eliminar categoría"
+                    >
+                      <FaTimes className="h-3 w-3" />
+                    </button>
+                  </div>
                 )}
               </div>
+            ))
+          )}
+          
+          {/* Botón para agregar categoría predefinida - Solo en modo asociación */}
+          {estaHabilitada && modoAsociacion && (
+            <button
+              onClick={agregarCategoria}
+              className="w-full mt-3 py-2 bg-blue-50 border border-blue-200 rounded-lg text-blue-600 font-medium hover:bg-blue-100 transition flex items-center justify-center gap-2"
+            >
+              <FaPlus size={14} />
+              Nueva Categoría
+            </button>
+          )}
+        </div>
+      )}
+      
+      {/* Resumen cuando no se muestran los detalles */}
+      {!mostrarDetalles && (
+        <div className="text-gray-600 text-sm">
+          {categorias.length > 0 ? (
+            <div className="flex flex-wrap gap-2">
+              {categorias.map((cat, idx) => (
+                <div key={idx} className="inline-flex items-center bg-blue-50 text-blue-700 px-2 py-1 rounded-full text-xs mr-1 mb-1">
+                  <span>{cat.nombre} ({cat.desde} - {cat.hasta})</span>
+                  
+                  {/* Botón eliminar (X) - Disponible en ambos modos */}
+                  {estaHabilitada && (modoAsociacion || (!modoAsociacion && combo.yaAsociada)) && (
+                    <button 
+                      className="ml-1 bg-red-100 hover:bg-red-200 text-red-600 rounded-full w-4 h-4 flex items-center justify-center"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        eliminarCategoria(idx);
+                      }}
+                      title="Eliminar categoría"
+                    >
+                      <FaTimes className="h-2 w-2" />
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="italic">No hay categorías asociadas. {modoAsociacion ? "Haga clic en 'Asociar Categorías' para agregar." : "Este área no tiene categorías configuradas."}</p>
+          )}
+        </div>
             )}
           </div>
         </div>

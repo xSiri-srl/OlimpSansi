@@ -48,6 +48,8 @@ Route::middleware('auth:sanctum')->group(function () {
                 'data' => App\Models\Inscripcion\GradoModel::orderBy('id')->get()
             ]);
         });
+        Route::post('/desasociar-areas-olimpiada', [OlimpiadaAreaController::class, 'desasociarAreas']);
+        Route::post('/desasociar-categorias-olimpiada', [OlimpiadaAreaController::class, 'desasociarCategorias']);
    
     });
 });

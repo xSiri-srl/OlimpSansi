@@ -375,7 +375,6 @@ public function actualizarCostos(Request $request)
     }
 }
 
-
 public function desasociarAreas(Request $request)
 {
     $request->validate([
@@ -442,6 +441,66 @@ public function desasociarAreas(Request $request)
             'status' => 500,
             'message' => 'Error al desasociar áreas: ' . $e->getMessage(),
             'trace' => $e->getTraceAsString()
+        ], 500);
+    }
+}
+
+public function desasociarCategorias(Request $request)
+{
+    $request->validate([
+        'id_olimpiada' => 'required|exists:olimpiada,id',
+        'id_area' => 'required|exists:area,id',
+        'categorias_eliminar' => 'required|array',
+        'categorias_eliminar.*.id' => 'required|exists:categoria,id',
+    ]);
+
+    try {
+        $idOlimpiada = $request->id_olimpiada;
+        $idArea = $request->id_area;
+        $categoriasEliminar = $request->categorias_eliminar;
+
+        DB::beginTransaction();
+
+        foreach ($categoriasEliminar as $categoria) {
+            $idCategoria = $categoria['id'];
+
+            // Verificar si esta categoría específica tiene inscripciones
+            $existeInscripcion = DB::table('inscripcion')
+                ->join('olimpiada_area_categorias', 'inscripcion.id_olimpiada_area_categoria', '=', 'olimpiada_area_categorias.id')
+                ->where('olimpiada_area_categorias.id_olimpiada', $idOlimpiada)
+                ->where('olimpiada_area_categorias.id_area', $idArea)
+                ->where('olimpiada_area_categorias.id_categoria', $idCategoria)
+                ->exists();
+
+            if ($existeInscripcion) {
+                $nombreCategoria = DB::table('categoria')->where('id', $idCategoria)->value('nombre_categoria');
+                $nombreArea = DB::table('area')->where('id', $idArea)->value('nombre_area');
+                
+                DB::rollBack();
+                return response()->json([
+                    'status' => 400,
+                    'message' => "No se puede desasociar la categoría '$nombreCategoria' del área '$nombreArea' porque tiene inscripciones asociadas.",
+                ], 400);
+            }
+
+            // Eliminar la relación específica
+            DB::table('olimpiada_area_categorias')
+                ->where('id_olimpiada', $idOlimpiada)
+                ->where('id_area', $idArea)
+                ->where('id_categoria', $idCategoria)
+                ->delete();
+        }
+
+        DB::commit();
+        return response()->json([
+            'status' => 200,
+            'message' => 'Categorías desasociadas exitosamente',
+        ]);
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json([
+            'status' => 500,
+            'message' => 'Error al desasociar categorías: ' . $e->getMessage(),
         ], 500);
     }
 }

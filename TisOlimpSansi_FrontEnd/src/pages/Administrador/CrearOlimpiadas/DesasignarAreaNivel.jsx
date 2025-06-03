@@ -262,7 +262,7 @@ const DesasignarAreaNivel = () => {
     }
 
     // Confirmar la acción con el usuario
-    if (!confirm(`¿Está seguro que desea desasociar ${areasParaDesasociar.length} área(s) de esta olimpiada? Esta acción podría afectar a los participantes ya inscritos.`)) {
+    if (!confirm(`¿Está seguro que desea desasociar ${areasParaDesasociar.length} área(s) de esta olimpiada? Esta acción es irreversible.`)) {
       return;
     }
 
@@ -337,6 +337,104 @@ const DesasignarAreaNivel = () => {
       setGuardando(false);
     }
   };
+    const eliminarCategoriaIndividual = async (combo, categoria, index) => {
+    if (!olimpiadaSeleccionada) {
+      alert("Error: No hay olimpiada seleccionada");
+      return;
+    }
+
+    // Confirmar la eliminación
+    if (!confirm(`¿Está seguro que desea eliminar la categoría "${categoria.nombre}" del área "${combo.area}"? Esta acción es irreversible.`)) {
+      return;
+    }
+
+    try {
+      // Obtener CSRF token para autenticación
+      await axios.get(`${API_URL}/api/sanctum/csrf-cookie`, {
+        withCredentials: true,
+      });
+      
+      const csrfToken = Cookies.get('XSRF-TOKEN');
+      
+      // Configurar headers para la solicitud
+      const config = {
+        headers: {
+          'X-XSRF-TOKEN': csrfToken,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        withCredentials: true
+      };
+
+      // Buscar el ID del área
+      const nombreAreaNormalizado = combo.area.toUpperCase()
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^A-Z0-9\s\-]/g, "");
+
+      // Obtener todas las áreas para encontrar el ID
+      const responseAreas = await axios.get(`${API_URL}/areas-olimpiada/${olimpiadaSeleccionada}`, config);
+      const areasAsociadas = responseAreas.data.data || [];
+      
+      const areaEncontrada = areasAsociadas.find(area => {
+        const nombreNormalizado = area.area.toUpperCase()
+          .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+          .replace(/[^A-Z0-9\s\-]/g, "");
+        return nombreNormalizado === nombreAreaNormalizado;
+      });
+
+      if (!areaEncontrada) {
+        throw new Error("No se pudo encontrar el área en el servidor");
+      }
+
+      // Preparar datos para enviar
+      const datosAEnviar = {
+        id_olimpiada: olimpiadaSeleccionada,
+        id_area: areaEncontrada.id,
+        categorias_eliminar: [{
+          id: categoria.id,
+          nombre: categoria.nombre
+        }]
+      };
+
+      console.log("Eliminando categoría individual:", datosAEnviar);
+
+      // Enviar la solicitud al servidor
+      const response = await axios.post(
+        `${API_URL}/desasociar-categorias-olimpiada`,
+        datosAEnviar,
+        config
+      );
+
+      if (response.status === 200) {
+        setMensajeExito("¡Categoría eliminada exitosamente!");
+        setTimeout(() => setMensajeExito(""), 3000);
+        
+        // Recargar las áreas para mostrar el estado actualizado
+        cargarAreasAsociadas(olimpiadaSeleccionada);
+      } else {
+        throw new Error("Error al eliminar la categoría");
+      }
+    } catch (error) {
+      console.error("Error al eliminar categoría:", error);
+      
+      let mensaje = "Error al eliminar la categoría";
+      
+      if (error.response) {
+        if (error.response.status === 400) {
+          mensaje = error.response.data?.message || "No se puede eliminar la categoría porque tiene inscripciones asociadas.";
+        } else if (error.response.status === 401) {
+          mensaje = "No tienes autorización para realizar esta acción.";
+        } else if (error.response.status === 403) {
+          mensaje = "No tienes permisos suficientes para esta acción.";
+        } else {
+          mensaje = error.response.data?.message || mensaje;
+        }
+      }
+      
+      alert(mensaje);
+      throw error; // Re-lanzar el error para que AreaCompetencia lo maneje
+    }
+  };
   
   return (
     <div className="p-6 max-w-5xl mx-auto">
@@ -384,6 +482,7 @@ const DesasignarAreaNivel = () => {
                 olimpiadaSeleccionada={olimpiadaSeleccionada}
                 modoAsociacion={false} 
                 todosLosGrados={todosLosGrados}
+                onEliminarCategoria={eliminarCategoriaIndividual}
               />
             ))}
 
