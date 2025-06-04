@@ -7,7 +7,6 @@ use App\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 
-
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/debug-pdf-logs', function() {
     $logPath = storage_path('logs/pdf_debug.log');
@@ -22,9 +21,14 @@ Route::get('/debug-pdf-logs', function() {
 
 Route::post('/registro', [AuthController::class, 'register']);
 
-Route::get('/olimpiadas-publicas', [OlimcpiadaController::class, 'getTodasLasOlimpiadas']);
+Route::get('/olimpiadas-publicas', [OlimpiadaController::class, 'getTodasLasOlimpiadas']);
 
 Route::get('/olimpiada/{id}', [OlimpiadaController::class, 'show']);
+
+// Corregir esta ruta para que funcione correctamente
+Route::get('/olimpiada/{id}/areas-categorias', function($id) {
+    return app(OlimpiadaController::class)->getAreasCategoriasPorOlimpiada(new \Illuminate\Http\Request(['id' => $id]));
+});
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {

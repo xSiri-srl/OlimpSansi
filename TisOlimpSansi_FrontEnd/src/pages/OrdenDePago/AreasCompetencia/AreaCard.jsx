@@ -1,4 +1,5 @@
 import { FaCheck } from "react-icons/fa";
+import { useEffect } from "react";
 
 const AreaCard = ({ 
   area, 
@@ -9,10 +10,41 @@ const AreaCard = ({
   manejarSeleccion, 
   handleCategoriaChange 
 }) => {
-  // Información de depuración para ayudar a identificar problemas
+  // DEBUG: Mostrar información detallada
+  console.log(`🔍 AreaCard - ${area.nombre}:`, {
+    estaSeleccionada,
+    estaDisponible,
+    categorias,
+    categoriaSeleccionada
+  });
+
   const categoriasDisponibles = categorias && categorias.length > 0 
     ? categorias 
     : ["Sin categorías disponibles"];
+  
+  // Auto-seleccionar categoría si hay una sola opción válida
+  useEffect(() => {
+    if (estaSeleccionada && !categoriaSeleccionada && categoriasDisponibles.length === 1) {
+      const categoria = categoriasDisponibles[0];
+      // Solo auto-seleccionar si la categoría es válida
+      if (categoria !== "Sin categorías disponibles" && 
+          categoria !== "Categoría no disponible para este curso" &&
+          !categoria.includes("No hay categorías disponibles")) {
+        console.log(`🎯 Auto-seleccionando categoría: "${categoria}" para área: "${area.nombre}"`);
+        handleCategoriaChange(area.nombre, categoria);
+      }
+    }
+  }, [estaSeleccionada, categoriaSeleccionada, categoriasDisponibles, area.nombre, handleCategoriaChange]);
+  
+  const esCategoriaValida = (categoria) => {
+    return categoria && 
+           categoria !== "Sin categorías disponibles" && 
+           categoria !== "Categoría no disponible para este curso" &&
+           !categoria.includes("No hay categorías disponibles") &&
+           !categoria.includes("No hay categorías disponibles para");
+  };
+  
+  const hayCategoriasValidas = categoriasDisponibles.some(esCategoriaValida);
   
   return (
     <div
@@ -54,33 +86,38 @@ const AreaCard = ({
           <label className="block text-xs text-gray-700 mb-1 font-medium">
             Selecciona una categoría:
           </label>
+          
           <select
             className="w-full p-1 text-xs border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={categoriaSeleccionada || ""}
-            onChange={(e) =>
-              handleCategoriaChange(area.nombre, e.target.value)
-            }
+            onChange={(e) => {
+              console.log(`🎯 Seleccionando categoría "${e.target.value}" para área "${area.nombre}"`);
+              handleCategoriaChange(area.nombre, e.target.value);
+            }}
             required
           >
             <option value="">-- Seleccionar --</option>
-            {categoriasDisponibles.map((cat, i) => (
-              <option key={i} value={cat}>
-                {cat}
-              </option>
-            ))}
+            {categoriasDisponibles
+              .filter(esCategoriaValida)
+              .map((cat, i) => (
+                <option key={i} value={cat}>
+                  {cat}
+                </option>
+              ))}
           </select>
           
-          {categoriasDisponibles.length === 1 && categoriasDisponibles[0] === "Sin categorías disponibles" && (
+          {/* Mensajes informativos */}
+          {!hayCategoriasValidas && (
             <div className="text-xs text-red-500 mt-1">
-              No hay categorías disponibles para tu grado
+              {categoriasDisponibles[0] || "No hay categorías disponibles para tu grado"}
             </div>
           )}
           
-          {/* Auto-seleccionar si hay una sola opción */}
-          {estaSeleccionada && !categoriaSeleccionada && categoriasDisponibles.length === 1 && 
-           categoriasDisponibles[0] !== "Sin categorías disponibles" && 
-           categoriasDisponibles[0] !== "Categoría no disponible para este curso" && (
-            setTimeout(() => handleCategoriaChange(area.nombre, categoriasDisponibles[0]), 100)
+          {/* Mostrar categoría auto-seleccionada */}
+          {categoriaSeleccionada && esCategoriaValida(categoriaSeleccionada) && (
+            <div className="text-xs text-green-600 mt-1">
+              ✓ Categoría seleccionada: {categoriaSeleccionada}
+            </div>
           )}
         </div>
       )}

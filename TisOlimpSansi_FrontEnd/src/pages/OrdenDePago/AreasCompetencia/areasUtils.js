@@ -13,22 +13,41 @@ export function procesarAreasCompetencia(seleccionadas, categoriasSeleccionadas,
 }
 
 export function validarFormulario(seleccionadas, categoriasSeleccionadas) {
+  console.log("🔍 Validando formulario...");
+  console.log("Áreas seleccionadas:", seleccionadas);
+  console.log("Categorías seleccionadas:", categoriasSeleccionadas);
+  
   // Si no hay áreas seleccionadas, el formulario no es válido
-  if (!seleccionadas || seleccionadas.length === 0) return false;
+  if (!seleccionadas || seleccionadas.length === 0) {
+    console.log("❌ No hay áreas seleccionadas");
+    return false;
+  }
 
   // Verificar que cada área seleccionada tenga una categoría correspondiente válida
   for (const area of seleccionadas) {
     const categoria = categoriasSeleccionadas[area];
     
-    // Si no hay categoría seleccionada o es inválida
-    if (!categoria || categoria === "" || 
-        categoria === "Sin categorías disponibles" ||
-        categoria.includes("Categoría no disponible para este curso")) {
-      console.log(`Área ${area} tiene categoría inválida: "${categoria}"`);
+    // Lista de mensajes que indican categorías inválidas
+    const mensajesInvalidos = [
+      "Sin categorías disponibles",
+      "Categoría no disponible para este curso",
+      "No hay categorías disponibles"
+    ];
+    
+    // Verificar si la categoría es inválida
+    const esCategoriaInvalida = !categoria || 
+                              categoria.trim() === "" ||
+                              mensajesInvalidos.some(invalid => 
+                                categoria.includes(invalid));
+    
+    if (esCategoriaInvalida) {
+      console.log(`❌ Área ${area} tiene categoría inválida: "${categoria}"`);
       return false;
     }
+    
+    console.log(`✅ Área ${area} tiene categoría válida: "${categoria}"`);
   }
 
-  // Si todas las áreas tienen categorías válidas
+  console.log("✅ Formulario válido");
   return true;
 }
