@@ -9,7 +9,16 @@ use Illuminate\Http\Request;
 
 
 Route::post('/login', [AuthController::class, 'login']);
-
+Route::get('/debug-pdf-logs', function() {
+    $logPath = storage_path('logs/pdf_debug.log');
+    
+    if (!file_exists($logPath)) {
+        return "No hay archivo de logs PDF. Ejecuta la función primero.";
+    }
+    
+    $content = file_get_contents($logPath);
+    return '<pre style="font-size: 12px; background: #f5f5f5; padding: 10px;">' . htmlspecialchars($content) . '</pre>';
+});
 
 Route::post('/registro', [AuthController::class, 'register']);
 
