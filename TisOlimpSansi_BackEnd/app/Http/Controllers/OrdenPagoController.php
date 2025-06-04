@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\Inscripcion\InscripcionModel;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Http\Request;
-use thiagoalessio\TesseractOCR\TesseractOCR;
+//use thiagoalessio\TesseractOCR\TesseractOCR;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Inscripcion\AreaModel;
 use App\Models\Inscripcion\CategoriaModel;
@@ -25,58 +25,206 @@ use App\Models\comprobantes_pago;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
-use thiagoalessio\TesseractOCR\UnsuccessfulCommandException;
+//use thiagoalessio\TesseractOCR\UnsuccessfulCommandException;
 class OrdenPagoController extends Controller
 {
 
-    public function generarYGuardarOrdenPagoPDF(Request $request)
-    {
+  public function generarYGuardarOrdenPagoPDF(Request $request) 
+{
+    // Crear archivo de log específico
+    $debugLog = storage_path('logs/pdf_debug.log');
+    
+    // Función helper para escribir logs
+    $writeLog = function($message) use ($debugLog) {
+        $timestamp = date('Y-m-d H:i:s');
+        file_put_contents($debugLog, "[$timestamp] $message\n", FILE_APPEND | LOCK_EX);
+    };
+    
+    try {
+        $writeLog("=== INICIO DEBUG SERVIDOR ===");
+        
         $validated = $request->validate([
             'codigo_generado' => 'required|string|max:255',
         ]);
-    
+        
+        $writeLog("Validación OK - Código: " . $validated['codigo_generado']);
+        $writeLog("PHP Version: " . phpversion());
+        $writeLog("Server: " . ($_SERVER['SERVER_SOFTWARE'] ?? 'Unknown'));
+        $writeLog("Memory Limit: " . ini_get('memory_limit'));
+        $writeLog("Max Execution Time: " . ini_get('max_execution_time'));
+        
+        // Verificar extensiones necesarias
+        $writeLog("DOM Extension: " . (extension_loaded('dom') ? 'OK' : 'NO'));
+        $writeLog("GD Extension: " . (extension_loaded('gd') ? 'OK' : 'NO'));
+        $writeLog("MBString Extension: " . (extension_loaded('mbstring') ? 'OK' : 'NO'));
+        
         $ordenPago = OrdenPago::where('codigo_generado', $validated['codigo_generado'])->first();
         if (!$ordenPago) {
+            $writeLog("ERROR: Orden de pago no encontrada");
             return response()->json(['message' => 'Orden de pago no encontrada'], 404);
         }
-    
+        
+        $writeLog("Orden de pago encontrada - ID: " . $ordenPago->id);
+        
         $inscripcion = InscripcionModel::where('id_orden_pago', $ordenPago->id)->first();
         if (!$inscripcion) {
-            return response()->json(['message' => 'Inscripción no encontrada para esta orden de pago'], 404);
+            $writeLog("ERROR: Inscripción no encontrada");
+            return response()->json(['message' => 'Inscripción no encontrada'], 404);
         }
-    
-        // Generar el PDF con la vista 'pdf.orden_pago'
-        $pdf = Pdf::loadView('pdf.orden_pago', [
-            'ordenPago' => $ordenPago,
-            'inscripcion' => $inscripcion,
-        ]);
-    
-    
-        // Generar el nombre y guardar el PDF en disco
+        
+        $writeLog("Inscripción encontrada - ID: " . $inscripcion->id);
+        
+        // === VERIFICAR Y CREAR ESTRUCTURA DE DIRECTORIOS ===
+        $storagePath = storage_path('app/public');
+        $ordenesPath = $storagePath . '/ordenes_pago';
+        
+        $writeLog("Storage path: " . $storagePath);
+        $writeLog("Ordenes path: " . $ordenesPath);
+        $writeLog("Current working directory: " . getcwd());
+        $writeLog("Base path: " . base_path());
+        
+        // Verificar rutas absolutas
+        $writeLog("Storage path exists: " . (is_dir($storagePath) ? 'YES' : 'NO'));
+        $writeLog("Storage path readable: " . (is_readable($storagePath) ? 'YES' : 'NO'));
+        $writeLog("Storage path writable: " . (is_writable($storagePath) ? 'YES' : 'NO'));
+        
+        // Crear storage/app si no existe
+        if (!is_dir(storage_path('app'))) {
+            $created = mkdir(storage_path('app'), 0755, true);
+            $writeLog("Creando storage/app: " . ($created ? 'OK' : 'FALLÓ'));
+        }
+        
+        // Crear storage/app/public si no existe
+        if (!is_dir($storagePath)) {
+            $created = mkdir($storagePath, 0755, true);
+            $writeLog("Creando storage/app/public: " . ($created ? 'OK' : 'FALLÓ'));
+        }
+        
+        // Crear ordenes_pago si no existe
+        if (!is_dir($ordenesPath)) {
+            $created = mkdir($ordenesPath, 0755, true);
+            $writeLog("Creando ordenes_pago: " . ($created ? 'OK' : 'FALLÓ'));
+        }
+        
+        // Verificar permisos finales
+        $writeLog("Final - Storage writable: " . (is_writable($storagePath) ? 'YES' : 'NO'));
+        $writeLog("Final - Ordenes writable: " . (is_writable($ordenesPath) ? 'YES' : 'NO'));
+        
+        // === VERIFICAR VISTA ===
+        $writeLog("Verificando vista pdf.orden_pago...");
+        if (!view()->exists('pdf.orden_pago')) {
+            $writeLog("ERROR: Vista pdf.orden_pago no encontrada");
+            return response()->json(['message' => 'Vista PDF no encontrada'], 500);
+        }
+        $writeLog("Vista encontrada OK");
+        
+        // === GENERAR PDF ===
+        $writeLog("Iniciando generación PDF...");
+        
+        try {
+            // Aumentar límites
+            ini_set('memory_limit', '512M');
+            ini_set('max_execution_time', 300);
+            
+            $writeLog("Límites aumentados - Memory: " . ini_get('memory_limit') . " Time: " . ini_get('max_execution_time'));
+            
+            $pdf = Pdf::loadView('pdf.orden_pago', [
+                'ordenPago' => $ordenPago,
+                'inscripcion' => $inscripcion,
+            ]);
+            
+            $writeLog("PDF objeto creado exitosamente");
+            
+            // Verificar que el PDF se puede generar
+            $pdfContent = $pdf->output();
+            $writeLog("PDF content generado - Tamaño: " . strlen($pdfContent) . " bytes");
+            
+            if (strlen($pdfContent) == 0) {
+                throw new \Exception("PDF generado está vacío");
+            }
+            
+        } catch (\Exception $pdfError) {
+            $writeLog("ERROR generando PDF: " . $pdfError->getMessage());
+            $writeLog("PDF Error File: " . $pdfError->getFile());
+            $writeLog("PDF Error Line: " . $pdfError->getLine());
+            return response()->json(['message' => 'Error generando PDF: ' . $pdfError->getMessage()], 500);
+        }
+        
+        // === GUARDAR ARCHIVO ===
         $fileName = 'orden_pago_' . $ordenPago->codigo_generado . '.pdf';
         $filePath = 'ordenes_pago/' . $fileName;
-    
-        // Guardar el archivo en storage/app/public/ordenes_pago
+        $fullPath = $ordenesPath . '/' . $fileName;
+        
+        $writeLog("Guardando archivo...");
+        $writeLog("File name: " . $fileName);
+        $writeLog("File path: " . $filePath);
+        $writeLog("Full path: " . $fullPath);
+        
         try {
-            Storage::disk('public')->put($filePath, $pdf->output());
-            Log::info("PDF guardado correctamente en: {$filePath}");
-        } catch (\Exception $e) {
-            Log::error("Error al guardar el PDF: " . $e->getMessage());
-            return response()->json(['message' => 'Error al guardar el PDF'], 500);
+            $result = file_put_contents($fullPath, $pdfContent);
+            
+            if ($result === false) {
+                throw new \Exception("file_put_contents retornó false");
+            }
+            
+            $writeLog("PDF guardado exitosamente. Bytes escritos: " . $result);
+            
+            // Verificar que el archivo existe
+            if (!file_exists($fullPath)) {
+                throw new \Exception("El archivo no existe después de guardarlo");
+            }
+            
+            $fileSize = filesize($fullPath);
+            $writeLog("Archivo verificado - Tamaño: " . $fileSize . " bytes");
+            
+            if ($fileSize == 0) {
+                throw new \Exception("El archivo guardado está vacío");
+            }
+            
+        } catch (\Exception $saveError) {
+            $writeLog("ERROR guardando PDF: " . $saveError->getMessage());
+            $writeLog("Save Error File: " . $saveError->getFile());
+            $writeLog("Save Error Line: " . $saveError->getLine());
+            return response()->json(['message' => 'Error guardando PDF: ' . $saveError->getMessage()], 500);
         }
-    
-        // Guardar la URL en el modelo
+        
+        // === ACTUALIZAR BASE DE DATOS ===
+        $writeLog("Actualizando base de datos...");
         $ordenPago->orden_pago_url = $filePath;
         $ordenPago->save();
-    
-        Log::info("PDF guardado y URL actualizada para la orden de pago: {$ordenPago->codigo_generado}");
-    
+        $writeLog("Base de datos actualizada");
+        
+        $writeLog("=== PDF PROCESO COMPLETADO EXITOSAMENTE ===");
+        
         return response()->json([
             'message' => 'PDF generado y guardado exitosamente.',
             'orden_pago_url' => asset('storage/' . $filePath),
-            'ordenPago' => $ordenPago
+            'ordenPago' => $ordenPago,
+            'debug_info' => [
+                'file_path' => $filePath,
+                'full_path' => $fullPath,
+                'file_exists' => file_exists($fullPath),
+                'file_size' => file_exists($fullPath) ? filesize($fullPath) : 0,
+                'log_file' => $debugLog
+            ]
         ]);
+        
+    } catch (\Exception $e) {
+        $writeLog("=== ERROR GENERAL ===");
+        $writeLog("Message: " . $e->getMessage());
+        $writeLog("File: " . $e->getFile());
+        $writeLog("Line: " . $e->getLine());
+        $writeLog("Stack trace: " . $e->getTraceAsString());
+        
+        return response()->json([
+            'message' => 'Error interno del servidor',
+            'error' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'log_file' => $debugLog
+        ], 500);
     }
+}
 
     /**
      * Descarga la orden de pago como PDF
@@ -136,7 +284,7 @@ public function verificarCodigo(Request $request)
         return response()->json(['message' => 'Código generado válido, puedes continuar con la subida de la imagen.'], 200);
     }
 
-    public function procesarComprobante(Request $request)
+    /*public function procesarComprobante(Request $request)
     {
         $validated = $request->validate([
             'comprobante_numero' => 'required|image|mimes:jpg,png,jpeg|max:5120',
@@ -195,7 +343,7 @@ public function verificarCodigo(Request $request)
             'nombre_pagador' => $nombrePagador ?: 'No se pudo extraer',
             'fecha_comprobante' => $fechaComprobante ?: 'No se pudo extraer',
         ]);
-    }
+    }*/
 
     /**
      * Obtiene la orden de pago por su código generado
