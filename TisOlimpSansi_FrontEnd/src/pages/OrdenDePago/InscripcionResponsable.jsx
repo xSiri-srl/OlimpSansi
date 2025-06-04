@@ -1,5 +1,4 @@
 import { useState} from "react";
-import axios from "axios";
 import ProcesoRegistro from "./ProcesoRegistro";
 import { FaUser, FaIdCard } from "react-icons/fa";
 import InscripcionEstudiante from "./InscripcionEstudiante";
@@ -11,6 +10,7 @@ import { FormDataContext, useFormData } from "./form-data-context";
 import { TextField } from "./components/FormComponents";
 import { validateField, validateCI } from "./utils/validationsUtils";
 import { API_URL } from "../../utils/api";
+import axios from "axios"
 
 const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
   const [errors, setErrors] = useState({});

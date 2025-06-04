@@ -5,11 +5,10 @@ import jsPDF from "jspdf"
 import autoTable from "jspdf-autotable"
 import * as XLSX from "xlsx"
 import { saveAs } from "file-saver"
-import axios from "axios"
 import { useNavigate } from "react-router-dom"
 import { HiArrowCircleRight } from "react-icons/hi"
 import { API_URL } from "../../../utils/api"
-
+import axios from 'axios'
 function InscritosVerificados() {
   const [busqueda, setBusqueda] = useState("")
   const [estado, setEstado] = useState("")

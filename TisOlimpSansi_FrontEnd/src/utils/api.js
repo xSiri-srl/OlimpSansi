@@ -1,1 +1,2 @@
-export const API_URL = "http://xsiri.tis.cs.umss.edu.bo"
+
+export const API_URL = import.meta.env.VITE_API_URL;

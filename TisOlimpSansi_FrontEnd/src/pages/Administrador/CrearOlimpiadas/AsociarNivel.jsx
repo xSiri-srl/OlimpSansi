@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
 import Cookies from 'js-cookie';
 import HeaderSelector from "./AreasCompetencia/HeaderSelector";
 import AreaCompetencia from "./AreasCompetencia/AreaCompetencia";
 import AccionesFooter from "./AreasCompetencia/AccionesFooter";
 import { gradosDisponibles } from "./AreasCompetencia/constants";
 import { API_URL } from "../../../utils/api";
+import axios from "axios";
 
 const SelectorAreaGrado = () => {
   const [olimpiadas, setOlimpiadas] = useState([]);
@@ -84,7 +84,7 @@ const SelectorAreaGrado = () => {
       
       try {
         // Obtener CSRF token para autenticación
-        await axios.get(`${API_URL}/sanctum/csrf-cookie`, {
+        await axios.get(`${API_URL}/api/sanctum/csrf-cookie`, {
           withCredentials: true,
         });
         
@@ -165,7 +165,7 @@ const SelectorAreaGrado = () => {
     
     try {
       // Obtener CSRF token para autenticación
-      await axios.get(`${API_URL}/sanctum/csrf-cookie`, {
+      await axios.get(`${API_URL}/api/sanctum/csrf-cookie`, {
         withCredentials: true,
       });
       
@@ -296,7 +296,7 @@ const SelectorAreaGrado = () => {
 
     try {
       // Obtener CSRF token para autenticación
-      await axios.get(`${API_URL}/sanctum/csrf-cookie`, {
+      await axios.get(`${API_URL}/api/sanctum/csrf-cookie`, {
         withCredentials: true,
       });
       

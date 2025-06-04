@@ -13,25 +13,72 @@ const AreaGrid = ({
   maxAreas = 0,
   areasCategorias = {}
 }) => {
+  console.log("🔍 AreaGrid - areasCategorias recibido:", areasCategorias);
+  console.log("🔍 AreaGrid - Claves disponibles:", Object.keys(areasCategorias));
+
   const renderizarArea = (area, index) => {
     const estaSeleccionada = seleccionadas.includes(area.nombre);
-    
-    // Obtener categorías del backend para esta área específica
-    let categorias;
     const nombreArea = area.nombre;
     
-    // Buscar categorías en areasCategorias (puede estar con o sin acentos)
-    if (areasCategorias[nombreArea]) {
-      categorias = areasCategorias[nombreArea].map(cat => cat.nombre);
-    } else if (areasCategorias[nombreArea.toUpperCase()]) {
-      categorias = areasCategorias[nombreArea.toUpperCase()].map(cat => cat.nombre);
-    } else {
-      // Fallback al método anterior
-      categorias = obtenerCategorias(nombreArea);
+    console.log(`\n🔍 Renderizando área "${nombreArea}"`);
+    
+    // Buscar categorías en areasCategorias de múltiples formas
+    let categoriasEncontradas = [];
+    
+    // Lista de posibles claves para buscar
+    const posiblesClaves = [
+      nombreArea,
+      nombreArea.toUpperCase(),
+      nombreArea.toLowerCase(),
+      // Mapeos específicos
+      nombreArea === "Matemáticas" ? "MATEMATICAS" : null,
+      nombreArea === "Matemáticas" ? "MATEMATICA" : null,
+      nombreArea === "Física" ? "FISICA" : null,
+      nombreArea === "Química" ? "QUIMICA" : null,
+      nombreArea === "Biología" ? "BIOLOGIA" : null,
+      nombreArea === "Informática" ? "INFORMATICA" : null,
+      nombreArea === "Robótica" ? "ROBOTICA" : null,
+      nombreArea === "Astronomía y Astrofísica" ? "ASTRONOMIA Y ASTROFISICA" : null,
+      nombreArea === "Astronomía y Astrofísica" ? "ASTRONOMIAYASTROFISICA" : null,
+    ].filter(Boolean);
+    
+    console.log(`📋 Buscando categorías con claves:`, posiblesClaves);
+    
+    for (const clave of posiblesClaves) {
+      if (areasCategorias[clave] && Array.isArray(areasCategorias[clave])) {
+        categoriasEncontradas = areasCategorias[clave];
+        console.log(`✅ Encontradas ${categoriasEncontradas.length} categorías para "${nombreArea}" usando clave "${clave}"`);
+        console.log(`📊 Categorías:`, categoriasEncontradas.map(c => c.nombre || c));
+        break;
+      }
     }
+    
+    // Si no encontramos categorías directamente, mostrar que hay en areasCategorias
+    if (categoriasEncontradas.length === 0) {
+      console.log(`❌ No se encontraron categorías para "${nombreArea}"`);
+      console.log(`🔍 Contenido completo de areasCategorias:`, areasCategorias);
+      
+      // Fallback: usar obtenerCategorias
+      const categoriasFallback = obtenerCategorias(nombreArea);
+      console.log(`🔄 Fallback obtenerCategorias para "${nombreArea}":`, categoriasFallback);
+    }
+    
+    // Preparar lista de nombres de categorías
+    const categoriasParaMostrar = categoriasEncontradas.length > 0 
+      ? categoriasEncontradas.map(cat => cat.nombre || cat)
+      : ["Sin categorías disponibles"];
     
     const categoriaSeleccionada = categoriasSeleccionadas[area.nombre] || "";
     const estaDisponible = !cargandoAreas && maxAreas > 0 && areaEstaDisponible(area.nombre);
+
+    console.log(`📋 Resumen final para "${nombreArea}":`, {
+      estaSeleccionada,
+      estaDisponible,
+      categoriasParaMostrar,
+      categoriaSeleccionada,
+      maxAreas,
+      cargandoAreas
+    });
 
     return (
       <AreaCard
@@ -39,7 +86,7 @@ const AreaGrid = ({
         area={area}
         estaSeleccionada={estaSeleccionada}
         estaDisponible={estaDisponible}
-        categorias={categorias}
+        categorias={categoriasParaMostrar}
         categoriaSeleccionada={categoriaSeleccionada}
         manejarSeleccion={manejarSeleccion}
         handleCategoriaChange={handleCategoriaChange}

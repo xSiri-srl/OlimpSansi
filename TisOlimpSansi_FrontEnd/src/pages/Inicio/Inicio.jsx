@@ -1,9 +1,9 @@
 import React, { useRef, useState, useEffect } from "react";
-import axios from "axios";
 import SeccionPrincipal from "./SeccionPrincipal";
 import VisualizadoresPdf from "./VisualizadoresPdf";
 import SeccionInformativa from "./SeccionInformativa";
 import { API_URL } from "../../utils/api";
+import axios from "axios"
 
 const Inicio = () => {
   const requisitosRef = useRef(null);

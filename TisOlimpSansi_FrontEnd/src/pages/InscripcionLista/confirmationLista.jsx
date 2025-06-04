@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import { useFormData } from "./form-context";
 import ExitoModal from "./Modales/ExitoModal";
 import ErrorModal from "./Modales/RegistrosInvalidosModal";
@@ -12,6 +11,7 @@ import {
   FaExclamationTriangle,
 } from "react-icons/fa";
 import { API_URL } from "../../utils/api";
+import axios from "axios";
 
 const ConfirmationLista = ({ setStep }) => {
   const { globalData, setGlobalData } = useFormData();

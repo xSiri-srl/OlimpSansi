@@ -1,6 +1,10 @@
 import { categoriasMap } from './areasConfig';
 
 export function useCategoriasHandler(cursoEstudiante, areasCategorias = {}) {
+  console.log("🎯 useCategoriasHandler - areasCategorias recibido:", areasCategorias);
+  console.log("🎯 useCategoriasHandler - Claves disponibles:", Object.keys(areasCategorias));
+  console.log("🎯 useCategoriasHandler - Curso estudiante:", cursoEstudiante);
+
   // Extraer información del grado del estudiante
   const obtenerInfoGrado = () => {
     const esPrimaria = cursoEstudiante.includes("Primaria");
@@ -8,218 +12,118 @@ export function useCategoriasHandler(cursoEstudiante, areasCategorias = {}) {
     const match = cursoEstudiante.match(/\d+/);
     const numeroGrado = match ? parseInt(match[0], 10) : 0;
     
-    // Crear una abreviación del tipo "1P" o "3S" para fácil comparación
-    let abreviacion = "";
-    if (numeroGrado > 0) {
-      abreviacion = `${numeroGrado}${esPrimaria ? "P" : esSecundaria ? "S" : ""}`;
-    }
+    const formatoCompleto = cursoEstudiante.toUpperCase().replace(/\s+/g, " ");
     
-    return { esPrimaria, esSecundaria, numeroGrado, abreviacion };
+    return { 
+      esPrimaria, 
+      esSecundaria, 
+      numeroGrado, 
+      formatoCompleto 
+    };
   };
   
-  const { esPrimaria, esSecundaria, numeroGrado, abreviacion } = obtenerInfoGrado();
-  
-  // Función para verificar si una categoría es compatible con el grado del estudiante
-  const esCategoriaCompatible = (nombreCategoria) => {
-    if (!nombreCategoria) return false;
-    
-    // Convertir a mayúsculas para comparación consistente
-    const categoria = nombreCategoria.toUpperCase();
-    
-    console.log(`Verificando compatibilidad de categoría: "${categoria}" con grado: ${abreviacion} (${cursoEstudiante})`);
-    
-    // CASO ESPECIAL: BUILDERS S o LEGO S - para todos los grados de secundaria
-    if (esSecundaria && (categoria.includes("BUILDERS S") || categoria.includes("LEGO S"))) {
-      console.log(`✅ Categoría "${categoria}" es compatible con secundaria`);
-      return true;
+  const { esPrimaria, esSecundaria, numeroGrado, formatoCompleto } = obtenerInfoGrado();
+
+  // Función para verificar si el grado del estudiante está en el rango de grados de una categoría
+  const gradoEstaEnRango = (categoria) => {
+    if (!categoria || !categoria.grados || !Array.isArray(categoria.grados)) {
+      console.log(`❌ Categoría "${categoria?.nombre}" no tiene grados válidos:`, categoria?.grados);
+      return false;
     }
     
-    // CASO ESPECIAL: BUILDERS P o LEGO P - para 5to y 6to primaria
-    if (esPrimaria && (numeroGrado === 5 || numeroGrado === 6) && 
-        (categoria.includes("BUILDERS P") || categoria.includes("LEGO P"))) {
-      console.log(`✅ Categoría "${categoria}" es compatible con 5to-6to primaria`);
-      return true;
-    }
+    console.log(`🔍 Verificando si grado "${formatoCompleto}" está en rango de categoría "${categoria.nombre}"`);
+    console.log(`📋 Grados de la categoría:`, categoria.grados.map(g => g.nombre_grado));
     
-    // Caso 1: Coincidencia directa con la abreviación del grado
-    if (categoria.includes(abreviacion)) {
-      console.log(`✅ Categoría "${categoria}" incluye grado ${abreviacion}`);
-      return true;
-    }
-    
-    // Caso 2: Categoría general para primaria/secundaria
-    if ((esPrimaria && (categoria.includes(" P") || categoria.endsWith("P"))) || 
-        (esSecundaria && (categoria.includes(" S") || categoria.endsWith("S")))) {
-      console.log(`✅ Categoría "${categoria}" es compatible con ${esPrimaria ? "primaria" : "secundaria"}`);
-      return true;
-    }
-    
-    // Caso 3: Categoría con rango numérico (1RO A 3RO)
-    const rangoRegex = /(\d+)(?:RO|DO|TO)?\s*A\s*(\d+)(?:RO|DO|TO)?/i;
-    const rangoMatch = categoria.match(rangoRegex);
-    
-    if (rangoMatch) {
-      const min = parseInt(rangoMatch[1], 10);
-      const max = parseInt(rangoMatch[2], 10);
+    // Verificar si el grado del estudiante está en la lista de grados de la categoría
+    const gradoEncontrado = categoria.grados.some(grado => {
+      const nombreGrado = grado.nombre_grado.toUpperCase().replace(/\s+/g, " ");
+      const coincide = nombreGrado === formatoCompleto;
       
-      // Verificar si el grado actual está dentro del rango
-      if (numeroGrado >= min && numeroGrado <= max) {
-        console.log(`✅ Categoría "${categoria}" incluye rango ${min}-${max} compatible con grado ${numeroGrado}`);
-        return true;
+      if (coincide) {
+        console.log(`✅ Grado encontrado: "${nombreGrado}" coincide con "${formatoCompleto}"`);
       }
+      
+      return coincide;
+    });
+    
+    if (gradoEncontrado) {
+      console.log(`✅ Categoría "${categoria.nombre}" es compatible con grado "${formatoCompleto}"`);
+    } else {
+      console.log(`❌ Categoría "${categoria.nombre}" NO es compatible con grado "${formatoCompleto}"`);
     }
     
-    // Casos específicos adicionales para categorías comunes
-    if (categoria === "GUACAMAYO" && esPrimaria && (numeroGrado === 5 || numeroGrado === 6)) {
-      console.log(`✅ Categoría "${categoria}" es compatible con 5to-6to primaria`);
-      return true;
-    }
-    
-    if ((categoria === "GUANACO" || categoria === "LONDRA" || categoria === "BUFEO") && 
-        esSecundaria && numeroGrado >= 1 && numeroGrado <= 3) {
-      console.log(`✅ Categoría "${categoria}" es compatible con 1ro-3ro secundaria`);
-      return true;
-    }
-    
-    if ((categoria === "JUCUMARI" || categoria === "PUMA") && 
-        esSecundaria && numeroGrado >= 4 && numeroGrado <= 6) {
-      console.log(`✅ Categoría "${categoria}" es compatible con 4to-6to secundaria`);
-      return true;
-    }
-    
-    console.log(`❌ Categoría "${categoria}" no es compatible con grado ${abreviacion}`);
-    return false;
+    return gradoEncontrado;
   };
 
   const obtenerCategoriaAutomatica = (area) => {
-    // Verificar primero si hay categorías disponibles del backend
     if (!area) return null;
     
-    // Normalizar nombres para búsqueda
-    const nombreAreaNormalizado = area.toUpperCase();
+    console.log(`🎯 Obteniendo categoría automática para área: "${area}"`);
     
-    if (areasCategorias[area] || areasCategorias[nombreAreaNormalizado]) {
-      const categorias = areasCategorias[area] || areasCategorias[nombreAreaNormalizado] || [];
+    // Buscar las categorías del área en los datos del backend
+    const categoriasArea = areasCategorias[area] || areasCategorias[area.toUpperCase()] || [];
+    
+    if (categoriasArea.length > 0) {
+      console.log(`📋 Categorías disponibles para ${area}:`, categoriasArea);
       
-      // Si solo hay una categoría, la devolvemos automáticamente
-      if (categorias.length === 1) {
-        return categorias[0].nombre;
-      }
-      
-      // Filtrar categorías compatibles con el grado
-      const categoriasCompatibles = categorias.filter(cat => 
-        esCategoriaCompatible(cat.nombre)
+      // Filtrar categorías compatibles con el grado del estudiante
+      const categoriasCompatibles = categoriasArea.filter(categoria => 
+        gradoEstaEnRango(categoria)
       );
+      
+      console.log(`✅ Categorías compatibles encontradas:`, categoriasCompatibles.map(c => c.nombre));
       
       // Si hay exactamente una categoría compatible, la devolvemos automáticamente
       if (categoriasCompatibles.length === 1) {
+        console.log(`🎉 Categoría automática seleccionada: "${categoriasCompatibles[0].nombre}"`);
         return categoriasCompatibles[0].nombre;
+      }
+      
+      // Si hay múltiples categorías compatibles, no seleccionamos automáticamente
+      if (categoriasCompatibles.length > 1) {
+        console.log(`⚠️ Múltiples categorías compatibles, requiere selección manual`);
+        return null;
       }
     }
     
-    // Fallback al sistema anterior si no hay categorías del backend
-    let areaNormalizada = area.toUpperCase();
-    if (areaNormalizada === "ASTRONOMÍA Y ASTROFÍSICA") {
-      areaNormalizada = "ASTRONOMÍA - ASTROFÍSICA";
-    }
-
-    if (
-      categoriasMap[areaNormalizada] &&
-      categoriasMap[areaNormalizada][cursoEstudiante]
-    ) {
-      return categoriasMap[areaNormalizada][cursoEstudiante];
-    }
-
+    console.log(`❌ No se encontró categoría automática para ${area} y grado ${formatoCompleto}`);
     return null;
   };
 
   const obtenerCategorias = (area) => {
     if (!area) {
-      console.log("obtenerCategorias: Se recibió un área vacía");
-      return ["Categoría no disponible"];
+      console.log("⚠️ obtenerCategorias: Se recibió un área vacía");
+      return ["Sin categorías disponibles"];
     }
     
-    console.log(`Obteniendo categorías para área: "${area}"`);
+    console.log(`\n📋 obtenerCategorias para área: "${area}"`);
+    console.log(`🔍 areasCategorias disponible:`, Object.keys(areasCategorias));
     
-    // Verificar primero si tenemos categorías del backend
-    if (areasCategorias[area] || areasCategorias[area.toUpperCase()]) {
-      const categorias = areasCategorias[area] || areasCategorias[area.toUpperCase()] || [];
+    // Buscar las categorías del área en los datos del backend
+    const categoriasArea = areasCategorias[area] || areasCategorias[area.toUpperCase()] || [];
+    
+    console.log(`🎯 Categorías encontradas para "${area}":`, categoriasArea);
+    
+    if (categoriasArea.length > 0) {
+      // FILTRAR CATEGORÍAS POR GRADO DEL ESTUDIANTE
+      const categoriasCompatibles = categoriasArea
+        .filter(categoria => gradoEstaEnRango(categoria))
+        .map(categoria => categoria.nombre);
       
-      console.log(`${categorias.length} categorías disponibles para ${area}:`, 
-        categorias.map(c => c.nombre).join(', '));
-      
-      // Filtrar categorías compatibles con el grado del estudiante
-      const categoriasCompatibles = categorias
-        .filter(cat => esCategoriaCompatible(cat.nombre))
-        .map(cat => cat.nombre);
+      console.log(`✅ ${categoriasCompatibles.length} categorías compatibles para ${area}:`, categoriasCompatibles);
       
       // Si hay categorías compatibles, las devolvemos
       if (categoriasCompatibles.length > 0) {
-        console.log(`${categoriasCompatibles.length} categorías compatibles:`, categoriasCompatibles);
         return categoriasCompatibles;
       }
       
-      // Si no hay categorías compatibles pero hay categorías disponibles,
-      // mostramos todas (podría ser un problema de detección)
-      if (categorias.length > 0) {
-        console.warn(`No se encontraron categorías compatibles para ${area} y grado ${cursoEstudiante}. Mostrando todas las disponibles.`);
-        return categorias.map(cat => cat.nombre);
-      }
-    } else {
-      console.log(`No se encontraron categorías para área "${area}" en areasCategorias`);
+      // Si no hay categorías compatibles, mostrar mensaje específico
+      console.warn(`⚠️ No se encontraron categorías compatibles para ${area} y grado ${formatoCompleto}`);
+      return [`No hay categorías disponibles para ${formatoCompleto}`];
     }
     
-    // Implementación anterior como fallback
-    if (area === "Informática" || area === "Robótica") {
-      const areaNormalizada = area === "Informática" ? "Informática" : "ROBÓTICA";
-
-      if (
-        categoriasMap[areaNormalizada] &&
-        categoriasMap[areaNormalizada][cursoEstudiante]
-      ) {
-        const categorias = categoriasMap[areaNormalizada][cursoEstudiante];
-
-        if (Array.isArray(categorias)) {
-          return categorias.map((cat) => `"${cat}" ${cursoEstudiante}`);
-        } else {
-          return [`"${categorias}" ${cursoEstudiante}`];
-        }
-      }
-
-      // Lógica fallback específica para Informática y Robótica
-      if (area === "Informática") {
-        if (esPrimaria && (numeroGrado === 5 || numeroGrado === 6)) {
-          return ['"Guacamayo" 5to a 6to Primaria'];
-        } else if (esSecundaria && numeroGrado >= 1 && numeroGrado <= 3) {
-          return [
-            '"Guanaco" 1ro a 3ro Secundaria',
-            '"Londra" 1ro a 3ro Secundaria',
-            '"Bufeo" 1ro a 3ro Secundaria',
-          ];
-        } else if (esSecundaria && numeroGrado >= 4 && numeroGrado <= 6) {
-          return [
-            '"Jucumari" 4to a 6to Secundaria',
-            '"Puma" 4to a 6to Secundaria',
-          ];
-        }
-      }
-
-      if (area === "Robótica") {
-        if (esPrimaria && (numeroGrado === 5 || numeroGrado === 6)) {
-          return [
-            '"Builders P" 5to a 6to Primaria',
-            '"Lego P" 5to a 6to Primaria',
-          ];
-        } else if (esSecundaria) {
-          return [
-            '"Builders S" 1ro a 6to Secundaria',
-            '"Lego S" 1ro a 6to Secundaria',
-          ];
-        }
-      }
-    }
-
-    return ["Categoría no disponible para este curso"];
+    console.log(`❌ No se encontraron categorías para área "${area}"`);
+    return ["Sin categorías disponibles"];
   };
 
   return { obtenerCategoriaAutomatica, obtenerCategorias };

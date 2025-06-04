@@ -197,7 +197,7 @@ Route::post('/estudiantes/preinscritos/bydepartamento', [ColegioController::clas
 //inscripcion
 //obtener todas las olimpiadas esto sirve tanto para admin como para usuarios no registrados
 Route::get('/getOlimpiadasActuales', [OlimpiadaController::class, 'getOlimpiadasActuales']);
-//Route::get('/getOlimpiadaz', [OlimpiadaController::class, 'getOlimpiadas']);
+Route::get('/getOlimpiadaz', [OlimpiadaController::class, 'getOlimpiadas']);
 //mostrar todas las areas habilitadas para esa olimpiada
 Route::post('/olimpiadas/areas', [OlimpiadaController::class, 'getAreasPorOlimpiada']);
 
@@ -208,4 +208,7 @@ Route::get('/areasCategoriasOlimpiada', [OlimpiadaController::class, 'getAreasCa
 Route::get('/cursoAreaCategoriaPorOlimpiada', [CategoriaGradoController::class, 'obtenerCategoriasPorGrado']);
 
 //mostrar todas las categorias de esa materia de una olimpiada
+
+
+
 

@@ -75,27 +75,38 @@ class OlimpiadaAreaController extends Controller
 public function getAreasPorOlimpiada($id)
 {
     try {
-        // Obtener áreas y sus categorías asociadas a la olimpiada
+        // Obtener áreas y sus categorías con grados asociados a la olimpiada
         $areasYCategorias = DB::table('olimpiada_area_categorias')
             ->join('area', 'olimpiada_area_categorias.id_area', '=', 'area.id')
             ->join('categoria', 'olimpiada_area_categorias.id_categoria', '=', 'categoria.id')
+            ->leftJoin('categoria_grado', 'categoria.id', '=', 'categoria_grado.id_categoria')
+            ->leftJoin('grado', 'categoria_grado.id_grado', '=', 'grado.id')
             ->where('olimpiada_area_categorias.id_olimpiada', $id)
             ->select(
                 'area.id',
                 'area.nombre_area as area',
                 'categoria.id as id_categoria',
                 'categoria.nombre_categoria as nombre_categoria',
+                'grado.id as id_grado',
+                'grado.nombre_grado',
                 'olimpiada_area_categorias.precio as costoInscripcion'
             )
+            ->orderBy('area.nombre_area')
+            ->orderBy('categoria.nombre_categoria')
+            ->orderBy('grado.id')
             ->get();
 
-        // Agrupar por área para evitar duplicados
+        // Agrupar por área y categoría
         $areasAgrupadasMap = [];
         
         foreach ($areasYCategorias as $item) {
-            if (!isset($areasAgrupadasMap[$item->id])) {
-                $areasAgrupadasMap[$item->id] = [
-                    'id' => $item->id,
+            $areaId = $item->id;
+            $categoriaId = $item->id_categoria;
+            
+            // Inicializar área si no existe
+            if (!isset($areasAgrupadasMap[$areaId])) {
+                $areasAgrupadasMap[$areaId] = [
+                    'id' => $areaId,
                     'area' => $item->area,
                     'costoInscripcion' => $item->costoInscripcion,
                     'habilitado' => true,
@@ -103,11 +114,65 @@ public function getAreasPorOlimpiada($id)
                 ];
             }
             
-            // Añadir la categoría al área correspondiente
-            $areasAgrupadasMap[$item->id]['categorias'][] = [
-                'nombre' => $item->nombre_categoria,
-                'id' => $item->id_categoria
-            ];
+            // Buscar si la categoría ya existe en el área
+            $categoriaIndex = null;
+            foreach ($areasAgrupadasMap[$areaId]['categorias'] as $index => $categoria) {
+                if ($categoria['id'] == $categoriaId) {
+                    $categoriaIndex = $index;
+                    break;
+                }
+            }
+            
+            // Si la categoría no existe, crearla
+            if ($categoriaIndex === null) {
+                $areasAgrupadasMap[$areaId]['categorias'][] = [
+                    'nombre' => $item->nombre_categoria,
+                    'id' => $categoriaId,
+                    'grados' => [],
+                    'desde' => null,
+                    'hasta' => null
+                ];
+                $categoriaIndex = count($areasAgrupadasMap[$areaId]['categorias']) - 1;
+            }
+            
+            // Agregar grado si existe
+            if ($item->id_grado && $item->nombre_grado) {
+                $grados = &$areasAgrupadasMap[$areaId]['categorias'][$categoriaIndex]['grados'];
+                
+                // Evitar duplicados
+                $gradoExiste = false;
+                foreach ($grados as $grado) {
+                    if ($grado['id'] == $item->id_grado) {
+                        $gradoExiste = true;
+                        break;
+                    }
+                }
+                
+                if (!$gradoExiste) {
+                    $grados[] = [
+                        'id' => $item->id_grado,
+                        'nombre_grado' => $item->nombre_grado
+                    ];
+                }
+            }
+        }
+        
+        // Calcular desde y hasta para cada categoría basado en los grados
+        foreach ($areasAgrupadasMap as &$area) {
+            foreach ($area['categorias'] as &$categoria) {
+                if (!empty($categoria['grados'])) {
+                    // Ordenar grados por ID para obtener el rango correcto
+                    usort($categoria['grados'], function($a, $b) {
+                        return $a['id'] - $b['id'];
+                    });
+                    
+                    $categoria['desde'] = $categoria['grados'][0]['nombre_grado'];
+                    $categoria['hasta'] = end($categoria['grados'])['nombre_grado'];
+                } else {
+                    $categoria['desde'] = 'No definido';
+                    $categoria['hasta'] = 'No definido';
+                }
+            }
         }
         
         // Convertir el mapa a un array para la respuesta
@@ -124,7 +189,6 @@ public function getAreasPorOlimpiada($id)
         ], 500);
     }
 }
-
 
 public function asociarAreas(Request $request)
 {
@@ -311,7 +375,6 @@ public function actualizarCostos(Request $request)
     }
 }
 
-
 public function desasociarAreas(Request $request)
 {
     $request->validate([
@@ -378,6 +441,66 @@ public function desasociarAreas(Request $request)
             'status' => 500,
             'message' => 'Error al desasociar áreas: ' . $e->getMessage(),
             'trace' => $e->getTraceAsString()
+        ], 500);
+    }
+}
+
+public function desasociarCategorias(Request $request)
+{
+    $request->validate([
+        'id_olimpiada' => 'required|exists:olimpiada,id',
+        'id_area' => 'required|exists:area,id',
+        'categorias_eliminar' => 'required|array',
+        'categorias_eliminar.*.id' => 'required|exists:categoria,id',
+    ]);
+
+    try {
+        $idOlimpiada = $request->id_olimpiada;
+        $idArea = $request->id_area;
+        $categoriasEliminar = $request->categorias_eliminar;
+
+        DB::beginTransaction();
+
+        foreach ($categoriasEliminar as $categoria) {
+            $idCategoria = $categoria['id'];
+
+            // Verificar si esta categoría específica tiene inscripciones
+            $existeInscripcion = DB::table('inscripcion')
+                ->join('olimpiada_area_categorias', 'inscripcion.id_olimpiada_area_categoria', '=', 'olimpiada_area_categorias.id')
+                ->where('olimpiada_area_categorias.id_olimpiada', $idOlimpiada)
+                ->where('olimpiada_area_categorias.id_area', $idArea)
+                ->where('olimpiada_area_categorias.id_categoria', $idCategoria)
+                ->exists();
+
+            if ($existeInscripcion) {
+                $nombreCategoria = DB::table('categoria')->where('id', $idCategoria)->value('nombre_categoria');
+                $nombreArea = DB::table('area')->where('id', $idArea)->value('nombre_area');
+                
+                DB::rollBack();
+                return response()->json([
+                    'status' => 400,
+                    'message' => "No se puede desasociar la categoría '$nombreCategoria' del área '$nombreArea' porque tiene inscripciones asociadas.",
+                ], 400);
+            }
+
+            // Eliminar la relación específica
+            DB::table('olimpiada_area_categorias')
+                ->where('id_olimpiada', $idOlimpiada)
+                ->where('id_area', $idArea)
+                ->where('id_categoria', $idCategoria)
+                ->delete();
+        }
+
+        DB::commit();
+        return response()->json([
+            'status' => 200,
+            'message' => 'Categorías desasociadas exitosamente',
+        ]);
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json([
+            'status' => 500,
+            'message' => 'Error al desasociar categorías: ' . $e->getMessage(),
         ], 500);
     }
 }

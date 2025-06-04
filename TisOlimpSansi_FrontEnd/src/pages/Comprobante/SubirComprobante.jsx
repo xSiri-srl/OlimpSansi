@@ -1,9 +1,8 @@
 import { useState,useEffect, useReducer } from "react";
 import { FaCloudUploadAlt } from "react-icons/fa";
-import axios from "axios";
 import ImageCropper from "./ImageCropper";
 import { API_URL } from "../../utils/api";
-
+import axios from "axios"
 
 const SubirComprobante = () => {
 

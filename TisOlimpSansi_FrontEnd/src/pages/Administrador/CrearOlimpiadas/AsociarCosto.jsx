@@ -24,7 +24,7 @@ const AsociarCosto = () => {
       setErrorCarga("");
       
       try {
-        await axios.get(`${API_URL}/sanctum/csrf-cookie`, {
+        await axios.get(`${API_URL}/api/sanctum/csrf-cookie`, {
           withCredentials: true,
         });
         
@@ -98,7 +98,7 @@ const AsociarCosto = () => {
   const cargarAreasAsociadas = async (idOlimpiada) => {
     setCargando(true);
     try {
-      await axios.get(`${API_URL}/sanctum/csrf-cookie`, {
+      await axios.get(`${API_URL}/api/sanctum/csrf-cookie`, {
         withCredentials: true,
       });
       
@@ -157,7 +157,7 @@ const AsociarCosto = () => {
     setGuardando(true);
 
     try {
-      await axios.get(`${API_URL}/sanctum/csrf-cookie`, {
+      await axios.get(`${API_URL}/api/sanctum/csrf-cookie`, {
         withCredentials: true,
       });
       

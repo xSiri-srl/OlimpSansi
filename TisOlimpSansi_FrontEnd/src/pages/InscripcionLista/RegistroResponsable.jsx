@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react"
 import { FaUser, FaIdCard } from "react-icons/fa"
 import { useFormData } from "./form-context"
-import axios from "axios"
 import { useLocation } from "react-router-dom";
 import { API_URL } from "../../utils/api";
+import axios from "axios";
 
 function RegistroResponsable({ setStep }) {
   const [formData, setFormData] = useState({
