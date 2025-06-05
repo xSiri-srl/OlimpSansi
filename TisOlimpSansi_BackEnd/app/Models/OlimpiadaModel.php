@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
+use App\Models\Inscripcion\InscripcionModel as InscripcionInscripcionModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\OlimpiadaAreaModel;
 use App\Models\User;
-use App\Models\Inscripciones\InscripcionModel;
 
 class OlimpiadaModel extends Model
 {
@@ -24,7 +24,7 @@ class OlimpiadaModel extends Model
         return $this->hasMany(OlimpiadaAreaModel::class, 'id_olimpiada');
     }
     public function inscripciones(){
-        return $this->hasMany(InscripcionModel::class, 'id_olimpiada');
+        return $this->hasMany(InscripcionInscripcionModel::class, 'id_olimpiada');
     }
     public function user(){
         return $this->belongsTo(User::class, 'id_user');
