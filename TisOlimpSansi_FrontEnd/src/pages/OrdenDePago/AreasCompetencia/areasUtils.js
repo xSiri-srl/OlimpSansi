@@ -13,13 +13,10 @@ export function procesarAreasCompetencia(seleccionadas, categoriasSeleccionadas,
 }
 
 export function validarFormulario(seleccionadas, categoriasSeleccionadas) {
-  console.log("🔍 Validando formulario...");
-  console.log("Áreas seleccionadas:", seleccionadas);
-  console.log("Categorías seleccionadas:", categoriasSeleccionadas);
+
   
   // Si no hay áreas seleccionadas, el formulario no es válido
   if (!seleccionadas || seleccionadas.length === 0) {
-    console.log("❌ No hay áreas seleccionadas");
     return false;
   }
 
@@ -41,13 +38,10 @@ export function validarFormulario(seleccionadas, categoriasSeleccionadas) {
                                 categoria.includes(invalid));
     
     if (esCategoriaInvalida) {
-      console.log(`❌ Área ${area} tiene categoría inválida: "${categoria}"`);
       return false;
     }
     
-    console.log(`✅ Área ${area} tiene categoría válida: "${categoria}"`);
   }
 
-  console.log("✅ Formulario válido");
   return true;
 }

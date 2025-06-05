@@ -10,14 +10,6 @@ const AreaCard = ({
   manejarSeleccion, 
   handleCategoriaChange 
 }) => {
-  // DEBUG: Mostrar información detallada
-  console.log(`🔍 AreaCard - ${area.nombre}:`, {
-    estaSeleccionada,
-    estaDisponible,
-    categorias,
-    categoriaSeleccionada
-  });
-
   const categoriasDisponibles = categorias && categorias.length > 0 
     ? categorias 
     : ["Sin categorías disponibles"];

@@ -7,6 +7,7 @@ use App\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 
+
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/debug-pdf-logs', function() {
     $logPath = storage_path('logs/pdf_debug.log');

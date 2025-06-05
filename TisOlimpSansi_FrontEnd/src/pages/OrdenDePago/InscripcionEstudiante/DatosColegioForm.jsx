@@ -6,14 +6,16 @@ import {
   FaTimesCircle,
 } from "react-icons/fa";
 import { SelectField } from "../components/FormComponents";
-import { CURSOS } from "./constants";
+//import { CURSOS } from "./constants";
 
 export default function DatosColegioForm({
   formData,
   handleInputChange,
   errors,
-  colegioData
+  colegioData,
+  cursos
 }) {
+  const CURSOS = cursos;
   const {
     departamentosList,
     distritosList,

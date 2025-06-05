@@ -34,14 +34,8 @@ export default function AreasCompetencia({
     errorCarga, 
     areaEstaDisponible,
     areasCategorias
-  } = useAreasDisponibles(olimpiadaId);
+  } = useAreasDisponibles(globalData);
 
-  // Ahora el useEffect se ubica DESPUÉS de obtener areasCategorias
-  useEffect(() => {
-    if (Object.keys(areasCategorias).length > 0) {
-      console.log("Categorías disponibles por área:", areasCategorias);
-    }
-  }, [areasCategorias]);
 
   useEffect(() => {
     if (olimpiadaId) {
@@ -60,16 +54,15 @@ export default function AreasCompetencia({
           setCargandoMaxAreas(false);
         }
       };
-      
       cargarMaxAreas();
     }
   }, [olimpiadaId]);
-
+  console.log("WASDASASFASF", areasCategorias)
   const { obtenerCategoriaAutomatica, obtenerCategorias } = useCategoriasHandler(
     cursoEstudiante,
     areasCategorias
   );
-   
+  
   const { manejarSeleccion, handleCategoriaChange } = useAreasSeleccion(
     seleccionadas, 
     categoriasSeleccionadas, 
@@ -121,7 +114,6 @@ export default function AreasCompetencia({
         segundaFila={segundaFila}
         seleccionadas={seleccionadas}
         areaEstaDisponible={areaEstaDisponible}
-        obtenerCategorias={obtenerCategorias}
         categoriasSeleccionadas={categoriasSeleccionadas}
         manejarSeleccion={manejarSeleccion}
         handleCategoriaChange={handleCategoriaChange}
