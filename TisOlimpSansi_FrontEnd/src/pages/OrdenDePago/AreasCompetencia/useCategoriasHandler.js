@@ -1,7 +1,7 @@
 
 export function useCategoriasHandler(cursoEstudiante, areasCategorias = {}) {
 
-  const obtenerCategoriaAutomatica = (area) => {
+const obtenerCategoriaAutomatica = (area) => {
     if (!area) return null;
 
     const categoriasDelArea = areasCategorias[area] || [];

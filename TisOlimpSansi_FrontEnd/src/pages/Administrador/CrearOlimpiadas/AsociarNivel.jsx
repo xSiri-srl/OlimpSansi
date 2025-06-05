@@ -6,6 +6,7 @@ import AccionesFooter from "./AreasCompetencia/AccionesFooter";
 import { gradosDisponibles } from "./AreasCompetencia/constants";
 import { API_URL } from "../../../utils/api";
 import axios from "axios";
+import { useVerificarInscripciones } from "../../Administrador/useVerificarInscripciones";
 
 const SelectorAreaGrado = () => {
   const [olimpiadas, setOlimpiadas] = useState([]);
@@ -17,6 +18,9 @@ const SelectorAreaGrado = () => {
   const [errorCarga, setErrorCarga] = useState("");
   const [cargandoAreas, setCargandoAreas] = useState(false);
   const [todosLosGrados, setTodosLosGrados] = useState([]);
+  const [olimpiadaBloqueada, setOlimpiadaBloqueada] = useState(false);
+  const [cantidadInscripciones, setCantidadInscripciones] = useState(0);
+  const { verificarInscripciones, verificando } = useVerificarInscripciones();
 
   // BASE DE DATOS DETERMINADA
   const [combinaciones, setCombinaciones] = useState([
@@ -141,17 +145,25 @@ const SelectorAreaGrado = () => {
   }, []);
 
 
-  useEffect(() => {
+useEffect(() => {
     if (olimpiadaSeleccionada) {
       const olimpiada = olimpiadas.find(
         (o) => o.id.toString() === olimpiadaSeleccionada
       );
       setNombreOlimpiada(olimpiada ? olimpiada.titulo : "");
       
+      // Verificar si la olimpiada tiene inscripciones
+      verificarInscripciones(olimpiadaSeleccionada).then(resultado => {
+        setOlimpiadaBloqueada(resultado.tieneInscripciones);
+        setCantidadInscripciones(resultado.cantidad);
+      });
+      
       // Cargar áreas ya asociadas a esta olimpiada
       cargarAreasAsociadas(olimpiadaSeleccionada);
     } else {
       setNombreOlimpiada("");
+      setOlimpiadaBloqueada(false);
+      setCantidadInscripciones(0);
       
       // Restablecer todas las áreas a no habilitadas cuando no hay olimpiada seleccionada
       setCombinaciones(prev => 
@@ -246,6 +258,11 @@ const SelectorAreaGrado = () => {
   const guardarConfiguracion = async () => {
     if (!olimpiadaSeleccionada) {
       alert("Por favor seleccione una olimpiada");
+      return;
+    }
+
+        if (olimpiadaBloqueada) {
+      alert(`No se pueden realizar cambios en esta olimpiada porque ya tiene ${cantidadInscripciones} inscripción(es) registrada(s). Para modificar las áreas de competencia, primero debe eliminar todas las inscripciones asociadas.`);
       return;
     }
 
@@ -389,11 +406,29 @@ const SelectorAreaGrado = () => {
       />
 
       <div className="bg-gray-100 p-4 rounded-lg shadow-md">
-        {cargandoOlimpiadas || cargandoAreas ? (
+        {/* Mostrar alerta si la olimpiada está bloqueada */}
+        {olimpiadaBloqueada && (
+          <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+            <div className="flex items-center">
+              <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd"></path>
+              </svg>
+              <strong className="font-bold">Olimpiada bloqueada para modificaciones</strong>
+            </div>
+            <span className="block mt-1">
+              Esta olimpiada tiene {cantidadInscripciones} inscripción(es) registrada(s). 
+              No se pueden realizar cambios en las áreas de competencia mientras existan inscripciones activas.
+            </span>
+          </div>
+        )}
+
+        {cargandoOlimpiadas || cargandoAreas || verificando ? (
           <div className="text-center py-8">
             <div className="animate-spin mx-auto h-8 w-8 border-t-2 border-b-2 border-blue-500 rounded-full"></div>
             <p className="mt-2 text-gray-600">
-              {cargandoOlimpiadas ? "Cargando olimpiadas..." : "Cargando áreas asociadas..."}
+              {cargandoOlimpiadas ? "Cargando olimpiadas..." : 
+               verificando ? "Verificando inscripciones..." :
+               "Cargando áreas asociadas..."}
             </p>
           </div>
         ) : errorCarga ? (
@@ -416,10 +451,11 @@ const SelectorAreaGrado = () => {
                 gradosDisponibles={gradosDisponibles}
                 combinaciones={combinaciones}
                 setCombinaciones={setCombinaciones}
-                eliminarCombinacion={() => {}}  // No permitir eliminar áreas predefinidas
+                eliminarCombinacion={() => {}}
                 olimpiadaSeleccionada={olimpiadaSeleccionada}
                 modoAsociacion={true}
                 todosLosGrados={todosLosGrados}
+                bloqueado={olimpiadaBloqueada} // Pasar estado de bloqueo
               />
             ))}
 
@@ -428,6 +464,7 @@ const SelectorAreaGrado = () => {
               olimpiadaSeleccionada={olimpiadaSeleccionada}
               guardando={guardando}
               mensajeExito={mensajeExito}
+              bloqueado={olimpiadaBloqueada} // Pasar estado de bloqueo
             />
           </>
         )}
