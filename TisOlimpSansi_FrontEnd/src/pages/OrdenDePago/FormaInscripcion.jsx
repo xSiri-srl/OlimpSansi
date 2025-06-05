@@ -23,17 +23,31 @@ export default function FormularioEstudiante() {
     fechaFin: ""
   });
 
-  const handleSeleccion = () => {
-   setGlobalData(prevState => ({
-      ...prevState,
-      olimpiada: {
-        id: olimpiadaSeleccionada,
-        titulo: nombreOlimpiada
-      }
-    }));
-    
-    navigate("/inscripcion/responsable");
+  const handleSeleccion = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/api/cursoAreaCategoriaPorOlimpiada?id=${olimpiadaSeleccionada}`);
 
+      const gradoAreaCurso = response.data;
+
+      if (!gradoAreaCurso || gradoAreaCurso.length === 0) {
+        throw new Error("No se encontraron datos de grado, área y curso.");
+      }
+
+      setGlobalData(prevState => ({
+        ...prevState,
+        olimpiada: {
+          id: olimpiadaSeleccionada,
+          titulo: nombreOlimpiada
+        },
+        gradoAreaCurso
+      }));
+
+      navigate("/inscripcion/responsable");
+
+    } catch (err) {
+      console.error("Error al obtener los datos de la olimpiada:", err);
+      alert("Ocurrió un error al cargar los datos de la olimpiada: ", err.message);
+    }
   };
 
   const handleSeleccionLista = () => {

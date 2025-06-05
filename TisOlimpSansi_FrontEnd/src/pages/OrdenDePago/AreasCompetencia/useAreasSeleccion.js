@@ -5,7 +5,6 @@ export function useAreasSeleccion(
   handleInputChange,
   maxAreas = 0
 ) {
-  console.log("useAreasSeleccion recibió maxAreas:", maxAreas);
   
   const manejarSeleccion = (nombre) => {
     let nuevasSeleccionadas;
@@ -34,7 +33,6 @@ export function useAreasSeleccion(
             categorias[0] !== "Sin categorías disponibles" && 
             categorias[0] !== "Categoría no disponible para este curso") {
           nuevasCategoriasSeleccionadas[nombre] = categorias[0];
-          console.log(`Auto-seleccionada categoría "${categorias[0]}" para área ${nombre}`);
         } else {
           nuevasCategoriasSeleccionadas[nombre] = "";
         }

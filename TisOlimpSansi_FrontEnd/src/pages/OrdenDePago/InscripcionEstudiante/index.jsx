@@ -4,7 +4,6 @@ import DatosPersonalesForm from "./DatosPersonalesForm";
 import DatosColegioForm from "./DatosColegioForm";
 import useFormValidation from "./hooks/useFormValidation";
 import useColegioData from "./hooks/useColegioData";
-import { CURSOS } from "./constants";
 import { API_URL } from "../../../utils/api";
 import axios from "axios"
 
@@ -24,6 +23,16 @@ export default function InscripcionEstudiante({
   const [isSearching, setIsSearching] = useState(false);
   const [estudianteFound, setEstudianteFound] = useState(false);
   const { globalData, setGlobalData } = useFormData();
+  const cursosRaw = Object.keys(globalData?.gradoAreaCurso || []);
+
+  const CURSOS = [
+    ...cursosRaw
+      .filter(curso => curso.includes("PRIMARIA"))
+      .sort((a, b) => parseInt(a) - parseInt(b)),
+    ...cursosRaw
+      .filter(curso => curso.includes("SECUNDARIA"))
+      .sort((a, b) => parseInt(a) - parseInt(b))
+  ];
 
   const colegioData = useColegioData(formData, handleInputChange);
   const { errors, setErrors, isFormValid, validateAllFields } =
@@ -311,6 +320,7 @@ export default function InscripcionEstudiante({
           handleInputChange={handleInputChange}
           errors={errors}
           colegioData={colegioData}
+          cursos={CURSOS}
         />
       </div>
 

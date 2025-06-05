@@ -19,8 +19,6 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
   const [responsableFound, setResponsableFound] = useState(false);
   const { globalData, setGlobalData } = useFormData();
 
-
-
   // Función para validar campos del formulario
   const validateInput = (value, fieldName, regex, minWords = 1) => {
     const { isValid, errorMessage } = validateField(value, regex, minWords);
