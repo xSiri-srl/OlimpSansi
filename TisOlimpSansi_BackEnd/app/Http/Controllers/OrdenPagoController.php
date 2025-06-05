@@ -2,30 +2,20 @@
 
 namespace App\Http\Controllers;
 use App\Models\OrdenPago;
-use Illuminate\Support\Facades\Storage;
+
 use App\Models\Inscripcion\InscripcionModel;
-use Illuminate\Support\Facades\Response;
+
 use Illuminate\Http\Request;
-//use thiagoalessio\TesseractOCR\TesseractOCR;
+
 use Barryvdh\DomPDF\Facade\Pdf;
-use App\Models\Inscripcion\AreaModel;
-use App\Models\Inscripcion\CategoriaModel;
-use App\Models\Inscripcion\ColegioModel;
-use App\Models\Inscripcion\EstudianteModel;
-use App\Models\Inscripcion\GradoModel;
-use App\Models\Inscripcion\InscripcionAreaModel;
-use App\Models\Inscripcion\InscripcionCategoriaModel;
-use App\Models\Inscripcion\ResponsableInscripcionModel;
-use App\Models\Inscripcion\TutorAcademicoModel;
-use App\Models\Inscripcion\TutorLegalModel;
+
 use App\Models\comprobantes_pago;
 
-
-
+use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Log;
+
 use Illuminate\Support\Facades\DB;
 
-//use thiagoalessio\TesseractOCR\UnsuccessfulCommandException;
 class OrdenPagoController extends Controller
 {
 
@@ -284,66 +274,184 @@ public function verificarCodigo(Request $request)
         return response()->json(['message' => 'Código generado válido, puedes continuar con la subida de la imagen.'], 200);
     }
 
-    /*public function procesarComprobante(Request $request)
-    {
-        $validated = $request->validate([
-            'comprobante_numero' => 'required|image|mimes:jpg,png,jpeg|max:5120',
-            'comprobante_nombre' => 'required|image|mimes:jpg,png,jpeg|max:5120',
-            'fecha_comprobante' => 'required|image|mimes:jpg,png,jpeg|max:5120',
-        ]);
-    
-        // Obtener imágenes
-        $imagenComprobante = $request->file('comprobante_numero');
-        $imagenNombre = $request->file('comprobante_nombre');
-        $imagenFecha = $request->file('fecha_comprobante');
-    
-        // Crear carpeta de depuración si no existe
-        $debugDir = storage_path('app/public/debug_ocr');
-        if (!file_exists($debugDir)) {
-            mkdir($debugDir, 0755, true);
-        }
-    
-        $rutaComprobante = $imagenComprobante->getRealPath();
-        $rutaNombre = $imagenNombre->getRealPath();
-        $rutaFecha = $imagenFecha->getRealPath();
-    
-        $numeroComprobante = '';
-        $nombrePagador = '';
-        $fechaComprobante = '';
-    
+
+
+ public function procesarComprobante(Request $request)
+{
+    $validated = $request->validate([
+        'comprobante_numero' => 'required|image|mimes:jpg,png,jpeg|max:5120',
+        'comprobante_nombre' => 'required|image|mimes:jpg,png,jpeg|max:5120',
+        'fecha_comprobante' => 'required|image|mimes:jpg,png,jpeg|max:5120',
+    ]);
+
+    // Obtener imágenes
+    $imagenComprobante = $request->file('comprobante_numero');
+    $imagenNombre = $request->file('comprobante_nombre');
+    $imagenFecha = $request->file('fecha_comprobante');
+
+    // Crear carpeta de depuración si no existe
+    $debugDir = storage_path('app/public/debug_ocr');
+    if (!file_exists($debugDir)) {
+        mkdir($debugDir, 0755, true);
+    }
+
+    // API Key de OCR.space
+    $apiKey = 'K86708130088957'; // Cambia esto por tu API Key de OCR.space
+    $client = new Client();
+
+    $ocrRequest = function($uploadedFile) use ($client, $apiKey, $debugDir) {
         try {
-            $numeroComprobante = (new TesseractOCR($rutaComprobante))
-                ->lang('spa')
-                ->run();
-        } catch (UnsuccessfulCommandException $e) {
-            $imagenComprobante->move($debugDir, 'comprobante_error.jpg');
-            Log::error('OCR falló para comprobante_numero: ' . $e->getMessage());
+            // Verificar que el archivo existe y es válido
+            if (!$uploadedFile || !$uploadedFile->isValid()) {
+                Log::error('Archivo no válido o no existe');
+                return 'Archivo no válido';
+            }
+
+            // Obtener información del archivo
+            $originalName = $uploadedFile->getClientOriginalName();
+            $mimeType = $uploadedFile->getMimeType();
+            $extension = $uploadedFile->getClientOriginalExtension();
+            $tempPath = $uploadedFile->getRealPath();
+
+            // Validar extensión
+            $validExtensions = ['jpg', 'jpeg', 'png', 'bmp', 'gif', 'tif', 'tiff', 'webp'];
+            if (!in_array(strtolower($extension), $validExtensions)) {
+                Log::error('Extensión de archivo no válida: ' . $extension);
+                return 'Extensión no válida';
+            }
+
+            // Validar MIME type
+            $validMimeTypes = ['image/jpeg', 'image/png', 'image/bmp', 'image/gif', 'image/tiff', 'image/webp'];
+            if (!in_array(strtolower($mimeType), $validMimeTypes)) {
+                Log::error('MIME type no válido: ' . $mimeType);
+                return 'MIME type no válido';
+            }
+
+            // Verificar que el archivo temporal existe
+            if (!file_exists($tempPath)) {
+                Log::error('Archivo temporal no encontrado: ' . $tempPath);
+                return 'Archivo temporal no encontrado';
+            }
+
+            // Registro para depuración
+            Log::info('Enviando archivo a OCR.space', [
+                'originalName' => $originalName,
+                'mimeType' => $mimeType,
+                'extension' => $extension,
+                'tempPath' => $tempPath,
+                'fileSize' => filesize($tempPath)
+            ]);
+
+            // Realizar petición a OCR.space
+            $response = $client->post('https://api.ocr.space/parse/image', [
+                'timeout' => 30, // Aumentar timeout
+                'multipart' => [
+                    [
+                        'name' => 'apikey',
+                        'contents' => $apiKey
+                    ],
+                    [
+                        'name' => 'language',
+                        'contents' => 'spa' // Español
+                    ],
+                    [
+                        'name' => 'isOverlayRequired',
+                        'contents' => 'false'
+                    ],
+                    [
+                        'name' => 'file',
+                        'contents' => fopen($tempPath, 'r'),
+                        'filename' => $originalName,
+                        'headers' => [
+                            'Content-Type' => $mimeType
+                        ]
+                    ]
+                ]
+            ]);
+
+            // Procesar respuesta
+            $body = json_decode($response->getBody()->getContents(), true);
+            
+            // Registro completo de la respuesta para depuración
+            Log::info('Respuesta completa de OCR.space', $body);
+
+            // Verificar errores en la respuesta
+            if (isset($body['ErrorMessage']) && !empty($body['ErrorMessage'])) {
+                $errorMessages = is_array($body['ErrorMessage']) 
+                    ? implode(', ', $body['ErrorMessage']) 
+                    : $body['ErrorMessage'];
+                Log::error('OCR Error Message: ' . $errorMessages);
+                return 'OCR Error: ' . $errorMessages;
+            }
+
+            // Verificar si hay resultados válidos
+            if (!isset($body['ParsedResults']) || empty($body['ParsedResults'])) {
+                Log::error('No se encontraron resultados en la respuesta de OCR');
+                return 'Sin resultados de OCR';
+            }
+
+            // Extraer texto
+            $parsedText = $body['ParsedResults'][0]['ParsedText'] ?? '';
+            
+            if (empty($parsedText)) {
+                Log::warning('Texto extraído está vacío');
+                return 'Texto no detectado';
+            }
+
+            // Limpiar y formatear el texto extraído
+            $cleanText = trim($parsedText);
+            
+            Log::info('Texto extraído exitosamente', ['text' => $cleanText]);
+            
+            return $cleanText;
+
+        } catch (\Exception $e) {
+            Log::error('Error en OCR Request', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return 'Error OCR: ' . $e->getMessage();
         }
-    
+    };
+
+    // Procesar las imágenes
+    $numeroComprobante = $ocrRequest($imagenComprobante);
+    if (strpos($numeroComprobante, 'Error') !== false || strpos($numeroComprobante, 'no válido') !== false) {
+        // Guardar imagen con error para depuración
         try {
-            $nombrePagador = (new TesseractOCR($rutaNombre))
-                ->lang('spa')
-                ->run();
-        } catch (UnsuccessfulCommandException $e) {
-            $imagenNombre->move($debugDir, 'nombre_error.jpg');
-            Log::error('OCR falló para comprobante_nombre: ' . $e->getMessage());
+            $imagenComprobante->move($debugDir, 'comprobante_error_' . time() . '.jpg');
+        } catch (\Exception $e) {
+            Log::error('No se pudo guardar imagen de error: ' . $e->getMessage());
         }
-    
+    }
+
+    $nombrePagador = $ocrRequest($imagenNombre);
+    if (strpos($nombrePagador, 'Error') !== false || strpos($nombrePagador, 'no válido') !== false) {
         try {
-            $fechaComprobante = (new TesseractOCR($rutaFecha))
-                ->lang('spa')
-                ->run();
-        } catch (UnsuccessfulCommandException $e) {
-            $imagenFecha->move($debugDir, 'fecha_error.jpg');
-            Log::error('OCR falló para fecha_comprobante: ' . $e->getMessage());
+            $imagenNombre->move($debugDir, 'nombre_error_' . time() . '.jpg');
+        } catch (\Exception $e) {
+            Log::error('No se pudo guardar imagen de error: ' . $e->getMessage());
         }
-    
-        return response()->json([
-            'numero_comprobante' => $numeroComprobante ?: 'No se pudo extraer',
-            'nombre_pagador' => $nombrePagador ?: 'No se pudo extraer',
-            'fecha_comprobante' => $fechaComprobante ?: 'No se pudo extraer',
-        ]);
-    }*/
+    }
+
+    $fechaComprobante = $ocrRequest($imagenFecha);
+    if (strpos($fechaComprobante, 'Error') !== false || strpos($fechaComprobante, 'no válido') !== false) {
+        try {
+            $imagenFecha->move($debugDir, 'fecha_error_' . time() . '.jpg');
+        } catch (\Exception $e) {
+            Log::error('No se pudo guardar imagen de error: ' . $e->getMessage());
+        }
+    }
+
+    return response()->json([
+        'success' => true,
+        'numero_comprobante' => $numeroComprobante,
+        'nombre_pagador' => $nombrePagador,
+        'fecha_comprobante' => $fechaComprobante,
+    ]);
+}
 
     /**
      * Obtiene la orden de pago por su código generado
