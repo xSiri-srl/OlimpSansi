@@ -5,6 +5,7 @@ import AccionesFooter from "./AreasCompetencia/AccionesFooter";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { API_URL } from "../../../utils/api";
 import axios from "axios";
+import { useVerificarInscripciones } from "../useVerificarInscripciones";
 
 const AsociarLimiteAreas = () => {
   const [olimpiadas, setOlimpiadas] = useState([]);
@@ -15,6 +16,11 @@ const AsociarLimiteAreas = () => {
   const [cargandoOlimpiadas, setCargandoOlimpiadas] = useState(false);
   const [errorCarga, setErrorCarga] = useState("");
   const [contador, setContador] = useState(1);
+  const [olimpiadaBloqueada, setOlimpiadaBloqueada] = useState(false);
+  const [cantidadInscripciones, setCantidadInscripciones] = useState(0);
+
+  const { verificarInscripciones, verificando } = useVerificarInscripciones();
+
 
   // Cargar lista de olimpiadas al montar el componente
   useEffect(() => {
@@ -78,13 +84,18 @@ const AsociarLimiteAreas = () => {
     cargarOlimpiadas();
   }, []);
 
-  // Cargar nombre y número máximo de áreas cuando cambia la olimpiada seleccionada
   useEffect(() => {
     if (olimpiadaSeleccionada) {
       const olimpiada = olimpiadas.find(
         (o) => o.id.toString() === olimpiadaSeleccionada
       );
       setNombreOlimpiada(olimpiada ? olimpiada.titulo : "");
+
+      // Verificar si la olimpiada tiene inscripciones
+      verificarInscripciones(olimpiadaSeleccionada).then(resultado => {
+        setOlimpiadaBloqueada(resultado.tieneInscripciones);
+        setCantidadInscripciones(resultado.cantidad);
+      });
 
       const cargarNumeroMaximo = async () => {
         try {
@@ -128,7 +139,9 @@ const AsociarLimiteAreas = () => {
       cargarNumeroMaximo();
     } else {
       setNombreOlimpiada("");
-      setContador(1); // Resetear el contador si no hay olimpiada seleccionada
+      setContador(1);
+      setOlimpiadaBloqueada(false);
+      setCantidadInscripciones(0);
     }
   }, [olimpiadaSeleccionada, olimpiadas]);
 
@@ -136,6 +149,11 @@ const AsociarLimiteAreas = () => {
   const guardarConfiguracion = async () => {
     if (!olimpiadaSeleccionada) {
       alert("Por favor seleccione una olimpiada");
+      return;
+    }
+
+    if (olimpiadaBloqueada) {
+      alert(`No se pueden realizar cambios en esta olimpiada porque ya tiene ${cantidadInscripciones} inscripción(es) registrada(s). Para modificar el límite de áreas, primero debe eliminar todas las inscripciones asociadas.`);
       return;
     }
 
@@ -235,8 +253,23 @@ const AsociarLimiteAreas = () => {
         cargando={cargandoOlimpiadas}
         error={errorCarga}
       />
+            <div className="bg-gray-100 p-4 rounded-lg shadow-md">
+        {/* Mostrar alerta si la olimpiada está bloqueada */}
+        {olimpiadaBloqueada && (
+          <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+            <div className="flex items-center">
+              <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd"></path>
+              </svg>
+              <strong className="font-bold">Olimpiada bloqueada para modificaciones</strong>
+            </div>
+            <span className="block mt-1">
+              Esta olimpiada tiene {cantidadInscripciones} inscripción(es) registrada(s). 
+              No se pueden modificar el límite de áreas mientras existan inscripciones activas.
+            </span>
+          </div>
+        )}
 
-      <div className="bg-gray-100 p-4 rounded-lg shadow-md">
         {!olimpiadaSeleccionada ? (
           <div className="p-8 text-center text-gray-600">
             Seleccione una olimpiada para asignar un límite de áreas por participante.
@@ -303,6 +336,7 @@ const AsociarLimiteAreas = () => {
           guardando={guardando}
           mensajeExito={mensajeExito}
           textoBoton="Guardar Número de Áreas"
+          bloqueado={olimpiadaBloqueada}
         />
       </div>
     </div>

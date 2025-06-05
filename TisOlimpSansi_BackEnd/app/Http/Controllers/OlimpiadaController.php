@@ -276,5 +276,26 @@ public function getAreasCategoriasPorOlimpiada(Request $request)
         ], 500);
     }
 }
+public function verificarInscripciones($id)
+{
+    try {
+        // Contar inscripciones asociadas a esta olimpiada
+        $cantidadInscripciones = DB::table('inscripcion')
+            ->join('olimpiada_area_categorias', 'inscripcion.id_olimpiada_area_categoria', '=', 'olimpiada_area_categorias.id')
+            ->where('olimpiada_area_categorias.id_olimpiada', $id)
+            ->count();
 
+        return response()->json([
+            'status' => 200,
+            'tiene_inscripciones' => $cantidadInscripciones > 0,
+            'cantidad_inscripciones' => $cantidadInscripciones
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 500,
+            'message' => 'Error al verificar inscripciones: ' . $e->getMessage()
+        ], 500);
+    }
+}
 }

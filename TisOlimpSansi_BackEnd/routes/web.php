@@ -43,6 +43,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/getOlimpiadas', [OlimpiadaController::class, 'getOlimpiadas']);
         Route::post('/olimpiada/max-materias', [OlimpiadaController::class, 'setNumMaxMaterias']);
 
+        // Verificar si una olimpiada tiene inscripciones
+        Route::get('/olimpiada/{id}/verificar-inscripciones', [OlimpiadaController::class, 'verificarInscripciones']);
+        
         // Asociar áreas a olimpiadas
         Route::post('/asociar-areas-olimpiada', [OlimpiadaAreaController::class, 'asociarAreas']);
         
