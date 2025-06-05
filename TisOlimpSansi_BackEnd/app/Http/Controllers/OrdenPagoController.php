@@ -284,19 +284,18 @@ public function verificarCodigo(Request $request)
         'fecha_comprobante' => 'required|image|mimes:jpg,png,jpeg|max:5120',
     ]);
 
-    // Obtener imágenes
+   
     $imagenComprobante = $request->file('comprobante_numero');
     $imagenNombre = $request->file('comprobante_nombre');
     $imagenFecha = $request->file('fecha_comprobante');
 
-    // Crear carpeta de depuración si no existe
+  
     $debugDir = storage_path('app/public/debug_ocr');
     if (!file_exists($debugDir)) {
         mkdir($debugDir, 0755, true);
     }
 
-    // API Key de OCR.space
-    $apiKey = 'K86708130088957'; // Cambia esto por tu API Key de OCR.space
+    $apiKey = 'K86708130088957'; 
     $client = new Client();
 
     $ocrRequest = function($uploadedFile) use ($client, $apiKey, $debugDir) {
@@ -307,33 +306,29 @@ public function verificarCodigo(Request $request)
                 return 'Archivo no válido';
             }
 
-            // Obtener información del archivo
             $originalName = $uploadedFile->getClientOriginalName();
             $mimeType = $uploadedFile->getMimeType();
             $extension = $uploadedFile->getClientOriginalExtension();
             $tempPath = $uploadedFile->getRealPath();
 
-            // Validar extensión
+      
             $validExtensions = ['jpg', 'jpeg', 'png', 'bmp', 'gif', 'tif', 'tiff', 'webp'];
             if (!in_array(strtolower($extension), $validExtensions)) {
                 Log::error('Extensión de archivo no válida: ' . $extension);
                 return 'Extensión no válida';
             }
 
-            // Validar MIME type
             $validMimeTypes = ['image/jpeg', 'image/png', 'image/bmp', 'image/gif', 'image/tiff', 'image/webp'];
             if (!in_array(strtolower($mimeType), $validMimeTypes)) {
                 Log::error('MIME type no válido: ' . $mimeType);
                 return 'MIME type no válido';
             }
 
-            // Verificar que el archivo temporal existe
             if (!file_exists($tempPath)) {
                 Log::error('Archivo temporal no encontrado: ' . $tempPath);
                 return 'Archivo temporal no encontrado';
             }
 
-            // Registro para depuración
             Log::info('Enviando archivo a OCR.space', [
                 'originalName' => $originalName,
                 'mimeType' => $mimeType,
@@ -342,7 +337,6 @@ public function verificarCodigo(Request $request)
                 'fileSize' => filesize($tempPath)
             ]);
 
-            // Realizar petición a OCR.space
             $response = $client->post('https://api.ocr.space/parse/image', [
                 'timeout' => 30, // Aumentar timeout
                 'multipart' => [
@@ -369,13 +363,13 @@ public function verificarCodigo(Request $request)
                 ]
             ]);
 
-            // Procesar respuesta
+          
             $body = json_decode($response->getBody()->getContents(), true);
             
-            // Registro completo de la respuesta para depuración
+          
             Log::info('Respuesta completa de OCR.space', $body);
 
-            // Verificar errores en la respuesta
+            
             if (isset($body['ErrorMessage']) && !empty($body['ErrorMessage'])) {
                 $errorMessages = is_array($body['ErrorMessage']) 
                     ? implode(', ', $body['ErrorMessage']) 
@@ -384,13 +378,13 @@ public function verificarCodigo(Request $request)
                 return 'OCR Error: ' . $errorMessages;
             }
 
-            // Verificar si hay resultados válidos
+            
             if (!isset($body['ParsedResults']) || empty($body['ParsedResults'])) {
                 Log::error('No se encontraron resultados en la respuesta de OCR');
                 return 'Sin resultados de OCR';
             }
 
-            // Extraer texto
+            
             $parsedText = $body['ParsedResults'][0]['ParsedText'] ?? '';
             
             if (empty($parsedText)) {
@@ -398,7 +392,7 @@ public function verificarCodigo(Request $request)
                 return 'Texto no detectado';
             }
 
-            // Limpiar y formatear el texto extraído
+            
             $cleanText = trim($parsedText);
             
             Log::info('Texto extraído exitosamente', ['text' => $cleanText]);
