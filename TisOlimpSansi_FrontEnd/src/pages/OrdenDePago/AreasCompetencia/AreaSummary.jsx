@@ -13,14 +13,7 @@ const AreaSummary = ({
         {seleccionadas.map((area, index) => {
           // Mostrar la categoría automática para áreas que no son Informática o Robótica
           let categoriaInfo = "";
-          if (area !== "Informática" && area !== "Robótica") {
-            const categoriaAuto = obtenerCategoriaAutomatica(area);
-            if (categoriaAuto) {
-              categoriaInfo = ` - Categoría: ${categoriaAuto}`;
-            } else {
-              categoriaInfo = ` - No disponible para ${cursoEstudiante}`;
-            }
-          } else if (categoriasSeleccionadas[area]) {
+          if (categoriasSeleccionadas[area]) {
             categoriaInfo = ` - ${categoriasSeleccionadas[area]}`;
           } else {
             categoriaInfo = ` - (selecciona una categoría)`;

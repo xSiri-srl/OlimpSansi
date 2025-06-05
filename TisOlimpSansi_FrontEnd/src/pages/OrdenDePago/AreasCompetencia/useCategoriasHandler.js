@@ -11,7 +11,11 @@ export function useCategoriasHandler(cursoEstudiante, areasCategorias = {}) {
     }
 
     if (categoriasDelArea.length > 1) {
-      return categoriasDelArea[0]; // devolver la primera como predeterminada
+      return ["Seleccione una categoria"];
+    }
+
+    if (categoriasDelArea.length == 0) {
+      return [`No hay categorías disponibles para el área ${area} y curso ${cursoEstudiante}`];
     }
 
     console.warn(`⚠️ No hay categorías disponibles para el área ${area} y curso ${cursoEstudiante}`);

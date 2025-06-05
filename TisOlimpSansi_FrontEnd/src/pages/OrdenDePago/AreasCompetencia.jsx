@@ -57,12 +57,13 @@ export default function AreasCompetencia({
       cargarMaxAreas();
     }
   }, [olimpiadaId]);
-  console.log("WASDASASFASF", areasCategorias)
+
   const { obtenerCategoriaAutomatica, obtenerCategorias } = useCategoriasHandler(
     cursoEstudiante,
     areasCategorias
   );
   
+
   const { manejarSeleccion, handleCategoriaChange } = useAreasSeleccion(
     seleccionadas, 
     categoriasSeleccionadas, 
@@ -83,10 +84,8 @@ export default function AreasCompetencia({
     try {
       const areasCompetencia = procesarAreasCompetencia(
         seleccionadas, 
-        categoriasSeleccionadas, 
-        cursoEstudiante
+        categoriasSeleccionadas
       );
-
       const updatedData = {
         ...globalData,
         areas_competencia: areasCompetencia,
