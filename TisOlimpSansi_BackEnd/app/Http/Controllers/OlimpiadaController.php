@@ -276,19 +276,34 @@ public function getAreasCategoriasPorOlimpiada(Request $request)
         ], 500);
     }
 }
+
 public function verificarInscripciones($id)
 {
     try {
+        // Obtener la olimpiada para verificar las fechas
+        $olimpiada = OlimpiadaModel::findOrFail($id);
+        
         // Contar inscripciones asociadas a esta olimpiada
         $cantidadInscripciones = DB::table('inscripcion')
             ->join('olimpiada_area_categorias', 'inscripcion.id_olimpiada_area_categoria', '=', 'olimpiada_area_categorias.id')
             ->where('olimpiada_area_categorias.id_olimpiada', $id)
             ->count();
 
+        // Verificar si el período de inscripción ha terminado
+        $hoy = now()->toDateString();
+        $periodoTerminado = $hoy > $olimpiada->fecha_fin;
+
+        // La olimpiada está bloqueada si tiene inscripciones O si el período terminó
+        $estaBloqueada = $cantidadInscripciones > 0 || $periodoTerminado;
+
         return response()->json([
             'status' => 200,
             'tiene_inscripciones' => $cantidadInscripciones > 0,
-            'cantidad_inscripciones' => $cantidadInscripciones
+            'cantidad_inscripciones' => $cantidadInscripciones,
+            'periodo_terminado' => $periodoTerminado,
+            'fecha_fin' => $olimpiada->fecha_fin,
+            'esta_bloqueada' => $estaBloqueada,
+            'razon_bloqueo' => $this->obtenerRazonBloqueo($cantidadInscripciones, $periodoTerminado)
         ]);
 
     } catch (\Exception $e) {
@@ -297,5 +312,17 @@ public function verificarInscripciones($id)
             'message' => 'Error al verificar inscripciones: ' . $e->getMessage()
         ], 500);
     }
+}
+
+private function obtenerRazonBloqueo($cantidadInscripciones, $periodoTerminado)
+{
+    if ($cantidadInscripciones > 0 && $periodoTerminado) {
+        return 'inscripciones_y_periodo';
+    } elseif ($cantidadInscripciones > 0) {
+        return 'inscripciones';
+    } elseif ($periodoTerminado) {
+        return 'periodo';
+    }
+    return null;
 }
 }

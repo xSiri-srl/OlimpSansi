@@ -7,6 +7,7 @@ import { gradosDisponibles } from "./AreasCompetencia/constants";
 import { API_URL } from "../../../utils/api";
 import axios from "axios";
 import { useVerificarInscripciones } from "../useVerificarInscripciones";
+
 const DesasignarAreaNivel = () => {
   const [olimpiadas, setOlimpiadas] = useState([]);
   const [olimpiadaSeleccionada, setOlimpiadaSeleccionada] = useState("");
@@ -20,8 +21,23 @@ const DesasignarAreaNivel = () => {
   const [todosLosGrados, setTodosLosGrados] = useState([]);
   const [olimpiadaBloqueada, setOlimpiadaBloqueada] = useState(false);
   const [cantidadInscripciones, setCantidadInscripciones] = useState(0);
-
+  const [periodoTerminado, setPeriodoTerminado] = useState(false);
+  const [razonBloqueo, setRazonBloqueo] = useState(null);
+  const [fechaFin, setFechaFin] = useState(null);
   const { verificarInscripciones, verificando } = useVerificarInscripciones();
+
+    const obtenerMensajeBloqueo = () => {
+    switch(razonBloqueo) {
+      case 'inscripciones_y_periodo':
+        return `Esta olimpiada tiene ${cantidadInscripciones} inscripción(es) registrada(s) y el período de inscripción terminó el ${new Date(fechaFin).toLocaleDateString('es-ES')}. No se pueden desasociar áreas ni categorías.`;
+      case 'inscripciones':
+        return `Esta olimpiada tiene ${cantidadInscripciones} inscripción(es) registrada(s). No se pueden desasociar áreas ni categorías mientras existan inscripciones activas.`;
+      case 'periodo':
+        return `El período de inscripción para esta olimpiada terminó el ${new Date(fechaFin).toLocaleDateString('es-ES')}. No se pueden desasociar áreas ni categorías.`;
+      default:
+        return '';
+    }
+  };
 
   // BASE DE DATOS DETERMINADA
   const [combinaciones, setCombinaciones] = useState([
@@ -155,8 +171,11 @@ const DesasignarAreaNivel = () => {
       
       // Verificar si la olimpiada tiene inscripciones
       verificarInscripciones(olimpiadaSeleccionada).then(resultado => {
-        setOlimpiadaBloqueada(resultado.tieneInscripciones);
+        setOlimpiadaBloqueada(resultado.estaBloqueada);
         setCantidadInscripciones(resultado.cantidad);
+        setPeriodoTerminado(resultado.periodoTerminado);
+        setRazonBloqueo(resultado.razonBloqueo);
+        setFechaFin(resultado.fechaFin);
       });
       
       // Cargar áreas ya asociadas a esta olimpiada
@@ -165,7 +184,9 @@ const DesasignarAreaNivel = () => {
       setNombreOlimpiada("");
       setOlimpiadaBloqueada(false);
       setCantidadInscripciones(0);
-      
+      setPeriodoTerminado(false);
+      setRazonBloqueo(null);
+
       // Restablecer todas las áreas a no habilitadas cuando no hay olimpiada seleccionada
       setCombinaciones(prev => 
         prev.map(combo => ({...combo, habilitado: false, yaAsociada: false, categorias: []}))
@@ -264,7 +285,7 @@ const DesasignarAreaNivel = () => {
 
     // Verificar si la olimpiada tiene inscripciones antes de proceder
     if (olimpiadaBloqueada) {
-      alert(`No se pueden realizar cambios en esta olimpiada porque ya tiene ${cantidadInscripciones} inscripción(es) registrada(s). Para desasociar áreas, primero debe eliminar todas las inscripciones asociadas.`);
+      alert(`No se pueden realizar cambios en esta olimpiada porque ya tiene ${cantidadInscripciones} inscripción(es) registrada(s). Para desasociar áreas, primero debe desasociar todas las inscripciones asociadas.`);
       return;
     }
 
@@ -363,12 +384,26 @@ const DesasignarAreaNivel = () => {
 
     // Verificar si la olimpiada tiene inscripciones antes de proceder
     if (olimpiadaBloqueada) {
-      alert(`No se pueden eliminar categorías de esta olimpiada porque ya tiene ${cantidadInscripciones} inscripción(es) registrada(s). Para eliminar categorías, primero debe eliminar todas las inscripciones asociadas.`);
+      let mensaje = "No se pueden desasociar categorías de esta olimpiada.";
+      
+      switch(razonBloqueo) {
+        case 'inscripciones_y_periodo':
+          mensaje = `No se pueden desasociar categorías de esta olimpiada porque tiene ${cantidadInscripciones} inscripción(es) registrada(s) y el período de inscripción terminó el ${new Date(fechaFin).toLocaleDateString('es-ES')}.`;
+          break;
+        case 'inscripciones':
+          mensaje = `No se pueden desasociar categorías de esta olimpiada porque ya tiene ${cantidadInscripciones} inscripción(es) registrada(s). Para desasociar categorías, primero debe desasociar todas las inscripciones asociadas.`;
+          break;
+        case 'periodo':
+          mensaje = `No se pueden desasociar categorías de esta olimpiada porque el período de inscripción terminó el ${new Date(fechaFin).toLocaleDateString('es-ES')}.`;
+          break;
+      }
+      
+      alert(mensaje);
       return;
     }
 
     // Confirmar la eliminación
-    if (!confirm(`¿Está seguro que desea eliminar la categoría "${categoria.nombre}" del área "${combo.area}"? Esta acción es irreversible.`)) {
+    if (!confirm(`¿Está seguro que desea desasociar la categoría "${categoria.nombre}" del área "${combo.area}"? Esta acción es irreversible.`)) {
       return;
     }
 
@@ -436,16 +471,16 @@ const DesasignarAreaNivel = () => {
         // Recargar las áreas para mostrar el estado actualizado
         cargarAreasAsociadas(olimpiadaSeleccionada);
       } else {
-        throw new Error("Error al eliminar la categoría");
+        throw new Error("Error al desasociar la categoría");
       }
     } catch (error) {
-      console.error("Error al eliminar categoría:", error);
+      console.error("Error al desasociar categoría:", error);
       
-      let mensaje = "Error al eliminar la categoría";
+      let mensaje = "Error al desasociar la categoría";
       
       if (error.response) {
         if (error.response.status === 400) {
-          mensaje = error.response.data?.message || "No se puede eliminar la categoría porque tiene inscripciones asociadas.";
+          mensaje = error.response.data?.message || "No se puede desasociar la categoría porque tiene inscripciones asociadas.";
         } else if (error.response.status === 401) {
           mensaje = "No tienes autorización para realizar esta acción.";
         } else if (error.response.status === 403) {
@@ -485,8 +520,7 @@ const DesasignarAreaNivel = () => {
               <strong className="font-bold">Olimpiada bloqueada para modificaciones</strong>
             </div>
             <span className="block mt-1">
-              Esta olimpiada tiene {cantidadInscripciones} inscripción(es) registrada(s). 
-              No se pueden desasociar áreas ni eliminar categorías mientras existan inscripciones activas.
+              {obtenerMensajeBloqueo()}
             </span>
           </div>
         )}
@@ -520,7 +554,7 @@ const DesasignarAreaNivel = () => {
                 gradosDisponibles={gradosDisponibles}
                 combinaciones={combinaciones}
                 setCombinaciones={setCombinaciones}
-                eliminarCombinacion={() => {}} // No permitir eliminar áreas predefinidas
+                eliminarCombinacion={() => {}} 
                 olimpiadaSeleccionada={olimpiadaSeleccionada}
                 modoAsociacion={false} 
                 todosLosGrados={todosLosGrados}

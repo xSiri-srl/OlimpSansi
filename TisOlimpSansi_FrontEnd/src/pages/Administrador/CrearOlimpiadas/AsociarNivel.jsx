@@ -21,6 +21,22 @@ const SelectorAreaGrado = () => {
   const [olimpiadaBloqueada, setOlimpiadaBloqueada] = useState(false);
   const [cantidadInscripciones, setCantidadInscripciones] = useState(0);
   const { verificarInscripciones, verificando } = useVerificarInscripciones();
+  const [periodoTerminado, setPeriodoTerminado] = useState(false);
+  const [razonBloqueo, setRazonBloqueo] = useState(null);
+  const [fechaFin, setFechaFin] = useState(null);
+
+  const obtenerMensajeBloqueo = () => {
+  switch(razonBloqueo) {
+    case 'inscripciones_y_periodo':
+      return `Esta olimpiada tiene ${cantidadInscripciones} inscripción(es) registrada(s) y el período de inscripción terminó el ${new Date(fechaFin).toLocaleDateString('es-ES')}. No se pueden realizar cambios en las áreas de competencia.`;
+    case 'inscripciones':
+      return `Esta olimpiada tiene ${cantidadInscripciones} inscripción(es) registrada(s). No se pueden realizar cambios en las áreas de competencia mientras existan inscripciones activas.`;
+    case 'periodo':
+      return `El período de inscripción para esta olimpiada terminó el ${new Date(fechaFin).toLocaleDateString('es-ES')}. No se pueden realizar cambios en las áreas de competencia.`;
+    default:
+      return '';
+  }
+};
 
   // BASE DE DATOS DETERMINADA
   const [combinaciones, setCombinaciones] = useState([
@@ -152,10 +168,14 @@ useEffect(() => {
       );
       setNombreOlimpiada(olimpiada ? olimpiada.titulo : "");
       
-      // Verificar si la olimpiada tiene inscripciones
+      // Verificar si la olimpiada tiene inscripciones o período terminado
       verificarInscripciones(olimpiadaSeleccionada).then(resultado => {
-        setOlimpiadaBloqueada(resultado.tieneInscripciones);
+        setOlimpiadaBloqueada(resultado.estaBloqueada);
         setCantidadInscripciones(resultado.cantidad);
+        // Agregar nuevos estados para manejar la información adicional
+        setPeriodoTerminado(resultado.periodoTerminado);
+        setRazonBloqueo(resultado.razonBloqueo);
+        setFechaFin(resultado.fechaFin);
       });
       
       // Cargar áreas ya asociadas a esta olimpiada
@@ -164,6 +184,8 @@ useEffect(() => {
       setNombreOlimpiada("");
       setOlimpiadaBloqueada(false);
       setCantidadInscripciones(0);
+      setPeriodoTerminado(false);
+      setRazonBloqueo(null);
       
       // Restablecer todas las áreas a no habilitadas cuando no hay olimpiada seleccionada
       setCombinaciones(prev => 
@@ -261,8 +283,22 @@ useEffect(() => {
       return;
     }
 
-        if (olimpiadaBloqueada) {
-      alert(`No se pueden realizar cambios en esta olimpiada porque ya tiene ${cantidadInscripciones} inscripción(es) registrada(s). Para modificar las áreas de competencia, primero debe eliminar todas las inscripciones asociadas.`);
+    if (olimpiadaBloqueada) {
+      let mensaje = "No se pueden realizar cambios en esta olimpiada.";
+      
+      switch(razonBloqueo) {
+        case 'inscripciones_y_periodo':
+          mensaje = `No se pueden realizar cambios en esta olimpiada porque tiene ${cantidadInscripciones} inscripción(es) registrada(s) y el período de inscripción terminó el ${new Date(fechaFin).toLocaleDateString('es-ES')}.`;
+          break;
+        case 'inscripciones':
+          mensaje = `No se pueden realizar cambios en esta olimpiada porque ya tiene ${cantidadInscripciones} inscripción(es) registrada(s). Para modificar las áreas de competencia, primero debe eliminar todas las inscripciones asociadas.`;
+          break;
+        case 'periodo':
+          mensaje = `No se pueden realizar cambios en esta olimpiada porque el período de inscripción terminó el ${new Date(fechaFin).toLocaleDateString('es-ES')}.`;
+          break;
+      }
+      
+      alert(mensaje);
       return;
     }
 
@@ -407,20 +443,19 @@ useEffect(() => {
 
       <div className="bg-gray-100 p-4 rounded-lg shadow-md">
         {/* Mostrar alerta si la olimpiada está bloqueada */}
-        {olimpiadaBloqueada && (
-          <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
-            <div className="flex items-center">
-              <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd"></path>
-              </svg>
-              <strong className="font-bold">Olimpiada bloqueada para modificaciones</strong>
-            </div>
-            <span className="block mt-1">
-              Esta olimpiada tiene {cantidadInscripciones} inscripción(es) registrada(s). 
-              No se pueden realizar cambios en las áreas de competencia mientras existan inscripciones activas.
-            </span>
-          </div>
-        )}
+            {olimpiadaBloqueada && (
+              <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                <div className="flex items-center">
+                  <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd"></path>
+                  </svg>
+                  <strong className="font-bold">Olimpiada bloqueada para modificaciones</strong>
+                </div>
+                <span className="block mt-1">
+                  {obtenerMensajeBloqueo()}
+                </span>
+              </div>
+            )}
 
         {cargandoOlimpiadas || cargandoAreas || verificando ? (
           <div className="text-center py-8">

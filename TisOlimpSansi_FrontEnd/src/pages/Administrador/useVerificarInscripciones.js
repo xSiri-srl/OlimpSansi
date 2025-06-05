@@ -7,7 +7,13 @@ export const useVerificarInscripciones = () => {
   const [verificando, setVerificando] = useState(false);
 
   const verificarInscripciones = async (idOlimpiada) => {
-    if (!idOlimpiada) return { tieneInscripciones: false, cantidad: 0 };
+    if (!idOlimpiada) return { 
+      tieneInscripciones: false, 
+      cantidad: 0, 
+      periodoTerminado: false,
+      estaBloqueada: false,
+      razonBloqueo: null
+    };
 
     setVerificando(true);
     
@@ -35,7 +41,11 @@ export const useVerificarInscripciones = () => {
       if (response.status === 200) {
         return {
           tieneInscripciones: response.data.tiene_inscripciones,
-          cantidad: response.data.cantidad_inscripciones
+          cantidad: response.data.cantidad_inscripciones,
+          periodoTerminado: response.data.periodo_terminado,
+          fechaFin: response.data.fecha_fin,
+          estaBloqueada: response.data.esta_bloqueada,
+          razonBloqueo: response.data.razon_bloqueo
         };
       }
       
@@ -43,7 +53,13 @@ export const useVerificarInscripciones = () => {
       
     } catch (error) {
       console.error('Error al verificar inscripciones:', error);
-      return { tieneInscripciones: false, cantidad: 0 };
+      return { 
+        tieneInscripciones: false, 
+        cantidad: 0, 
+        periodoTerminado: false,
+        estaBloqueada: false,
+        razonBloqueo: null
+      };
     } finally {
       setVerificando(false);
     }
