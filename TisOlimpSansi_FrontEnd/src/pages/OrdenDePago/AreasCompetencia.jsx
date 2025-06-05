@@ -28,7 +28,6 @@ export default function AreasCompetencia({
   const [cargandoMaxAreas, setCargandoMaxAreas] = useState(false);
   
   const olimpiadaId = globalData?.olimpiada?.id;
-
   const { 
     cargandoAreas, 
     errorCarga, 
