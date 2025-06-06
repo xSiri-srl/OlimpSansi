@@ -216,6 +216,12 @@ class OrdenPagoController extends Controller
     }
 }
 
+
+
+
+
+
+
     /**
      * Descarga la orden de pago como PDF
      */
@@ -661,5 +667,33 @@ public function verificarCodigo(Request $request)
     
         return response()->json($resultados);
     }
+
+
+ public function obtenerIdOlimpiada($codigo)
+{
+    try {
+        // Buscar la orden de pago por código generado
+        $ordenPago = OrdenPago::with(['inscripcion.olimpiadaAreaCategoria'])
+            ->where('codigo_generado', $codigo)
+            ->first();
+
+        if (!$ordenPago) {
+            return response()->json(['message' => 'No se encontró la orden de pago con el código proporcionado'], 404);
+        }
+
+        // Verificar que tenga al menos una inscripción
+        if ($ordenPago->inscripcion->isEmpty()) {
+            return response()->json(['message' => 'No se encontraron inscripciones para esta orden de pago'], 404);
+        }
+
+        // Obtener el id_olimpiada de la primera inscripción
+        $idOlimpiada = $ordenPago->inscripcion->first()->olimpiadaAreaCategoria->id_olimpiada;
+
+        return response()->json(['id_olimpiada' => $idOlimpiada]);
+
+    } catch (\Exception $e) {
+        return response()->json(['message' => 'Error interno del servidor', 'error' => $e->getMessage()], 500);
+    }
+}
 
 }

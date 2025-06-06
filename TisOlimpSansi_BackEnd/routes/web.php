@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\OlimpiadaController;
 use App\Http\Controllers\OlimpiadaAreaController;
 use App\Http\Middleware\VerifyCsrfToken;
+use App\Helpers\OrdenPagoHelper;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 
@@ -21,6 +22,11 @@ Route::get('/debug-pdf-logs', function() {
 });
 
 Route::post('/registro', [AuthController::class, 'register']);
+Route::get('/test-costos/{codigo}', function($codigo) {
+    $resultado = OrdenPagoHelper::obtenerCostosOlimpiada($codigo);
+    return response()->json($resultado, 200, [], JSON_PRETTY_PRINT);
+});
+Route::get('/obtener-costos-olimpiada/{id}', [OlimpiadaAreaController::class, 'obtenerCostos']);
 
 Route::get('/olimpiadas-publicas', [OlimpiadaController::class, 'getTodasLasOlimpiadas']);
 

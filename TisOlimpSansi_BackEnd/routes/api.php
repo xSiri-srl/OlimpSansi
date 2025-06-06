@@ -164,7 +164,7 @@ Route::get('/ordenes-recientes', [OrdenPagoController::class, 'obtenerOrdenesCon
 Route::get('/orden-de-pago/info', [OrdenPagoController::class, 'getInfOrdenesDePago']);
 Route::get('/orden-pago-existe/{codigo}', [OrdenPagoController::class, 'ordenPagoExiste']);
 Route::get('/todas-publicas', [OlimpiadaController::class, ' getTodasLasOlimpiadas']);
-
+Route::get('/obtener-olimpiada/{id}', [OrdenPagoController::class, 'obtenerIdOlimpiada']);
 
 Route::post('/guardar-comprobante', [ComprobanteController::class, 'guardarComprobante']);
 

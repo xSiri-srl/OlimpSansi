@@ -11,7 +11,6 @@ import {
 import { API_URL } from "../../utils/api";
 import axios from "axios";
 
-
 const GenerarOrdenPago = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -22,9 +21,13 @@ const GenerarOrdenPago = () => {
   const [mostrarModal, setMostrarModal] = useState(false);
   const [ordenYaGenerada, setOrdenYaGenerada] = useState(false);
   const [progreso, setProgreso] = useState(0);
-  const [pdfUrl, setPdfUrl] = useState(null); // Estado para la previsualización
-  const [mostrarPrevisualizacion, setMostrarPrevisualizacion] = useState(false); // Estado para mostrar/ocultar previsualización
-
+  const [pdfUrl, setPdfUrl] = useState(null);
+  const [mostrarPrevisualizacion, setMostrarPrevisualizacion] = useState(false);
+  const [idOlimpiada, setIdOlimpiada] = useState("");
+  const [costoUnico, setCostoUnico] = useState(null);
+  const [costosPorArea, setCostosPorArea] = useState([]);
+  const [tieneCostoUnico, setTieneCostoUnico] = useState(false);
+  const [costosLoading, setCostosLoading] = useState(false);
 
   // Efecto para la barra de progreso
   useEffect(() => {
@@ -44,6 +47,13 @@ const GenerarOrdenPago = () => {
     return () => clearInterval(timer);
   }, [cargando, descargando]);
 
+  // Efecto para obtener costos cuando cambia idOlimpiada
+  useEffect(() => {
+    if (idOlimpiada) {
+      obtenerCostos();
+    }
+  }, [idOlimpiada]);
+
   // Nueva función para obtener el PDF
   const obtenerPdf = async () => {
     try {
@@ -54,7 +64,7 @@ const GenerarOrdenPago = () => {
       const pdfBlob = new Blob([pdfResponse.data], { type: "application/pdf" });
       const url = window.URL.createObjectURL(pdfBlob);
       setPdfUrl(url);
-      setMostrarPrevisualizacion(true); // Mostrar previsualización automáticamente
+      setMostrarPrevisualizacion(true);
     } catch (error) {
       console.error("Error obteniendo el PDF:", error);
       setError("Error al obtener el PDF para previsualización");
@@ -71,13 +81,14 @@ const GenerarOrdenPago = () => {
       );
       if (response.status === 200) {
         await obtenerResumen(codigoGenerado);
+        await obtenerOlimpiada(); // Obtener olimpiada después del resumen
+        
         // Verificar si la orden ya está generada
         const existeResponse = await axios.get(
           `${API_URL}/api/orden-pago-existe/${codigoGenerado}`
         );
         setOrdenYaGenerada(existeResponse.data.existe);
         if (existeResponse.data.existe) {
-          // Si la orden ya existe, obtener el PDF para previsualización
           await obtenerPdf();
         }
       }
@@ -105,6 +116,116 @@ const GenerarOrdenPago = () => {
     }
   };
 
+  // Obtener olimpiada asociada
+  const obtenerOlimpiada = async () => {
+    try {
+      const response = await axios.get(
+        `${API_URL}/api/obtener-olimpiada/${codigoGenerado}`
+      );
+      const idOlimpiada = response.data.id_olimpiada;
+      setIdOlimpiada(idOlimpiada);
+    } catch (error) {
+      console.error("Error obteniendo la olimpiada:", error);
+      setError("Error al obtener la olimpiada asociada a la orden de pago");
+    }
+  };
+
+  // Obtener costos de la olimpiada
+  const obtenerCostos = async () => {
+    if (!idOlimpiada) {
+      setError("ID de olimpiada no disponible");
+      return;
+    }
+
+    setCostosLoading(true);
+    setError("");
+
+    try {
+      const response = await axios.get(
+        `${API_URL}/obtener-costos-olimpiada/${idOlimpiada}`
+      );
+
+      if (response.data.status === 200) {
+        const data = response.data.data;
+
+        if (data.costo_unico) {
+          setCostoUnico(data.costo);
+          setCostosPorArea([]);
+          setTieneCostoUnico(true);
+        } else {
+          setCostoUnico(null);
+          setCostosPorArea(data.costos_por_area);
+          setTieneCostoUnico(false);
+        }
+      } else {
+        setError(response.data.message || 'Error desconocido');
+      }
+    } catch (error) {
+      console.error("Error obteniendo los costos:", error);
+      
+      if (error.response?.status === 404) {
+        setError("Olimpiada no encontrada o sin áreas disponibles");
+      } else {
+        setError("Error al obtener los costos de la olimpiada");
+      }
+    } finally {
+      setCostosLoading(false);
+    }
+  };
+
+  // Función para calcular el total a pagar
+// Función para calcular el total a pagar
+  const calcularTotal = () => {
+    if (!resumen || !resumen.inscritos || resumen.inscritos.length === 0) return 0;
+
+    if (tieneCostoUnico && costoUnico !== null) {
+      return resumen.inscritos.length * costoUnico;
+    } else if (!tieneCostoUnico && costosPorArea.length > 0) {
+      // Agrupar inscritos por área y calcular total
+      const areasCounts = {};
+      resumen.inscritos.forEach(inscrito => {
+        const area = inscrito.area;
+        areasCounts[area] = (areasCounts[area] || 0) + 1;
+      });
+
+      let total = 0;
+      Object.entries(areasCounts).forEach(([area, cantidad]) => {
+        // CORRECCIÓN: Comparar con nombre_area en lugar de area
+        const costoArea = costosPorArea.find(c => c.nombre_area === area);
+        if (costoArea) {
+          total += cantidad * parseInt(costoArea.costo);
+        }
+      });
+      return total;
+    }
+    
+    return 0; // No hay costos disponibles, retornar 0
+  };
+
+  // Función para obtener desglose por área
+  const obtenerDesglosePorArea = () => {
+    if (!resumen || !resumen.inscritos) return [];
+
+    const areasCounts = {};
+    resumen.inscritos.forEach(inscrito => {
+      const area = inscrito.area;
+      areasCounts[area] = (areasCounts[area] || 0) + 1;
+    });
+
+    return Object.entries(areasCounts).map(([area, cantidad]) => {
+      let costo = 0; // Sin costo por defecto
+      if (tieneCostoUnico && costoUnico !== null) {
+        costo = parseInt(costoUnico);
+      } else if (!tieneCostoUnico && costosPorArea.length > 0) {
+        // CORRECCIÓN: Comparar con nombre_area en lugar de area
+        const costoArea = costosPorArea.find(c => c.nombre_area === area);
+        if (costoArea) {
+          costo = parseInt(costoArea.costo);
+        }
+      }
+      return { area, cantidad, costo, subtotal: cantidad * costo };
+    });
+  };
   // Generar la orden de pago
   const confirmarGenerarOrden = async () => {
     setMostrarModal(false);
@@ -118,7 +239,7 @@ const GenerarOrdenPago = () => {
       if (response.data.existe) {
         setOrdenYaGenerada(true);
         setCargando(false);
-        await obtenerPdf(); // Obtener el PDF si ya existe
+        await obtenerPdf();
         return;
       }
 
@@ -129,8 +250,6 @@ const GenerarOrdenPago = () => {
       );
       console.log("Orden de pago generada correctamente");
       setOrdenYaGenerada(true);
-
-      // Obtener el PDF recién generado para previsualización
       await obtenerPdf();
     } catch (error) {
       console.error("Error generando la orden de pago:", error);
@@ -150,7 +269,6 @@ const GenerarOrdenPago = () => {
 
     try {
       if (pdfUrl) {
-        // Usar el pdfUrl existente para la descarga
         const link = document.createElement("a");
         link.href = pdfUrl;
         link.setAttribute("download", `orden_pago_${codigoGenerado}.pdf`);
@@ -158,7 +276,6 @@ const GenerarOrdenPago = () => {
         link.click();
         link.remove();
       } else {
-        // Si no hay pdfUrl, obtener el PDF del servidor
         await obtenerPdf();
         const link = document.createElement("a");
         link.href = pdfUrl;
@@ -201,6 +318,10 @@ const GenerarOrdenPago = () => {
               setOrdenYaGenerada(false);
               setPdfUrl(null);
               setMostrarPrevisualizacion(false);
+              setIdOlimpiada("");
+              setCostoUnico(null);
+              setCostosPorArea([]);
+              setTieneCostoUnico(false);
             }}
             className="w-full p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             placeholder="Ingrese el código"
@@ -298,49 +419,103 @@ const GenerarOrdenPago = () => {
                   </div>
                 </div>
               </div>
+
+              {/* Sección de Importe actualizada */}
               <div className="mt-6 border-t pt-4">
                 <h3 className="text-lg font-semibold text-blue-600 mb-3">
                   Importe
                 </h3>
-                <div className="flex justify-between border-b py-2">
-                  <span className="text-gray-600 font-medium">
-                    Costo por área
-                  </span>
-                  <span className="font-semibold">20 Bs.</span>
-                </div>
-                <div className="flex justify-between border-b py-2">
-                  <span className="text-gray-600 font-medium">
-                    Total de áreas
-                  </span>
-                  <span className="font-semibold">
-                    {resumen.inscritos.length}
-                  </span>
-                </div>
-                <div className="flex justify-between py-2 text-blue-700 font-bold text-lg">
-                  <span>Total a pagar</span>
-                  <span>{resumen.inscritos.length * 20} Bs</span>
-                </div>
+                
+                {costosLoading ? (
+                  <div className="text-center py-4">
+                    <p className="text-gray-600">Cargando información de costos...</p>
+                  </div>
+                ) : (
+                  <>
+                    
+                    {tieneCostoUnico && costoUnico !== null ? (
+                      // Mostrar costo único
+                      <>
+                        <div className="flex justify-between border-b py-2">
+                          <span className="text-gray-600 font-medium">
+                            Costo por participante
+                          </span>
+                          <span className="font-semibold">{costoUnico} Bs.</span>
+                        </div>
+                        <div className="flex justify-between border-b py-2">
+                          <span className="text-gray-600 font-medium">
+                            Total de participantes
+                          </span>
+                          <span className="font-semibold">
+                            {resumen.inscritos.length}
+                          </span>
+                        </div>
+                      </>
+                    ) : costosPorArea.length > 0 ? (
+                      // Mostrar desglose por área
+                      <>
+                        <div className="mb-4">
+                          <p className="text-sm text-gray-600 mb-2">Desglose por área:</p>
+                          {obtenerDesglosePorArea().map((item, index) => (
+                            <div key={index} className="flex justify-between items-center border-b py-2">
+                              <div className="flex-1">
+                                <span className="text-gray-600 font-medium">{item.area}</span>
+                                <span className="text-sm text-gray-500 ml-2">
+                                  ({item.cantidad} × {item.costo} Bs.)
+                                </span>
+                              </div>
+                              <span className="font-semibold">{item.subtotal} Bs.</span>
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    ) : (
+                      // Mostrar valores por defecto mientras se cargan los costos
+                      <>
+                        <div className="flex justify-between border-b py-2">
+                          <span className="text-gray-600 font-medium">
+                            Costo por participante (temporal)
+                          </span>
+                          <span className="font-semibold">20 Bs.</span>
+                        </div>
+                        <div className="flex justify-between border-b py-2">
+                          <span className="text-gray-600 font-medium">
+                            Total de participantes
+                          </span>
+                          <span className="font-semibold">
+                            {resumen.inscritos.length}
+                          </span>
+                        </div>
+                      </>
+                    )}
+                    
+                    <div className="flex justify-between py-2 text-blue-700 font-bold text-lg">
+                      <span>Total a pagar</span>
+                      <span>{calcularTotal()} Bs</span>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
 
             {/* Botones de acción */}
             <div className="flex flex-col sm:flex-row justify-center gap-4 mt-6">
               <button
-                  onClick={confirmarGenerarOrden}
-                  disabled={cargando || descargando || ordenYaGenerada}
-                  className={`px-6 py-2 transition duration-300 ease-in-out text-white rounded-md shadow-md flex items-center gap-2 ${
-                    !cargando && !descargando && !ordenYaGenerada
-                      ? "bg-blue-500 hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500"
-                      : "bg-gray-400 cursor-not-allowed"
-                  }`}
-                >
-                  <FaCloudUploadAlt />
-                  {ordenYaGenerada
-                    ? "Orden ya generada"
-                    : cargando
-                    ? "Generando..."
-                    : "Generar Orden de Pago"}
-                </button>
+                onClick={confirmarGenerarOrden}
+                disabled={cargando || descargando || ordenYaGenerada}
+                className={`px-6 py-2 transition duration-300 ease-in-out text-white rounded-md shadow-md flex items-center gap-2 ${
+                  !cargando && !descargando && !ordenYaGenerada
+                    ? "bg-blue-500 hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500"
+                    : "bg-gray-400 cursor-not-allowed"
+                }`}
+              >
+                <FaCloudUploadAlt />
+                {ordenYaGenerada
+                  ? "Orden ya generada"
+                  : cargando
+                  ? "Generando..."
+                  : "Generar Orden de Pago"}
+              </button>
 
               {pdfUrl && (
                 <button

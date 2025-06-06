@@ -374,7 +374,78 @@ public function actualizarCostos(Request $request)
         ], 500);
     }
 }
+public function obtenerCostos($idOlimpiada)
+{
+    try {
+        // Validar que la olimpiada existe
+        $olimpiadaExists = DB::table('olimpiada')->where('id', $idOlimpiada)->exists();
+        
+        if (!$olimpiadaExists) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Olimpiada no encontrada',
+            ], 404);
+        }
 
+        // Obtener costos únicos por área (agrupando por área)
+        $costos = DB::table('olimpiada_area_categorias as oac')
+            ->join('area as a', 'oac.id_area', '=', 'a.id')
+            ->where('oac.id_olimpiada', $idOlimpiada)
+            ->select(
+                'oac.id_area', 
+                'a.nombre_area', 
+                DB::raw('MIN(oac.precio) as precio') // O MAX() si prefieres el precio más alto
+            )
+            ->groupBy('oac.id_area', 'a.nombre_area')
+            ->get();
+
+        if ($costos->isEmpty()) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'No se encontraron áreas para esta olimpiada',
+            ], 404);
+        }
+
+        // Obtener todos los precios únicos
+        $preciosUnicos = $costos->pluck('precio')->unique();
+
+        // Si todos los costos son iguales
+        if ($preciosUnicos->count() === 1) {
+            return response()->json([
+                'status' => 200,
+                'message' => 'Todas las áreas tienen el mismo costo',
+                'data' => [
+                    'costo_unico' => true,
+                    'costo' => $preciosUnicos->first()
+                ]
+            ]);
+        }
+
+        // Si los costos son diferentes
+        $costosDetallados = $costos->map(function ($item) {
+            return [
+                'id_area' => $item->id_area,
+                'nombre_area' => $item->nombre_area,
+                'costo' => $item->precio
+            ];
+        });
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Las áreas tienen costos diferentes',
+            'data' => [
+                'costo_unico' => false,
+                'costos_por_area' => $costosDetallados
+            ]
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 500,
+            'message' => 'Error al obtener costos: ' . $e->getMessage(),
+        ], 500);
+    }
+}
 public function desasociarAreas(Request $request)
 {
     $request->validate([
