@@ -27,60 +27,65 @@ class OlimpiadaController extends Controller
     }
 
 
-    public function store(Request $request)
-    {
-        $request->validate([
-            'id_user' => 'required|exists:users,id',
-            'titulo' => 'required|string|max:255',
-            'fecha_ini' => 'required|date',
-            'fecha_fin' => 'required|date|after_or_equal:fecha_ini',
-        ], [
-            'id_user.exists' => 'El usuario no existe.',
-        ]);
+public function store(Request $request)
+{
+    $request->validate([
+        'id_user' => 'required|exists:users,id',
+        'titulo' => 'required|string|max:255',
+        'fecha_ini' => 'required|date',
+        'fecha_fin' => 'required|date|after_or_equal:fecha_ini',
+    ], [
+        'id_user.exists' => 'El usuario no existe.',
+    ]);
 
-        $año = Carbon::parse($request->fecha_ini)->year;
+    $año = Carbon::parse($request->fecha_ini)->year;
 
-        $existe = OlimpiadaModel::where('titulo', $request->titulo)
-            ->whereYear('fecha_ini', $año)
-            ->exists();
+    $existe = OlimpiadaModel::where('titulo', $request->titulo)
+        ->whereYear('fecha_ini', $año)
+        ->exists();
 
-        if ($existe) {
-            return response()->json([
-                'status' => 422,
-                'message' => 'Ya existe una olimpiada con ese título en el mismo año.',
-            ], 422);
-        }
-
-        try {
-            $olimpiada = new OlimpiadaModel();
-            $olimpiada->id_user = $request->id_user;
-            $olimpiada->titulo = $request->titulo;
-            $olimpiada->fecha_ini = $request->fecha_ini;
-            $olimpiada->fecha_fin = $request->fecha_fin;
-            $olimpiada->save();
-
-            return response()->json([
-                'status' => 200,
-                'message' => 'Olimpiada creada exitosamente',
-                'data' => $olimpiada,
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'Error al crear la olimpiada: ' . $e->getMessage(),
-            ], 500);
-        }
+    if ($existe) {
+        return response()->json([
+            'status' => 422,
+            'message' => 'Ya existe una olimpiada con ese título en el mismo año.',
+        ], 422);
     }
 
+    try {
+        $olimpiada = new OlimpiadaModel();
+        $olimpiada->id_user = $request->id_user;
+        $olimpiada->titulo = $request->titulo;
+        $olimpiada->fecha_ini = $request->fecha_ini;
+        $olimpiada->fecha_fin = $request->fecha_fin;
+        // $olimpiada->max_materias = 1; // ELIMINAR ESTA LÍNEA
+        $olimpiada->save();
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Olimpiada creada exitosamente',
+            'data' => $olimpiada,
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 500,
+            'message' => 'Error al crear la olimpiada: ' . $e->getMessage(),
+        ], 500);
+    }
+}
 
 public function show($id)
 {
     try {
         $olimpiada = OlimpiadaModel::findOrFail($id);
         
-        $olimpiada->makeVisible(['max_materias']);
+        // CAMBIO: Manejar max_materias null sin establecer valor por defecto en BD
+        $olimpiadaData = $olimpiada->toArray();
+        // Para la UI, si es null, mostramos 1, pero NO lo guardamos en BD
+        if ($olimpiadaData['max_materias'] === null) {
+            $olimpiadaData['max_materias'] = 1; // Solo para mostrar en UI
+        }
         
-        return response()->json($olimpiada);
+        return response()->json($olimpiadaData);
     } catch (\Exception $e) {
         return response()->json([
             'error' => 'Olimpiada no encontrada',
@@ -276,19 +281,34 @@ public function getAreasCategoriasPorOlimpiada(Request $request)
         ], 500);
     }
 }
+
 public function verificarInscripciones($id)
 {
     try {
+        // Obtener la olimpiada para verificar las fechas
+        $olimpiada = OlimpiadaModel::findOrFail($id);
+        
         // Contar inscripciones asociadas a esta olimpiada
         $cantidadInscripciones = DB::table('inscripcion')
             ->join('olimpiada_area_categorias', 'inscripcion.id_olimpiada_area_categoria', '=', 'olimpiada_area_categorias.id')
             ->where('olimpiada_area_categorias.id_olimpiada', $id)
             ->count();
 
+        // Verificar si el período de inscripción ha terminado
+        $hoy = now()->toDateString();
+        $periodoTerminado = $hoy > $olimpiada->fecha_fin;
+
+        // La olimpiada está bloqueada si tiene inscripciones O si el período terminó
+        $estaBloqueada = $cantidadInscripciones > 0 || $periodoTerminado;
+
         return response()->json([
             'status' => 200,
             'tiene_inscripciones' => $cantidadInscripciones > 0,
-            'cantidad_inscripciones' => $cantidadInscripciones
+            'cantidad_inscripciones' => $cantidadInscripciones,
+            'periodo_terminado' => $periodoTerminado,
+            'fecha_fin' => $olimpiada->fecha_fin,
+            'esta_bloqueada' => $estaBloqueada,
+            'razon_bloqueo' => $this->obtenerRazonBloqueo($cantidadInscripciones, $periodoTerminado)
         ]);
 
     } catch (\Exception $e) {
@@ -297,5 +317,17 @@ public function verificarInscripciones($id)
             'message' => 'Error al verificar inscripciones: ' . $e->getMessage()
         ], 500);
     }
+}
+
+private function obtenerRazonBloqueo($cantidadInscripciones, $periodoTerminado)
+{
+    if ($cantidadInscripciones > 0 && $periodoTerminado) {
+        return 'inscripciones_y_periodo';
+    } elseif ($cantidadInscripciones > 0) {
+        return 'inscripciones';
+    } elseif ($periodoTerminado) {
+        return 'periodo';
+    }
+    return null;
 }
 }

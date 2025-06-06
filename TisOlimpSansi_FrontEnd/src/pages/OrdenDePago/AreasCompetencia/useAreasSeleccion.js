@@ -9,7 +9,7 @@ export function useAreasSeleccion(
   const manejarSeleccion = (nombre) => {
     let nuevasSeleccionadas;
     const nuevasCategoriasSeleccionadas = { ...categoriasSeleccionadas };
-
+    
     if (seleccionadas.includes(nombre)) {
       nuevasSeleccionadas = seleccionadas.filter((area) => area !== nombre);
       delete nuevasCategoriasSeleccionadas[nombre];

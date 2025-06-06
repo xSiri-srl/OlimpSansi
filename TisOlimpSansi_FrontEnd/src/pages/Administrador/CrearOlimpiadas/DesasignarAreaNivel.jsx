@@ -7,6 +7,10 @@ import { gradosDisponibles } from "./AreasCompetencia/constants";
 import { API_URL } from "../../../utils/api";
 import axios from "axios";
 import { useVerificarInscripciones } from "../useVerificarInscripciones";
+import ModalConfirmacion from "./Modales/ModalConfirmacion";
+import ModalAlerta from "./Modales/ModalAlerta";
+import ModalResumenCambios from "./Modales/ModalResumenCambios";
+
 const DesasignarAreaNivel = () => {
   const [olimpiadas, setOlimpiadas] = useState([]);
   const [olimpiadaSeleccionada, setOlimpiadaSeleccionada] = useState("");
@@ -20,45 +24,128 @@ const DesasignarAreaNivel = () => {
   const [todosLosGrados, setTodosLosGrados] = useState([]);
   const [olimpiadaBloqueada, setOlimpiadaBloqueada] = useState(false);
   const [cantidadInscripciones, setCantidadInscripciones] = useState(0);
-
+  const [periodoTerminado, setPeriodoTerminado] = useState(false);
+  const [razonBloqueo, setRazonBloqueo] = useState(null);
+  const [fechaFin, setFechaFin] = useState(null);
   const { verificarInscripciones, verificando } = useVerificarInscripciones();
+
+  // Estados para modales
+  const [modalEstado, setModalEstado] = useState({
+    tipo: null, // 'confirmacion', 'alerta', 'resumenCambios'
+    titulo: "",
+    mensaje: "",
+    isOpen: false,
+    onConfirm: null,
+    datos: null
+  });
+
+  // Función para cerrar modal
+  const cerrarModal = () => {
+    setModalEstado({
+      tipo: null,
+      titulo: "",
+      mensaje: "",
+      isOpen: false,
+      onConfirm: null,
+      datos: null
+    });
+  };
+
+  // Función para mostrar alerta
+  const mostrarAlerta = (titulo, mensaje, tipo = "error") => {
+    setModalEstado({
+      tipo: 'alerta',
+      titulo,
+      mensaje,
+      isOpen: true,
+      tipoAlerta: tipo,
+      onConfirm: null,
+      datos: null
+    });
+  };
+
+  // Función para mostrar confirmación
+  const mostrarConfirmacion = (titulo, mensaje, onConfirm, tipo = "warning") => {
+    setModalEstado({
+      tipo: 'confirmacion',
+      titulo,
+      mensaje,
+      isOpen: true,
+      tipoConfirmacion: tipo,
+      onConfirm,
+      datos: null
+    });
+  };
+
+  // Función para mostrar resumen de cambios
+  const mostrarResumenCambios = (areasParaDesasociar, categoriasParaEliminar, onConfirm) => {
+    setModalEstado({
+      tipo: 'resumenCambios',
+      titulo: "",
+      mensaje: "",
+      isOpen: true,
+      onConfirm,
+      datos: { areasParaDesasociar, categoriasParaEliminar }
+    });
+  };
+
+  // Función para obtener el mensaje de bloqueo apropiado
+  const obtenerMensajeBloqueo = () => {
+    switch(razonBloqueo) {
+      case 'inscripciones_y_periodo':
+        return `Esta olimpiada tiene ${cantidadInscripciones} inscripción(es) registrada(s) y el período de inscripción terminó el ${new Date(fechaFin).toLocaleDateString('es-ES')}. No se pueden desasociar áreas ni categorías.`;
+      case 'inscripciones':
+        return `Esta olimpiada tiene ${cantidadInscripciones} inscripción(es) registrada(s). No se pueden desasociar áreas ni categorías mientras existan inscripciones activas.`;
+      case 'periodo':
+        return `El período de inscripción para esta olimpiada terminó el ${new Date(fechaFin).toLocaleDateString('es-ES')}. No se pueden desasociar áreas ni categorías.`;
+      default:
+        return '';
+    }
+  };
 
   // BASE DE DATOS DETERMINADA
   const [combinaciones, setCombinaciones] = useState([
     {
       area: "Astronomía-Astrofísica",
       habilitado: false,
-      categorias: []
+      categorias: [],
+      categoriasEliminadas: []
     },
     {
       area: "Biología",
       habilitado: false,
-      categorias: []
+      categorias: [],
+      categoriasEliminadas: []
     },
     {
       area: "Física",
       habilitado: false,
-      categorias: []
+      categorias: [],
+      categoriasEliminadas: []
     },
     {
       area: "Informática",
       habilitado: false,
-      categorias: []
+      categorias: [],
+      categoriasEliminadas: []
     },
     {
       area: "Matemáticas",
       habilitado: false,
-      categorias: []
+      categorias: [],
+      categoriasEliminadas: []
     },
     {
       area: "Química",
       habilitado: false,
-      categorias: []
+      categorias: [],
+      categoriasEliminadas: []
     },
     {
       area: "Robótica",
       habilitado: false,
-      categorias: []
+      categorias: [],
+      categoriasEliminadas: []
     },
   ]);
   
@@ -153,10 +240,13 @@ const DesasignarAreaNivel = () => {
       );
       setNombreOlimpiada(olimpiada ? olimpiada.titulo : "");
       
-      // Verificar si la olimpiada tiene inscripciones
+      // Verificar si la olimpiada tiene inscripciones o período terminado
       verificarInscripciones(olimpiadaSeleccionada).then(resultado => {
-        setOlimpiadaBloqueada(resultado.tieneInscripciones);
+        setOlimpiadaBloqueada(resultado.estaBloqueada);
         setCantidadInscripciones(resultado.cantidad);
+        setPeriodoTerminado(resultado.periodoTerminado);
+        setRazonBloqueo(resultado.razonBloqueo);
+        setFechaFin(resultado.fechaFin);
       });
       
       // Cargar áreas ya asociadas a esta olimpiada
@@ -165,10 +255,13 @@ const DesasignarAreaNivel = () => {
       setNombreOlimpiada("");
       setOlimpiadaBloqueada(false);
       setCantidadInscripciones(0);
-      
+      setPeriodoTerminado(false);
+      setRazonBloqueo(null);
+      setFechaFin(null);
+
       // Restablecer todas las áreas a no habilitadas cuando no hay olimpiada seleccionada
       setCombinaciones(prev => 
-        prev.map(combo => ({...combo, habilitado: false, yaAsociada: false, categorias: []}))
+        prev.map(combo => ({...combo, habilitado: false, yaAsociada: false, categorias: [], categoriasEliminadas: []}))
       );
     }
   }, [olimpiadaSeleccionada, olimpiadas]);
@@ -230,7 +323,12 @@ const DesasignarAreaNivel = () => {
                 ...combo,
                 habilitado: true, // Inicialmente, habilitar todas las áreas asociadas
                 yaAsociada: true,
-                categorias: areaAsociada.categorias || []
+                // Limpiar cualquier marca de eliminación previa Y categoriasEliminadas
+                categorias: (areaAsociada.categorias || []).map(cat => ({
+                  ...cat,
+                  marcadaParaEliminar: false
+                })),
+                categoriasEliminadas: [] // Limpiar lista de categorías eliminadas
               };
             } else {
               console.log(`❌ NO HAY COINCIDENCIA para "${combo.area}"`);
@@ -238,7 +336,8 @@ const DesasignarAreaNivel = () => {
                 ...combo,
                 habilitado: false,
                 yaAsociada: false,
-                categorias: []
+                categorias: [],
+                categoriasEliminadas: [] // Limpiar lista de categorías eliminadas
               };
             }
           });
@@ -249,7 +348,13 @@ const DesasignarAreaNivel = () => {
     } catch (error) {
       console.error("Error al cargar áreas asociadas:", error);
       setCombinaciones(prev => 
-        prev.map(combo => ({...combo, habilitado: false, yaAsociada: false, categorias: []}))
+        prev.map(combo => ({
+          ...combo, 
+          habilitado: false, 
+          yaAsociada: false, 
+          categorias: [],
+          categoriasEliminadas: [] // Limpiar lista de categorías eliminadas
+        }))
       );
     } finally {
       setCargandoAreas(false);
@@ -258,31 +363,60 @@ const DesasignarAreaNivel = () => {
 
   const guardarConfiguracion = async () => {
     if (!olimpiadaSeleccionada) {
-      alert("Por favor seleccione una olimpiada");
+      mostrarAlerta("Error", "Por favor seleccione una olimpiada", "warning");
       return;
     }
 
-    // Verificar si la olimpiada tiene inscripciones antes de proceder
+    // Verificar si la olimpiada tiene inscripciones o período terminado antes de proceder
     if (olimpiadaBloqueada) {
-      alert(`No se pueden realizar cambios en esta olimpiada porque ya tiene ${cantidadInscripciones} inscripción(es) registrada(s). Para desasociar áreas, primero debe eliminar todas las inscripciones asociadas.`);
+      let mensaje = "No se pueden realizar cambios en esta olimpiada.";
+      
+      switch(razonBloqueo) {
+        case 'inscripciones_y_periodo':
+          mensaje = `No se pueden realizar cambios en esta olimpiada porque tiene ${cantidadInscripciones} inscripción(es) registrada(s) y el período de inscripción terminó el ${new Date(fechaFin).toLocaleDateString('es-ES')}.`;
+          break;
+        case 'inscripciones':
+          mensaje = `No se pueden realizar cambios en esta olimpiada porque ya tiene ${cantidadInscripciones} inscripción(es) registrada(s). Para desasociar áreas, primero debe eliminar todas las inscripciones asociadas.`;
+          break;
+        case 'periodo':
+          mensaje = `No se pueden realizar cambios en esta olimpiada porque el período de inscripción terminó el ${new Date(fechaFin).toLocaleDateString('es-ES')}.`;
+          break;
+      }
+      
+      mostrarAlerta("Olimpiada bloqueada", mensaje, "error");
       return;
     }
 
-    // Las áreas que queremos desasociar son aquellas que están marcadas como ya asociadas pero no habilitadas
+    // Identificar áreas completas para desasociar (marcadas como ya asociadas pero no habilitadas)
     const areasParaDesasociar = combinaciones.filter(combo => 
       combo.yaAsociada && !combo.habilitado
     );
     
-    if (areasParaDesasociar.length === 0) {
-      alert("Debe seleccionar al menos un área para desasociar");
+    // Identificar categorías individuales marcadas para eliminar usando categoriasEliminadas
+    const categoriasParaEliminar = [];
+    combinaciones.forEach(combo => {
+      if (combo.yaAsociada && combo.habilitado && combo.categoriasEliminadas && combo.categoriasEliminadas.length > 0) {
+        categoriasParaEliminar.push({
+          combo: combo,
+          categorias: combo.categoriasEliminadas
+        });
+      }
+    });
+
+    // Verificar si hay cambios para aplicar
+    if (areasParaDesasociar.length === 0 && categoriasParaEliminar.length === 0) {
+      mostrarAlerta("Sin cambios", "No hay cambios para guardar. Seleccione áreas para desasociar o marque categorías para desasociar.", "warning");
       return;
     }
 
-    // Confirmar la acción con el usuario
-    if (!confirm(`¿Está seguro que desea desasociar ${areasParaDesasociar.length} área(s) de esta olimpiada? Esta acción es irreversible.`)) {
-      return;
-    }
+    // Mostrar modal de resumen de cambios
+    mostrarResumenCambios(areasParaDesasociar, categoriasParaEliminar, () => {
+      cerrarModal();
+      ejecutarGuardado(areasParaDesasociar, categoriasParaEliminar);
+    });
+  };
 
+  const ejecutarGuardado = async (areasParaDesasociar, categoriasParaEliminar) => {
     setGuardando(true);
 
     try {
@@ -302,36 +436,84 @@ const DesasignarAreaNivel = () => {
         },
         withCredentials: true
       };
-      
-      // Preparar datos para enviar
-      const datosAEnviar = {
-        id_olimpiada: olimpiadaSeleccionada,
-        areas: combinaciones
-          .filter(combo => combo.yaAsociada && !combo.habilitado)
-          .map((combo) => ({
+
+      // Primero, desasociar áreas completas si las hay
+      if (areasParaDesasociar.length > 0) {
+        const datosAreasDesasociar = {
+          id_olimpiada: olimpiadaSeleccionada,
+          areas: areasParaDesasociar.map((combo) => ({
             area: combo.area,
             habilitado: false
           }))
-      };
-      
-      console.log("Desasociando áreas:", datosAEnviar);
-
-      // Enviar la solicitud al servidor
-      const response = await axios.post(
-        `${API_URL}/desasociar-areas-olimpiada`, 
-        datosAEnviar,
-        config
-      );
-
-      if (response.status === 200) {
-        setMensajeExito("¡Áreas desasociadas exitosamente!");
-        setTimeout(() => setMensajeExito(""), 3000);
+        };
         
-        // Recargar las áreas para mostrar el estado actualizado
-        cargarAreasAsociadas(olimpiadaSeleccionada);
-      } else {
-        throw new Error("Error al guardar la configuración");
+        console.log("Desasociando áreas completas:", datosAreasDesasociar);
+
+        const responseAreas = await axios.post(
+          `${API_URL}/desasociar-areas-olimpiada`, 
+          datosAreasDesasociar,
+          config
+        );
+
+        if (responseAreas.status !== 200) {
+          throw new Error("Error al desasociar áreas completas");
+        }
       }
+
+      // Luego, desasociar categorías individuales si las hay
+      if (categoriasParaEliminar.length > 0) {
+        // Obtener todas las áreas para encontrar los IDs
+        const responseAreas = await axios.get(`${API_URL}/areas-olimpiada/${olimpiadaSeleccionada}`, config);
+        const areasAsociadas = responseAreas.data.data || [];
+
+        for (const item of categoriasParaEliminar) {
+          // Buscar el ID del área
+          const nombreAreaNormalizado = item.combo.area.toUpperCase()
+            .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+            .replace(/[^A-Z0-9\s\-]/g, "");
+
+          const areaEncontrada = areasAsociadas.find(area => {
+            const nombreNormalizado = area.area.toUpperCase()
+              .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+              .replace(/[^A-Z0-9\s\-]/g, "");
+            return nombreNormalizado === nombreAreaNormalizado;
+          });
+
+          if (!areaEncontrada) {
+            throw new Error(`No se pudo encontrar el área "${item.combo.area}" en el servidor`);
+          }
+
+          // Preparar datos para enviar
+          const datosCategorias = {
+            id_olimpiada: olimpiadaSeleccionada,
+            id_area: areaEncontrada.id,
+            categorias_eliminar: item.categorias.map(cat => ({
+              id: cat.id,
+              nombre: cat.nombre
+            }))
+          };
+
+          console.log("Desasociando categorías de", item.combo.area, ":", datosCategorias);
+
+          const responseCategorias = await axios.post(
+            `${API_URL}/desasociar-categorias-olimpiada`,
+            datosCategorias,
+            config
+          );
+
+          if (responseCategorias.status !== 200) {
+            throw new Error(`Error al desasociar categorías del área "${item.combo.area}"`);
+          }
+        }
+      }
+
+      // Éxito - mostrar mensaje y recargar datos
+      setMensajeExito("¡Cambios aplicados exitosamente!");
+      setTimeout(() => setMensajeExito(""), 3000);
+      
+      // Recargar las áreas para mostrar el estado actualizado y limpiar categoriasEliminadas
+      cargarAreasAsociadas(olimpiadaSeleccionada);
+
     } catch (error) {
       console.error("Error al guardar:", error);
       
@@ -349,7 +531,7 @@ const DesasignarAreaNivel = () => {
         }
       }
       
-      alert(mensaje);
+      mostrarAlerta("Error al guardar", mensaje, "error");
     } finally {
       setGuardando(false);
     }
@@ -357,113 +539,68 @@ const DesasignarAreaNivel = () => {
 
   const eliminarCategoriaIndividual = async (combo, categoria, index) => {
     if (!olimpiadaSeleccionada) {
-      alert("Error: No hay olimpiada seleccionada");
+      mostrarAlerta("Error", "No hay olimpiada seleccionada", "error");
       return;
     }
 
-    // Verificar si la olimpiada tiene inscripciones antes de proceder
+    // Verificar si la olimpiada tiene inscripciones o período terminado antes de proceder
     if (olimpiadaBloqueada) {
-      alert(`No se pueden eliminar categorías de esta olimpiada porque ya tiene ${cantidadInscripciones} inscripción(es) registrada(s). Para eliminar categorías, primero debe eliminar todas las inscripciones asociadas.`);
-      return;
-    }
-
-    // Confirmar la eliminación
-    if (!confirm(`¿Está seguro que desea eliminar la categoría "${categoria.nombre}" del área "${combo.area}"? Esta acción es irreversible.`)) {
-      return;
-    }
-
-    try {
-      // Obtener CSRF token para autenticación
-      await axios.get(`${API_URL}/api/sanctum/csrf-cookie`, {
-        withCredentials: true,
-      });
+      let mensaje = "No se pueden desasociar categorías de esta olimpiada.";
       
-      const csrfToken = Cookies.get('XSRF-TOKEN');
-      
-      // Configurar headers para la solicitud
-      const config = {
-        headers: {
-          'X-XSRF-TOKEN': csrfToken,
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        withCredentials: true
-      };
-
-      // Buscar el ID del área
-      const nombreAreaNormalizado = combo.area.toUpperCase()
-        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-        .replace(/[^A-Z0-9\s\-]/g, "");
-
-      // Obtener todas las áreas para encontrar el ID
-      const responseAreas = await axios.get(`${API_URL}/areas-olimpiada/${olimpiadaSeleccionada}`, config);
-      const areasAsociadas = responseAreas.data.data || [];
-      
-      const areaEncontrada = areasAsociadas.find(area => {
-        const nombreNormalizado = area.area.toUpperCase()
-          .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-          .replace(/[^A-Z0-9\s\-]/g, "");
-        return nombreNormalizado === nombreAreaNormalizado;
-      });
-
-      if (!areaEncontrada) {
-        throw new Error("No se pudo encontrar el área en el servidor");
+      switch(razonBloqueo) {
+        case 'inscripciones_y_periodo':
+          mensaje = `No se pueden desasociar categorías de esta olimpiada porque tiene ${cantidadInscripciones} inscripción(es) registrada(s) y el período de inscripción terminó el ${new Date(fechaFin).toLocaleDateString('es-ES')}.`;
+          break;
+        case 'inscripciones':
+          mensaje = `No se pueden desasociar categorías de esta olimpiada porque ya tiene ${cantidadInscripciones} inscripción(es) registrada(s). Para desasociar categorías, primero debe eliminar todas las inscripciones asociadas.`;
+          break;
+        case 'periodo':
+          mensaje = `No se pueden desasociar categorías de esta olimpiada porque el período de inscripción terminó el ${new Date(fechaFin).toLocaleDateString('es-ES')}.`;
+          break;
       }
+      
+      mostrarAlerta("Olimpiada bloqueada", mensaje, "error");
+      return;
+    }
 
-      // Preparar datos para enviar
-      const datosAEnviar = {
-        id_olimpiada: olimpiadaSeleccionada,
-        id_area: areaEncontrada.id,
-        categorias_eliminar: [{
-          id: categoria.id,
-          nombre: categoria.nombre
-        }]
-      };
+    // Mostrar confirmación para eliminar categoría
+    mostrarConfirmacion(
+      "Confirmar desasociación de categoría",
+      `¿Está seguro que desea marcar para desasociar la categoría "${categoria.nombre}" del área "${combo.area}"?\n\nLos cambios se aplicarán al presionar "Guardar Configuración".`,
+      () => {
+        // ELIMINAR la categoría del frontend inmediatamente (no solo marcarla)
+        setCombinaciones(prev => 
+          prev.map(combinacion => {
+            if (combinacion.area === combo.area) {
+              return {
+                ...combinacion,
+                // Filtrar la categoría eliminada y guardar una referencia para la persistencia
+                categorias: combinacion.categorias.filter(cat => cat.id !== categoria.id),
+                // Agregar las categorías eliminadas para el guardado posterior
+                categoriasEliminadas: [
+                  ...(combinacion.categoriasEliminadas || []),
+                  categoria
+                ]
+              };
+            }
+            return combinacion;
+          })
+        );
 
-      console.log("Eliminando categoría individual:", datosAEnviar);
-
-      // Enviar la solicitud al servidor
-      const response = await axios.post(
-        `${API_URL}/desasociar-categorias-olimpiada`,
-        datosAEnviar,
-        config
-      );
-
-      if (response.status === 200) {
-        setMensajeExito("¡Categoría eliminada exitosamente!");
+        // Mostrar mensaje temporal
+        setMensajeExito("Categoría eliminada del frontend. Presione 'Guardar Configuración' para aplicar los cambios permanentemente.");
         setTimeout(() => setMensajeExito(""), 3000);
         
-        // Recargar las áreas para mostrar el estado actualizado
-        cargarAreasAsociadas(olimpiadaSeleccionada);
-      } else {
-        throw new Error("Error al eliminar la categoría");
-      }
-    } catch (error) {
-      console.error("Error al eliminar categoría:", error);
-      
-      let mensaje = "Error al eliminar la categoría";
-      
-      if (error.response) {
-        if (error.response.status === 400) {
-          mensaje = error.response.data?.message || "No se puede eliminar la categoría porque tiene inscripciones asociadas.";
-        } else if (error.response.status === 401) {
-          mensaje = "No tienes autorización para realizar esta acción.";
-        } else if (error.response.status === 403) {
-          mensaje = "No tienes permisos suficientes para esta acción.";
-        } else {
-          mensaje = error.response.data?.message || mensaje;
-        }
-      }
-      
-      alert(mensaje);
-      throw error; // Re-lanzar el error para que AreaCompetencia lo maneje
-    }
+        cerrarModal();
+      },
+      "danger"
+    );
   };
   
   return (
     <div className="p-6 max-w-5xl mx-auto">
       <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">  
-       Desasignar Area/nivel
+       Desasignar Area/Nivel
       </h2>
       <HeaderSelector
         nombreOlimpiada={nombreOlimpiada}
@@ -485,8 +622,7 @@ const DesasignarAreaNivel = () => {
               <strong className="font-bold">Olimpiada bloqueada para modificaciones</strong>
             </div>
             <span className="block mt-1">
-              Esta olimpiada tiene {cantidadInscripciones} inscripción(es) registrada(s). 
-              No se pueden desasociar áreas ni eliminar categorías mientras existan inscripciones activas.
+              {obtenerMensajeBloqueo()}
             </span>
           </div>
         )}
@@ -520,12 +656,12 @@ const DesasignarAreaNivel = () => {
                 gradosDisponibles={gradosDisponibles}
                 combinaciones={combinaciones}
                 setCombinaciones={setCombinaciones}
-                eliminarCombinacion={() => {}} // No permitir eliminar áreas predefinidas
+                eliminarCombinacion={() => {}} 
                 olimpiadaSeleccionada={olimpiadaSeleccionada}
                 modoAsociacion={false} 
                 todosLosGrados={todosLosGrados}
                 onEliminarCategoria={eliminarCategoriaIndividual}
-                bloqueado={olimpiadaBloqueada} // Pasar estado de bloqueo
+                bloqueado={olimpiadaBloqueada}
               />
             ))}
 
@@ -534,12 +670,44 @@ const DesasignarAreaNivel = () => {
               olimpiadaSeleccionada={olimpiadaSeleccionada}
               guardando={guardando}
               mensajeExito={mensajeExito}
-              textoBoton="Desasociar Áreas Seleccionadas"
-              bloqueado={olimpiadaBloqueada} // Pasar estado de bloqueo
+              textoBoton="Guardar Configuración"
+              bloqueado={olimpiadaBloqueada}
             />
           </>
         )}
       </div>
+
+      {/* Modales */}
+      {modalEstado.tipo === 'alerta' && (
+        <ModalAlerta
+          isOpen={modalEstado.isOpen}
+          onClose={cerrarModal}
+          title={modalEstado.titulo}
+          message={modalEstado.mensaje}
+          type={modalEstado.tipoAlerta}
+        />
+      )}
+
+      {modalEstado.tipo === 'confirmacion' && (
+        <ModalConfirmacion
+          isOpen={modalEstado.isOpen}
+          onClose={cerrarModal}
+          onConfirm={modalEstado.onConfirm}
+          title={modalEstado.titulo}
+          message={modalEstado.mensaje}
+          type={modalEstado.tipoConfirmacion}
+        />
+      )}
+
+      {modalEstado.tipo === 'resumenCambios' && (
+        <ModalResumenCambios
+          isOpen={modalEstado.isOpen}
+          onClose={cerrarModal}
+          onConfirm={modalEstado.onConfirm}
+          areasParaDesasociar={modalEstado.datos?.areasParaDesasociar || []}
+          categoriasParaEliminar={modalEstado.datos?.categoriasParaEliminar || []}
+        />
+      )}
     </div>
   );
 };

@@ -1,12 +1,10 @@
 import React, { useState } from "react";
 
-
 import DatePicker, { registerLocale } from "react-datepicker";
 import es from "date-fns/locale/es";
 import "react-datepicker/dist/react-datepicker.css";
 
 registerLocale("es", es);
-
 
 import axios from "axios";
 import Cookies from "js-cookie";
@@ -18,10 +16,13 @@ import {
 } from "react-icons/fa";
 import { API_URL } from "../../../utils/api";
 
+// Importar el nuevo modal
+import ModalTareasPendientes from "./Modales/ModalTareasPendientes";
+
 const CrearOlimpiadas = () => {
   const [titulo, setTitulo] = useState("");
   const navigate = useNavigate();
-  const [fechaIniDate, setFechaIniDate]     = useState(null);
+  const [fechaIniDate, setFechaIniDate] = useState(null);
   const [fechaFinalDate, setFechaFinalDate] = useState(null);
   const [fechaIni, setFechaIni] = useState("");
   const [fechaFinal, setFechaFinal] = useState("");
@@ -30,52 +31,42 @@ const CrearOlimpiadas = () => {
   const [errores, setErrores] = useState({});
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showTareasModal, setShowTareasModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [olimpiadaCreada, setOlimpiadaCreada] = useState(null);
   
   const years = Array.from({ length: 2030 - 2025 + 1 }, (_, i) => 2025 + i);
 
-const validarCampos = () => {
-  // Convertir la fecha actual a string en formato YYYY-MM-DD
-  const hoy = new Date();
-  const hoyString = hoy.toISOString().split('T')[0]; // Formato YYYY-MM-DD
-  
-  // fechaIni ya está en formato YYYY-MM-DD del input type="date"
-  const nuevosErrores = {};
+  const validarCampos = () => {
+    // Convertir la fecha actual a string en formato YYYY-MM-DD
+    const hoy = new Date();
+    const hoyString = hoy.toISOString().split('T')[0]; // Formato YYYY-MM-DD
+    
+    // fechaIni ya está en formato YYYY-MM-DD del input type="date"
+    const nuevosErrores = {};
 
-  if (!titulo.trim()) nuevosErrores.titulo = "El título no puede estar vacío";
-  if (!periodoIns) nuevosErrores.periodoIns = "Debe seleccionar un año de gestión";
-  if (!fechaIni) nuevosErrores.fechaIni = "Debe ingresar la fecha de inicio";
-  
-  // Comparación directa de strings en formato YYYY-MM-DD
-  else if (fechaIni < hoyString) 
-    nuevosErrores.fechaIni = "La fecha de inicio no puede ser anterior a hoy";
+    if (!titulo.trim()) nuevosErrores.titulo = "El título no puede estar vacío";
+    if (!periodoIns) nuevosErrores.periodoIns = "Debe seleccionar un año de gestión";
+    if (!fechaIni) nuevosErrores.fechaIni = "Debe ingresar la fecha de inicio";
+    
+    // Comparación directa de strings en formato YYYY-MM-DD
+    else if (fechaIni < hoyString) 
+      nuevosErrores.fechaIni = "La fecha de inicio no puede ser anterior a hoy";
 
-  if (!fechaFinal) nuevosErrores.fechaFinal = "Debe ingresar la fecha final";
-  else if (fechaIni && fechaFinal <= fechaIni)
-    nuevosErrores.fechaFinal = "La fecha final debe ser posterior a la fecha de inicio";
+    if (!fechaFinal) nuevosErrores.fechaFinal = "Debe ingresar la fecha final";
+    else if (fechaIni && fechaFinal <= fechaIni)
+      nuevosErrores.fechaFinal = "La fecha final debe ser posterior a la fecha de inicio";
 
-
-  //esto verifica que las fecha ini y fin sean en el mismo año
-  // if (fechaIni && fechaFinal) {
-  //   const yIni = new Date(fechaIni).getFullYear();
-  //   const yFin = new Date(fechaFinal).getFullYear();
-  //   if (yIni !== yFin) {
-  //     nuevosErrores.periodoIns = "Inicio y fin deben estar en la misma gestión";
-  //   }
-  // }
-
-
-  if (periodoIns && fechaIni) {
-    const gestionNum = parseInt(periodoIns, 10);
-    const yIni = new Date(fechaIni).getFullYear();
-    if (gestionNum !== yIni) {
-      nuevosErrores.periodoIns = "La gestión debe coincidir con el año de inicio de inscripciones";
+    if (periodoIns && fechaIni) {
+      const gestionNum = parseInt(periodoIns, 10);
+      const yIni = new Date(fechaIni).getFullYear();
+      if (gestionNum !== yIni) {
+        nuevosErrores.periodoIns = "La gestión debe coincidir con el año de inicio de inscripciones";
+      }
     }
-  }
-  setErrores(nuevosErrores);
-  return Object.keys(nuevosErrores).length === 0;
-};
+    setErrores(nuevosErrores);
+    return Object.keys(nuevosErrores).length === 0;
+  };
 
   const handleCrear = () => {
     if (validarCampos()) {
@@ -116,7 +107,7 @@ const validarCampos = () => {
       const olimpiadaId = response.data.id || response.data.data?.id;
       setOlimpiadaCreada(olimpiadaId);
 
-      // Mostrar modal de éxito brevemente antes de redireccionar
+      // Mostrar modal de éxito brevemente antes de mostrar el modal de tareas
       setShowSuccessModal(true);
       setErrorMessage("");
 
@@ -125,12 +116,14 @@ const validarCampos = () => {
       setPeriodoIns("");
       setFechaIni("");
       setFechaFinal("");
+      setFechaIniDate(null);
+      setFechaFinalDate(null);
 
-      // Configurar un temporizador para redirigir después de mostrar el mensaje de éxito
+      // Después de un breve momento, mostrar el modal de tareas pendientes
       setTimeout(() => {
         setShowSuccessModal(false);
-        navigate("/"); // Redireccionar a la página de asignar áreas
-      }, 1500); // Redireccionar después de 1.5 segundos
+        setShowTareasModal(true);
+      }, 1500);
     } catch (error) {
       console.error(error);
       if (error.response?.status === 422) {
@@ -143,6 +136,17 @@ const validarCampos = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Función para manejar cuando el usuario decide configurar ahora
+  const handleConfigurarAhora = () => {
+    setShowTareasModal(false);
+  };
+
+  // Función para manejar cuando el usuario decide configurar más tarde
+  const handleConfigurarMasTarde = () => {
+    setShowTareasModal(false);
+    navigate("/"); 
   };
 
   return (
@@ -322,6 +326,17 @@ const validarCampos = () => {
           </div>
         </div>
       )}
+
+      {/* Modal de tareas pendientes */}
+      <ModalTareasPendientes
+        isOpen={showTareasModal}
+        onClose={handleConfigurarMasTarde}
+        onContinue={handleConfigurarAhora}
+        nombreOlimpiada={titulo}
+        olimpiadaId={olimpiadaCreada}
+      />
+
+      {/* Modal de carga */}
       {loading && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg text-center w-96">

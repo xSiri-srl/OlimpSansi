@@ -1,4 +1,4 @@
-export function procesarAreasCompetencia(seleccionadas, categoriasSeleccionadas, cursoEstudiante) {
+export function procesarAreasCompetencia(seleccionadas, categoriasSeleccionadas) {
   return seleccionadas.map((area) => {
     const nombreArea = area.toUpperCase();
     
