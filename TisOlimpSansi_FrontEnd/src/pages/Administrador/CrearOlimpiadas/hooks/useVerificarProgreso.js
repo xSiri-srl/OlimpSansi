@@ -60,14 +60,15 @@ export const useVerificarProgreso = () => {
         try {
           const areasResponse = await axios.get(`${API_URL}/areas-olimpiada/${olimpiadaId}`, config);
           if (areasResponse.status === 200 && areasResponse.data.data) {
-            // CAMBIO CRÍTICO: Verificar que al menos un área tenga costo definido Y diferente de null/undefined
+            // CAMBIO SIMPLE: Considerar como NO definido si es null, undefined, string vacío O cero
             costosDefinidos = areasResponse.data.data.some(area => {
               const costo = area.costoInscripcion;
-              // Solo considerar definido si el costo no es null, undefined Y ha sido explícitamente establecido
+              // Solo considerar definido si NO es null, undefined, string vacío NI cero
               return costo !== null && 
                      costo !== undefined && 
                      costo !== '' && 
-                     costo.toString().trim() !== '';
+                     costo.toString().trim() !== '' &&
+                     parseFloat(costo) > 0; // LÍNEA AGREGADA: debe ser mayor que 0
             });
             
             console.log('💰 Verificación de costos:', {
@@ -76,10 +77,14 @@ export const useVerificarProgreso = () => {
                 area: area.area,
                 costo: area.costoInscripcion,
                 tipo: typeof area.costoInscripcion,
+                parsedFloat: parseFloat(area.costoInscripcion),
+                esCero: parseFloat(area.costoInscripcion) === 0,
+                esMayorQueCero: parseFloat(area.costoInscripcion) > 0,
                 definido: area.costoInscripcion !== null && 
                          area.costoInscripcion !== undefined && 
                          area.costoInscripcion !== '' && 
-                         area.costoInscripcion.toString().trim() !== ''
+                         area.costoInscripcion.toString().trim() !== '' &&
+                         parseFloat(area.costoInscripcion) > 0
               })),
               costosDefinidos
             });
@@ -90,13 +95,13 @@ export const useVerificarProgreso = () => {
         }
       }
 
-      // 3. Verificar límite de áreas definido (CAMBIO CRÍTICO)
+      // 3. Verificar límite de áreas definido
       let limiteDefinido = false;
       try {
         const olimpiadaResponse = await axios.get(`${API_URL}/olimpiada/${olimpiadaId}`, config);
         if (olimpiadaResponse.status === 200 && olimpiadaResponse.data) {
           const maxMaterias = olimpiadaResponse.data.max_materias;
-          // CAMBIO: Solo considerar definido si es mayor a 1 (el valor por defecto es 1)
+          // Solo considerar definido si es mayor a 1 (el valor por defecto es 1)
           limiteDefinido = maxMaterias !== null && 
                           maxMaterias !== undefined && 
                           parseInt(maxMaterias) > 1;
