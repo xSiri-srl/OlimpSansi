@@ -8,6 +8,8 @@ import { useVerificarInscripciones } from "../../Administrador/useVerificarInscr
 import axios from "axios";
 import ModalConfirmacion from "./Modales/ModalConfirmacion";
 import ModalAlerta from "./Modales/ModalAlerta";
+import { useNotificarProgreso } from "./hooks/useNotificarProgreso";
+import ModalTareasPendientes from "./Modales/ModalTareasPendientes";
 
 const AsociarLimiteAreas = () => {
   const [olimpiadas, setOlimpiadas] = useState([]);
@@ -23,6 +25,7 @@ const AsociarLimiteAreas = () => {
   const [periodoTerminado, setPeriodoTerminado] = useState(false);
   const [razonBloqueo, setRazonBloqueo] = useState(null);
   const [fechaFin, setFechaFin] = useState(null);
+  const { modalProgreso, mostrarProgreso, cerrarProgreso } = useNotificarProgreso();
 
   const { verificarInscripciones, verificando } = useVerificarInscripciones();
 
@@ -189,10 +192,10 @@ const AsociarLimiteAreas = () => {
           
           if (response.status === 200 && response.data) {
             const maxMaterias = Number(response.data.max_materias);
-            if (!isNaN(maxMaterias) && maxMaterias > 0) {
-              setContador(maxMaterias);
+            if (maxMaterias !== null && maxMaterias !== undefined) {
+              setContador(Number(maxMaterias));
             } else {
-              setContador(1); // Valor por defecto si max_materias es 0, null, o undefined
+              setContador(1); // Valor por defecto para UI solamente
             }
           }
         } catch (error) {
@@ -289,6 +292,7 @@ const AsociarLimiteAreas = () => {
       if (response.status === 200 || response.status === 201) {
         setMensajeExito("¡Límite de áreas actualizado exitosamente!");
         setTimeout(() => setMensajeExito(""), 3000);
+        setTimeout(() => mostrarProgreso(olimpiadaSeleccionada, nombreOlimpiada), 1000);
       } else {
         throw new Error("Error al guardar el límite de áreas");
       }
@@ -481,6 +485,13 @@ const AsociarLimiteAreas = () => {
           type={modalEstado.tipoConfirmacion}
         />
       )}
+            <ModalTareasPendientes
+        isOpen={modalProgreso.isOpen}
+        onClose={cerrarProgreso}
+        onContinue={cerrarProgreso}
+        nombreOlimpiada={modalProgreso.nombreOlimpiada}
+        olimpiadaId={modalProgreso.olimpiadaId}
+      />
     </div>
   );
 };

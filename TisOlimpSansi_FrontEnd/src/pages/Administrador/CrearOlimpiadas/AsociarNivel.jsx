@@ -10,6 +10,8 @@ import { useVerificarInscripciones } from "../useVerificarInscripciones";
 import ModalConfirmacion from "./Modales/ModalConfirmacion";
 import ModalAlerta from "./Modales/ModalAlerta";
 import ModalValidacion from "./Modales/ModalValidacion";
+import { useNotificarProgreso } from "./hooks/useNotificarProgreso";
+import ModalTareasPendientes from "./Modales/ModalTareasPendientes";
 
 const SelectorAreaGrado = () => {
   const [olimpiadas, setOlimpiadas] = useState([]);
@@ -27,6 +29,7 @@ const SelectorAreaGrado = () => {
   const [periodoTerminado, setPeriodoTerminado] = useState(false);
   const [razonBloqueo, setRazonBloqueo] = useState(null);
   const [fechaFin, setFechaFin] = useState(null);
+  const { modalProgreso, mostrarProgreso, cerrarProgreso } = useNotificarProgreso();
 
   // Estados para modales
   const [modalEstado, setModalEstado] = useState({
@@ -484,7 +487,7 @@ const SelectorAreaGrado = () => {
       if (response.status === 200) {
         setMensajeExito("¡Áreas asociadas exitosamente!");
         setTimeout(() => setMensajeExito(""), 3000);
-        
+        setTimeout(() => mostrarProgreso(olimpiadaSeleccionada, nombreOlimpiada), 1000);
         // Recargar las áreas para mostrar el estado actualizado
         cargarAreasAsociadas(olimpiadaSeleccionada);
       } else {
@@ -624,6 +627,13 @@ const SelectorAreaGrado = () => {
           areas={modalEstado.areas}
         />
       )}
+            <ModalTareasPendientes
+        isOpen={modalProgreso.isOpen}
+        onClose={cerrarProgreso}
+        onContinue={cerrarProgreso}
+        nombreOlimpiada={modalProgreso.nombreOlimpiada}
+        olimpiadaId={modalProgreso.olimpiadaId}
+      />
     </div>
   );
 };

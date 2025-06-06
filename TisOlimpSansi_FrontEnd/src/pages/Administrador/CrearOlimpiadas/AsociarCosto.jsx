@@ -8,6 +8,8 @@ import { API_URL } from "../../../utils/api";
 import { useVerificarInscripciones } from "../../Administrador/useVerificarInscripciones";
 import ModalConfirmacion from "./Modales/ModalConfirmacion";
 import ModalAlerta from "./Modales/ModalAlerta";
+import { useNotificarProgreso } from "./hooks/useNotificarProgreso";
+import ModalTareasPendientes from "./Modales/ModalTareasPendientes";
 
 const AsociarCosto = () => {
   const [olimpiadas, setOlimpiadas] = useState([]);
@@ -24,6 +26,7 @@ const AsociarCosto = () => {
   const [periodoTerminado, setPeriodoTerminado] = useState(false);
   const [razonBloqueo, setRazonBloqueo] = useState(null);
   const [fechaFin, setFechaFin] = useState(null);
+  const { modalProgreso, mostrarProgreso, cerrarProgreso } = useNotificarProgreso();
 
   const { verificarInscripciones, verificando } = useVerificarInscripciones();
 
@@ -328,6 +331,7 @@ const AsociarCosto = () => {
         
         // Recargar áreas para mostrar datos actualizados
         cargarAreasAsociadas(olimpiadaSeleccionada);
+        setTimeout(() => mostrarProgreso(olimpiadaSeleccionada, nombreOlimpiada), 1000);
       } else {
         throw new Error("Error al guardar los costos");
       }
@@ -455,7 +459,15 @@ const AsociarCosto = () => {
           type={modalEstado.tipoConfirmacion}
         />
       )}
+            <ModalTareasPendientes
+        isOpen={modalProgreso.isOpen}
+        onClose={cerrarProgreso}
+        onContinue={cerrarProgreso}
+        nombreOlimpiada={modalProgreso.nombreOlimpiada}
+        olimpiadaId={modalProgreso.olimpiadaId}
+      />
     </div>
+    
   );
 };
 

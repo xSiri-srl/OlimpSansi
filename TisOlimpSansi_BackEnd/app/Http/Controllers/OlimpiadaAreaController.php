@@ -202,15 +202,6 @@ public function asociarAreas(Request $request)
         $areas = $request->areas;
 
         DB::beginTransaction();
-        $costosExistentes = DB::table('olimpiada_area_categorias')
-            ->where('id_olimpiada', $idOlimpiada)
-            ->select('id_area', 'id_categoria', 'precio')
-            ->get()
-            ->mapToGroups(function ($item) {
-                $key = $item->id_area . '_' . $item->id_categoria;
-                return [$key => $item->precio];
-            })
-            ->toArray();
 
         // Eliminar asociaciones existentes
         DB::table('olimpiada_area_categorias')->where('id_olimpiada', $idOlimpiada)->delete();
@@ -229,54 +220,9 @@ public function asociarAreas(Request $request)
                     ]);
                 }
 
-                // Si tiene niveles o rangos específicos, guardarlos
-                if (isset($area['niveles']) && is_array($area['niveles'])) {
-                    foreach ($area['niveles'] as $nivel) {
-                        // Buscar o crear la categoría (sin id_area que ya no existe)
-                        $categoria = CategoriaModel::firstOrCreate(
-                            ['nombre_categoria' => $nivel['nivel']]
-                        );
-                        
-                        // Asociar grados a la categoría
-                        if (isset($nivel['desde']) && isset($nivel['hasta'])) {
-                            $gradoDesde = GradoModel::where('nombre_grado', $nivel['desde'])->first();
-                            $gradoHasta = GradoModel::where('nombre_grado', $nivel['hasta'])->first();
-                            
-                            if ($gradoDesde && $gradoHasta) {
-                                // Obtener todos los grados en el rango
-                                $grados = GradoModel::where('id', '>=', $gradoDesde->id)
-                                    ->where('id', '<=', $gradoHasta->id)
-                                    ->get();
-                                
-                                // Asociar cada grado a la categoría
-                                foreach ($grados as $grado) {
-                                    CategoriaGradoModel::firstOrCreate([
-                                        'id_categoria' => $categoria->id,
-                                        'id_grado' => $grado->id,
-                                    ]);
-                                }
-                            }
-                        }
-                        
-                        // Verificar si existe un costo previo
-                        $costoClave = $areaModel->id . '_' . $categoria->id;
-                        $costoExistente = isset($costosExistentes[$costoClave]) && !empty($costosExistentes[$costoClave]) 
-                            ? $costosExistentes[$costoClave][0] 
-                            : 0;
-                        
-                        // Crear la relación en la tabla olimpiada_area_categorias
-                        DB::table('olimpiada_area_categorias')->insert([
-                            'id_olimpiada' => $idOlimpiada,
-                            'id_area' => $areaModel->id,
-                            'id_categoria' => $categoria->id,
-                            'precio' => $costoExistente,
-                            'created_at' => now(),
-                            'updated_at' => now(),
-                        ]);
-                    }
-                } else if (isset($area['rangos']) && is_array($area['rangos'])) {
+                // Si tiene rangos específicos, guardarlos
+                if (isset($area['rangos']) && is_array($area['rangos'])) {
                     foreach ($area['rangos'] as $rango) {
-                        // Buscar o crear la categoría (sin id_area que ya no existe)
                         $categoria = CategoriaModel::firstOrCreate(
                             ['nombre_categoria' => $rango['nivel']]
                         );
@@ -300,16 +246,12 @@ public function asociarAreas(Request $request)
                             }
                         }
                         
-                        $costoClave = $areaModel->id . '_' . $categoria->id;
-                        $costoExistente = isset($costosExistentes[$costoClave]) && !empty($costosExistentes[$costoClave]) 
-                            ? $costosExistentes[$costoClave][0] 
-                            : 0;
                         
                         DB::table('olimpiada_area_categorias')->insert([
                             'id_olimpiada' => $idOlimpiada,
                             'id_area' => $areaModel->id,
                             'id_categoria' => $categoria->id,
-                            'precio' => $costoExistente,
+                            'precio' => 0, 
                             'created_at' => now(),
                             'updated_at' => now(),
                         ]);

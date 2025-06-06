@@ -333,6 +333,7 @@ const CrearOlimpiadas = () => {
         onClose={handleConfigurarMasTarde}
         onContinue={handleConfigurarAhora}
         nombreOlimpiada={titulo}
+        olimpiadaId={olimpiadaCreada}
       />
 
       {/* Modal de carga */}
