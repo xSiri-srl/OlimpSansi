@@ -10,7 +10,6 @@ export function useAreasDisponibles(globalData) {
     if (globalData.gradoAreaCurso) {
       cargarAreasYCategorias();
     } else {
-      setAreasDisponibles([]);
       setAreasCategorias({});
       setCargaCompleta(false);
       setErrorCarga("");

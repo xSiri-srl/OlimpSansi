@@ -15,45 +15,19 @@ const AreaGrid = ({
   const renderizarArea = (area, index) => {
     const estaSeleccionada = seleccionadas.includes(area.nombre);
     const nombreArea = area.nombre;
-        
-    // Buscar categorías en areasCategorias de múltiples formas
-    let categoriasEncontradas = [];
-    
-    // Lista de posibles claves para buscar
-    const posiblesClaves = [
-      nombreArea,
-      nombreArea.toUpperCase(),
-      nombreArea.toLowerCase(),
-      // Mapeos específicos
-      nombreArea === "Matemáticas" ? "MATEMATICAS" : null,
-      nombreArea === "Matemáticas" ? "MATEMATICA" : null,
-      nombreArea === "Física" ? "FISICA" : null,
-      nombreArea === "Química" ? "QUIMICA" : null,
-      nombreArea === "Biología" ? "BIOLOGIA" : null,
-      nombreArea === "Informática" ? "INFORMATICA" : null,
-      nombreArea === "Robótica" ? "ROBOTICA" : null,
-      // Variantes para Astronomía y Astrofísica
-      nombreArea === "Astronomía y Astrofísica" ? "ASTRONOMIA Y ASTROFISICA" : null,
-      nombreArea === "Astronomía y Astrofísica" ? "ASTRONOMIAYASTROFISICA" : null,
-      nombreArea === "Astronomía y Astrofísica" ? "ASTRONOMÍA-ASTROFÍSICA" : null,
-      nombreArea === "Astronomía y Astrofísica" ? "ASTRONOMIA-ASTROFISICA" : null,
-    ].filter(Boolean);
-    
-    
-    for (const clave of posiblesClaves) {
-      if (areasCategorias[clave] && Array.isArray(areasCategorias[clave])) {
-        categoriasEncontradas = areasCategorias[clave];
-        break;
-      }
-    }
-    
-    // Preparar lista de nombres de categorías
-    const categoriasParaMostrar = categoriasEncontradas.length > 0 
+
+    // Obtener directamente las categorías según el nombre del área (tal como lo devuelve el backend)
+    const categoriasEncontradas = Array.isArray(areasCategorias[nombreArea])
+      ? areasCategorias[nombreArea]
+      : [];
+
+    // Formatear para mostrar solo los nombres (si es objeto)
+    const categoriasParaMostrar = categoriasEncontradas.length > 0
       ? categoriasEncontradas.map(cat => cat.nombre || cat)
       : ["Sin categorías disponibles"];
-    
-    const categoriaSeleccionada = categoriasSeleccionadas[area.nombre] || "";
-    const estaDisponible = !cargandoAreas && maxAreas > 0 && areaEstaDisponible(area.nombre);
+
+    const categoriaSeleccionada = categoriasSeleccionadas[nombreArea] || "";
+    const estaDisponible = !cargandoAreas && maxAreas > 0 && areaEstaDisponible(nombreArea);
 
     return (
       <AreaCard

@@ -71,15 +71,28 @@ const ProcesoRegistro = ({
     }
   };
 
-  const handleInputChange = (namespace, field, value) => {
-    setFormData((prev) => ({
+const handleInputChange = (namespace, field, value) => {
+  setFormData((prev) => {
+    const updatedNamespace = {
+      ...prev[namespace],
+      [field]: value,
+    };
+
+    if (
+      namespace === "estudiante" &&
+      field === "curso" &&
+      (prev.estudiante?.areasSeleccionadas || prev.estudiante?.categoriasSeleccionadas)
+    ) {
+      updatedNamespace.areasSeleccionadas = [];
+      updatedNamespace.categoriasSeleccionadas = {};
+    }
+
+    return {
       ...prev,
-      [namespace]: {
-        ...prev[namespace],
-        [field]: value,
-      },
-    }));
-  };
+      [namespace]: updatedNamespace,
+    };
+  });
+};
 
   return (
     <div className="p-10">
