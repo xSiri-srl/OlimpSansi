@@ -7,6 +7,9 @@ import { gradosDisponibles } from "./AreasCompetencia/constants";
 import { API_URL } from "../../../utils/api";
 import axios from "axios";
 import { useVerificarInscripciones } from "../useVerificarInscripciones";
+import ModalConfirmacion from "./Modales/ModalConfirmacion";
+import ModalAlerta from "./Modales/ModalAlerta";
+import ModalResumenCambios from "./Modales/ModalResumenCambios";
 
 const DesasignarAreaNivel = () => {
   const [olimpiadas, setOlimpiadas] = useState([]);
@@ -25,6 +28,66 @@ const DesasignarAreaNivel = () => {
   const [razonBloqueo, setRazonBloqueo] = useState(null);
   const [fechaFin, setFechaFin] = useState(null);
   const { verificarInscripciones, verificando } = useVerificarInscripciones();
+
+  // Estados para modales
+  const [modalEstado, setModalEstado] = useState({
+    tipo: null, // 'confirmacion', 'alerta', 'resumenCambios'
+    titulo: "",
+    mensaje: "",
+    isOpen: false,
+    onConfirm: null,
+    datos: null
+  });
+
+  // Función para cerrar modal
+  const cerrarModal = () => {
+    setModalEstado({
+      tipo: null,
+      titulo: "",
+      mensaje: "",
+      isOpen: false,
+      onConfirm: null,
+      datos: null
+    });
+  };
+
+  // Función para mostrar alerta
+  const mostrarAlerta = (titulo, mensaje, tipo = "error") => {
+    setModalEstado({
+      tipo: 'alerta',
+      titulo,
+      mensaje,
+      isOpen: true,
+      tipoAlerta: tipo,
+      onConfirm: null,
+      datos: null
+    });
+  };
+
+  // Función para mostrar confirmación
+  const mostrarConfirmacion = (titulo, mensaje, onConfirm, tipo = "warning") => {
+    setModalEstado({
+      tipo: 'confirmacion',
+      titulo,
+      mensaje,
+      isOpen: true,
+      tipoConfirmacion: tipo,
+      onConfirm,
+      datos: null
+    });
+  };
+
+  // Función para mostrar resumen de cambios
+  const mostrarResumenCambios = (areasParaDesasociar, categoriasParaEliminar, onConfirm) => {
+    setModalEstado({
+      tipo: 'resumenCambios',
+      titulo: "",
+      mensaje: "",
+      isOpen: true,
+      onConfirm,
+      datos: { areasParaDesasociar, categoriasParaEliminar }
+    });
+  };
 
   // Función para obtener el mensaje de bloqueo apropiado
   const obtenerMensajeBloqueo = () => {
@@ -300,7 +363,7 @@ const DesasignarAreaNivel = () => {
 
   const guardarConfiguracion = async () => {
     if (!olimpiadaSeleccionada) {
-      alert("Por favor seleccione una olimpiada");
+      mostrarAlerta("Error", "Por favor seleccione una olimpiada", "warning");
       return;
     }
 
@@ -320,7 +383,7 @@ const DesasignarAreaNivel = () => {
           break;
       }
       
-      alert(mensaje);
+      mostrarAlerta("Olimpiada bloqueada", mensaje, "error");
       return;
     }
 
@@ -342,37 +405,18 @@ const DesasignarAreaNivel = () => {
 
     // Verificar si hay cambios para aplicar
     if (areasParaDesasociar.length === 0 && categoriasParaEliminar.length === 0) {
-      alert("No hay cambios para guardar. Seleccione áreas para desasociar o marque categorías para eliminar.");
+      mostrarAlerta("Sin cambios", "No hay cambios para guardar. Seleccione áreas para desasociar o marque categorías para eliminar.", "warning");
       return;
     }
 
-    // Mostrar resumen de cambios
-    let mensaje = "Se aplicarán los siguientes cambios:\n\n";
-    
-    if (areasParaDesasociar.length > 0) {
-      mensaje += `• ${areasParaDesasociar.length} área(s) completa(s) se desasociarán:\n`;
-      areasParaDesasociar.forEach(area => {
-        mensaje += `  - ${area.area}\n`;
-      });
-      mensaje += "\n";
-    }
+    // Mostrar modal de resumen de cambios
+    mostrarResumenCambios(areasParaDesasociar, categoriasParaEliminar, () => {
+      cerrarModal();
+      ejecutarGuardado(areasParaDesasociar, categoriasParaEliminar);
+    });
+  };
 
-    if (categoriasParaEliminar.length > 0) {
-      mensaje += `• Categorías individuales que se desasociarán:\n`;
-      categoriasParaEliminar.forEach(item => {
-        mensaje += `  - ${item.combo.area}: `;
-        mensaje += item.categorias.map(cat => cat.nombre).join(", ");
-        mensaje += "\n";
-      });
-    }
-
-    mensaje += "\n¿Está seguro que desea continuar? Esta acción es irreversible.";
-
-    // Confirmar la acción con el usuario
-    if (!confirm(mensaje)) {
-      return;
-    }
-
+  const ejecutarGuardado = async (areasParaDesasociar, categoriasParaEliminar) => {
     setGuardando(true);
 
     try {
@@ -487,7 +531,7 @@ const DesasignarAreaNivel = () => {
         }
       }
       
-      alert(mensaje);
+      mostrarAlerta("Error al guardar", mensaje, "error");
     } finally {
       setGuardando(false);
     }
@@ -495,7 +539,7 @@ const DesasignarAreaNivel = () => {
 
   const eliminarCategoriaIndividual = async (combo, categoria, index) => {
     if (!olimpiadaSeleccionada) {
-      alert("Error: No hay olimpiada seleccionada");
+      mostrarAlerta("Error", "No hay olimpiada seleccionada", "error");
       return;
     }
 
@@ -515,37 +559,42 @@ const DesasignarAreaNivel = () => {
           break;
       }
       
-      alert(mensaje);
+      mostrarAlerta("Olimpiada bloqueada", mensaje, "error");
       return;
     }
 
-    // Confirmar la eliminación
-    if (!confirm(`¿Está seguro que desea marcar para desasociar la categoría "${categoria.nombre}" del área "${combo.area}"? Los cambios se aplicarán al presionar "Guardar Configuración".`)) {
-      return;
-    }
+    // Mostrar confirmación para eliminar categoría
+    mostrarConfirmacion(
+      "Confirmar desasociación de categoría",
+      `¿Está seguro que desea marcar para desasociar la categoría "${categoria.nombre}" del área "${combo.area}"?\n\nLos cambios se aplicarán al presionar "Guardar Configuración".`,
+      () => {
+        // ELIMINAR la categoría del frontend inmediatamente (no solo marcarla)
+        setCombinaciones(prev => 
+          prev.map(combinacion => {
+            if (combinacion.area === combo.area) {
+              return {
+                ...combinacion,
+                // Filtrar la categoría eliminada y guardar una referencia para la persistencia
+                categorias: combinacion.categorias.filter(cat => cat.id !== categoria.id),
+                // Agregar las categorías eliminadas para el guardado posterior
+                categoriasEliminadas: [
+                  ...(combinacion.categoriasEliminadas || []),
+                  categoria
+                ]
+              };
+            }
+            return combinacion;
+          })
+        );
 
-    // ELIMINAR la categoría del frontend inmediatamente (no solo marcarla)
-    setCombinaciones(prev => 
-      prev.map(combinacion => {
-        if (combinacion.area === combo.area) {
-          return {
-            ...combinacion,
-            // Filtrar la categoría eliminada y guardar una referencia para la persistencia
-            categorias: combinacion.categorias.filter(cat => cat.id !== categoria.id),
-            // Agregar las categorías eliminadas para el guardado posterior
-            categoriasEliminadas: [
-              ...(combinacion.categoriasEliminadas || []),
-              categoria
-            ]
-          };
-        }
-        return combinacion;
-      })
+        // Mostrar mensaje temporal
+        setMensajeExito("Categoría eliminada del frontend. Presione 'Guardar Configuración' para aplicar los cambios permanentemente.");
+        setTimeout(() => setMensajeExito(""), 3000);
+        
+        cerrarModal();
+      },
+      "danger"
     );
-
-    // Mostrar mensaje temporal
-    setMensajeExito("Categoría eliminada del frontend. Presione 'Guardar Configuración' para aplicar los cambios permanentemente.");
-    setTimeout(() => setMensajeExito(""), 3000);
   };
   
   return (
@@ -621,12 +670,44 @@ const DesasignarAreaNivel = () => {
               olimpiadaSeleccionada={olimpiadaSeleccionada}
               guardando={guardando}
               mensajeExito={mensajeExito}
-              textoBoton="Desasociar Áreas Seleccionadas"
+              textoBoton="Guardar Configuración"
               bloqueado={olimpiadaBloqueada}
             />
           </>
         )}
       </div>
+
+      {/* Modales */}
+      {modalEstado.tipo === 'alerta' && (
+        <ModalAlerta
+          isOpen={modalEstado.isOpen}
+          onClose={cerrarModal}
+          title={modalEstado.titulo}
+          message={modalEstado.mensaje}
+          type={modalEstado.tipoAlerta}
+        />
+      )}
+
+      {modalEstado.tipo === 'confirmacion' && (
+        <ModalConfirmacion
+          isOpen={modalEstado.isOpen}
+          onClose={cerrarModal}
+          onConfirm={modalEstado.onConfirm}
+          title={modalEstado.titulo}
+          message={modalEstado.mensaje}
+          type={modalEstado.tipoConfirmacion}
+        />
+      )}
+
+      {modalEstado.tipo === 'resumenCambios' && (
+        <ModalResumenCambios
+          isOpen={modalEstado.isOpen}
+          onClose={cerrarModal}
+          onConfirm={modalEstado.onConfirm}
+          areasParaDesasociar={modalEstado.datos?.areasParaDesasociar || []}
+          categoriasParaEliminar={modalEstado.datos?.categoriasParaEliminar || []}
+        />
+      )}
     </div>
   );
 };
