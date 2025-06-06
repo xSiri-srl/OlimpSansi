@@ -10,23 +10,13 @@ use Illuminate\Http\Request;
 
 
 Route::post('/login', [AuthController::class, 'login']);
-Route::get('/debug-pdf-logs', function() {
-    $logPath = storage_path('logs/pdf_debug.log');
-    
-    if (!file_exists($logPath)) {
-        return "No hay archivo de logs PDF. Ejecuta la función primero.";
-    }
-    
-    $content = file_get_contents($logPath);
-    return '<pre style="font-size: 12px; background: #f5f5f5; padding: 10px;">' . htmlspecialchars($content) . '</pre>';
-});
+
 
 Route::post('/registro', [AuthController::class, 'register']);
-Route::get('/test-costos/{codigo}', function($codigo) {
-    $resultado = OrdenPagoHelper::obtenerCostosOlimpiada($codigo);
-    return response()->json($resultado, 200, [], JSON_PRETTY_PRINT);
-});
+
 Route::get('/obtener-costos-olimpiada/{id}', [OlimpiadaAreaController::class, 'obtenerCostos']);
+Route::get('/areas-habilitadas/{id}', [OlimpiadaController::class, 'obtenerCombinacionesOlimpiada']);
+Route::get('/areas-habilitadas-simple/{id}', [OlimpiadaController::class, 'listarCombinacionesSimple']);
 
 Route::get('/olimpiadas-publicas', [OlimpiadaController::class, 'getTodasLasOlimpiadas']);
 

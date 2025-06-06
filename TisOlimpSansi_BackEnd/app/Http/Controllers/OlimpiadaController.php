@@ -330,4 +330,106 @@ private function obtenerRazonBloqueo($cantidadInscripciones, $periodoTerminado)
     }
     return null;
 }
+public function obtenerCombinacionesOlimpiada($id_olimpiada)
+{
+    try {
+        // Validar que la olimpiada existe
+        $olimpiada = OlimpiadaModel::findOrFail($id_olimpiada);
+        
+        // Obtener todas las combinaciones válidas de área y categoría para la olimpiada
+        $combinaciones = DB::table('olimpiada_area_categorias as oac')
+            ->join('area as a', 'a.id', '=', 'oac.id_area')
+            ->join('categoria as c', 'c.id', '=', 'oac.id_categoria')
+            ->where('oac.id_olimpiada', $id_olimpiada)
+            ->select(
+                'oac.id as id_olimpiada_area_categoria',
+                'a.id as id_area',
+                'a.nombre_area',
+                'c.id as id_categoria', 
+                'c.nombre_categoria',
+                'oac.precio'
+            )
+            ->orderBy('a.nombre_area')
+            ->orderBy('c.nombre_categoria')
+            ->get();
+
+        // Si no hay combinaciones disponibles
+        if ($combinaciones->isEmpty()) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'No se encontraron combinaciones de áreas y categorías para esta olimpiada.',
+                'data' => []
+            ], 404);
+        }
+
+        // Agrupar por área y formatear según el formato solicitado
+        $areasAgrupadas = [];
+        
+        foreach ($combinaciones as $combo) {
+            $nombreArea = $combo->nombre_area;
+            
+            // Si el área no existe, la creamos
+            if (!isset($areasAgrupadas[$nombreArea])) {
+                $areasAgrupadas[$nombreArea] = [
+                    'area' => $nombreArea,
+                    'categorias' => []
+                ];
+            }
+            
+            // Agregar la categoría al área
+            $areasAgrupadas[$nombreArea]['categorias'][] = $combo->nombre_categoria;
+        }
+        
+        // Formatear el resultado final agrupado por áreas
+        $resultado = [];
+        foreach ($areasAgrupadas as $areaData) {
+            $resultado[] = [
+                'area' => $areaData['area'],
+                'categorias' => $areaData['categorias']
+            ];
+        }
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Combinaciones obtenidas exitosamente.',
+            'data' => $resultado
+        ], 200);
+
+    } catch (ModelNotFoundException $e) {
+        return response()->json([
+            'status' => 404,
+            'message' => 'La olimpiada especificada no existe.',
+        ], 404);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 500,
+            'message' => 'Error al obtener las combinaciones: ' . $e->getMessage(),
+        ], 500);
+    }
+}
+
+// Función alternativa más simple que solo retorna la lista de combinaciones
+public function listarCombinacionesSimple($id_olimpiada)
+{
+    try {
+        $combinaciones = DB::table('olimpiada_area_categorias as oac')
+            ->join('area as a', 'a.id', '=', 'oac.id_area')
+            ->join('categoria as c', 'c.id', '=', 'oac.id_categoria')
+            ->where('oac.id_olimpiada', $id_olimpiada)
+            ->select('a.nombre_area', 'c.nombre_categoria', 'oac.precio')
+            ->get();
+
+        return $combinaciones->map(function($combo) {
+            return [
+                'area' => $combo->nombre_area,
+                'categoria' => $combo->nombre_categoria,
+                'precio' => floatval($combo->precio ?? 0),
+                'combinacion' => "{$combo->nombre_area} / {$combo->nombre_categoria}"
+            ];
+        })->toArray();
+
+    } catch (\Exception $e) {
+        return [];
+    }
+}
 }

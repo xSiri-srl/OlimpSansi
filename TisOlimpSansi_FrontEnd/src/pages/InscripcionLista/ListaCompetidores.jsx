@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   FaUser,
   FaCalculator,
@@ -17,6 +17,8 @@ import ErrorModal from "./Modales/RegistrosInvalidosModal";
 import DemasiadosErroresModal from "./Modales/DemasiadosErroresModal";
 import ExitoModal from "./Modales/ExitoModal";
 import EditarEstudianteModal from "./Modales/EditarEstudianteModal";
+import { API_URL } from "../../utils/api";
+import axios from 'axios'
 
 const ListaCompetidores = ({ setStep }) => {
   const { globalData, setGlobalData } = useFormData();
@@ -34,8 +36,9 @@ const ListaCompetidores = ({ setStep }) => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [showProgressBar, setShowProgressBar] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [codigoGenerado, setCodigoGenerado] = useState("");
-
+  const [areasHabilitadas, setAreasHabilitadas] = useState([]);
+  const [areasLoaded, setAreasLoaded] = useState(false);
+  
   // Get students from context
   const { estudiantes, setEstudiantes } = useFormData();
  
@@ -50,125 +53,225 @@ const ListaCompetidores = ({ setStep }) => {
     "Astronomía y Astrofísica": <FaAtom className="text-indigo-600" />,
   };
 
-  const processedEstudiantes = estudiantes.map((est, index) => {
-    // Arrays para recopilar todos los errores posibles
-    const errores = [];
-    let hasError = false;
-    let mensajeError = "";
+  // Función para normalizar nombres de áreas
+  const normalizeArea = (area) => {
+    if (!area) return '';
+    return area
+      .toUpperCase()
+      .replace('Á', 'A')
+      .replace('É', 'E')
+      .replace('Í', 'I')
+      .replace('Ó', 'O')
+      .replace('Ú', 'U')
+      .replace('Ñ', 'N')
+      .trim();
+  };
 
-    // PASO 1: Verificar si hay áreas de competencia que necesitan categoría pero no la tienen
-    if (est.areas_competencia) {
-      for (const area of est.areas_competencia) {
-        if (
-          area.nombre_area === "Informática" ||
-          area.nombre_area === "Robótica"
-        ) {
-          // Si no hay categoría seleccionada, es un error
-          if (!area.categoria || area.categoria.trim() === "") {
-            errores.push(
-              `Falta seleccionar categoría para ${area.nombre_area}`
-            );
-            hasError = true; // Marcar el registro como erróneo
+  // Función para convertir categoría de formato UI a formato original
+  const convertirCategoriaAOriginal = (categoriaUI) => {
+    if (!categoriaUI) return '';
+    
+    // Si ya es formato original (códigos cortos), devolverlo tal como está
+    if (/^[A-Z0-9]+[PS]?$/.test(categoriaUI)) {
+      return categoriaUI;
+    }
+    
+    // Mapeo de categorías UI a códigos originales
+    const uiToOriginalMapping = {
+      '"Guacamayo" 5to a 6to Primaria': 'GUACAMAYO',
+      '"Guanaco" 1ro a 3ro Secundaria': 'GUANACO',
+      '"Londra" 1ro a 3ro Secundaria': 'LONDRA',
+      '"Bufeo" 1ro a 3ro Secundaria': 'BUFEO',
+      '"Jucumari" 4to a 6to Secundaria': 'JUCUMARI',
+      '"Puma" 4to a 6to Secundaria': 'PUMA',
+      '"Builders P" 5to a 6to Primaria': 'BUILDERS P',
+      '"Lego P" 5to a 6to Primaria': 'LEGO P',
+      '"Builders S" 1ro a 6to Secundaria': 'BUILDERS S',
+      '"Lego S" 1ro a 6to Secundaria': 'LEGO S',
+      '1ro Primaria': '1P',
+      '2do Primaria': '2P',
+      '3RO PRIMARIA': '3P',
+      '4TO PRIMARIA': '4P',
+      '5TO PRIMARIA': '5P',
+      '6TO PRIMARIA': '6P',
+      '1RO SECUNDARIA': '1S',
+      '2DO SECUNDARIA': '2S',
+      '3RO SECUNDARIA': '3S',
+      '4TO SECUNDARIA': '4S',
+      '5TO SECUNDARIA': '5S',
+      '6TO SECUNDARIA': '6S'
+      
+    };
+    
+    // Buscar mapeo exacto
+    if (uiToOriginalMapping[categoriaUI]) {
+      return uiToOriginalMapping[categoriaUI];
+    }
+    
+    // Si tiene formato con comillas, extraer el contenido
+    const match = categoriaUI.match(/\"([^\"]+)\"/);
+    if (match && match[1]) {
+      return match[1].toUpperCase();
+    }
+    
+    return categoriaUI.toUpperCase();
+  };
+
+  // Obtener áreas habilitadas al cargar el componente
+  useEffect(() => {
+    const obtenerAreasHabilitadas = async () => {
+      try {
+        const olimpiadaId = globalData.olimpiada;
+        const response = await axios.get(`${API_URL}/areas-habilitadas/${olimpiadaId}`);
+        const areasData = response.data.data || [];
+        setAreasHabilitadas(areasData);
+        setAreasLoaded(true);
+      } catch (error) {
+        console.error('Error al obtener áreas habilitadas:', error);
+        console.error('Detalles del error:', error.response?.data || error.message);
+        setAreasHabilitadas([]);
+        setAreasLoaded(true);
+      }
+    };
+
+    if (globalData.olimpiada) {
+      obtenerAreasHabilitadas();
+    }
+  }, [globalData.olimpiada]);
+
+  // Función para normalizar nombres (quitar acentos, espacios extra, etc.)
+  const normalizeString = (str) => {
+    if (!str) return '';
+    return str
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // Quitar acentos
+      .replace(/\s+/g, ' ') // Normalizar espacios
+      .trim()
+      .toLowerCase();
+  };
+
+  // Procesar estudiantes solo cuando las áreas estén cargadas
+  const processedEstudiantes = useMemo(() => {
+    // No procesar si las áreas aún no están cargadas
+    if (!areasLoaded) {
+      return estudiantes.map((est, index) => ({
+        id: index + 1,
+        nombres: est.estudiante?.nombre || "",
+        apellidoPaterno: est.estudiante?.apellido_pa || "",
+        apellidoMaterno: est.estudiante?.apellido_ma || "",
+        ci: est.estudiante?.ci || "",
+        areas: est.areas_competencia ? est.areas_competencia.map(area => area.nombre_area).filter(area => area) : [],
+        error: false,
+        mensajeError: "Cargando validaciones...",
+        todosErrores: [],
+        originalData: est,
+      }));
+    }
+
+    return estudiantes.map((est, index) => {
+      const errores = [];
+      let hasError = false;
+      let mensajeError = "";
+
+      console.log(`\nValidando estudiante ${index + 1}:`, {
+        nombre: est.estudiante?.nombre,
+        areas: est.areas_competencia
+      });
+
+      // PASO 1: Verificar si las áreas y categorías existen en areasHabilitadas
+      if (est.areas_competencia && Array.isArray(est.areas_competencia)) {
+        for (const area of est.areas_competencia) {
+          console.log(`  Validando área: "${area.nombre_area}"`);
+          
+          // Buscar área habilitada usando comparación normalizada
+          const areaHabilitada = areasHabilitadas.find(ah => {
+            const coincide = normalizeArea(ah.area) === normalizeArea(area.nombre_area);
+            console.log(`    Comparando "${ah.area}" con "${area.nombre_area}": ${coincide}`);
+            return coincide;
+          });
+          
+          if (!areaHabilitada) {
+            console.log(`    ❌ Área no encontrada: ${area.nombre_area}`);
+            console.log(`    Áreas disponibles:`, areasHabilitadas.map(ah => ah.area));
+            errores.push(`El área ${area.nombre_area} no está habilitada para esta olimpiada`);
+            hasError = true;
+            continue;
+          }
+
+          console.log(`    ✅ Área encontrada: ${areaHabilitada.area}`);
+
+          // VALIDAR CATEGORÍA
+          if (area.categoria) {
+            console.log(`    Validando categoría: "${area.categoria}"`);
+            
+            // Convertir la categoría del estudiante al formato original
+            const categoriaOriginal = convertirCategoriaAOriginal(area.categoria);
+            console.log(`    Categoría convertida: "${area.categoria}" -> "${categoriaOriginal}"`);
+            
+            // Verificar si la categoría existe en las categorías habilitadas para esta área
+            const categoriaValida = areaHabilitada.categorias.some(cat => {
+              const coincide = cat.toUpperCase() === categoriaOriginal.toUpperCase();
+              console.log(`      Comparando "${cat}" con "${categoriaOriginal}": ${coincide}`);
+              return coincide;
+            });
+            
+            if (!categoriaValida) {
+              console.log(`    ❌ Categoría no válida: ${area.categoria} (${categoriaOriginal})`);
+              console.log(`    Categorías disponibles para ${areaHabilitada.area}:`, areaHabilitada.categorias);
+              errores.push(`La categoría "${area.categoria}" no está disponible para el área ${area.nombre_area}`);
+              hasError = true;
+            } else {
+              console.log(`    ✅ Categoría válida: ${area.categoria}`);
+            }
           } else {
-            // Si hay categoría, verificar que corresponda al curso
-            const curso = est.colegio?.curso || "";
-            const esPrimaria = curso.includes("Primaria");
-            const esSecundaria = curso.includes("Secundaria");
-            const numeroCurso = Number.parseInt(curso.match(/\d+/)?.[0] || "0");
-
-            let categoriaIncorrecta = false;
-
-            if (area.nombre_area === "Informática") {
-              if (esPrimaria && (numeroCurso === 5 || numeroCurso === 6)) {
-                categoriaIncorrecta = !area.categoria.includes("Guacamayo");
-              } else if (esSecundaria && numeroCurso >= 1 && numeroCurso <= 3) {
-                categoriaIncorrecta =
-                  !area.categoria.includes("Guanaco") &&
-                  !area.categoria.includes("Londra") &&
-                  !area.categoria.includes("Bufeo");
-              } else if (esSecundaria && numeroCurso >= 4 && numeroCurso <= 6) {
-                categoriaIncorrecta =
-                  !area.categoria.includes("Jucumari") &&
-                  !area.categoria.includes("Puma");
-              }
-            }
-
-            if (area.nombre_area === "Robótica") {
-              if (esPrimaria && (numeroCurso === 5 || numeroCurso === 6)) {
-                categoriaIncorrecta =
-                  !area.categoria.includes("Builders P") &&
-                  !area.categoria.includes("Lego P");
-              } else if (esSecundaria) {
-                categoriaIncorrecta =
-                  !area.categoria.includes("Builders S") &&
-                  !area.categoria.includes("Lego S");
-              }
-            }
-
-            if (categoriaIncorrecta) {
-              errores.push(
-                `La categoría de ${area.nombre_area} no corresponde al curso ${curso}`
-              );
-              hasError = true; // Marcar el registro como erróneo
-            }
+            console.log(`    ❌ Categoría no especificada para área ${area.nombre_area}`);
+            errores.push(`Falta especificar la categoría para el área ${area.nombre_area}`);
+            hasError = true;
           }
         }
       }
-    }
 
-    // PASO 2: Verificar otros errores solo si aún no se encontró ninguno
-    if (!hasError) {
-      if (
-        est.estudiante?.nombre &&
-        !/^[A-ZÁÉÍÓÚÑ\s]+$/i.test(est.estudiante.nombre)
-      ) {
-        errores.push("El nombre debe contener solo letras");
-        hasError = true;
-      } else if (
-        est.estudiante?.apellido_pa &&
-        !/^[A-ZÁÉÍÓÚÑ\s]+$/i.test(est.estudiante.apellido_pa)
-      ) {
-        errores.push("El apellido paterno debe contener solo letras");
-        hasError = true;
-      } else if (
-        est.estudiante?.apellido_ma &&
-        !/^[A-ZÁÉÍÓÚÑ\s]+$/i.test(est.estudiante.apellido_ma)
-      ) {
-        errores.push("El apellido materno debe contener solo letras");
-        hasError = true;
+      // PASO 2: Verificar otros errores solo si no hay errores de áreas/categorías
+      if (!hasError) {
+        if (est.estudiante?.nombre && !/^[A-ZÁÉÍÓÚÑ\s]+$/i.test(est.estudiante.nombre)) {
+          errores.push("El nombre debe contener solo letras");
+          hasError = true;
+        } else if (est.estudiante?.apellido_pa && !/^[A-ZÁÉÍÓÚÑ\s]+$/i.test(est.estudiante.apellido_pa)) {
+          errores.push("El apellido paterno debe contener solo letras");
+          hasError = true;
+        } else if (est.estudiante?.apellido_ma && !/^[A-ZÁÉÍÓÚÑ\s]+$/i.test(est.estudiante.apellido_ma)) {
+          errores.push("El apellido materno debe contener solo letras");
+          hasError = true;
+        }
       }
-    }
 
-    // Mensaje de error: mostrar el primer error encontrado
-    mensajeError = errores.length > 0 ? errores[0] : "";
+      mensajeError = errores.length > 0 ? errores[0] : "";
 
-    // Log para depuración
-    if (hasError) {
-      console.log(
-        `Estudiante ${index + 1} tiene errores: ${errores.join(", ")}`
-      );
-    }
+      if (hasError) {
+        console.log(`❌ Estudiante ${index + 1} tiene errores:`, errores);
+      } else {
+        console.log(`✅ Estudiante ${index + 1} válido`);
+      }
 
-    // Obtener áreas para mostrar
-    const areas = est.areas_competencia
-      ? est.areas_competencia
-          .map((area) => area.nombre_area)
-          .filter((area) => area)
-      : [];
+      // Obtener áreas para mostrar
+      const areas = est.areas_competencia
+        ? est.areas_competencia.map(area => area.nombre_area).filter(area => area)
+        : [];
 
-    return {
-      id: index + 1,
-      nombres: est.estudiante?.nombre || "",
-      apellidoPaterno: est.estudiante?.apellido_pa || "",
-      apellidoMaterno: est.estudiante?.apellido_ma || "",
-      ci: est.estudiante?.ci || "",
-      areas: areas,
-      error: hasError, // Este valor determina si la tarjeta se muestra en rojo
-      mensajeError: mensajeError, // Mensaje que se muestra en la tarjeta
-      todosErrores: errores, // Lista completa de errores para depuración
-      originalData: est,
-    };
-  });
+      return {
+        id: index + 1,
+        nombres: est.estudiante?.nombre || "",
+        apellidoPaterno: est.estudiante?.apellido_pa || "",
+        apellidoMaterno: est.estudiante?.apellido_ma || "",
+        ci: est.estudiante?.ci || "",
+        areas: areas,
+        error: hasError,
+        mensajeError: mensajeError,
+        todosErrores: errores,
+        originalData: est,
+      };
+    });
+  }, [estudiantes, areasHabilitadas, areasLoaded]);
 
   // Filtrar estudiantes
   const filteredEstudiantes = processedEstudiantes.filter((estudiante) => {
@@ -198,7 +301,7 @@ const ListaCompetidores = ({ setStep }) => {
     if (errorsCount > 10) {
       setShowTooManyErrorsModal(true);
     }
-  }, []);
+  }, [processedEstudiantes]);
 
   const handleTooManyErrorsClose = () => {
     setShowTooManyErrorsModal(false);
@@ -271,6 +374,15 @@ const ListaCompetidores = ({ setStep }) => {
 
   return (
     <div className="p-4">
+      {/* Si las áreas aún no están cargadas, mostrar indicador */}
+      {!areasLoaded && (
+        <div className="bg-blue-50 border-l-4 border-blue-400 p-3 mb-4">
+          <p className="text-blue-700 text-sm">
+            Cargando configuración de áreas habilitadas...
+          </p>
+        </div>
+      )}
+      
       <>
         <h2 className="text-xl font-semibold mb-4 text-center text-gray-700">
           Lista de Competidores
