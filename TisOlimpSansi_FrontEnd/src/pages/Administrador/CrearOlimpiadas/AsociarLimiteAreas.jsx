@@ -6,6 +6,8 @@ import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { API_URL } from "../../../utils/api";
 import { useVerificarInscripciones } from "../../Administrador/useVerificarInscripciones";
 import axios from "axios";
+import ModalConfirmacion from "./Modales/ModalConfirmacion";
+import ModalAlerta from "./Modales/ModalAlerta";
 
 const AsociarLimiteAreas = () => {
   const [olimpiadas, setOlimpiadas] = useState([]);
@@ -23,6 +25,54 @@ const AsociarLimiteAreas = () => {
   const [fechaFin, setFechaFin] = useState(null);
 
   const { verificarInscripciones, verificando } = useVerificarInscripciones();
+
+  // Estados para modales
+  const [modalEstado, setModalEstado] = useState({
+    tipo: null, // 'confirmacion', 'alerta'
+    titulo: "",
+    mensaje: "",
+    isOpen: false,
+    onConfirm: null,
+    datos: null
+  });
+
+  // Función para cerrar modal
+  const cerrarModal = () => {
+    setModalEstado({
+      tipo: null,
+      titulo: "",
+      mensaje: "",
+      isOpen: false,
+      onConfirm: null,
+      datos: null
+    });
+  };
+
+  // Función para mostrar alerta
+  const mostrarAlerta = (titulo, mensaje, tipo = "error") => {
+    setModalEstado({
+      tipo: 'alerta',
+      titulo,
+      mensaje,
+      isOpen: true,
+      tipoAlerta: tipo,
+      onConfirm: null,
+      datos: null
+    });
+  };
+
+  // Función para mostrar confirmación
+  const mostrarConfirmacion = (titulo, mensaje, onConfirm, tipo = "warning") => {
+    setModalEstado({
+      tipo: 'confirmacion',
+      titulo,
+      mensaje,
+      isOpen: true,
+      tipoConfirmacion: tipo,
+      onConfirm,
+      datos: null
+    });
+  };
 
   // Función para obtener el mensaje de bloqueo apropiado
   const obtenerMensajeBloqueo = () => {
@@ -135,9 +185,15 @@ const AsociarLimiteAreas = () => {
           
           const response = await axios.get(`${API_URL}/olimpiada/${olimpiadaSeleccionada}`, config);
           
+          console.log("Respuesta de max_materias:", response.data); // Para depuración
+          
           if (response.status === 200 && response.data) {
-            const maxMaterias = response.data.max_materias;
-            setContador(maxMaterias || 1);
+            const maxMaterias = Number(response.data.max_materias);
+            if (!isNaN(maxMaterias) && maxMaterias > 0) {
+              setContador(maxMaterias);
+            } else {
+              setContador(1); // Valor por defecto si max_materias es 0, null, o undefined
+            }
           }
         } catch (error) {
           console.error("Error al cargar número máximo:", error);
@@ -160,7 +216,7 @@ const AsociarLimiteAreas = () => {
   // Guardar configuración de número máximo de áreas
   const guardarConfiguracion = async () => {
     if (!olimpiadaSeleccionada) {
-      alert("Por favor seleccione una olimpiada");
+      mostrarAlerta("Error", "Por favor seleccione una olimpiada", "warning");
       return;
     }
 
@@ -180,11 +236,25 @@ const AsociarLimiteAreas = () => {
           break;
       }
       
-      alert(mensaje);
+      mostrarAlerta("Olimpiada bloqueada", mensaje, "error");
       return;
     }
 
+    // Mostrar confirmación antes de guardar
+    mostrarConfirmacion(
+      "Confirmar cambio de límite",
+      `¿Está seguro que desea establecer el límite de áreas por participante en ${contador} ${contador === 1 ? 'área' : 'áreas'} para la olimpiada "${nombreOlimpiada}"?`,
+      () => {
+        cerrarModal();
+        ejecutarGuardado();
+      },
+      "info"
+    );
+  };
+
+  const ejecutarGuardado = async () => {
     setGuardando(true);
+    setMensajeExito("");
 
     try {
       await axios.get(`${API_URL}/api/sanctum/csrf-cookie`, {
@@ -202,10 +272,13 @@ const AsociarLimiteAreas = () => {
         withCredentials: true
       };
       
+      // Usar el formato original que funcionaba
       const datosAEnviar = {
-        id_olimpiada: olimpiadaSeleccionada,
-        max_materias: contador,
+        id: parseInt(olimpiadaSeleccionada),
+        numMax: contador,
       };
+
+      console.log("Datos a enviar:", datosAEnviar); // Para depuración
       
       const response = await axios.post(
         `${API_URL}/olimpiada/max-materias`,
@@ -213,7 +286,7 @@ const AsociarLimiteAreas = () => {
         config
       );
 
-      if (response.status === 200) {
+      if (response.status === 200 || response.status === 201) {
         setMensajeExito("¡Límite de áreas actualizado exitosamente!");
         setTimeout(() => setMensajeExito(""), 3000);
       } else {
@@ -221,13 +294,32 @@ const AsociarLimiteAreas = () => {
       }
     } catch (error) {
       console.error("Error al guardar:", error);
+      
       let mensaje = "Error al guardar la configuración";
       
       if (error.response) {
-        mensaje = error.response.data?.message || mensaje;
+        if (error.response.status === 401) {
+          mensaje = "No tienes autorización para realizar esta acción.";
+        } else if (error.response.status === 403) {
+          mensaje = "No tienes permisos suficientes para esta acción.";
+        } else if (error.response.status === 419) {
+          mensaje = "Error de validación CSRF. Por favor, recarga la página e intenta nuevamente.";
+        } else if (error.response.status === 422) {
+          const errores = error.response.data?.errors;
+          if (errores) {
+            const mensajesError = Object.values(errores).flat();
+            mensaje = `Errores de validación:\n${mensajesError.join("\n")}`;
+          } else {
+            mensaje = `Error de validación: ${
+              error.response.data?.message || "Datos inválidos"
+            }`;
+          }
+        } else {
+          mensaje = error.response.data?.message || mensaje;
+        }
       }
       
-      alert(mensaje);
+      mostrarAlerta("Error al guardar", mensaje, "error");
     } finally {
       setGuardando(false);
     }
@@ -367,6 +459,28 @@ const AsociarLimiteAreas = () => {
           bloqueado={olimpiadaBloqueada}
         />
       </div>
+
+      {/* Modales */}
+      {modalEstado.tipo === 'alerta' && (
+        <ModalAlerta
+          isOpen={modalEstado.isOpen}
+          onClose={cerrarModal}
+          title={modalEstado.titulo}
+          message={modalEstado.mensaje}
+          type={modalEstado.tipoAlerta}
+        />
+      )}
+
+      {modalEstado.tipo === 'confirmacion' && (
+        <ModalConfirmacion
+          isOpen={modalEstado.isOpen}
+          onClose={cerrarModal}
+          onConfirm={modalEstado.onConfirm}
+          title={modalEstado.titulo}
+          message={modalEstado.mensaje}
+          type={modalEstado.tipoConfirmacion}
+        />
+      )}
     </div>
   );
 };

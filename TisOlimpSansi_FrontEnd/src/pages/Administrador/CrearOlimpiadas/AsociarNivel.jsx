@@ -7,8 +7,6 @@ import { gradosDisponibles } from "./AreasCompetencia/constants";
 import { API_URL } from "../../../utils/api";
 import axios from "axios";
 import { useVerificarInscripciones } from "../useVerificarInscripciones";
-
-// Importar modales
 import ModalConfirmacion from "./Modales/ModalConfirmacion";
 import ModalAlerta from "./Modales/ModalAlerta";
 import ModalValidacion from "./Modales/ModalValidacion";
