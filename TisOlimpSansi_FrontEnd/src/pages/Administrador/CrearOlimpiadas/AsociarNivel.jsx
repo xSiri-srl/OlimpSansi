@@ -6,7 +6,12 @@ import AccionesFooter from "./AreasCompetencia/AccionesFooter";
 import { gradosDisponibles } from "./AreasCompetencia/constants";
 import { API_URL } from "../../../utils/api";
 import axios from "axios";
-import { useVerificarInscripciones } from "../../Administrador/useVerificarInscripciones";
+import { useVerificarInscripciones } from "../useVerificarInscripciones";
+
+// Importar modales
+import ModalConfirmacion from "./Modales/ModalConfirmacion";
+import ModalAlerta from "./Modales/ModalAlerta";
+import ModalValidacion from "./Modales/ModalValidacion";
 
 const SelectorAreaGrado = () => {
   const [olimpiadas, setOlimpiadas] = useState([]);
@@ -25,18 +30,80 @@ const SelectorAreaGrado = () => {
   const [razonBloqueo, setRazonBloqueo] = useState(null);
   const [fechaFin, setFechaFin] = useState(null);
 
+  // Estados para modales
+  const [modalEstado, setModalEstado] = useState({
+    tipo: null, // 'confirmacion', 'alerta', 'validacion'
+    titulo: "",
+    mensaje: "",
+    isOpen: false,
+    onConfirm: null,
+    datos: null
+  });
+
+  // Función para cerrar modal
+  const cerrarModal = () => {
+    setModalEstado({
+      tipo: null,
+      titulo: "",
+      mensaje: "",
+      isOpen: false,
+      onConfirm: null,
+      datos: null
+    });
+  };
+
+  // Función para mostrar alerta
+  const mostrarAlerta = (titulo, mensaje, tipo = "error") => {
+    setModalEstado({
+      tipo: 'alerta',
+      titulo,
+      mensaje,
+      isOpen: true,
+      tipoAlerta: tipo,
+      onConfirm: null,
+      datos: null
+    });
+  };
+
+  // Función para mostrar confirmación
+  const mostrarConfirmacion = (titulo, mensaje, onConfirm, tipo = "warning") => {
+    setModalEstado({
+      tipo: 'confirmacion',
+      titulo,
+      mensaje,
+      isOpen: true,
+      tipoConfirmacion: tipo,
+      onConfirm,
+      datos: null
+    });
+  };
+
+  // Función para mostrar validación
+  const mostrarValidacion = (titulo, mensaje, validationType, areas = [], onConfirm = null) => {
+    setModalEstado({
+      tipo: 'validacion',
+      titulo,
+      mensaje,
+      isOpen: true,
+      validationType,
+      areas,
+      onConfirm,
+      datos: null
+    });
+  };
+
   const obtenerMensajeBloqueo = () => {
-  switch(razonBloqueo) {
-    case 'inscripciones_y_periodo':
-      return `Esta olimpiada tiene ${cantidadInscripciones} inscripción(es) registrada(s) y el período de inscripción terminó el ${new Date(fechaFin).toLocaleDateString('es-ES')}. No se pueden realizar cambios en las áreas de competencia.`;
-    case 'inscripciones':
-      return `Esta olimpiada tiene ${cantidadInscripciones} inscripción(es) registrada(s). No se pueden realizar cambios en las áreas de competencia mientras existan inscripciones activas.`;
-    case 'periodo':
-      return `El período de inscripción para esta olimpiada terminó el ${new Date(fechaFin).toLocaleDateString('es-ES')}. No se pueden realizar cambios en las áreas de competencia.`;
-    default:
-      return '';
-  }
-};
+    switch(razonBloqueo) {
+      case 'inscripciones_y_periodo':
+        return `Esta olimpiada tiene ${cantidadInscripciones} inscripción(es) registrada(s) y el período de inscripción terminó el ${new Date(fechaFin).toLocaleDateString('es-ES')}. No se pueden realizar cambios en las áreas de competencia.`;
+      case 'inscripciones':
+        return `Esta olimpiada tiene ${cantidadInscripciones} inscripción(es) registrada(s). No se pueden realizar cambios en las áreas de competencia mientras existan inscripciones activas.`;
+      case 'periodo':
+        return `El período de inscripción para esta olimpiada terminó el ${new Date(fechaFin).toLocaleDateString('es-ES')}. No se pueden realizar cambios en las áreas de competencia.`;
+      default:
+        return '';
+    }
+  };
 
   // BASE DE DATOS DETERMINADA
   const [combinaciones, setCombinaciones] = useState([
@@ -160,8 +227,7 @@ const SelectorAreaGrado = () => {
     cargarOlimpiadas();
   }, []);
 
-
-useEffect(() => {
+  useEffect(() => {
     if (olimpiadaSeleccionada) {
       const olimpiada = olimpiadas.find(
         (o) => o.id.toString() === olimpiadaSeleccionada
@@ -279,7 +345,7 @@ useEffect(() => {
 
   const guardarConfiguracion = async () => {
     if (!olimpiadaSeleccionada) {
-      alert("Por favor seleccione una olimpiada");
+      mostrarAlerta("Error", "Por favor seleccione una olimpiada", "warning");
       return;
     }
 
@@ -298,14 +364,14 @@ useEffect(() => {
           break;
       }
       
-      alert(mensaje);
+      mostrarAlerta("Olimpiada bloqueada", mensaje, "error");
       return;
     }
 
     // Validar que haya al menos un área habilitada
     const areasHabilitadas = combinaciones.filter(combo => combo.habilitado);
     if (areasHabilitadas.length === 0) {
-      alert("Debe habilitar al menos un área de competencia");
+      mostrarAlerta("Áreas requeridas", "Debe habilitar al menos un área de competencia", "warning");
       return;
     }
     
@@ -315,8 +381,13 @@ useEffect(() => {
     );
     
     if (areasSinCategorias.length > 0) {
-      const areasNombres = areasSinCategorias.map(a => a.area).join(", ");
-      alert(`Las siguientes áreas no tienen categorías definidas: ${areasNombres}. Debe definir al menos una categoría por área.`);
+      const areasNombres = areasSinCategorias.map(a => a.area);
+      mostrarValidacion(
+        "Áreas sin categorías",
+        "Las siguientes áreas no tienen categorías definidas. Debe definir al menos una categoría por área:",
+        "areas-sin-categorias",
+        areasNombres
+      );
       return;
     }
 
@@ -341,10 +412,27 @@ useEffect(() => {
     });
     
     if (tieneCategoriaDuplicada) {
-      alert(`Error: El área "${areaDuplicada}" tiene la categoría "${categoriaDuplicada}" duplicada. No se pueden asociar dos categorías iguales a la misma área.`);
+      mostrarValidacion(
+        "Categoría duplicada",
+        `Error: El área "${areaDuplicada}" tiene la categoría "${categoriaDuplicada}" duplicada. No se pueden asociar dos categorías iguales a la misma área.`,
+        "categoria-duplicada"
+      );
       return;
     }
 
+    // Mostrar confirmación antes de guardar
+    mostrarConfirmacion(
+      "Confirmar guardado",
+      `¿Está seguro que desea guardar la configuración de áreas para la olimpiada "${nombreOlimpiada}"?\n\nSe asociarán ${areasHabilitadas.length} área(s) de competencia.`,
+      () => {
+        cerrarModal();
+        ejecutarGuardado();
+      },
+      "info"
+    );
+  };
+
+  const ejecutarGuardado = async () => {
     setGuardando(true);
 
     try {
@@ -421,7 +509,7 @@ useEffect(() => {
         }
       }
       
-      alert(mensaje);
+      mostrarAlerta("Error al guardar", mensaje, "error");
     } finally {
       setGuardando(false);
     }
@@ -443,19 +531,19 @@ useEffect(() => {
 
       <div className="bg-gray-100 p-4 rounded-lg shadow-md">
         {/* Mostrar alerta si la olimpiada está bloqueada */}
-            {olimpiadaBloqueada && (
-              <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
-                <div className="flex items-center">
-                  <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd"></path>
-                  </svg>
-                  <strong className="font-bold">Olimpiada bloqueada para modificaciones</strong>
-                </div>
-                <span className="block mt-1">
-                  {obtenerMensajeBloqueo()}
-                </span>
-              </div>
-            )}
+        {olimpiadaBloqueada && (
+          <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+            <div className="flex items-center">
+              <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd"></path>
+              </svg>
+              <strong className="font-bold">Olimpiada bloqueada para modificaciones</strong>
+            </div>
+            <span className="block mt-1">
+              {obtenerMensajeBloqueo()}
+            </span>
+          </div>
+        )}
 
         {cargandoOlimpiadas || cargandoAreas || verificando ? (
           <div className="text-center py-8">
@@ -490,7 +578,7 @@ useEffect(() => {
                 olimpiadaSeleccionada={olimpiadaSeleccionada}
                 modoAsociacion={true}
                 todosLosGrados={todosLosGrados}
-                bloqueado={olimpiadaBloqueada} // Pasar estado de bloqueo
+                bloqueado={olimpiadaBloqueada}
               />
             ))}
 
@@ -499,11 +587,45 @@ useEffect(() => {
               olimpiadaSeleccionada={olimpiadaSeleccionada}
               guardando={guardando}
               mensajeExito={mensajeExito}
-              bloqueado={olimpiadaBloqueada} // Pasar estado de bloqueo
+              bloqueado={olimpiadaBloqueada}
             />
           </>
         )}
       </div>
+
+      {/* Modales */}
+      {modalEstado.tipo === 'alerta' && (
+        <ModalAlerta
+          isOpen={modalEstado.isOpen}
+          onClose={cerrarModal}
+          title={modalEstado.titulo}
+          message={modalEstado.mensaje}
+          type={modalEstado.tipoAlerta}
+        />
+      )}
+
+      {modalEstado.tipo === 'confirmacion' && (
+        <ModalConfirmacion
+          isOpen={modalEstado.isOpen}
+          onClose={cerrarModal}
+          onConfirm={modalEstado.onConfirm}
+          title={modalEstado.titulo}
+          message={modalEstado.mensaje}
+          type={modalEstado.tipoConfirmacion}
+        />
+      )}
+
+      {modalEstado.tipo === 'validacion' && (
+        <ModalValidacion
+          isOpen={modalEstado.isOpen}
+          onClose={cerrarModal}
+          onConfirm={modalEstado.onConfirm}
+          title={modalEstado.titulo}
+          message={modalEstado.mensaje}
+          validationType={modalEstado.validationType}
+          areas={modalEstado.areas}
+        />
+      )}
     </div>
   );
 };

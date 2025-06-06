@@ -405,7 +405,7 @@ const DesasignarAreaNivel = () => {
 
     // Verificar si hay cambios para aplicar
     if (areasParaDesasociar.length === 0 && categoriasParaEliminar.length === 0) {
-      mostrarAlerta("Sin cambios", "No hay cambios para guardar. Seleccione áreas para desasociar o marque categorías para eliminar.", "warning");
+      mostrarAlerta("Sin cambios", "No hay cambios para guardar. Seleccione áreas para desasociar o marque categorías para desasociar.", "warning");
       return;
     }
 
