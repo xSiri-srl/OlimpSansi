@@ -60,15 +60,17 @@ export const useVerificarProgreso = () => {
         try {
           const areasResponse = await axios.get(`${API_URL}/areas-olimpiada/${olimpiadaId}`, config);
           if (areasResponse.status === 200 && areasResponse.data.data) {
-            // CAMBIO SIMPLE: Considerar como NO definido si es null, undefined, string vacío O cero
-            costosDefinidos = areasResponse.data.data.some(area => {
+            // CAMBIO: Considerar como NO definido si alguna área tiene costo 0, null, undefined o string vacío
+            costosDefinidos = areasResponse.data.data.every(area => {
               const costo = area.costoInscripcion;
-              // Solo considerar definido si NO es null, undefined, string vacío NI cero
-              return costo !== null && 
+              // Solo considerar definido si NO es null, undefined, string vacío Y es mayor que 0
+              const esValido = costo !== null && 
                      costo !== undefined && 
                      costo !== '' && 
                      costo.toString().trim() !== '' &&
-                     parseFloat(costo) > 0; // LÍNEA AGREGADA: debe ser mayor que 0
+                     parseFloat(costo) > 0;
+              
+              return esValido;
             });
             
             console.log('💰 Verificación de costos:', {
@@ -86,7 +88,8 @@ export const useVerificarProgreso = () => {
                          area.costoInscripcion.toString().trim() !== '' &&
                          parseFloat(area.costoInscripcion) > 0
               })),
-              costosDefinidos
+              costosDefinidos,
+              todasTienenCostoMayorACero: areasResponse.data.data.every(area => parseFloat(area.costoInscripcion) > 0)
             });
           }
         } catch (error) {

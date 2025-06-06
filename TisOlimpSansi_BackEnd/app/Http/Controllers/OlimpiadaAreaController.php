@@ -203,12 +203,8 @@ public function asociarAreas(Request $request)
 
         DB::beginTransaction();
 
-        // Eliminar asociaciones existentes
-        DB::table('olimpiada_area_categorias')->where('id_olimpiada', $idOlimpiada)->delete();
-
-        // Guardar nuevas asociaciones
         foreach ($areas as $area) {
-            // Solo guardar áreas habilitadas
+            // Solo procesar áreas habilitadas
             if (isset($area['habilitado']) && $area['habilitado']) {
                 // Buscar el ID del área por nombre
                 $areaModel = AreaModel::where('nombre_area', strtoupper($area['area']))
@@ -246,15 +242,22 @@ public function asociarAreas(Request $request)
                             }
                         }
                         
-                        
-                        DB::table('olimpiada_area_categorias')->insert([
-                            'id_olimpiada' => $idOlimpiada,
-                            'id_area' => $areaModel->id,
-                            'id_categoria' => $categoria->id,
-                            'precio' => 0, 
-                            'created_at' => now(),
-                            'updated_at' => now(),
-                        ]);
+                        $existeRelacion = DB::table('olimpiada_area_categorias')
+                            ->where('id_olimpiada', $idOlimpiada)
+                            ->where('id_area', $areaModel->id)
+                            ->where('id_categoria', $categoria->id)
+                            ->exists();
+
+                        if (!$existeRelacion) {
+                            DB::table('olimpiada_area_categorias')->insert([
+                                'id_olimpiada' => $idOlimpiada,
+                                'id_area' => $areaModel->id,
+                                'id_categoria' => $categoria->id,
+                                'precio' => 0, // Solo las nuevas tendrán precio 0
+                                'created_at' => now(),
+                                'updated_at' => now(),
+                            ]);
+                        }
                     }
                 }
             }
