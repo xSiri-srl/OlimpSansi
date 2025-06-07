@@ -78,14 +78,7 @@ public function show($id)
     try {
         $olimpiada = OlimpiadaModel::findOrFail($id);
         
-        // CAMBIO: Manejar max_materias null sin establecer valor por defecto en BD
-        $olimpiadaData = $olimpiada->toArray();
-        // Para la UI, si es null, mostramos 1, pero NO lo guardamos en BD
-        if ($olimpiadaData['max_materias'] === null) {
-            $olimpiadaData['max_materias'] = 1; // Solo para mostrar en UI
-        }
-        
-        return response()->json($olimpiadaData);
+        return response()->json($olimpiada->toArray());
     } catch (\Exception $e) {
         return response()->json([
             'error' => 'Olimpiada no encontrada',

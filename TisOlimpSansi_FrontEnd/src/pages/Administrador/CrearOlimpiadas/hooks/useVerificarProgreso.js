@@ -107,7 +107,7 @@ export const useVerificarProgreso = () => {
           // Solo considerar definido si es mayor a 1 (el valor por defecto es 1)
           limiteDefinido = maxMaterias !== null && 
                           maxMaterias !== undefined && 
-                          parseInt(maxMaterias) > 1;
+                          parseInt(maxMaterias) > 0;
           
           console.log('📊 Verificación de límite:', {
             olimpiadaId,
