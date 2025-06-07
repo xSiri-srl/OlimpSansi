@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 class OrdenPagoModel extends Model
 {
     use HasFactory;
-
+    protected $table = 'orden_pago';
     protected $fillable = [
         'id_responsable',
         'codigo_generado',
