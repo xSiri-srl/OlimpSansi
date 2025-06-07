@@ -65,7 +65,7 @@ const SubirConvocatoria = () => {
 
   const existeConvocatoria = async (id_area) => {
     try {
-      const res = await axios.get(`${API_URL}/api/convocatoriaPorArea/${id_area}`);
+      const res = await axios.get(`${API_URL}/api/convocatoria-por-area/${id_area}`);
       return {
         existe: res.data?.existe || false,
         data: res.data?.data || null,
@@ -106,7 +106,7 @@ const SubirConvocatoria = () => {
           }
   
           await axios.post(
-            `${API_URL}/api/actualizarConvocatoria/${idConvocatoria}`,
+            `${API_URL}/api/actualizar-convocatoria/${idConvocatoria}`,
             formData,
             {
               headers: {
@@ -134,7 +134,7 @@ const SubirConvocatoria = () => {
 
     try {
       await axios.post(
-        `${API_URL}/api/agregarConvocatoria`,
+        `${API_URL}/api/agregar-convocatoria`,
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },

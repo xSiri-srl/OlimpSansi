@@ -101,7 +101,7 @@ public function registrar(Request $request)
             $area = AreaModel::where('nombre_area', $item['nombre_area'])->firstOrFail();
             $categoria = CategoriaModel::where('nombre_categoria', $item['categoria'])->firstOrFail();
 
-            $oac = DB::table('olimpiada_area_categorias')
+            $oac = DB::table('olimpiada_area_categoria')
                 ->where([
                     ['id_olimpiada', '=', $data['olimpiada']['id']],
                     ['id_area', '=', $area->id],
@@ -221,7 +221,7 @@ public function registrarLista(Request $request)
             $limiteAreas = $olimpiada->max_materias;
             
             // Contar inscripciones existentes EN LA MISMA OLIMPIADA
-            $inscritasEnOlimpiada = InscripcionModel::join('olimpiada_area_categorias as oac', 'inscripcion.id_olimpiada_area_categoria', '=', 'oac.id')
+            $inscritasEnOlimpiada = InscripcionModel::join('olimpiada_area_categoria as oac', 'inscripcion.id_olimpiada_area_categoria', '=', 'oac.id')
                 ->where([
                     ['inscripcion.id_estudiante', $estudiante->id],
                     ['oac.id_olimpiada', $olimpiadaId]
@@ -252,7 +252,7 @@ public function registrarLista(Request $request)
                 ])->first();
 
                 if (!$oac) {
-                    $combinacionesValidas = DB::table('olimpiada_area_categorias as oac')
+                    $combinacionesValidas = DB::table('olimpiada_area_categoria as oac')
                         ->join('area as a', 'a.id', '=', 'oac.id_area')
                         ->join('categoria as c', 'c.id', '=', 'oac.id_categoria')
                         ->where('oac.id_olimpiada', $olimpiadaId)
@@ -269,7 +269,7 @@ public function registrarLista(Request $request)
                 }
 
                 // Validar si ya está inscrito en la misma área y categoría EN LA MISMA OLIMPIADA
-                $yaInscrito = InscripcionModel::join('olimpiada_area_categorias as oac', 'inscripcion.id_olimpiada_area_categoria', '=', 'oac.id')
+                $yaInscrito = InscripcionModel::join('olimpiada_area_categoria as oac', 'inscripcion.id_olimpiada_area_categoria', '=', 'oac.id')
                     ->where([
                         ['inscripcion.id_estudiante', $estudiante->id],
                         ['oac.id_olimpiada', $olimpiadaId],
@@ -407,9 +407,9 @@ public function listarInscritos()
     public function contarPreinscritos()
     {
         $estudiantes = DB::table('inscripcion')
-            ->join('orden_pagos', 'inscripcion.id_orden_pago', '=', 'orden_pagos.id')
+            ->join('orden_pago', 'inscripcion.id_orden_pago', '=', 'orden_pago.id')
             ->join('estudiante', 'inscripcion.id_estudiante', '=', 'estudiante.id')
-            ->whereNull('orden_pagos.fecha_subida_imagen_comprobante')
+            ->whereNull('orden_pago.fecha_subida_imagen_comprobante')
             ->select(
                 'estudiante.nombre',
                 'estudiante.apellido_pa',
@@ -431,9 +431,9 @@ public function listarInscritos()
     public function contarInscritos()
     {
         $estudiantes = DB::table('inscripcion')
-            ->join('orden_pagos', 'inscripcion.id_orden_pago', '=', 'orden_pagos.id')
+            ->join('orden_pago', 'inscripcion.id_orden_pago', '=', 'orden_pago.id')
             ->join('estudiante', 'inscripcion.id_estudiante', '=', 'estudiante.id')
-            ->whereNotNull('orden_pagos.fecha_subida_imagen_comprobante')
+            ->whereNotNull('orden_pago.fecha_subida_imagen_comprobante')
             ->select(
                 'estudiante.nombre',
                 'estudiante.apellido_pa',
@@ -461,19 +461,19 @@ public function listarInscritos()
             $inscritos = DB::table('inscripcion_categoria')
                 ->join('categoria', 'inscripcion_categoria.id_categoria', '=', 'categoria.id')
                 ->join('inscripcion', 'inscripcion_categoria.id_inscripcion', '=', 'inscripcion.id')
-                ->join('orden_pagos', 'inscripcion.id_orden_pago', '=', 'orden_pagos.id')
+                ->join('orden_pago', 'inscripcion.id_orden_pago', '=', 'orden_pago.id')
                 ->where('categoria.id_area', $area->id)
-                ->whereNotNull('orden_pagos.comprobante_url')
+                ->whereNotNull('orden_pago.comprobante_url')
                 ->count();
                 
             // Contar preinscritos (sin comprobante pero con orden de pago) a través de categoria
             $preinscritos = DB::table('inscripcion_categoria')
                 ->join('categoria', 'inscripcion_categoria.id_categoria', '=', 'categoria.id')
                 ->join('inscripcion', 'inscripcion_categoria.id_inscripcion', '=', 'inscripcion.id')
-                ->join('orden_pagos', 'inscripcion.id_orden_pago', '=', 'orden_pagos.id')
+                ->join('orden_pago', 'inscripcion.id_orden_pago', '=', 'orden_pago.id')
                 ->where('categoria.id_area', $area->id)
-                ->whereNull('orden_pagos.comprobante_url')
-                ->whereNotNull('orden_pagos.orden_pago_url')
+                ->whereNull('orden_pago.comprobante_url')
+                ->whereNotNull('orden_pago.orden_pago_url')
                 ->count();
                 
             $resultado[] = [
@@ -495,18 +495,18 @@ public function listarInscritos()
             // Contar inscritos (con comprobante)
             $inscritos = DB::table('inscripcion_categoria')
                 ->join('inscripcion', 'inscripcion_categoria.id_inscripcion', '=', 'inscripcion.id')
-                ->join('orden_pagos', 'inscripcion.id_orden_pago', '=', 'orden_pagos.id')
+                ->join('orden_pago', 'inscripcion.id_orden_pago', '=', 'orden_pago.id')
                 ->where('inscripcion_categoria.id_categoria', $categoria->id)
-                ->whereNotNull('orden_pagos.comprobante_url')
+                ->whereNotNull('orden_pago.comprobante_url')
                 ->count();
                 
             // Contar preinscritos (sin comprobante pero con orden de pago)
             $preinscritos = DB::table('inscripcion_categoria')
                 ->join('inscripcion', 'inscripcion_categoria.id_inscripcion', '=', 'inscripcion.id')
-                ->join('orden_pagos', 'inscripcion.id_orden_pago', '=', 'orden_pagos.id')
+                ->join('orden_pago', 'inscripcion.id_orden_pago', '=', 'orden_pago.id')
                 ->where('inscripcion_categoria.id_categoria', $categoria->id)
-                ->whereNull('orden_pagos.comprobante_url')
-                ->whereNotNull('orden_pagos.orden_pago_url')
+                ->whereNull('orden_pago.comprobante_url')
+                ->whereNotNull('orden_pago.orden_pago_url')
                 ->count();
                 
             $resultado[] = [
@@ -710,7 +710,7 @@ public function actualizarLista(Request $request)
                 }
 
                 // Buscar la combinación olimpiada-area-categoria
-                $oac = DB::table('olimpiada_area_categorias')
+                $oac = DB::table('olimpiada_area_categoria')
                     ->where([
                         ['id_olimpiada', '=', $item['id_olimpiada']],
                         ['id_area', '=', $area->id],
@@ -737,9 +737,9 @@ public function actualizarLista(Request $request)
                     }
                     
                     // Verificar si la inscripción actual corresponde al área del tutor
-                    $inscripcionActual = InscripcionModel::join('olimpiada_area_categorias', 'inscripcion.id_olimpiada_area_categoria', '=', 'olimpiada_area_categorias.id')
+                    $inscripcionActual = InscripcionModel::join('olimpiada_area_categoria', 'inscripcion.id_olimpiada_area_categoria', '=', 'olimpiada_area_categoria.id')
                         ->where('inscripcion.id', $inscripcion->id)
-                        ->where('olimpiada_area_categorias.id_area', $area->id)
+                        ->where('olimpiada_area_categoria.id_area', $area->id)
                         ->first();
 
                     if ($inscripcionActual) {

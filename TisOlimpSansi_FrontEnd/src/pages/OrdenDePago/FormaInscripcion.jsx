@@ -25,7 +25,7 @@ export default function FormularioEstudiante() {
 
   const handleSeleccion = async () => {
     try {
-      const response = await axios.get(`${API_URL}/api/cursoAreaCategoriaPorOlimpiada?id=${olimpiadaSeleccionada}`);
+      const response = await axios.get(`${API_URL}/api/curso-area-categoria-por-olimpiada?id=${olimpiadaSeleccionada}`);
 
       const gradoAreaCurso = response.data;
 

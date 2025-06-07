@@ -75,12 +75,12 @@ public function getAreasPorOlimpiada($id)
 {
     try {
         // Obtener áreas y sus categorías con grados asociados a la olimpiada
-        $areasYCategorias = DB::table('olimpiada_area_categorias')
-            ->join('area', 'olimpiada_area_categorias.id_area', '=', 'area.id')
-            ->join('categoria', 'olimpiada_area_categorias.id_categoria', '=', 'categoria.id')
+        $areasYCategorias = DB::table('olimpiada_area_categoria')
+            ->join('area', 'olimpiada_area_categoria.id_area', '=', 'area.id')
+            ->join('categoria', 'olimpiada_area_categoria.id_categoria', '=', 'categoria.id')
             ->leftJoin('categoria_grado', 'categoria.id', '=', 'categoria_grado.id_categoria')
             ->leftJoin('grado', 'categoria_grado.id_grado', '=', 'grado.id')
-            ->where('olimpiada_area_categorias.id_olimpiada', $id)
+            ->where('olimpiada_area_categoria.id_olimpiada', $id)
             ->select(
                 'area.id',
                 'area.nombre_area as area',
@@ -88,7 +88,7 @@ public function getAreasPorOlimpiada($id)
                 'categoria.nombre_categoria as nombre_categoria',
                 'grado.id as id_grado',
                 'grado.nombre_grado',
-                'olimpiada_area_categorias.precio as costoInscripcion'
+                'olimpiada_area_categoria.precio as costoInscripcion'
             )
             ->orderBy('area.nombre_area')
             ->orderBy('categoria.nombre_categoria')
@@ -241,14 +241,14 @@ public function asociarAreas(Request $request)
                             }
                         }
                         
-                        $existeRelacion = DB::table('olimpiada_area_categorias')
+                        $existeRelacion = DB::table('olimpiada_area_categoria')
                             ->where('id_olimpiada', $idOlimpiada)
                             ->where('id_area', $areaModel->id)
                             ->where('id_categoria', $categoria->id)
                             ->exists();
 
                         if (!$existeRelacion) {
-                            DB::table('olimpiada_area_categorias')->insert([
+                            DB::table('olimpiada_area_categoria')->insert([
                                 'id_olimpiada' => $idOlimpiada,
                                 'id_area' => $areaModel->id,
                                 'id_categoria' => $categoria->id,
@@ -294,8 +294,8 @@ public function actualizarCostos(Request $request)
         DB::beginTransaction();
 
         foreach ($areas as $area) {
-            // Actualizar solo el precio en la tabla olimpiada_area_categorias
-            DB::table('olimpiada_area_categorias')
+            // Actualizar solo el precio en la tabla olimpiada_area_categoria
+            DB::table('olimpiada_area_categoria')
                 ->where('id_olimpiada', $idOlimpiada)
                 ->where('id_area', $area['id'])
                 ->update([
@@ -332,7 +332,7 @@ public function obtenerCostos($idOlimpiada)
         }
 
         // Obtener costos únicos por área (agrupando por área)
-        $costos = DB::table('olimpiada_area_categorias as oac')
+        $costos = DB::table('olimpiada_area_categoria as oac')
             ->join('area as a', 'oac.id_area', '=', 'a.id')
             ->where('oac.id_olimpiada', $idOlimpiada)
             ->select(
@@ -419,7 +419,7 @@ public function desasociarAreas(Request $request)
                 }
 
                 // Buscar todos los ID de olimpiada_area_categoria asociados a esa área y olimpiada
-                $idsRelacionados = DB::table('olimpiada_area_categorias')
+                $idsRelacionados = DB::table('olimpiada_area_categoria')
                     ->where('id_olimpiada', $idOlimpiada)
                     ->where('id_area', $area->id)
                     ->pluck('id');
@@ -438,7 +438,7 @@ public function desasociarAreas(Request $request)
                 }
 
                 // Eliminar la relación
-                DB::table('olimpiada_area_categorias')
+                DB::table('olimpiada_area_categoria')
                     ->where('id_olimpiada', $idOlimpiada)
                     ->where('id_area', $area->id)
                     ->delete();
@@ -481,10 +481,10 @@ public function desasociarCategorias(Request $request)
 
             // Verificar si esta categoría específica tiene inscripciones
             $existeInscripcion = DB::table('inscripcion')
-                ->join('olimpiada_area_categorias', 'inscripcion.id_olimpiada_area_categoria', '=', 'olimpiada_area_categorias.id')
-                ->where('olimpiada_area_categorias.id_olimpiada', $idOlimpiada)
-                ->where('olimpiada_area_categorias.id_area', $idArea)
-                ->where('olimpiada_area_categorias.id_categoria', $idCategoria)
+                ->join('olimpiada_area_categoria', 'inscripcion.id_olimpiada_area_categoria', '=', 'olimpiada_area_categoria.id')
+                ->where('olimpiada_area_categoria.id_olimpiada', $idOlimpiada)
+                ->where('olimpiada_area_categoria.id_area', $idArea)
+                ->where('olimpiada_area_categoria.id_categoria', $idCategoria)
                 ->exists();
 
             if ($existeInscripcion) {
@@ -499,7 +499,7 @@ public function desasociarCategorias(Request $request)
             }
 
             // Eliminar la relación específica
-            DB::table('olimpiada_area_categorias')
+            DB::table('olimpiada_area_categoria')
                 ->where('id_olimpiada', $idOlimpiada)
                 ->where('id_area', $idArea)
                 ->where('id_categoria', $idCategoria)

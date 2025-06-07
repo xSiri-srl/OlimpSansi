@@ -46,7 +46,7 @@ export default function InscripcionTutorLegal({
       console.log("Buscando tutor legal con CI:", ci);
 
       try {
-        const response = await axios.get(`${API_URL}/api/buscarTutorLegal/${ci}`);
+        const response = await axios.get(`${API_URL}/api/buscar-tutor-legal/${ci}`);
         console.log("Respuesta recibida:", response.data);
 
         if (response.data.found) {
