@@ -4,10 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Inscripcion\GradoModel;
-use App\Models\Inscripcion\CategoriaModel;
 use App\Models\olimpiada_area_categoria;
-use App\Models\CategoriaGradoModel;
+use App\Models\Inscripcion\CategoriaGradoModel as InscripcionCategoriaGradoModel;
 
 class CategoriaGradoController extends Controller
 {
@@ -18,7 +16,7 @@ class CategoriaGradoController extends Controller
             'id_grado' => 'required|exists:grado,id',
         ]);
 
-        $registro = CategoriaGradoModel::create([
+        $registro = InscripcionCategoriaGradoModel::create([
             'id_categoria' => $request->id_categoria,
             'id_grado' => $request->id_grado,
         ]);

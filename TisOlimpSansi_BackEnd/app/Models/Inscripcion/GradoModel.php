@@ -5,7 +5,7 @@ namespace App\Models\Inscripcion;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Inscripcion\EstudianteModel;
-use App\Models\CategoriaGradoModel;
+use App\Models\Inscripcion\CategoriaGradoModel as InscripcionCategoriaGradoModel;
 
 class GradoModel extends Model
 {
@@ -19,6 +19,6 @@ class GradoModel extends Model
         return $this->hasOne(EstudianteModel::class, 'id_grado');
     }
     public function categoriaGrados(){
-        return $this->hasMany(CategoriaGradoModel::class, 'id_grado', 'id');
+        return $this->hasMany(InscripcionCategoriaGradoModel::class, 'id_grado', 'id');
     }
 }

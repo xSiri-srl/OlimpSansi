@@ -143,14 +143,7 @@ Route::controller(OlimpiadaController::class)->group(function(){
     Route::delete('/eliminarOlimpiada/{id}', [OlimpiadaController::class, 'destroy']);
 });
 
-// Route::controller(OlimpiadaAreaController::class)->group(function(){
 
-//     Route::get('/areasOlimpiadas', [OlimpiadaAreaController::class, 'index']);
-//     Route::post('/agregarAreaOlimpiada', [OlimpiadaAreaController::class, 'store']);
-//     Route::get('/areaOlimpiada/{id}', [OlimpiadaAreaController::class, 'show']);
-//     Route::post('/actualizarAreaOlimpiada/{id}', [OlimpiadaAreaController::class, 'update']);
-//     Route::delete('/eliminarAreaOlimpiada/{id}', [OlimpiadaAreaController::class, 'destroy']);
-// });
 
 Route::get('/orden-pago', [OrdenPagoController::class, 'obtenerOrdenPago']);
 Route::post('/orden-pago/pdf', [OrdenPagoController::class, 'generarYGuardarOrdenPagoPDF']);

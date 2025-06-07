@@ -13,7 +13,6 @@ class OrdenPago extends Model
 {
     use HasFactory;
 
-    // Especificar las columnas que se pueden llenar (mass assignment)
     protected $fillable = [
         'id_responsable',
         'codigo_generado',

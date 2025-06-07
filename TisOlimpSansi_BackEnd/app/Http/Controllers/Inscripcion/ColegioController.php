@@ -170,7 +170,7 @@ class ColegioController extends Controller
         ->join('inscripcion', 'estudiante.id', '=', 'inscripcion.id_estudiante')
         ->join('orden_pagos', 'inscripcion.id_orden_pago', '=', 'orden_pagos.id')
         ->where('colegio.departamento', $departamento)
-        ->whereNotNull('orden_pagos.comprobante_url') // Aseguramos que tiene comprobante subido
+        ->whereNotNull('orden_pagos.comprobante_url') 
         ->count();
 
     return response()->json([
@@ -186,8 +186,8 @@ public function contarPreinscritosPorDepartamento(Request $request)
         ->join('inscripcion', 'estudiante.id', '=', 'inscripcion.id_estudiante')
         ->join('orden_pagos', 'inscripcion.id_orden_pago', '=', 'orden_pagos.id')
         ->where('colegio.departamento', $departamento)
-        ->whereNull('orden_pagos.comprobante_url') // Sin comprobante
-        ->whereNotNull('orden_pagos.orden_pago_url') // Con orden de pago generada
+        ->whereNull('orden_pagos.comprobante_url') 
+        ->whereNotNull('orden_pagos.orden_pago_url') 
         ->count();
 
     return response()->json([

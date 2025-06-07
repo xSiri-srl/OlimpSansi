@@ -64,7 +64,7 @@ class OrdenPagoController extends Controller
         
         $writeLog("Inscripción encontrada - ID: " . $inscripcion->id);
         
-        // === VERIFICAR Y CREAR ESTRUCTURA DE DIRECTORIOS ===
+    
         $storagePath = storage_path('app/public');
         $ordenesPath = $storagePath . '/ordenes_pago';
         
@@ -73,34 +73,31 @@ class OrdenPagoController extends Controller
         $writeLog("Current working directory: " . getcwd());
         $writeLog("Base path: " . base_path());
         
-        // Verificar rutas absolutas
+       
         $writeLog("Storage path exists: " . (is_dir($storagePath) ? 'YES' : 'NO'));
         $writeLog("Storage path readable: " . (is_readable($storagePath) ? 'YES' : 'NO'));
         $writeLog("Storage path writable: " . (is_writable($storagePath) ? 'YES' : 'NO'));
         
-        // Crear storage/app si no existe
+   
         if (!is_dir(storage_path('app'))) {
             $created = mkdir(storage_path('app'), 0755, true);
             $writeLog("Creando storage/app: " . ($created ? 'OK' : 'FALLÓ'));
         }
         
-        // Crear storage/app/public si no existe
         if (!is_dir($storagePath)) {
             $created = mkdir($storagePath, 0755, true);
             $writeLog("Creando storage/app/public: " . ($created ? 'OK' : 'FALLÓ'));
         }
         
-        // Crear ordenes_pago si no existe
         if (!is_dir($ordenesPath)) {
             $created = mkdir($ordenesPath, 0755, true);
             $writeLog("Creando ordenes_pago: " . ($created ? 'OK' : 'FALLÓ'));
         }
-        
-        // Verificar permisos finales
+       
         $writeLog("Final - Storage writable: " . (is_writable($storagePath) ? 'YES' : 'NO'));
         $writeLog("Final - Ordenes writable: " . (is_writable($ordenesPath) ? 'YES' : 'NO'));
         
-        // === VERIFICAR VISTA ===
+     
         $writeLog("Verificando vista pdf.orden_pago...");
         if (!view()->exists('pdf.orden_pago')) {
             $writeLog("ERROR: Vista pdf.orden_pago no encontrada");
@@ -108,11 +105,11 @@ class OrdenPagoController extends Controller
         }
         $writeLog("Vista encontrada OK");
         
-        // === GENERAR PDF ===
+      
         $writeLog("Iniciando generación PDF...");
         
         try {
-            // Aumentar límites
+         
             ini_set('memory_limit', '512M');
             ini_set('max_execution_time', 300);
             
@@ -140,7 +137,7 @@ class OrdenPagoController extends Controller
             return response()->json(['message' => 'Error generando PDF: ' . $pdfError->getMessage()], 500);
         }
         
-        // === GUARDAR ARCHIVO ===
+
         $fileName = 'orden_pago_' . $ordenPago->codigo_generado . '.pdf';
         $filePath = 'ordenes_pago/' . $fileName;
         $fullPath = $ordenesPath . '/' . $fileName;
@@ -178,7 +175,7 @@ class OrdenPagoController extends Controller
             return response()->json(['message' => 'Error guardando PDF: ' . $saveError->getMessage()], 500);
         }
         
-        // === ACTUALIZAR BASE DE DATOS ===
+        
         $writeLog("Actualizando base de datos...");
         $ordenPago->orden_pago_url = $filePath;
         $ordenPago->save();
@@ -344,7 +341,7 @@ public function verificarCodigo(Request $request)
             ]);
 
             $response = $client->post('https://api.ocr.space/parse/image', [
-                'timeout' => 30, // Aumentar timeout
+                'timeout' => 30, 
                 'multipart' => [
                     [
                         'name' => 'apikey',
@@ -352,7 +349,7 @@ public function verificarCodigo(Request $request)
                     ],
                     [
                         'name' => 'language',
-                        'contents' => 'spa' // Español
+                        'contents' => 'spa' 
                     ],
                     [
                         'name' => 'isOverlayRequired',
