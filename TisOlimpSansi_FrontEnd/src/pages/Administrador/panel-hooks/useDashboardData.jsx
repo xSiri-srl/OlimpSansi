@@ -20,37 +20,31 @@ const useDashboardData = () => {
       try {
         setLoading(true);
 
-        // Obtener lista de todos los inscritos
         const inscritosResponse = await axios.get(
           `${API_URL}/api/lista-inscritos`
         );
 
-        // Obtener información de todas las órdenes de pago
         const ordenesPagoResponse = await axios.get(
           `${API_URL}/api/orden-pago`
         );
 
-        // Procesar datos para estadísticas
         const ordenes = ordenesPagoResponse.data;
         const inscritos = inscritosResponse.data;
 
-        // Contar órdenes de pago verificadas (con comprobante) y pendientes
         const ordenesPagadas = ordenes.filter(
           (orden) => orden.numero_comprobante !== null
         ).length;
         const ordenesPendientes = ordenes.length - ordenesPagadas;
 
-        // Guardar estadísticas
         setStats({
           ordenesPago: ordenes.length,
-          estudiantesRegistrados: ordenesPendientes, // Pre-inscritos (sin verificar)
-          estudiantesInscritos: ordenesPagadas, // Inscritos verificados
+          estudiantesRegistrados: ordenesPendientes, 
+          estudiantesInscritos: ordenesPagadas, 
           totalInscritos: inscritos.length,
           ordenesPagadas: ordenesPagadas,
           ordenesPendientes: ordenesPendientes,
         });
 
-        // Procesar datos para el gráfico de líneas
         const mockChartData = [
           {
             id: "Órdenes de Pago",

@@ -16,8 +16,7 @@ const GraficoCompararInscripciones = ({ darkMode }) => {
       try {
         setLoading(true);
         setError(null);
-        
-        // Determinar el endpoint según la vista seleccionada
+
         const endpoint = vistaActual === 'area' 
           ? `${API_URL}/api/inscripciones/por-area` 
           : `${API_URL}/api/inscripciones/por-categoria`;
@@ -27,8 +26,7 @@ const GraficoCompararInscripciones = ({ darkMode }) => {
       } catch (err) {
         console.error("Error al cargar datos:", err);
         setError("No se pudieron cargar los datos para el gráfico");
-        
-        // Si no hay datos reales, usar datos de prueba
+
         const datosPrueba = vistaActual === 'area' ? getDatosPruebaArea() : getDatosPruebaCategoria();
         setDatosGrafico(datosPrueba);
       } finally {
@@ -38,8 +36,7 @@ const GraficoCompararInscripciones = ({ darkMode }) => {
     
     fetchData();
   }, [vistaActual]);
-  
-  // Datos de prueba para áreas
+
   const getDatosPruebaArea = () => {
     return [
       {
@@ -79,8 +76,7 @@ const GraficoCompararInscripciones = ({ darkMode }) => {
       }
     ];
   };
-  
-  // Datos de prueba para categoría
+ 
   const getDatosPruebaCategoria = () => {
     return [
       {
@@ -110,8 +106,7 @@ const GraficoCompararInscripciones = ({ darkMode }) => {
       }
     ];
   };
-  
-  // Preparar los datos para el gráfico según la vista
+ 
   const prepararDatosGrafico = () => {
     if (vistaActual === 'area') {
       return datosGrafico.map(item => ({
@@ -147,7 +142,6 @@ const GraficoCompararInscripciones = ({ darkMode }) => {
         Comparativa de Inscripciones
       </h2>
       
-      {/* Toggle para cambiar la vista */}
       <div className="flex justify-center mb-6">
         <div className={`inline-flex rounded-md shadow-sm ${darkMode ? "bg-gray-700" : "bg-gray-200"}`} role="group">
           <button
@@ -180,8 +174,7 @@ const GraficoCompararInscripciones = ({ darkMode }) => {
           <p>Usando datos de ejemplo para visualización. {error}</p>
         </div>
       )}
-      
-      {/* Gráfico de barras */}
+   
       <div className="h-[400px]">
         <ResponsiveBar
           data={prepararDatosGrafico()}

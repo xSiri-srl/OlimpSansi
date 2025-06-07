@@ -5,7 +5,6 @@ import OrdenesRecientes from './OrdenesRecientes';
 const ChartsSection = ({ chartData, darkMode }) => {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-      {/* Gráfico de líneas - ocupa 2/3 del espacio en pantallas grandes */}
       <div
         className={`${
           darkMode ? "bg-gray-800" : "bg-white"
@@ -26,8 +25,6 @@ const ChartsSection = ({ chartData, darkMode }) => {
         </p>
         <LineChart data={chartData} darkMode={darkMode} />
       </div>
-
-      {/* Órdenes recientes - ocupa 1/3 del espacio en pantallas grandes */}
       <div className="lg:col-span-1">
         <OrdenesRecientes darkMode={darkMode} />
       </div>
