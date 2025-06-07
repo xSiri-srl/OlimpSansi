@@ -14,19 +14,13 @@ const AreaCompetencia = ({
   onEliminarCategoria
 }) => {
   const [mostrarDetalles, setMostrarDetalles] = useState(false);
-  
-  // Lista de categorías predefinidas para el selector
   const categoriasPredefinidas = Object.keys(categoriasPredefinidasMap);
   
   useEffect(() => {
-    // Si tenemos grados del backend, actualizar las categorías predefinidas
     if (todosLosGrados && todosLosGrados.length > 0) {
-      // Podríamos actualizar categoriasPredefinidasMap aquí si fuera necesario
-      console.log("Grados disponibles para categorías:", todosLosGrados);
     }
   }, [todosLosGrados]);
 
-  // Manejar la habilitación/deshabilitación del área
   const handleAreaToggle = (checked) => {
     if (!olimpiadaSeleccionada) {
       alert("Por favor seleccione una olimpiada primero");
@@ -43,8 +37,6 @@ const AreaCompetencia = ({
       return;
     }
     
-    console.log(`Cambiando estado del área ${combo.area} a: ${checked}`);
-    
     const copia = [...combinaciones];
     copia[comboIndex] = {
       ...copia[comboIndex],
@@ -52,8 +44,6 @@ const AreaCompetencia = ({
     };
     setCombinaciones(copia);
   };
-
-  // Mapeo de áreas a imágenes
   const getAreaImage = (area) => {
     const imageMap = {
       "Matemáticas": "/images/matematicaas.png",
@@ -68,20 +58,17 @@ const AreaCompetencia = ({
     return imageMap[area] || "/placeholder.svg";
   };
 
-  // Manejar la selección de categoría predefinida
   const handleCategoriaSelect = (index, nombreCategoria) => {
     const categoriaSeleccionada = categoriasPredefinidasMap[nombreCategoria];
     
     if (!categoriaSeleccionada) return;
     
     const copia = [...combinaciones];
-    
-    // Asegurarse de que exista el array de categorías
+
     if (!copia[comboIndex].categorias) {
       copia[comboIndex].categorias = [];
     }
     
-    // Verificar si ya existe esta categoría en otra posición del array
     const existeEnOtraPosicion = copia[comboIndex].categorias.some(
       (cat, idx) => idx !== index && cat.nombre === nombreCategoria
     );
@@ -91,7 +78,6 @@ const AreaCompetencia = ({
       return;
     }
     
-    // Actualizar la categoría con los valores predefinidos
     copia[comboIndex].categorias[index] = {
       nombre: categoriaSeleccionada.nombre,
       desde: categoriaSeleccionada.desde,
@@ -103,16 +89,13 @@ const AreaCompetencia = ({
 
   const agregarCategoria = () => {
     const copia = [...combinaciones];
-    
-    // Inicializar el array de categorías si no existe
+
     if (!copia[comboIndex].categorias) {
       copia[comboIndex].categorias = [];
     }
     
-    // Encontrar la primera categoría disponible (no utilizada)
     const categoriasExistentes = new Set(copia[comboIndex].categorias.map(cat => cat.nombre));
     
-    // Buscar la primera categoría que no esté en uso
     let categoriaSeleccionada = null;
     for (const nombreCategoria of categoriasPredefinidas) {
       if (!categoriasExistentes.has(nombreCategoria)) {
@@ -121,13 +104,11 @@ const AreaCompetencia = ({
       }
     }
     
-    // Si todas las categorías están en uso
     if (!categoriaSeleccionada) {
       alert("Ya has añadido todas las categorías disponibles para esta área.");
       return;
     }
     
-    // Agregar la nueva categoría
     copia[comboIndex].categorias.push({
       nombre: categoriaSeleccionada.nombre,
       desde: categoriaSeleccionada.desde,
@@ -137,11 +118,9 @@ const AreaCompetencia = ({
     setCombinaciones(copia);
   };
 
-  // Eliminar una categoría existente
   const eliminarCategoria = async (index) => {
     const categoria = combo.categorias[index];
-    
-    // Si estamos en modo desasociación y es una categoría ya asociada, usar el endpoint específico
+
     if (!modoAsociacion && combo.yaAsociada && onEliminarCategoria) {
       try {
         await onEliminarCategoria(combo, categoria, index);
@@ -150,14 +129,12 @@ const AreaCompetencia = ({
         alert('Error al eliminar la categoría. Por favor, intente nuevamente.');
       }
     } else {
-      // Comportamiento normal para modo asociación
       const copia = [...combinaciones];
       copia[comboIndex].categorias.splice(index, 1);
       setCombinaciones(copia);
     }
   };
 
-  // Preparar categorías para renderizar
   const categorias = combo.categorias || [];
   const estaHabilitada = combo.habilitado || false;
   const sePuedeHabilitar = !!olimpiadaSeleccionada;
@@ -198,7 +175,6 @@ const AreaCompetencia = ({
       )}
       
       <div className="flex items-start">
-        {/* Imagen del área y selector circular */}
         <div className="w-40 mr-4 text-center relative">
           <img 
             src={getAreaImage(combo.area)} 
@@ -222,10 +198,7 @@ const AreaCompetencia = ({
             {estaHabilitada && <FaCheck className="text-blue-600" />}
           </div>
         </div>
-
-        {/* Contenido principal */}
         <div className="flex-1">
-          {/* Título del área y estado */}
           <div className="text-center mb-4">
             <h2 className="text-xl font-bold text-blue-700">{combo.area}</h2>
             <div className="flex justify-center mt-1">
@@ -240,8 +213,6 @@ const AreaCompetencia = ({
               )}
             </div>
           </div>
-
-          {/* Categorías y rangos de grados */}
           <div className={`${!estaHabilitada ? 'opacity-50' : ''}`}>
             <div className="flex justify-between items-center mb-3">
               <h3 className="font-semibold text-gray-700 border-b pb-1">
@@ -256,8 +227,6 @@ const AreaCompetencia = ({
                 {mostrarDetalles ? "Ocultar Categorías" : "Ver Categorías"}
               </button>
             </div>
-
-      {/* Categorías existentes */}
       {mostrarDetalles && (
         <div className="space-y-3 mb-4 mt-2">
           {categorias.length === 0 ? (
@@ -266,7 +235,6 @@ const AreaCompetencia = ({
             categorias.map((categoria, idx) => (
               <div key={idx} className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg border border-gray-200 min-h-[80px] w-full">
                 <div className="flex-1 flex flex-wrap gap-2 items-center">
-                  {/* Selector de Categoría */}
                   <div className="w-64 flex-none">
                     <label className="block text-xs text-gray-500 mb-1">Categoría</label>
                     <select
@@ -280,16 +248,12 @@ const AreaCompetencia = ({
                       ))}
                     </select>
                   </div>
-                  
-                  {/* Visualización de rango inicial (no editable) */}
                   <div className="w-full sm:w-auto">
                     <label className="block text-xs text-gray-500 mb-1">Desde</label>
                     <div className="w-full p-2 border border-gray-200 bg-gray-50 rounded text-gray-700">
                       {categoria.desde || "N/A"}
                     </div>
                   </div>
-                  
-                  {/* Visualización de rango final (no editable) */}
                   <div className="w-full sm:w-auto">
                     <label className="block text-xs text-gray-500 mb-1">Hasta</label>
                     <div className="w-full p-2 border border-gray-200 bg-gray-50 rounded text-gray-700">
@@ -297,8 +261,6 @@ const AreaCompetencia = ({
                     </div>
                   </div>
                 </div>
-                
-                {/* Botón eliminar (X) - Disponible en ambos modos */}
                 {estaHabilitada && (modoAsociacion || (!modoAsociacion && combo.yaAsociada)) && (
                   <div className="flex items-center self-center ml-2">
                     <button 
@@ -316,8 +278,6 @@ const AreaCompetencia = ({
               </div>
             ))
           )}
-          
-          {/* Botón para agregar categoría predefinida - Solo en modo asociación */}
           {estaHabilitada && modoAsociacion && (
             <button
               onClick={agregarCategoria}
@@ -329,8 +289,6 @@ const AreaCompetencia = ({
           )}
         </div>
       )}
-      
-      {/* Resumen cuando no se muestran los detalles */}
       {!mostrarDetalles && (
         <div className="text-gray-600 text-sm">
           {categorias.length > 0 ? (
@@ -338,8 +296,6 @@ const AreaCompetencia = ({
               {categorias.map((cat, idx) => (
                 <div key={idx} className="inline-flex items-center bg-blue-50 text-blue-700 px-2 py-1 rounded-full text-xs mr-1 mb-1">
                   <span>{cat.nombre} ({cat.desde} - {cat.hasta})</span>
-                  
-                  {/* Botón eliminar (X) - Disponible en ambos modos */}
                   {estaHabilitada && (modoAsociacion || (!modoAsociacion && combo.yaAsociada)) && (
                     <button 
                       className="ml-1 bg-red-100 hover:bg-red-200 text-red-600 rounded-full w-4 h-4 flex items-center justify-center"

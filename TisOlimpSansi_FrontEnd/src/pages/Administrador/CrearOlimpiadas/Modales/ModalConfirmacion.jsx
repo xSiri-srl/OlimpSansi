@@ -8,7 +8,7 @@ const ModalConfirmacion = ({
   message, 
   confirmText = "Confirmar", 
   cancelText = "Cancelar",
-  type = "warning" // warning, danger, info
+  type = "warning" 
 }) => {
   if (!isOpen) return null;
 
