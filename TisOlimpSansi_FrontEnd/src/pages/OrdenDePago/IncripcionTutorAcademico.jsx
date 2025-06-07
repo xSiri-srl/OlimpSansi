@@ -36,7 +36,7 @@ export default function FormularioTutoresAcademicos({
 
       try {
   
-        const response = await axios.get(`${API_URL}/api/buscarTutor/${ci}`);
+        const response = await axios.get(`${API_URL}/api/buscar-tutor/${ci}`);
 
         if (response.data.found) {
           const tutor = response.data.tutor;

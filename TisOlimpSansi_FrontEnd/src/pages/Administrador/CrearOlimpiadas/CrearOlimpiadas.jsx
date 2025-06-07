@@ -99,7 +99,7 @@ const CrearOlimpiadas = () => {
       };
 
       const response = await axios.post(
-        `${API_URL}/agregarOlimpiada`,
+        `${API_URL}/agregar-olimpiada`,
         olimpiadaData,
         { withCredentials: true }
       );

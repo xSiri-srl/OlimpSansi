@@ -107,8 +107,8 @@ const MapaBolivia = ({ darkMode }) => {
       // Seleccionar endpoint según tipo de inscripción
       const endpoint =
         tipoInscripcion === "inscritos"
-          ? "/api/estudiantes/inscritos/bydepartamento"
-          : "/api/estudiantes/preinscritos/bydepartamento";
+          ? "/api/estudiantes/inscritos/departamento"
+          : "/api/estudiantes/preinscritos/departamento";
 
       // Hacer solicitudes para cada departamento
       const promises = departamentos.map(async (departamento) => {

@@ -23,8 +23,8 @@ class VerificarPermiso
 
         $tienePermiso = DB::table('rol_accion')
             ->where('id_rol', $usuario->id_rol)
-            ->join('acciones', 'rol_accion.id_accion', '=', 'acciones.id')
-            ->where('acciones.nombreFuncion', $permiso)
+            ->join('accion', 'rol_accion.id_accion', '=', 'accion.id')
+            ->where('accion.nombreFuncion', $permiso)
             ->exists();
 
         if (!$tienePermiso) {

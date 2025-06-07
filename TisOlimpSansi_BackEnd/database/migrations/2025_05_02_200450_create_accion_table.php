@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('accion', function (Blueprint $table) {
             $table->id();
-            $table->string('nombreFuncion');
-            $table->string('descripcionFuncion');
+            $table->string('nombre_funcion');
+            $table->string('descripcion_funcion');
             $table->foreignId('id_modulo')->constrained('modulos');
             $table->timestamps();
         });
