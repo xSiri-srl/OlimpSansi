@@ -19,7 +19,7 @@ class RolContadorSeeder extends Seeder
         ]);
 
         // Crear módulo si no existe
-        $moduloId = DB::table('modulos')->insertGetId([
+        $moduloId = DB::table('modulo')->insertGetId([
             'nombre_modulo' => 'Reportes',
             'descripcion_modulo' => 'Consultas relacionadas con pagos e inscripciones',
             'created_at' => now(),
