@@ -29,7 +29,6 @@ const GenerarOrdenPago = () => {
   const [tieneCostoUnico, setTieneCostoUnico] = useState(false);
   const [costosLoading, setCostosLoading] = useState(false);
 
-  // Efecto para la barra de progreso
   useEffect(() => {
     let timer;
     if (cargando || descargando) {
@@ -46,15 +45,11 @@ const GenerarOrdenPago = () => {
     }
     return () => clearInterval(timer);
   }, [cargando, descargando]);
-
-  // Efecto para obtener costos cuando cambia idOlimpiada
   useEffect(() => {
     if (idOlimpiada) {
       obtenerCostos();
     }
   }, [idOlimpiada]);
-
-  // Nueva función para obtener el PDF
   const obtenerPdf = async () => {
     try {
       const pdfResponse = await axios.get(
@@ -66,12 +61,10 @@ const GenerarOrdenPago = () => {
       setPdfUrl(url);
       setMostrarPrevisualizacion(true);
     } catch (error) {
-      console.error("Error obteniendo el PDF:", error);
       setError("Error al obtener el PDF para previsualización");
     }
   };
 
-  // Verificar si el código existe y obtener el resumen
   const verificarCodigo = async () => {
     setLoading(true);
     setError("");
@@ -81,9 +74,7 @@ const GenerarOrdenPago = () => {
       );
       if (response.status === 200) {
         await obtenerResumen(codigoGenerado);
-        await obtenerOlimpiada(); // Obtener olimpiada después del resumen
-        
-        // Verificar si la orden ya está generada
+        await obtenerOlimpiada();
         const existeResponse = await axios.get(
           `${API_URL}/api/orden-pago-existe/${codigoGenerado}`
         );
@@ -102,8 +93,6 @@ const GenerarOrdenPago = () => {
       setLoading(false);
     }
   };
-
-  // Obtener el resumen de la orden
   const obtenerResumen = async (codigo) => {
     try {
       const response = await axios.get(
@@ -111,12 +100,10 @@ const GenerarOrdenPago = () => {
       );
       setResumen(response.data.resumen);
     } catch (error) {
-      console.error("Error obteniendo el resumen:", error);
       setError("Error al obtener el resumen");
     }
   };
 
-  // Obtener olimpiada asociada
   const obtenerOlimpiada = async () => {
     try {
       const response = await axios.get(
@@ -125,12 +112,10 @@ const GenerarOrdenPago = () => {
       const idOlimpiada = response.data.id_olimpiada;
       setIdOlimpiada(idOlimpiada);
     } catch (error) {
-      console.error("Error obteniendo la olimpiada:", error);
       setError("Error al obtener la olimpiada asociada a la orden de pago");
     }
   };
 
-  // Obtener costos de la olimpiada
   const obtenerCostos = async () => {
     if (!idOlimpiada) {
       setError("ID de olimpiada no disponible");
@@ -158,11 +143,9 @@ const GenerarOrdenPago = () => {
           setTieneCostoUnico(false);
         }
       } else {
-        setError(response.data.message || 'Error desconocido');
+        setError(response.data.message || "Error desconocido");
       }
     } catch (error) {
-      console.error("Error obteniendo los costos:", error);
-      
       if (error.response?.status === 404) {
         setError("Olimpiada no encontrada o sin áreas disponibles");
       } else {
@@ -173,52 +156,47 @@ const GenerarOrdenPago = () => {
     }
   };
 
-  // Función para calcular el total a pagar
-// Función para calcular el total a pagar
   const calcularTotal = () => {
-    if (!resumen || !resumen.inscritos || resumen.inscritos.length === 0) return 0;
+    if (!resumen || !resumen.inscritos || resumen.inscritos.length === 0)
+      return 0;
 
     if (tieneCostoUnico && costoUnico !== null) {
       return resumen.inscritos.length * costoUnico;
     } else if (!tieneCostoUnico && costosPorArea.length > 0) {
-      // Agrupar inscritos por área y calcular total
       const areasCounts = {};
-      resumen.inscritos.forEach(inscrito => {
+      resumen.inscritos.forEach((inscrito) => {
         const area = inscrito.area;
         areasCounts[area] = (areasCounts[area] || 0) + 1;
       });
 
       let total = 0;
       Object.entries(areasCounts).forEach(([area, cantidad]) => {
-        // CORRECCIÓN: Comparar con nombre_area en lugar de area
-        const costoArea = costosPorArea.find(c => c.nombre_area === area);
+        const costoArea = costosPorArea.find((c) => c.nombre_area === area);
         if (costoArea) {
           total += cantidad * parseInt(costoArea.costo);
         }
       });
       return total;
     }
-    
-    return 0; // No hay costos disponibles, retornar 0
+
+    return 0;
   };
 
-  // Función para obtener desglose por área
   const obtenerDesglosePorArea = () => {
     if (!resumen || !resumen.inscritos) return [];
 
     const areasCounts = {};
-    resumen.inscritos.forEach(inscrito => {
+    resumen.inscritos.forEach((inscrito) => {
       const area = inscrito.area;
       areasCounts[area] = (areasCounts[area] || 0) + 1;
     });
 
     return Object.entries(areasCounts).map(([area, cantidad]) => {
-      let costo = 0; // Sin costo por defecto
+      let costo = 0;
       if (tieneCostoUnico && costoUnico !== null) {
         costo = parseInt(costoUnico);
       } else if (!tieneCostoUnico && costosPorArea.length > 0) {
-        // CORRECCIÓN: Comparar con nombre_area en lugar de area
-        const costoArea = costosPorArea.find(c => c.nombre_area === area);
+        const costoArea = costosPorArea.find((c) => c.nombre_area === area);
         if (costoArea) {
           costo = parseInt(costoArea.costo);
         }
@@ -226,7 +204,7 @@ const GenerarOrdenPago = () => {
       return { area, cantidad, costo, subtotal: cantidad * costo };
     });
   };
-  // Generar la orden de pago
+
   const confirmarGenerarOrden = async () => {
     setMostrarModal(false);
     setCargando(true);
@@ -248,11 +226,9 @@ const GenerarOrdenPago = () => {
         { codigo_generado: codigoGenerado },
         { responseType: "blob" }
       );
-      console.log("Orden de pago generada correctamente");
       setOrdenYaGenerada(true);
       await obtenerPdf();
     } catch (error) {
-      console.error("Error generando la orden de pago:", error);
       setError("Error generando la orden de pago.");
     } finally {
       setTimeout(() => {
@@ -262,7 +238,6 @@ const GenerarOrdenPago = () => {
     }
   };
 
-  // Descargar el PDF
   const handleDownload = async () => {
     setDescargando(true);
     setProgreso(0);
@@ -285,7 +260,6 @@ const GenerarOrdenPago = () => {
         link.remove();
       }
     } catch (error) {
-      console.error("Error descargando PDF:", error);
       setError("Error al descargar la orden de pago");
     } finally {
       setTimeout(() => {
@@ -295,7 +269,6 @@ const GenerarOrdenPago = () => {
     }
   };
 
-  // Alternar previsualización
   const togglePrevisualizacion = () => {
     setMostrarPrevisualizacion(!mostrarPrevisualizacion);
   };
@@ -341,15 +314,11 @@ const GenerarOrdenPago = () => {
             </button>
           </div>
         </div>
-
-        {/* Resumen de preinscripción */}
         {resumen && (
           <div className="mt-10">
             <h2 className="text-lg font-semibold mb-4 text-gray-500">
               Resumen de Preinscripción
             </h2>
-
-            {/* Sección del responsable de inscripción */}
             <div className="mt-4 bg-white rounded-lg shadow-md p-6 text-left max-w-3xl mx-auto">
               <div className="mb-6 border-b pb-4">
                 <h3 className="text-lg font-semibold text-blue-600">
@@ -372,8 +341,6 @@ const GenerarOrdenPago = () => {
                   </div>
                 </div>
               </div>
-
-              {/* Sección de resumen de competidores */}
               <div
                 className={`mt-6 ${
                   resumen.inscritos.length > 25
@@ -419,28 +386,28 @@ const GenerarOrdenPago = () => {
                   </div>
                 </div>
               </div>
-
-              {/* Sección de Importe actualizada */}
               <div className="mt-6 border-t pt-4">
                 <h3 className="text-lg font-semibold text-blue-600 mb-3">
                   Importe
                 </h3>
-                
+
                 {costosLoading ? (
                   <div className="text-center py-4">
-                    <p className="text-gray-600">Cargando información de costos...</p>
+                    <p className="text-gray-600">
+                      Cargando información de costos...
+                    </p>
                   </div>
                 ) : (
                   <>
-                    
                     {tieneCostoUnico && costoUnico !== null ? (
-                      // Mostrar costo único
                       <>
                         <div className="flex justify-between border-b py-2">
                           <span className="text-gray-600 font-medium">
                             Costo por participante
                           </span>
-                          <span className="font-semibold">{costoUnico} Bs.</span>
+                          <span className="font-semibold">
+                            {costoUnico} Bs.
+                          </span>
                         </div>
                         <div className="flex justify-between border-b py-2">
                           <span className="text-gray-600 font-medium">
@@ -452,25 +419,32 @@ const GenerarOrdenPago = () => {
                         </div>
                       </>
                     ) : costosPorArea.length > 0 ? (
-                      // Mostrar desglose por área
                       <>
                         <div className="mb-4">
-                          <p className="text-sm text-gray-600 mb-2">Desglose por área:</p>
+                          <p className="text-sm text-gray-600 mb-2">
+                            Desglose por área:
+                          </p>
                           {obtenerDesglosePorArea().map((item, index) => (
-                            <div key={index} className="flex justify-between items-center border-b py-2">
+                            <div
+                              key={index}
+                              className="flex justify-between items-center border-b py-2"
+                            >
                               <div className="flex-1">
-                                <span className="text-gray-600 font-medium">{item.area}</span>
+                                <span className="text-gray-600 font-medium">
+                                  {item.area}
+                                </span>
                                 <span className="text-sm text-gray-500 ml-2">
                                   ({item.cantidad} × {item.costo} Bs.)
                                 </span>
                               </div>
-                              <span className="font-semibold">{item.subtotal} Bs.</span>
+                              <span className="font-semibold">
+                                {item.subtotal} Bs.
+                              </span>
                             </div>
                           ))}
                         </div>
                       </>
                     ) : (
-                      // Mostrar valores por defecto mientras se cargan los costos
                       <>
                         <div className="flex justify-between border-b py-2">
                           <span className="text-gray-600 font-medium">
@@ -488,7 +462,7 @@ const GenerarOrdenPago = () => {
                         </div>
                       </>
                     )}
-                    
+
                     <div className="flex justify-between py-2 text-blue-700 font-bold text-lg">
                       <span>Total a pagar</span>
                       <span>{calcularTotal()} Bs</span>
@@ -498,7 +472,6 @@ const GenerarOrdenPago = () => {
               </div>
             </div>
 
-            {/* Botones de acción */}
             <div className="flex flex-col sm:flex-row justify-center gap-4 mt-6">
               <button
                 onClick={confirmarGenerarOrden}
@@ -542,7 +515,6 @@ const GenerarOrdenPago = () => {
               </button>
             </div>
 
-            {/* Previsualización del PDF */}
             {mostrarPrevisualizacion && pdfUrl && (
               <div className="mt-6 max-w-3xl mx-auto">
                 <h3 className="text-lg font-semibold text-gray-700 mb-4">
@@ -558,7 +530,6 @@ const GenerarOrdenPago = () => {
               </div>
             )}
 
-            {/* Modal de confirmación o orden ya generada */}
             {mostrarModal && (
               <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
                 <div className="bg-white p-8 rounded shadow-lg max-w-md w-full">
@@ -616,7 +587,6 @@ const GenerarOrdenPago = () => {
               </div>
             )}
 
-            {/* Modal de carga */}
             {cargando && (
               <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
                 <div className="bg-white px-8 py-6 rounded-lg shadow-xl w-80 text-center">
@@ -637,8 +607,6 @@ const GenerarOrdenPago = () => {
                 </div>
               </div>
             )}
-
-            {/* Modal de descarga */}
             {descargando && (
               <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                 <div className="bg-white p-6 rounded-lg shadow-lg w-96">
