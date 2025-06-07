@@ -106,8 +106,6 @@ const ConvocatoriasPublicadas = () => {
             </div>
           </motion.div>
         ))}
-
-        {/* Card para añadir nueva convocatoria */}
         <motion.div
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
@@ -120,8 +118,6 @@ const ConvocatoriasPublicadas = () => {
           </p>
         </motion.div>
       </div>
-
-      {/* Modal de confirmación */}
       {showDeleteModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white p-6 rounded-xl shadow-xl w-96 max-w-xs">
@@ -148,8 +144,6 @@ const ConvocatoriasPublicadas = () => {
           </div>
         </div>
       )}
-
-      {/* Modal de éxito */}
       {showSuccessModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white p-6 rounded-xl shadow-xl w-96 max-w-xs text-center">
