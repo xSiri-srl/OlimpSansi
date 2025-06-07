@@ -13,7 +13,6 @@ class olimpiada_area_categoria extends Model
     use HasFactory;
 
     protected $table = 'olimpiada_area_categorias';
-    // Especificar las columnas que se pueden llenar (mass assignment)
     protected $fillable = [
         'id_olimpiada',
         'id_area',

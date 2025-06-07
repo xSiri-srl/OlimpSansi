@@ -7,8 +7,6 @@ use App\Models\Inscripcion\CategoriaModel;
 use App\Models\Inscripcion\ColegioModel;
 use App\Models\Inscripcion\EstudianteModel;
 use App\Models\Inscripcion\GradoModel;
-use App\Models\Inscripcion\InscripcionAreaModel;
-use App\Models\Inscripcion\InscripcionCategoriaModel;
 use App\Models\Inscripcion\InscripcionModel;
 use App\Models\Inscripcion\ResponsableInscripcionModel;
 use App\Models\Inscripcion\TutorAcademicoModel;
@@ -21,47 +19,6 @@ use Illuminate\Support\Facades\DB;
 
 class InscripcionController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
-
-
 public function registrar(Request $request)
 {
     DB::beginTransaction();
@@ -106,10 +63,10 @@ public function registrar(Request $request)
             ]);
         }
 
-        // ❌ Validar si ya está inscrito en demasiadas áreas
+      
         $olimpiada = OlimpiadaModel::findOrFail($data['olimpiada']['id']);
         $limiteAreas = $olimpiada->max_materias;
-        // Verificar cuántas inscripciones tiene el estudiante
+        
         $cantidadInscripciones = InscripcionModel::where('id_estudiante', $estudiante->id)->count();
         if ($cantidadInscripciones + count($data['areas_competencia']) > $limiteAreas) {
                 return response()->json([

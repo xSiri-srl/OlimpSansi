@@ -9,6 +9,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Models\olimpiada_area_categoria;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 
 
@@ -57,7 +58,7 @@ public function store(Request $request)
         $olimpiada->titulo = $request->titulo;
         $olimpiada->fecha_ini = $request->fecha_ini;
         $olimpiada->fecha_fin = $request->fecha_fin;
-        // $olimpiada->max_materias = 1; // ELIMINAR ESTA LÍNEA
+        
         $olimpiada->save();
 
         return response()->json([
@@ -278,20 +279,19 @@ public function getAreasCategoriasPorOlimpiada(Request $request)
 public function verificarInscripciones($id)
 {
     try {
-        // Obtener la olimpiada para verificar las fechas
+        
         $olimpiada = OlimpiadaModel::findOrFail($id);
         
-        // Contar inscripciones asociadas a esta olimpiada
         $cantidadInscripciones = DB::table('inscripcion')
             ->join('olimpiada_area_categorias', 'inscripcion.id_olimpiada_area_categoria', '=', 'olimpiada_area_categorias.id')
             ->where('olimpiada_area_categorias.id_olimpiada', $id)
             ->count();
 
-        // Verificar si el período de inscripción ha terminado
+        
         $hoy = now()->toDateString();
         $periodoTerminado = $hoy > $olimpiada->fecha_fin;
 
-        // La olimpiada está bloqueada si tiene inscripciones O si el período terminó
+        
         $estaBloqueada = $cantidadInscripciones > 0 || $periodoTerminado;
 
         return response()->json([
@@ -324,6 +324,86 @@ private function obtenerRazonBloqueo($cantidadInscripciones, $periodoTerminado)
     return null;
 }
 
+public function obtenerCombinacionesOlimpiada($id_olimpiada)
+{
+    try {
+        // Validar que la olimpiada existe
+        $olimpiada = OlimpiadaModel::findOrFail($id_olimpiada);
+        
+        // Obtener todas las combinaciones válidas de área y categoría para la olimpiada
+        $combinaciones = DB::table('olimpiada_area_categorias as oac')
+            ->join('area as a', 'a.id', '=', 'oac.id_area')
+            ->join('categoria as c', 'c.id', '=', 'oac.id_categoria')
+            ->where('oac.id_olimpiada', $id_olimpiada)
+            ->select(
+                'oac.id as id_olimpiada_area_categoria',
+                'a.id as id_area',
+                'a.nombre_area',
+                'c.id as id_categoria', 
+                'c.nombre_categoria',
+                'oac.precio'
+            )
+            ->orderBy('a.nombre_area')
+            ->orderBy('c.nombre_categoria')
+            ->get();
+
+        // Si no hay combinaciones disponibles
+        if ($combinaciones->isEmpty()) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'No se encontraron combinaciones de áreas y categorías para esta olimpiada.',
+                'data' => []
+            ], 404);
+        }
+
+        // Agrupar por área y formatear según el formato solicitado
+        $areasAgrupadas = [];
+        
+        foreach ($combinaciones as $combo) {
+            $nombreArea = $combo->nombre_area;
+            
+            // Si el área no existe, la creamos
+            if (!isset($areasAgrupadas[$nombreArea])) {
+                $areasAgrupadas[$nombreArea] = [
+                    'area' => $nombreArea,
+                    'categorias' => []
+                ];
+            }
+            
+            // Agregar la categoría al área
+            $areasAgrupadas[$nombreArea]['categorias'][] = $combo->nombre_categoria;
+        }
+        
+        // Formatear el resultado final agrupado por áreas
+        $resultado = [];
+        foreach ($areasAgrupadas as $areaData) {
+            $resultado[] = [
+                'area' => $areaData['area'],
+                'categorias' => $areaData['categorias']
+            ];
+        }
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Combinaciones obtenidas exitosamente.',
+            'data' => $resultado
+        ], 200);
+
+    } catch (ModelNotFoundException $e) {
+        return response()->json([
+            'status' => 404,
+            'message' => 'La olimpiada especificada no existe.',
+        ], 404);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 500,
+            'message' => 'Error al obtener las combinaciones: ' . $e->getMessage(),
+        ], 500);
+    }
+}
+
+
+
 public function getOlimpiadasPublicasCompletas(): JsonResponse
 {
     try {
@@ -348,19 +428,6 @@ public function getOlimpiadasPublicasCompletas(): JsonResponse
 
         return response()->json([
             'status' => 200,
-            'message' => 'Combinaciones obtenidas exitosamente.',
-            'data' => $resultado
-        ], 200);
-
-    } catch (ModelNotFoundException $e) {
-        return response()->json([
-            'status' => 404,
-            'message' => 'La olimpiada especificada no existe.',
-        ], 404);
-    } catch (\Exception $e) {
-        return response()->json([
-            'status' => 500,
-            'message' => 'Error al obtener las combinaciones: ' . $e->getMessage(),
             'data' => $olimpiadasCompletas,
         ]);
     } catch (\Exception $e) {

@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\OrdenPago;
 use Illuminate\Http\Request;
-use thiagoalessio\TesseractOCR\TesseractOCR;
 use App\Models\comprobantes_pago;
 
 
@@ -28,7 +27,7 @@ public function guardarComprobante(Request $request)
         return response()->json(['message' => 'Código no encontrado.'], 404);
     }
 
-    // Crear un nuevo comprobante relacionado a la orden de pago
+   
     $comprobante = new comprobantes_pago();
     $comprobante->id_orden_pago = $ordenPago->id;
     $comprobante->numero_comprobante = $validated['numero_comprobante'];
@@ -37,7 +36,6 @@ public function guardarComprobante(Request $request)
     $comprobante->nombre_pagador = $validated['nombre_pagador'];
     $comprobante->save();
 
-    // Cambiar el estado de la orden de pago a 'pagado'
     $ordenPago->estado = 'pagado';
     $ordenPago->save();
 

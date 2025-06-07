@@ -14,7 +14,6 @@ class CategoriaModel extends Model
     protected $table = 'categoria';
     protected $fillable = [
         'nombre_categoria',
-        //'id_area',
     ];
 
     public function olimpiadaAreaCategoria(){

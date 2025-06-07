@@ -30,7 +30,7 @@ class AreaCategoriaSeeder extends Seeder
             $areaModel = AreaModel::create(['nombre_area' => $area]);
 
             foreach ($categorias as $categoria) {
-                // Buscar si ya existe una categoría con el mismo nombre Y el mismo id_area
+            
                 $exists = CategoriaModel::where('nombre_categoria', $categoria)
                     ->where('id_area', $areaModel->id)
                     ->exists();

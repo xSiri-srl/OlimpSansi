@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\ConvocatoriaModel;
-use App\Models\Inscripcion\AreaModel;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;

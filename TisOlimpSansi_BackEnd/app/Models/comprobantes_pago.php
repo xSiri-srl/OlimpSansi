@@ -10,7 +10,6 @@ class comprobantes_pago extends Model
 {
     use HasFactory;
 
-    // Especificar las columnas que se pueden llenar (mass assignment)
     protected $fillable = [
         'id_orden_pago',
         'comprobante_url',

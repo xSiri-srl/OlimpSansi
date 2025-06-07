@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\OlimpiadaModel;
-use App\Models\AreaModel;
+use App\Models\Inscripcion\AreaModel as InscripcionAreaModel;
 
 class OlimpiadaAreaModel extends Model
 {
@@ -20,6 +20,6 @@ class OlimpiadaAreaModel extends Model
         return $this->belongsTo(OlimpiadaModel::class, 'id_olimpiada', 'id');
     }
     public function areaOlimpiada(){
-        return $this->belongsTo(AreaModel::class, 'id_area', 'id');
+        return $this->belongsTo(InscripcionAreaModel::class, 'id_area', 'id');
     }
 }

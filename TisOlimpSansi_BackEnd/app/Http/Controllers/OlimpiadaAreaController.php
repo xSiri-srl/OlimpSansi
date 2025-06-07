@@ -8,7 +8,6 @@ use App\Models\OlimpiadaAreaModel;
 use App\Models\Inscripcion\AreaModel;
 use App\Models\Inscripcion\CategoriaModel;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use App\Models\Inscripcion\GradoModel;
 use App\Models\Inscripcion\CategoriaGradoModel;
 
