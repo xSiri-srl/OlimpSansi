@@ -46,7 +46,7 @@ const ModalTareasPendientes = ({
       icono: <FaCog className="w-5 h-5" />,
       color: "from-blue-500 to-blue-600",
       importante: true,
-      ruta: "/admin/asociar-nivel",
+      ruta: "/admin/asignar-area-nivel",
       completado: progreso.areasAsociadas
     },
     {
@@ -56,7 +56,7 @@ const ModalTareasPendientes = ({
       icono: <FaDollarSign className="w-5 h-5" />,
       color: "from-green-500 to-green-600",
       importante: true,
-      ruta: "/admin/asociar-costo",
+      ruta: "/admin/asignar-costo",
       completado: progreso.costosDefinidos
     },
     {
@@ -66,7 +66,7 @@ const ModalTareasPendientes = ({
       icono: <FaClipboardList className="w-5 h-5" />,
       color: "from-purple-500 to-purple-600",
       importante: true,
-      ruta: "/admin/asociar-limite",
+      ruta: "/admin/asignar-limite",
       completado: progreso.limiteDefinido
     }
   ];
