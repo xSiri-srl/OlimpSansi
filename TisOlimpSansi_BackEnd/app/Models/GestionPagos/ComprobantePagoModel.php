@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\GestionPagos;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

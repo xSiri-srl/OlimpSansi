@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Usuarios;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\GestionOlimpiadas\OlimpiadaModel;
+
 
 class UserModel extends Authenticatable
 {
@@ -18,6 +19,8 @@ class UserModel extends Authenticatable
      *
      * @var list<string>
      */
+    protected $table = 'users';
+    
     protected $fillable = [
         'name',
         'email',

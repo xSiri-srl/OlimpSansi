@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\GestionOlimpiadas;
 
 use App\Models\Inscripcion\InscripcionModel as InscripcionInscripcionModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

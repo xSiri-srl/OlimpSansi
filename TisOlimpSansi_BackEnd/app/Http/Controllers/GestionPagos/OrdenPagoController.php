@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\GestionPagos;
+
+use App\Http\Controllers\Controller;
 use App\Models\GestionPagos\OrdenPagoModel;
 
 use App\Models\Inscripcion\InscripcionModel;

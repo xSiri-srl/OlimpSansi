@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\GestionPagos;
 
 use App\Models\Inscripcion\ColegioModel;
 use App\Models\Inscripcion\ResponsableInscripcionModel;

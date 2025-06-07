@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\GestionOlimpiadas;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Inscripcion\InscripcionModel;

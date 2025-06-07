@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Usuarios;
 
 use App\Http\Requests\RegistroRequest;
+use App\Http\Controllers\Controller;
 use App\Models\Usuarios\UserModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,7 +16,7 @@ class AuthController extends Controller
     {
         $data = $request->validated();
 
-        $user = User::create([
+        $user = UserModel::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => bcrypt($data['password']),

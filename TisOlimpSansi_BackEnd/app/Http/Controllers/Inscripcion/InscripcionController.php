@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Inscripcion;
 
+use App\Http\Controllers\Controller;
 use App\Models\Inscripcion\AreaModel;
 use App\Models\Inscripcion\CategoriaModel;
 use App\Models\Inscripcion\ColegioModel;

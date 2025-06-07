@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\GestionOlimpiadas;
 
 use App\Models\GestionOlimpiadas\ConvocatoriaModel;
 use App\Http\Controllers\Controller;
