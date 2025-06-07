@@ -8,7 +8,7 @@ import InscripcionEstudiante from "./pages/OrdenDePago/InscripcionEstudiante";
 import InscripcionTutorLegal from "./pages/OrdenDePago/InscripcionTutorLegal";
 import SubirComprobante from "./pages/Comprobante/SubirComprobante";
 import AreaCompetencia from "./pages/OrdenDePago/AreasCompetencia";
-import InscripcionTutorAcademico from "./pages/OrdenDePago/IncripcionTutorAcademico";
+import InscripcionTutorAcademico from "./pages/OrdenDePago/InscripcionTutorAcademico";
 import FormaInscripcion from "./pages/OrdenDePago/FormaInscripcion";
 import OrdenPago from "./pages/OrdenDePago/OrdenDePago";
 import Tutorial from "./pages/InscripcionLista/Tutorial";

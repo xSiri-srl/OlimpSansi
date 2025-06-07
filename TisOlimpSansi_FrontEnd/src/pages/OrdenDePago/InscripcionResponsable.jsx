@@ -4,7 +4,7 @@ import { FaUser, FaIdCard } from "react-icons/fa";
 import InscripcionEstudiante from "./InscripcionEstudiante";
 import AreasCompetencia from "./AreasCompetencia";
 import InscripcionTutorLegal from "./InscripcionTutorLegal";
-import InscripcionTutorAcademico from "./IncripcionTutorAcademico";
+import InscripcionTutorAcademico from "./InscripcionTutorAcademico";
 import Confirmation from "./Confirmation";
 import { FormDataContext, useFormData } from "./form-data-context";
 import { TextField } from "./components/FormComponents";

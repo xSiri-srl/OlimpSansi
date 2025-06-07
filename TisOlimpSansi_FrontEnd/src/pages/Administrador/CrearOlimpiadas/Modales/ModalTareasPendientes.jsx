@@ -16,7 +16,7 @@ const ModalTareasPendientes = ({
   onContinue,
   nombreOlimpiada = "su olimpiada",
   olimpiadaId = null,
-  esPrimeraVez = false // Nuevo prop para indicar si es la primera vez (al crear olimpiada)
+  esPrimeraVez = false 
 }) => {
   const [progreso, setProgreso] = useState({
     areasAsociadas: false,
@@ -26,7 +26,6 @@ const ModalTareasPendientes = ({
 
   const { verificarProgreso, verificando } = useVerificarProgreso();
 
-  // Verificar progreso cuando se abre el modal o cambia la olimpiada
   useEffect(() => {
     if (isOpen && olimpiadaId) {
       const cargarProgreso = async () => {
@@ -72,32 +71,26 @@ const ModalTareasPendientes = ({
     }
   ];
 
-  // Calcular estadísticas de progreso
   const tareasCompletadas = tareas.filter(t => t.completado).length;
   const porcentajeProgreso = Math.round((tareasCompletadas / tareas.length) * 100);
   const todasCompletas = tareasCompletadas === tareas.length;
 
-  // Función para manejar clic en tarjeta específica
   const handleTareaClick = (ruta) => {
-    // Cerrar el modal primero
+   
     onClose();
     
-    // Redirigir a la ruta específica
     setTimeout(() => {
       window.location.href = ruta;
     }, 100);
   };
 
-  // Función para manejar el botón principal
   const handleBotonPrincipal = () => {
     if (esPrimeraVez || todasCompletas) {
-      // Si es la primera vez O todas las tareas están completas, redirigir a inicio
       onClose();
       setTimeout(() => {
         window.location.href = '/';
       }, 100);
     } else {
-      // Si no es primera vez y hay tareas pendientes, ir al primer paso incompleto
       const primeraTareaIncompleta = tareas.find(t => !t.completado);
       const rutaDestino = primeraTareaIncompleta ? primeraTareaIncompleta.ruta : tareas[0].ruta;
       handleTareaClick(rutaDestino);
@@ -107,7 +100,6 @@ const ModalTareasPendientes = ({
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col">
-        {/* Header con gradiente - fijo */}
         <div className="bg-gradient-to-r from-blue-600 to-purple-700 px-6 py-4 text-white flex-shrink-0">
           <div className="flex items-center justify-center mb-3">
             <div className="bg-white bg-opacity-20 rounded-full p-2">
@@ -120,8 +112,7 @@ const ModalTareasPendientes = ({
           <p className="text-center text-blue-100 text-sm truncate mb-2">
             "{nombreOlimpiada}"
           </p>
-          
-          {/* Barra de progreso */}
+
           <div className="bg-white bg-opacity-20 rounded-full h-2 mb-2">
             <div 
               className="bg-white h-2 rounded-full transition-all duration-500 ease-out"
@@ -133,10 +124,9 @@ const ModalTareasPendientes = ({
           </p>
         </div>
 
-        {/* Contenido principal - con scroll */}
         <div className="flex-1 overflow-y-auto p-6">
           {todasCompletas ? (
-            // Mensaje de felicitación cuando todas las tareas están completas
+
             <div className="text-center mb-4">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
                 <FaCheck className="w-8 h-8 text-green-600" />
@@ -163,7 +153,6 @@ const ModalTareasPendientes = ({
             </div>
           )}
 
-          {/* Lista de tareas - compacta y clickeable */}
           <div className="space-y-3 mb-4">
             {tareas.map((tarea, index) => (
               <div 
@@ -221,7 +210,6 @@ const ModalTareasPendientes = ({
             ))}
           </div>
 
-          {/* Nota importante - compacta */}
           <div className={`border rounded-lg p-3 ${
             todasCompletas 
               ? 'bg-green-50 border-green-200'
@@ -253,9 +241,7 @@ const ModalTareasPendientes = ({
           </div>
         </div>
 
-        {/* Footer con botones - fijo */}
         <div className="bg-gray-50 px-6 py-4 flex justify-between items-center flex-shrink-0 border-t">
-          {/* Solo mostrar "Configurar más tarde" si NO es primera vez Y NO todas están completas */}
           {!esPrimeraVez && !todasCompletas && (
             <button
               onClick={onClose}
@@ -264,11 +250,9 @@ const ModalTareasPendientes = ({
               Configurar más tarde
             </button>
           )}
-          
-          {/* Espaciador para centrar el botón cuando no hay botón izquierdo */}
+
           {(esPrimeraVez || todasCompletas) && <div></div>}
           
-          {/* Mostrar botón siempre - cambiar texto según el estado */}
           <button
             onClick={handleBotonPrincipal}
             disabled={verificando}

@@ -1,5 +1,3 @@
-"use client"
-
 import { useState, useEffect } from "react"
 import jsPDF from "jspdf"
 import autoTable from "jspdf-autotable"
@@ -23,10 +21,9 @@ function InscritosVerificados() {
 
   useEffect(() => {
     axios
-      .get(`${API_URL}/api/estudiantes/inscritos`) // AQUI PONER LA LLAMADA
+      .get(`${API_URL}/api/estudiantes/inscritos`) 
       .then((response) => {
-        setInscritos(response.data.estudiantes_que_pagaron) // CAMBIAR
-        console.log("Inscritos:", response.data.estudiantes_que_pagaron) // CAMBIAR
+        setInscritos(response.data.estudiantes_que_pagaron) 
       })
   }, [])
 
@@ -41,8 +38,6 @@ function InscritosVerificados() {
   
     return coincideBusqueda
   })
-  console.log("Resultados Filtrados:", resultadosFiltrados)
-
   const resultadosPorPagina = 10
   const totalPaginas = Math.ceil(resultadosFiltrados.length / resultadosPorPagina)
   const indiceInicial = (paginaActual - 1) * resultadosPorPagina
@@ -114,7 +109,6 @@ function InscritosVerificados() {
 
   return (
     <div className="relative p-6 bg-white shadow-md rounded-xl">
-      {/* Botón arriba a la derecha */}
       <div className="absolute top-9 right-6">
         <button
           onClick={() => navigate(-1)}
@@ -125,12 +119,11 @@ function InscritosVerificados() {
         </button>
       </div>
 
-      {/* Título centrado */}
       <h1 className="text-sky-950 font-bold text-3xl text-center">Lista de Inscritos Verificados</h1>
 
       <div className="w-full max-w-5xl mx-auto mt-8 bg-sky-50 rounded-2xl shadow-lg">
         <div className="flex flex-col md:flex-row p-6 gap-4">
-          {/* buscador */}
+
           <div className="flex-1">
             <label htmlFor="busqueda" className="block mb-2 text-sm font-semibold text-gray-700">
               Buscar por nombre, apellidos, carnet o correo
@@ -143,8 +136,6 @@ function InscritosVerificados() {
               onChange={(e) => setBusqueda(e.target.value)}
             />
           </div>
-
-          
         </div>
       </div>
 

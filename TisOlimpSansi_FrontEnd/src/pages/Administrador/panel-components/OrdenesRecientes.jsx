@@ -13,11 +13,9 @@ const OrdenesRecientes = ({ darkMode }) => {
     const fetchOrdenesRecientes = async () => {
       try {
         setLoading(true);
-        
-        // Usar el endpoint optimizado para órdenes recientes
+ 
         const response = await axios.get(`${API_URL}/api/ordenes-recientes`);
-        
-        // Establecer las órdenes directamente desde la respuesta
+
         setOrders(response.data);
         
       } catch (err) {

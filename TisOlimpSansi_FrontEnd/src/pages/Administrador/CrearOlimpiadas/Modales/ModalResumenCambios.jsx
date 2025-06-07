@@ -31,8 +31,6 @@ const ModalResumenCambios = ({
           <p className="text-sm text-gray-700 mb-4">
             Se aplicarán los siguientes cambios:
           </p>
-          
-          {/* Áreas completas para desasociar */}
           {hayAreasParaDesasociar && (
             <div className="mb-4">
               <h4 className="font-medium text-gray-900 mb-2">
@@ -47,8 +45,6 @@ const ModalResumenCambios = ({
               </div>
             </div>
           )}
-
-          {/* Categorías individuales para eliminar */}
           {hayCategorias && (
             <div className="mb-4">
               <h4 className="font-medium text-gray-900 mb-2">
