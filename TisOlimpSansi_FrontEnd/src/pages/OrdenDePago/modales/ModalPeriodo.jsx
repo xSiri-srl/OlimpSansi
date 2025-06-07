@@ -1,9 +1,8 @@
 import { useEffect } from "react";
-import { motion } from "framer-motion";
 import { FaCalendarTimes } from "react-icons/fa";
+import { motion } from "framer-motion";
 
 export default function ModalPeriodo({ isOpen, onClose, fechaIni, fechaFin }) {
-  // Formatear fechas para mostrar de manera amigable
   const formatFecha = (fechaString) => {
     const fecha = new Date(fechaString);
     return fecha.toLocaleDateString('es-ES', {
@@ -12,29 +11,24 @@ export default function ModalPeriodo({ isOpen, onClose, fechaIni, fechaFin }) {
       day: 'numeric'
     });
   };
-
-  // FUNCIÓN CORREGIDA - Determinar si la inscripción no ha comenzado o ya terminó
   const getEstadoInscripcion = () => {
     const ahora = new Date();
     const inicio = new Date(fechaIni);
     const fin = new Date(fechaFin);
-    
-    // Normalizar fechas para comparar solo días
     ahora.setHours(0, 0, 0, 0);
     inicio.setHours(0, 0, 0, 0);
-    fin.setHours(23, 59, 59, 999); // Incluir todo el día final
+    fin.setHours(23, 59, 59, 999); 
     
     if (ahora < inicio) {
       return "no_iniciada";
-    } else if (ahora > fin) {  // Cambio: > en lugar de >=
+    } else if (ahora > fin) {  
       return "finalizada";
     }
-    return "activa"; // No debería ocurrir si el modal se muestra correctamente
+    return "activa"; 
   };
 
   const estadoInscripcion = getEstadoInscripcion();
 
-  // Cerrar modal con escape
   useEffect(() => {
     const handleEscKey = (event) => {
       if (event.key === 'Escape' && isOpen) {

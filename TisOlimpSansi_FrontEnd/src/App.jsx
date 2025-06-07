@@ -23,7 +23,6 @@ import DescargarListas from "./pages/Administrador/Reportes/DescargarListas";
 import PreInscritos from "./pages/Administrador/Reportes/PreInscritos";
 import InscritosVerificados from "./pages/Administrador/Reportes/InscritosVerificados";
 import OrdenesPago from "./pages/Administrador/Reportes/OrdenesPago";
-import Propuesta from "./pages/OrdenDePago/Propuesta";
 import ConvocatoriasPublicadas from "./pages/Administrador/Convocatorias/ConvocatoriasPublicadas";
 import SubirConvocatoria from "./pages/Administrador/Convocatorias/SubirConvocatoria";
 
@@ -75,10 +74,6 @@ export default function App() {
               <Route
                 path="/inscripcion/tutor-academico"
                 element={<InscripcionTutorAcademico />}
-              />
-              <Route 
-                path="/inscripcion/propuesta" 
-                element={<Propuesta />} 
               />
               <Route 
                 path="/editar-preinscripcion" 

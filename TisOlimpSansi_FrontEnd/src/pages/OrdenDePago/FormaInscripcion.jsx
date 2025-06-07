@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaUserAlt, FaUsers } from "react-icons/fa";
-import { motion } from "framer-motion";
 import { useFormData } from "./form-data-context";
 import ModalPeriodo from "./modales/ModalPeriodo";
 import { API_URL } from "../../utils/api";
 import axios from "axios"
+import { motion } from "framer-motion";
 
 export default function FormularioEstudiante() {
   const navigate = useNavigate();
@@ -15,8 +15,6 @@ export default function FormularioEstudiante() {
   const [nombreOlimpiada, setNombreOlimpiada] = useState("");
   const [cargandoOlimpiadas, setCargandoOlimpiadas] = useState(false);
   const [errorCarga, setErrorCarga] = useState("");
-  
-  // Estados para el modal de período
   const [showPeriodoModal, setShowPeriodoModal] = useState(false);
   const [olimpiadaSeleccionadaInfo, setOlimpiadaSeleccionadaInfo] = useState({
     fechaIni: "",
@@ -57,7 +55,6 @@ export default function FormularioEstudiante() {
   };
 
   const handleSeleccionLista = () => {
-    // Guardar el ID de olimpiada en el contexto global
     setGlobalData(prevState => ({
       ...prevState,
       olimpiada: {
@@ -71,66 +68,16 @@ export default function FormularioEstudiante() {
     state: { id: olimpiadaSeleccionada }
   });
   };
-
-  // Función para verificar si estamos dentro del período de inscripción
   const estaEnPeriodo = (fechaIni, fechaFin) => {
   const ahora = new Date();
   const inicio = new Date(fechaIni);
   const fin = new Date(fechaFin);
-  
-  // Establecer horas para comparar correctamente
   ahora.setHours(0, 0, 0, 0);
   inicio.setHours(0, 0, 0, 0);
-  fin.setHours(23, 59, 59, 999); // Incluir todo el día final
-  
-  // CORRECCIÓN: Cambiar la primera condición para incluir el día de inicio
+  fin.setHours(23, 59, 59, 999); 
   return ahora >= inicio && ahora <= fin;
 };
 
-// CORRECCIÓN PARA ModalPeriodo.js
-// Función para determinar el estado de la inscripción
-const getEstadoInscripcion = () => {
-  const ahora = new Date();
-  const inicio = new Date(fechaIni);
-  const fin = new Date(fechaFin);
-  
-  // Normalizar fechas para comparar solo días
-  ahora.setHours(0, 0, 0, 0);
-  inicio.setHours(0, 0, 0, 0);
-  fin.setHours(23, 59, 59, 999); // Incluir todo el día final
-  
-  if (ahora < inicio) {
-    return "no_iniciada";
-  } else if (ahora > fin) {
-    return "finalizada";
-  }
-  return "activa"; // Esto significa que está en período válido
-};
-
-// DEBUGGING - Función para verificar las fechas (agregar temporalmente)
-const debugFechas = (fechaIni, fechaFin) => {
-  const ahora = new Date();
-  const inicio = new Date(fechaIni);
-  const fin = new Date(fechaFin);
-  
-  console.log("=== DEBUG FECHAS ===");
-  console.log("Fecha actual:", ahora.toISOString());
-  console.log("Fecha inicio:", inicio.toISOString());
-  console.log("Fecha fin:", fin.toISOString());
-  
-  ahora.setHours(0, 0, 0, 0);
-  inicio.setHours(0, 0, 0, 0);
-  fin.setHours(23, 59, 59, 999);
-  
-  console.log("Después de normalizar:");
-  console.log("Ahora:", ahora.toISOString());
-  console.log("Inicio:", inicio.toISOString());
-  console.log("Fin:", fin.toISOString());
-  console.log("¿Está en período?", ahora >= inicio && ahora <= fin);
-  console.log("==================");
-};
-
-  // Manejador modificado para la selección de olimpiada
   const handleOlimpiadaChange = (e) => {
     const idSeleccionado = e.target.value;
     
@@ -140,28 +87,22 @@ const debugFechas = (fechaIni, fechaFin) => {
       );
       
       if (olimpiadaInfo) {
-        // Verificar si estamos dentro del periodo de inscripción
         if (estaEnPeriodo(olimpiadaInfo.fecha_ini, olimpiadaInfo.fecha_fin)) {
-          // Si estamos en periodo, simplemente seleccionamos la olimpiada
           setOlimpiadaSeleccionada(idSeleccionado);
         } else {
-          // Fuera de periodo, mostramos el modal
           setOlimpiadaSeleccionadaInfo({
             fechaIni: olimpiadaInfo.fecha_ini + "T00:00:00",
             fechaFin: olimpiadaInfo.fecha_fin + "T00:00:00"
           });
           setShowPeriodoModal(true);
-          // No seleccionamos la olimpiada
           setOlimpiadaSeleccionada("");
         }
       }
     } else {
-      // Si no hay selección, limpiamos
       setOlimpiadaSeleccionada("");
     }
   };
 
-  // Cargar la lista de olimpiadas COMPLETAS disponibles
   useEffect(() => {
     const cargarOlimpiadas = async () => {
       setCargandoOlimpiadas(true);
@@ -187,7 +128,6 @@ const debugFechas = (fechaIni, fechaFin) => {
     cargarOlimpiadas();
   }, []);
 
-  // Actualizar nombre de olimpiada cuando se selecciona una
   useEffect(() => {
     if (olimpiadaSeleccionada) {
       const olimpiada = olimpiadas.find(
@@ -291,8 +231,6 @@ const debugFechas = (fechaIni, fechaFin) => {
           </div>
         </>
       )}
-
-      {/* Mensaje cuando no hay olimpiada seleccionada */}
       {!olimpiadaSeleccionada && !cargandoOlimpiadas && !errorCarga && olimpiadas.length > 0 && (
         <div className="mt-8 p-6 bg-yellow-50 border border-yellow-200 rounded-lg text-center">
           <p className="text-yellow-700">
@@ -301,7 +239,6 @@ const debugFechas = (fechaIni, fechaFin) => {
         </div>
       )}
 
-      {/* Mensaje cuando no hay olimpiadas disponibles */}
       {!cargandoOlimpiadas && !errorCarga && olimpiadas.length === 0 && (
         <div className="mt-8 p-6 bg-orange-50 border border-orange-200 rounded-lg text-center w-full max-w-2xl">
           <p className="text-orange-700">
@@ -312,8 +249,6 @@ const debugFechas = (fechaIni, fechaFin) => {
           </p>
         </div>
       )}
-
-      {/* Modal de período para olimpiadas fuera de fechas permitidas */}
       <ModalPeriodo
         isOpen={showPeriodoModal}
         onClose={() => setShowPeriodoModal(false)}

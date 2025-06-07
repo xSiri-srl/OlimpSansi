@@ -15,13 +15,9 @@ const AreaGrid = ({
   const renderizarArea = (area, index) => {
     const estaSeleccionada = seleccionadas.includes(area.nombre);
     const nombreArea = area.nombre;
-
-    // Obtener directamente las categorías según el nombre del área (tal como lo devuelve el backend)
     const categoriasEncontradas = Array.isArray(areasCategorias[nombreArea])
       ? areasCategorias[nombreArea]
       : [];
-
-    // Formatear para mostrar solo los nombres (si es objeto)
     const categoriasParaMostrar = categoriasEncontradas.length > 0
       ? categoriasEncontradas.map(cat => cat.nombre || cat)
       : ["Sin categorías disponibles"];

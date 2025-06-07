@@ -16,27 +16,6 @@ export default function InscripcionTutorLegal({
   const { globalData, setGlobalData } = useFormData();
   const { errors, validateInput, validateEmailField, setErrors } =
     useFormValidation();
-  const validateAllFields = () => {
-    validateInput(formData.legal?.correoPertenece, "correoPertenece");
-    validateInput(
-      formData.legal?.apellidoPaterno,
-      "apellidoPaterno",
-      /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
-    );
-    validateInput(
-      formData.legal?.apellidoMaterno,
-      "apellidoMaterno",
-      /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
-    );
-    validateInput(
-      formData.legal?.nombres,
-      "nombres",
-      /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/
-    );
-    validateInput(formData.legal?.ci, "ci", /^[0-9]*$/);
-    validateInput(formData.legal?.telefono, "telefono", /^[0-9]*$/);
-    validateEmailField(formData.legal?.correo, "correo");
-  };
   const [isSearching, setIsSearching] = useState(false);
   const [tutorLegalFound, setTutorLegalFound] = useState(false);
   const rolesDisponibles = ["Padre", "Madre", "Tutor Legal"];
@@ -51,8 +30,6 @@ export default function InscripcionTutorLegal({
 
         if (response.data.found) {
           const tutorLegal = response.data.tutorLegal;
-
-          // Convertir valores a string para asegurar compatibilidad
           handleInputChange(
             "legal",
             "nombres",
@@ -75,20 +52,13 @@ export default function InscripcionTutorLegal({
             String(tutorLegal.numero_celular || "")
           );
 
-          // Asegurarse de que el rol esté establecido
           const rol = tutorLegal.tipo || "Tutor Legal";
           handleInputChange("legal", "correoPertenece", rol);
-
-          // Limpiar todos los errores - AÑADIR ESTA LÍNEA
           setErrors({});
 
           setTutorLegalFound(true);
           console.log("Tutor legal encontrado:", tutorLegal);
 
-          // ELIMINAR o COMENTAR estas líneas
-          // setTimeout(() => {
-          //   validateAllFields();
-          // }, 100);
         } else {
           setTutorLegalFound(false);
           console.log("No se encontró tutor legal con ese CI");
@@ -108,7 +78,6 @@ export default function InscripcionTutorLegal({
     handleInputChange("legal", "ci", value);
     setErrors((prev) => ({ ...prev, ci: "" }));
 
-    // Si el CI tiene 7-8 dígitos, buscar en la base de datos
     if (value.length >= 7 && value.length <= 8) {
       buscarTutorLegalPorCI(value);
     } else if (value.length < 7) {
@@ -204,7 +173,7 @@ export default function InscripcionTutorLegal({
     formData.legal?.nombres?.length >= 2 &&
     formData.legal?.apellidoMaterno?.length >= 2 &&
     formData.legal?.apellidoPaterno?.length >= 2 &&
-    formData.legal?.telefono?.length >= 7 && // Más flexible con la longitud del teléfono
+    formData.legal?.telefono?.length >= 7 && 
     !isSubmitting;
 
   return (

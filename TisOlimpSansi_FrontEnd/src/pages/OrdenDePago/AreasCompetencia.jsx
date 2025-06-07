@@ -70,11 +70,8 @@ export default function AreasCompetencia({
     handleInputChange,
     maxAreas
   );
-
-  // Simplificar la validación para que coincida con la implementación
   const isFormValid = validarFormulario(seleccionadas, categoriasSeleccionadas);
 
-  // Manejo del envío y avance
   const handleSubmitAndNext = () => {
     if (!isFormValid) {
       return;

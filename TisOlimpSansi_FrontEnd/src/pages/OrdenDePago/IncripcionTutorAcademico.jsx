@@ -23,8 +23,6 @@ export default function FormularioTutoresAcademicos({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchingTutores, setSearchingTutores] = useState({});
   const [tutoresEncontrados, setTutoresEncontrados] = useState({});
-
-  // Obtener las áreas del contexto global
   const areasCompetencia = globalData.areas_competencia || [];
 
   const buscarTutorPorCI = async (ci, area) => {
@@ -40,8 +38,6 @@ export default function FormularioTutoresAcademicos({
 
         if (response.data.found) {
           const tutor = response.data.tutor;
-
-          // Actualizar los datos del tutor para esta área
           setTutoresPorArea((prev) => ({
             ...prev,
             [area]: {
@@ -54,7 +50,6 @@ export default function FormularioTutoresAcademicos({
             },
           }));
 
-          // Marcar como encontrado
           setTutoresEncontrados((prev) => ({
             ...prev,
             [area]: true,
@@ -82,7 +77,6 @@ export default function FormularioTutoresAcademicos({
       }
     }
   };
-  // Inicializar el estado cuando se cargan las áreas
   useEffect(() => {
     const initialState = {};
     areasCompetencia.forEach((area) => {
@@ -90,17 +84,13 @@ export default function FormularioTutoresAcademicos({
     });
     setExpandedAreas(initialState);
 
-    // Inicializar tutoresPorArea con los datos guardados o valores por defecto
     const tutoresState = {};
     areasCompetencia.forEach((area) => {
       const areaName = area.nombre_area;
 
-      // Buscar el tutor guardado para esta área
       const tutorGuardado = globalData.tutores_academicos?.find(
         (tutor) => tutor.nombre_area === areaName
       );
-
-      // Verificar si existe información guardada para este área
       if (tutorGuardado) {
         tutoresState[areaName] = {
           apellidoPaterno: tutorGuardado.tutor?.apellido_pa || "",
@@ -108,13 +98,9 @@ export default function FormularioTutoresAcademicos({
           nombres: tutorGuardado.tutor?.nombre || "",
           ci: tutorGuardado.tutor?.ci || "",
           correo: tutorGuardado.tutor?.correo || "",
-          // Usar el estado checkbox guardado o false por defecto
           seleccionado: tutorGuardado.checkbox_activo || false,
-          // Mantener el estado expandido según el checkbox
           expanded: tutorGuardado.checkbox_expanded || false,
         };
-
-        // Actualizar el estado expandido según lo guardado
         if (tutorGuardado.checkbox_activo) {
           setExpandedAreas((prev) => ({
             ...prev,
@@ -122,7 +108,6 @@ export default function FormularioTutoresAcademicos({
           }));
         }
       } else {
-        // Inicializar con valores por defecto
         tutoresState[areaName] = {
           apellidoPaterno: "",
           apellidoMaterno: "",
@@ -146,8 +131,6 @@ export default function FormularioTutoresAcademicos({
         ...prev,
         [area]: newExpandedState,
       }));
-
-      // Actualizar también el estado expanded en tutoresPorArea
       setTutoresPorArea((prev) => ({
         ...prev,
         [area]: {
@@ -160,7 +143,7 @@ export default function FormularioTutoresAcademicos({
 
   const handleCheckboxChange = (area) => {
     const nuevoEstado = !tutoresPorArea[area]?.seleccionado;
-    const nuevoExpandido = nuevoEstado; // Expandir automáticamente al activar
+    const nuevoExpandido = nuevoEstado; 
 
     setTutoresPorArea((prev) => ({
       ...prev,
@@ -199,11 +182,9 @@ export default function FormularioTutoresAcademicos({
       [`${area}-${field}`]: "",
     }));
 
-    // Si el campo es CI y tiene 7-8 dígitos, buscar en la base de datos
     if (field === "ci" && value.length >= 7 && value.length <= 8) {
       buscarTutorPorCI(value, area);
     } else if (field === "ci" && value.length < 7) {
-      // Resetear estado de encontrado si el CI es demasiado corto
       setTutoresEncontrados((prev) => ({
         ...prev,
         [area]: false,
@@ -286,10 +267,8 @@ export default function FormularioTutoresAcademicos({
 
         return {
           nombre_area: area,
-          // Guardar los estados del checkbox
           checkbox_activo: seleccionado || false,
           checkbox_expanded: expandedAreas[area] || false,
-          // Si no está seleccionado, guardar datos vacíos en lugar de los datos del estudiante
           tutor: seleccionado
             ? {
                 nombre: tutor.nombres,
@@ -323,21 +302,15 @@ export default function FormularioTutoresAcademicos({
   };
 
   const isFormValid = () => {
-    // Verificar si hay algún área seleccionada
     const areasSeleccionadas = Object.keys(tutoresPorArea).filter(
       (area) => tutoresPorArea[area]?.seleccionado
     );
-
-    // Si no hay áreas seleccionadas, el formulario es válido (ahora guardará datos vacíos)
     if (areasSeleccionadas.length === 0) {
       return true;
     }
 
-    // Verificar que todas las áreas seleccionadas tengan datos válidos
     for (const area of areasSeleccionadas) {
       const tutor = tutoresPorArea[area];
-
-      // Validar campos requeridos
       if (
         !tutor.apellidoPaterno ||
         !tutor.apellidoMaterno ||
@@ -347,8 +320,6 @@ export default function FormularioTutoresAcademicos({
       ) {
         return false;
       }
-
-      // Validar longitudes mínimas
       if (
         tutor.ci.length < 7 ||
         tutor.nombres.length < 2 ||
@@ -357,8 +328,6 @@ export default function FormularioTutoresAcademicos({
       ) {
         return false;
       }
-
-      // Validar número de nombres (máximo 2)
       if (tutor.nombres.split(" ").length > 2) {
         return false;
       }
@@ -432,7 +401,7 @@ export default function FormularioTutoresAcademicos({
                   </div>
 
                   <div className="space-y-4">
-                    {/* Carnet de Identidad (Ahora es el primer campo) */}
+                    {/* Carnet de Identidad*/}
                     <div>
                       <label className="flex items-center gap-2">
                         <FaIdCard className="text-black" /> Carnet de Identidad
@@ -565,8 +534,6 @@ export default function FormularioTutoresAcademicos({
                         </p>
                       )}
                     </div>
-
-                    {/* Campo de correo electrónico que faltaba */}
                     <div>
                       <label className="flex items-center gap-2">
                         <FaEnvelope className="text-black" /> Correo Electrónico
@@ -596,15 +563,12 @@ export default function FormularioTutoresAcademicos({
               )}
           </div>
         ))}
-
-        {/* Mensaje de error general */}
         {errors.general && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mt-4">
             {errors.general}
           </div>
         )}
 
-        {/* Botones de Navegación */}
         <div className="flex justify-between mt-6">
           <button
             type="button"

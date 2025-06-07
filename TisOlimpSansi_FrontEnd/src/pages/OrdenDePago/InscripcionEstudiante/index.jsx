@@ -9,8 +9,6 @@ import axios from "axios"
 
 const transformarFormatoCurso = (curso) => {
   if (!curso) return "";
-
-  // Convertir a mayúsculas y eliminar la palabra "DE"
   return curso.toUpperCase().replace(/\sDE\s/i, " ");
 };
 export default function InscripcionEstudiante({
@@ -62,7 +60,6 @@ export default function InscripcionEstudiante({
             estudiante.apellido_ma
           );
 
-          // Formatear correctamente la fecha (yyyy-mm-dd)
           if (estudiante.fecha_nacimiento) {
             console.log(
               "Fecha original recibida:",
@@ -139,36 +136,23 @@ export default function InscripcionEstudiante({
             );
           }
 
-          // Manejar la normalización del grado/curso en un bloque try-catch separado
           try {
             if (estudiante.grado && estudiante.grado.nombre_grado) {
               const gradoNombre = estudiante.grado.nombre_grado;
-              console.log("Grado recibido del backend:", gradoNombre);
-
-              // Normalizar el nombre del grado para que coincida con las opciones del desplegable
               let cursoNormalizado = gradoNombre;
-
-              // Primero verificar si ya hay una coincidencia exacta
               if (CURSOS.includes(gradoNombre)) {
                 cursoNormalizado = gradoNombre;
               } else {
-                // Si no hay coincidencia exacta, intentamos normalizar
                 const gradoLower = gradoNombre.toLowerCase();
-
-                // Detectar si es primaria o secundaria
                 const esPrimaria = gradoLower.includes("primaria");
                 const esSecundaria = gradoLower.includes("secundaria");
-
-                // Extraer el número del grado
                 const numeroMatch = gradoLower.match(/\d+/);
                 const numero = numeroMatch ? numeroMatch[0] : "";
 
                 if (numero) {
-                  // Buscar coincidencias en el array CURSOS
                   const posibleCurso = CURSOS.find((curso) => {
                     const cursoLower = curso.toLowerCase();
 
-                    // Verificar si coincide el nivel (primaria/secundaria) y el número
                     if (
                       esPrimaria &&
                       cursoLower.includes("primaria") &&
@@ -193,13 +177,10 @@ export default function InscripcionEstudiante({
               }
 
               console.log("Grado normalizado:", cursoNormalizado);
-
-              // Establecer el curso normalizado en el formulario
               handleInputChange("estudiante", "curso", cursoNormalizado);
             }
           } catch (cursoError) {
             console.error("Error al procesar el curso:", cursoError);
-            // No mostramos error al usuario para no interrumpir el flujo
           }
 
           setEstudianteFound(true);
@@ -256,7 +237,6 @@ export default function InscripcionEstudiante({
     setIsSubmitting(true);
 
     try {
-      // Transformar el formato del curso antes de guardarlo
       const cursoFormateado = transformarFormatoCurso(
         formData.estudiante?.curso
       );
@@ -279,17 +259,13 @@ export default function InscripcionEstudiante({
           nombre_colegio: formData.estudiante?.colegio,
           departamento: formData.estudiante?.departamentoSeleccionado,
           distrito: formData.estudiante?.distrito,
-          curso: cursoFormateado, // Usar el curso formateado
+          curso: cursoFormateado, 
           es_nuevo: colegioData.esNuevoColegio,
         },
       };
 
       // Guardar en el contexto global
       setGlobalData(updatedData);
-
-      console.log("Datos actualizados en JSON:", updatedData);
-
-      // Continuar al siguiente paso
       handleNext();
     } catch (error) {
       console.error("Error al procesar los datos:", error);

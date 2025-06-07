@@ -14,15 +14,12 @@ const AreaCard = ({
     ? categorias 
     : ["Sin categorías disponibles"];
   
-  // Auto-seleccionar categoría si hay una sola opción válida
   useEffect(() => {
     if (estaSeleccionada && !categoriaSeleccionada && categoriasDisponibles.length === 1) {
       const categoria = categoriasDisponibles[0];
-      // Solo auto-seleccionar si la categoría es válida
       if (categoria !== "Sin categorías disponibles" && 
           categoria !== "Categoría no disponible para este curso" &&
           !categoria.includes("No hay categorías disponibles")) {
-        console.log(`🎯 Auto-seleccionando categoría: "${categoria}" para área: "${area.nombre}"`);
         handleCategoriaChange(area.nombre, categoria);
       }
     }
@@ -83,7 +80,6 @@ const AreaCard = ({
             className="w-full p-1 text-xs border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={categoriaSeleccionada || ""}
             onChange={(e) => {
-              console.log(`🎯 Seleccionando categoría "${e.target.value}" para área "${area.nombre}"`);
               handleCategoriaChange(area.nombre, e.target.value);
             }}
             required

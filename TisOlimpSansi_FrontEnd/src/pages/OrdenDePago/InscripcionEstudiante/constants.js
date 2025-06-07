@@ -13,7 +13,6 @@ export const CURSOS = [
 
 export const PROPIETARIOS_CORREO = ["Estudiante", "Padre/Madre", "Profesor"];
 
-// Calculadores para límites de fecha
 export const getMinDate = () => {
   const d = new Date();
   d.setFullYear(d.getFullYear() - 20);
