@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import RegistroResponsable from "./RegistroResponsable";
 import SubirArchivo from "./SubirArchivo";
 import ListaCompetidores from "./ListaCompetidores";
@@ -19,7 +19,6 @@ const RegistroPorLista = () => {
   return (
     <div className="p-10">
       <div className="max-w-4xl mx-auto bg-gray-200 p-9 shadow-lg rounded-lg">
-        {/* Progreso */}
         <div className="flex items-center justify-between mb-6">
           {pasos.map((stepLabel, index) => (
             <div key={index} className="flex flex-col items-center">
@@ -43,7 +42,6 @@ const RegistroPorLista = () => {
           ))}
         </div>
 
-        {/* Contenido de cada paso */}
         {step === 1 && <RegistroResponsable setStep={setStep} />}
         {step === 2 && <RegistroColegio setStep={setStep} />}
         {step === 3 && <SubirArchivo setStep={setStep} />}

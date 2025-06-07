@@ -13,7 +13,7 @@ class OlimpiadaAreaCategoriaSeeder extends Seeder
 
         for ($area = 1; $area <= 7; $area++) {
             for ($categoria = 1; $categoria <= 26; $categoria++) {
-                DB::table('olimpiada_area_categorias')->insert([
+                DB::table('olimpiada_area_categoria')->insert([
                     'id_olimpiada' => $id_olimpiada,
                     'id_area' => $area,
                     'id_categoria' => $categoria,

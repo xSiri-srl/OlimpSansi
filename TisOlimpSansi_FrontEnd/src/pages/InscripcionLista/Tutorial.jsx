@@ -1,20 +1,19 @@
-import React, { useState } from "react";
-import { useNavigate,useLocation } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { FaExclamationTriangle } from "react-icons/fa";
-import { IoClose } from "react-icons/io5"; // Ícono de cierre
-
+import { IoClose } from "react-icons/io5";
 
 const Tutorial = () => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
-  const [scale, setScale] = useState(1); // Escala de zoom
+  const [scale, setScale] = useState(1);
   const location = useLocation();
-  const olimpiada = location.state; 
+  const olimpiada = location.state;
 
   const handleSeleccion = () => {
-     navigate(`/inscripcion-lista/registro-lista`, {
-    state:olimpiada
-  });
+    navigate(`/inscripcion-lista/registro-lista`, {
+      state: olimpiada,
+    });
   };
 
   const handleWheel = (e) => {
@@ -22,51 +21,47 @@ const Tutorial = () => {
     const delta = e.deltaY;
     setScale((prev) => {
       let next = prev - delta * 0.001;
-      return Math.min(Math.max(next, 0.5), 3); // Limita el zoom entre 0.5x y 3x
+      return Math.min(Math.max(next, 0.5), 3);
     });
   };
 
   return (
     <div className="flex justify-center items-center bg-gray-100 p-9">
       <div className="flex flex-col lg:flex-row bg-white p-5 shadow-2xl rounded-lg max-w-7xl w-full">
-        {/* Lado izquierdo */}
-<div className="lg:w-1/2 bg-gray-200 p-6 rounded-lg shadow-md flex flex-col items-center">
-  <p className="text-red-600 font-bold text-2xl lg:text-3xl mb-6 text-center">
-    EJEMPLO DE LLENADO
-  </p>
-  <div
-  className="w-full overflow-x-auto overflow-y-hidden border border-blue-200 rounded shadow"
-  style={{ height: "8cm" }}
->
-<div
-  style={{
-    height: '8cm',
-    overflowX: 'auto',
-    overflowY: 'hidden',
-    border: '1px solid #ccc',
-    borderRadius: '0.5rem',
-    padding: '0.5rem',
-  }}
->
-  <div style={{ width: 'max-content' }}>
-    <img
-      src="/images/Ejemplo.png"
-      alt="Ejemplo Expandido"
-      style={{
-        height: '7cm',
-        display: 'block',
-      }}
-    />
-  </div>
-</div>
+        <div className="lg:w-1/2 bg-gray-200 p-6 rounded-lg shadow-md flex flex-col items-center">
+          <p className="text-red-600 font-bold text-2xl lg:text-3xl mb-6 text-center">
+            EJEMPLO DE LLENADO
+          </p>
+          <div
+            className="w-full overflow-x-auto overflow-y-hidden border border-blue-200 rounded shadow"
+            style={{ height: "8cm" }}
+          >
+            <div
+              style={{
+                height: "8cm",
+                overflowX: "auto",
+                overflowY: "hidden",
+                border: "1px solid #ccc",
+                borderRadius: "0.5rem",
+                padding: "0.5rem",
+              }}
+            >
+              <div style={{ width: "max-content" }}>
+                <img
+                  src="/images/Ejemplo.png"
+                  alt="Ejemplo Expandido"
+                  style={{
+                    height: "7cm",
+                    display: "block",
+                  }}
+                />
+              </div>
+            </div>
+          </div>
 
-</div>
-
-
-<p className="text-center text-sm text-gray-500 mb-2">
-  Usa la barra para deslizar, y visualizar todos los campos
-</p>
-
+          <p className="text-center text-sm text-gray-500 mb-2">
+            Usa la barra para deslizar, y visualizar todos los campos
+          </p>
 
           <div className="flex flex-col sm:flex-row gap-4 mt-5">
             <a
@@ -85,7 +80,6 @@ const Tutorial = () => {
           </div>
         </div>
 
-        {/* Lado derecho */}
         <div className="lg:w-1/2 px-8 lg:px-14 mt-8 lg:mt-0">
           <p className="text-red-600 font-bold text-2xl lg:text-3xl mb-6">
             TENER EN CUENTA ESTAS RECOMENDACIONES DURANTE EL LLENADO:
@@ -95,38 +89,38 @@ const Tutorial = () => {
             <div className="flex items-start gap-4">
               <FaExclamationTriangle className="text-yellow-500 text-2xl" />
               <p className="text-gray-700 text-lg">
-                Si su estudiante se está inscribiendo en dos materias, debe registrarlo dos veces,
-                una por cada materia.
+                Si su estudiante se está inscribiendo en dos materias, debe
+                registrarlo dos veces, una por cada materia.
               </p>
             </div>
 
-          
             <div
-  style={{
-    height: '7cm',
-    overflowX: 'auto',
-    overflowY: 'hidden',
-    border: '1px solid #ccc',
-    borderRadius: '0.5rem',
-    padding: '0.5rem',
-  }}
->
-  <div style={{ width: 'max-content' }}>
-    <img
-      src="/images/Ejemplo2.png"
-      alt="Ejemplo Expandido"
-      style={{
-        height: '7cm',
-        display: 'block',
-      }}
-    />
-  </div>
-</div>
+              style={{
+                height: "7cm",
+                overflowX: "auto",
+                overflowY: "hidden",
+                border: "1px solid #ccc",
+                borderRadius: "0.5rem",
+                padding: "0.5rem",
+              }}
+            >
+              <div style={{ width: "max-content" }}>
+                <img
+                  src="/images/Ejemplo2.png"
+                  alt="Ejemplo Expandido"
+                  style={{
+                    height: "7cm",
+                    display: "block",
+                  }}
+                />
+              </div>
+            </div>
 
             <div className="flex items-start gap-4">
               <FaExclamationTriangle className="text-yellow-500 text-2xl" />
               <p className="text-gray-700 text-lg">
-                Asegúrese de llenar todas las celdas correctamente antes de subirlo.
+                Asegúrese de llenar todas las celdas correctamente antes de
+                subirlo.
               </p>
             </div>
 
@@ -140,14 +134,14 @@ const Tutorial = () => {
             <div className="flex items-start gap-4">
               <FaExclamationTriangle className="text-yellow-500 text-2xl" />
               <p className="text-gray-700 text-lg">
-                Verifique que los datos sean correctos antes de subir el archivo.
+                Verifique que los datos sean correctos antes de subir el
+                archivo.
               </p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Modal con zoom y botón X */}
       {isOpen && (
         <div
           onClick={() => setIsOpen(false)}
@@ -157,7 +151,6 @@ const Tutorial = () => {
             onClick={(e) => e.stopPropagation()}
             className="relative max-w-6xl max-h-[90vh] p-4 bg-white rounded-lg shadow-lg overflow-hidden"
           >
-            {/* Botón X */}
             <button
               onClick={() => setIsOpen(false)}
               className="absolute top-2 right-2 text-3xl text-gray-500 hover:text-red-600"
@@ -165,7 +158,6 @@ const Tutorial = () => {
               <IoClose />
             </button>
 
-            {/* Imagen con zoom scroll */}
             <div
               onWheel={handleWheel}
               className="overflow-auto max-h-[80vh] flex justify-center items-center"

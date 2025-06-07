@@ -1,11 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import {
-  FaUser,
-  FaIdCard,
-  FaSchool,
-  FaMapMarkedAlt,
-  FaTimesCircle,
-} from "react-icons/fa";
+import { FaSchool, FaMapMarkedAlt, FaTimesCircle } from "react-icons/fa";
 import { useFormData } from "./form-context";
 import axios from "axios";
 import { API_URL } from "../../utils/api";
@@ -18,25 +12,19 @@ function RegistroColegio({ setStep }) {
       nombre_colegio: "",
     },
   });
-
-  const [responsableFound, setResponsableFound] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
   const { globalData, setGlobalData } = useFormData();
-
   const [colegiosData, setColegiosData] = useState([]);
   const [departamentosList, setDepartamentosList] = useState([]);
   const [distritosList, setDistritosList] = useState([]);
   const [colegiosFiltrados, setColegiosFiltrados] = useState([]);
-
-  // Estados para manejar el autocompletado
   const [busquedaColegio, setBusquedaColegio] = useState("");
   const [sugerencias, setSugerencias] = useState([]);
   const [mostrarSugerencias, setMostrarSugerencias] = useState(false);
   const [esNuevoColegio, setEsNuevoColegio] = useState(false);
   const sugerenciasRef = useRef(null);
 
-  // Detector de clics fuera del componente de sugerencias
   useEffect(() => {
     function handleClickOutside(event) {
       if (
@@ -54,16 +42,13 @@ function RegistroColegio({ setStep }) {
   }, []);
 
   useEffect(() => {
-    axios
-      .post(`${API_URL}/api/colegios/filtro`, {})
-      .then((res) => {
-        setColegiosData(res.data);
-        const departamentosUnicos = [
-          ...new Set(res.data.map((c) => c.departamento)),
-        ];
-        setDepartamentosList(departamentosUnicos);
-      })
-      .catch((err) => console.error("Error al cargar colegios", err));
+    axios.post(`${API_URL}/api/colegios/filtro`, {}).then((res) => {
+      setColegiosData(res.data);
+      const departamentosUnicos = [
+        ...new Set(res.data.map((c) => c.departamento)),
+      ];
+      setDepartamentosList(departamentosUnicos);
+    });
   }, []);
 
   useEffect(() => {
@@ -100,7 +85,6 @@ function RegistroColegio({ setStep }) {
     setColegiosFiltrados([...new Set(colegios)]);
   }, [formData.colegio.distrito, formData.colegio.departamento, colegiosData]);
 
-  // Actualizar sugerencias cuando cambia el texto de búsqueda
   const actualizarSugerencias = (texto) => {
     setBusquedaColegio(texto);
 
@@ -118,7 +102,6 @@ function RegistroColegio({ setStep }) {
     setMostrarSugerencias(true);
     setEsNuevoColegio(filtrados.length === 0);
 
-    // Si hay una coincidencia exacta o no hay coincidencias, actualizar el valor del colegio
     if (
       filtrados.length === 1 &&
       filtrados[0].toLowerCase() === texto.toLowerCase()
@@ -129,7 +112,6 @@ function RegistroColegio({ setStep }) {
     }
   };
 
-  // Seleccionar una sugerencia
   const seleccionarSugerencia = (sugerencia) => {
     setBusquedaColegio(sugerencia);
     handleInputChange("colegio", "nombre_colegio", sugerencia);
@@ -257,7 +239,6 @@ function RegistroColegio({ setStep }) {
             )}
           </div>
 
-          {/* Autocompletado de Colegios */}
           <div className="relative">
             <label className="flex items-center gap-2">
               <FaSchool className="text-black" /> Unidad Educativa
@@ -287,7 +268,6 @@ function RegistroColegio({ setStep }) {
                 />
               )}
 
-              {/* Sugerencias */}
               {mostrarSugerencias && (
                 <div
                   ref={sugerenciasRef}
@@ -324,7 +304,6 @@ function RegistroColegio({ setStep }) {
             )}
           </div>
 
-          {/* Botones */}
           <div className="text-center mt-6">
             <button
               onClick={() => setStep(1)}

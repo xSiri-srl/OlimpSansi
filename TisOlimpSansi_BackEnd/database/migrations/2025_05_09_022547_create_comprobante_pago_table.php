@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('comprobantes_pagos', function (Blueprint $table) {
+        Schema::create('comprobante_pago', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_orden_pago')->constrained('orden_pagos')->onDelete('cascade');
+            $table->foreignId('id_orden_pago')->constrained('orden_pago')->onDelete('cascade');
             $table->string('comprobante_url', 500)->nullable();
             $table->string('numero_comprobante', 50)->nullable();
             $table->string('nombre_pagador', 200)->nullable();
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('comprobantes_pagos');
+        Schema::dropIfExists('comprobante_pago');
     }
 };

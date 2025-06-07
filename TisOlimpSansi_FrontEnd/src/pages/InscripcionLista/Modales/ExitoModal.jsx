@@ -1,4 +1,3 @@
-import React from "react";
 import { FaCheckCircle } from "react-icons/fa";
 
 const ExitoModal = ({ mensaje, onClose }) => {
@@ -7,13 +6,15 @@ const ExitoModal = ({ mensaje, onClose }) => {
       <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-xl">
         <div className="flex flex-col items-center mb-4">
           <FaCheckCircle className="text-green-500 text-5xl mb-3" />
-          <h3 className="text-xl font-semibold text-green-600">¡Operación exitosa!</h3>
+          <h3 className="text-xl font-semibold text-green-600">
+            ¡Operación exitosa!
+          </h3>
         </div>
-        
+
         <div className="text-center mb-6">
           <p className="text-gray-700">{mensaje}</p>
         </div>
-        
+
         <div className="flex justify-center">
           <button
             onClick={onClose}

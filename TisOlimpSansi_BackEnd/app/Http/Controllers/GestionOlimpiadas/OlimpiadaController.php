@@ -146,9 +146,9 @@ public function show($id)
     {
         $id = $request->input('id');
 
-        $areas = DB::table('olimpiada_area_categorias')
-            ->join('area', 'area.id', '=', 'olimpiada_area_categorias.id_area')
-            ->where('olimpiada_area_categorias.id_olimpiada', $id)
+        $areas = DB::table('olimpiada_area_categoria')
+            ->join('area', 'area.id', '=', 'olimpiada_area_categoria.id_area')
+            ->where('olimpiada_area_categoria.id_olimpiada', $id)
             ->select('area.id', 'area.nombre_area')
             ->distinct()
             ->get();
@@ -283,8 +283,8 @@ public function verificarInscripciones($id)
         $olimpiada = OlimpiadaModel::findOrFail($id);
         
         $cantidadInscripciones = DB::table('inscripcion')
-            ->join('olimpiada_area_categorias', 'inscripcion.id_olimpiada_area_categoria', '=', 'olimpiada_area_categorias.id')
-            ->where('olimpiada_area_categorias.id_olimpiada', $id)
+            ->join('olimpiada_area_categoria', 'inscripcion.id_olimpiada_area_categoria', '=', 'olimpiada_area_categoria.id')
+            ->where('olimpiada_area_categoria.id_olimpiada', $id)
             ->count();
 
         
@@ -331,7 +331,7 @@ public function obtenerCombinacionesOlimpiada($id_olimpiada)
         $olimpiada = OlimpiadaModel::findOrFail($id_olimpiada);
         
         // Obtener todas las combinaciones válidas de área y categoría para la olimpiada
-        $combinaciones = DB::table('olimpiada_area_categorias as oac')
+        $combinaciones = DB::table('olimpiada_area_categoria as oac')
             ->join('area as a', 'a.id', '=', 'oac.id_area')
             ->join('categoria as c', 'c.id', '=', 'oac.id_categoria')
             ->where('oac.id_olimpiada', $id_olimpiada)
@@ -444,7 +444,7 @@ public function getOlimpiadasPublicasCompletas(): JsonResponse
 public function listarCombinacionesSimple($id_olimpiada)
 {
     try {
-        $combinaciones = DB::table('olimpiada_area_categorias as oac')
+        $combinaciones = DB::table('olimpiada_area_categoria as oac')
             ->join('area as a', 'a.id', '=', 'oac.id_area')
             ->join('categoria as c', 'c.id', '=', 'oac.id_categoria')
             ->where('oac.id_olimpiada', $id_olimpiada)
@@ -473,7 +473,7 @@ private function esOlimpiadaCompleta($olimpiadaId, $maxMaterias)
         }
 
         // 2. Verificar que tenga áreas asociadas
-        $tieneAreas = DB::table('olimpiada_area_categorias')
+        $tieneAreas = DB::table('olimpiada_area_categoria')
             ->where('id_olimpiada', $olimpiadaId)
             ->exists();
 
@@ -482,7 +482,7 @@ private function esOlimpiadaCompleta($olimpiadaId, $maxMaterias)
         }
 
         // 3. Verificar que todas las áreas tengan costo mayor a 0
-        $areasSinCosto = DB::table('olimpiada_area_categorias')
+        $areasSinCosto = DB::table('olimpiada_area_categoria')
             ->where('id_olimpiada', $olimpiadaId)
             ->where(function($query) {
                 $query->where('precio', '<=', 0)

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useFormData } from "./form-context";
 import { FaCopy } from "react-icons/fa";
@@ -6,7 +6,6 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
-// Iconos para Leaflet
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
@@ -36,7 +35,6 @@ const PasosInscripcion = () => {
 
   return (
     <div className="max-w-3xl mx-auto p-8 bg-white rounded-2xl shadow-2xl space-y-10 animate-fade-in">
-      {/* Alerta */}
       <div className="bg-red-100 border-l-8 border-red-600 p-6 rounded-lg shadow animate-pulse">
         <div className="text-center">
           <h1 className="text-3xl font-extrabold text-red-700 mb-2">
@@ -49,7 +47,6 @@ const PasosInscripcion = () => {
         </div>
       </div>
 
-      {/* Código generado */}
       <div className="text-center">
         <h2 className="text-xl font-bold text-gray-800 mb-2">
           GUARDE Y RECUERDE ESTE CÓDIGO DE ORDEN
@@ -72,7 +69,6 @@ const PasosInscripcion = () => {
         </p>
       </div>
 
-      {/* Instrucciones */}
       <div className="bg-yellow-50 border border-yellow-300 rounded-xl p-8">
         <h3 className="text-2xl font-extrabold text-yellow-800 mb-6">
           Siga estos pasos:
@@ -175,13 +171,11 @@ const PasosInscripcion = () => {
         </div>
       </div>
 
-      {/* Mensaje final */}
       <p className="text-center text-sm text-gray-500">
         Una vez realizado el pago, vuelva a esta plataforma para subir el
         comprobante.
       </p>
 
-      {/* Botón para continuar */}
       <div className="flex justify-center mt-6">
         <button
           onClick={() => navigate("/")}

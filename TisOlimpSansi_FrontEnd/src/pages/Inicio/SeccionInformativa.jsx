@@ -10,7 +10,6 @@ const SeccionInformativa = ({ requisitosRef }) => {
   return (
     <div className="px-4 py-12 bg-gray-50">
       <div className="max-w-4xl mx-auto space-y-16">
-        {/* Presentación */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -32,7 +31,6 @@ const SeccionInformativa = ({ requisitosRef }) => {
           </p>
         </motion.div>
 
-        {/* Requisitos */}
         <motion.div
           ref={requisitosRef}
           initial={{ opacity: 0, y: 30 }}
@@ -72,9 +70,7 @@ const SeccionInformativa = ({ requisitosRef }) => {
           </ul>
         </motion.div>
 
-        {/* Fechas y Premios en Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Fechas importantes */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -106,7 +102,6 @@ const SeccionInformativa = ({ requisitosRef }) => {
             </div>
           </motion.div>
 
-          {/* Premios */}
           <motion.div
             initial={{ opacity: 0, x: 30 }}
             whileInView={{ opacity: 1, x: 0 }}

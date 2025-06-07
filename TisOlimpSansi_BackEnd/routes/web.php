@@ -70,7 +70,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
 Route::controller(OlimpiadaController::class)->group(function(){
     //crear olimpiadas
-    Route::post('/agregarOlimpiada', [OlimpiadaController::class, 'store'])
+    Route::post('/agregar-olimpiada', [OlimpiadaController::class, 'store'])
     ->middleware(['auth:sanctum', 'permiso:crear_olimpiada']);
 });
 

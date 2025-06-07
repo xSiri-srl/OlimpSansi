@@ -1,4 +1,3 @@
-import React from "react";
 import { FaExclamationCircle, FaTimes } from "react-icons/fa";
 
 const RegistrosInvalidosModal = ({ mensaje, onClose }) => {
@@ -10,18 +9,18 @@ const RegistrosInvalidosModal = ({ mensaje, onClose }) => {
             <FaExclamationCircle className="text-red-500 text-2xl mr-2" />
             <h3 className="text-xl font-semibold text-red-500">Error</h3>
           </div>
-          <button 
-            onClick={onClose} 
+          <button
+            onClick={onClose}
             className="text-gray-500 hover:text-gray-700"
           >
             <FaTimes className="text-xl" />
           </button>
         </div>
-        
+
         <div className="mb-6">
           <p className="text-gray-700">{mensaje}</p>
         </div>
-        
+
         <div className="flex justify-end">
           <button
             onClick={onClose}

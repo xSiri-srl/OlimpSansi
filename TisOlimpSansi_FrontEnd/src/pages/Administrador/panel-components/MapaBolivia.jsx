@@ -104,8 +104,8 @@ const MapaBolivia = ({ darkMode }) => {
 
       const endpoint =
         tipoInscripcion === "inscritos"
-          ? "/api/estudiantes/inscritos/bydepartamento"
-          : "/api/estudiantes/preinscritos/bydepartamento";
+          ? "/api/estudiantes/inscritos/departamento"
+          : "/api/estudiantes/preinscritos/departamento";
 
       const promises = departamentos.map(async (departamento) => {
         const response = await axios.post(`${API_URL}${endpoint}`, {

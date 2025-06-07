@@ -135,7 +135,6 @@ const VisualizadoresPdf = ({ pdfUrls }) => {
             </span>
           </h2>
 
-          {/* Controles de carrusel más grandes para móviles */}
           <div className="sm:hidden flex justify-between items-center mb-6 px-4">
             <motion.button
               whileHover={{ scale: 1.1 }}
@@ -263,7 +262,6 @@ const VisualizadoresPdf = ({ pdfUrls }) => {
               )}
             </motion.div>
             
-            {/* Botón de descarga condicionado */}
             {pdfUrls[activeIndex].url ? (
               <a href={pdfUrls[activeIndex].url} download>
                 <motion.button 
@@ -279,7 +277,6 @@ const VisualizadoresPdf = ({ pdfUrls }) => {
         </div>
       </motion.div>
 
-      {/* Resto del componente permanece igual */}
       <ProcesoInscripcion />
       {/* Información de contacto */}
       <motion.div
@@ -353,7 +350,7 @@ const VisualizadoresPdf = ({ pdfUrls }) => {
             </h3>
             <div className="flex justify-center space-x-8 text-4xl">
               <motion.a
-                href="https://www.facebook.com/ohsansi"
+                href="https://www.facebook.com/profile.php?id=100082960521209"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-blue-600 hover:text-blue-800 transition-transform duration-300"

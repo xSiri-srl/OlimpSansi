@@ -1,6 +1,5 @@
 "use client";
 import { useNavigate } from "react-router-dom";
-
 import { useState } from "react";
 import axios from "axios";
 import {
@@ -13,13 +12,11 @@ import {
   FaChevronLeft,
   FaChevronRight,
   FaExclamationCircle,
-  FaDownload,
   FaSave,
 } from "react-icons/fa";
 import EditarEstudianteModal from "./Modales/EditarEstudianteModal";
 import ModalPeriodo from "./Modales/ModalPeriodo";
 import { API_URL } from "../../utils/api";
-
 
 const CodigoPreInscripcion = () => {
   const navigate = useNavigate();
@@ -28,30 +25,24 @@ const CodigoPreInscripcion = () => {
   const [resumen, setResumen] = useState(null);
   const [loading, setLoading] = useState(false);
   const [savingChanges, setSavingChanges] = useState(false);
-    
-  // Estado para manejar la lista de estudiantes
   const [estudiantes, setEstudiantes] = useState([]);
   const [cursoAreaCategoria, setCursoAreaCategoria] = useState(null);
   const [processedEstudiantes, setProcessedEstudiantes] = useState([]);
-  
-  // Estados para paginación y filtrado
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [filter, setFilter] = useState("todos"); // 'todos', 'errores'
+  const [filter, setFilter] = useState("todos");
   const [searchTerm, setSearchTerm] = useState("");
 
   const [showPeriodoModal, setShowPeriodoModal] = useState(false);
   const [olimpiadaSeleccionadaInfo, setOlimpiadaSeleccionadaInfo] = useState({
     fechaIni: "",
-    fechaFin: ""
+    fechaFin: "",
   });
-  
-  // Estados para modales personalizados
   const [showModal, setShowModal] = useState(false);
   const [modalContent, setModalContent] = useState({
     title: "",
     content: "",
-    type: ""
+    type: "",
   });
   const [selectedStudent, setSelectedStudent] = useState(null);
 
@@ -66,9 +57,6 @@ const CodigoPreInscripcion = () => {
 
     return ahora > inicio && ahora <= fin;
   };
-
-
-  // Verificar código y obtener datos
   const verificarCodigo = async () => {
     if (!codigoPreInscripcion.trim()) return;
 
@@ -79,72 +67,72 @@ const CodigoPreInscripcion = () => {
     setProcessedEstudiantes([]);
 
     try {
-      // Paso 1: Verificar si ya se generó una orden de pago
-      const ordenPagoResponse = await axios.get(`${API_URL}/api/orden-pago-existe/${codigoPreInscripcion}`);
+      const ordenPagoResponse = await axios.get(
+        `${API_URL}/api/orden-pago-existe/${codigoPreInscripcion}`
+      );
       if (ordenPagoResponse.data?.existe) {
-        setError("Ya se generó una orden de pago. Solo se puede editar la inscripción antes de generarla.");
+        setError(
+          "Ya se generó una orden de pago. Solo se puede editar la inscripción antes de generarla."
+        );
         setLoading(false);
         return;
       }
     } catch (ordenError) {
-      if (axios.isAxiosError(ordenError) && ordenError.response?.status === 404) {
+      if (
+        axios.isAxiosError(ordenError) &&
+        ordenError.response?.status === 404
+      ) {
         setError("No se encontraron inscripciones asociadas a este código.");
       } else {
         setError("Error al verificar si existe una orden de pago.");
       }
-      //console.error(ordenError);
       setLoading(false);
       return;
     }
 
     try {
-      // Paso 2: Buscar preinscripciones si no hay orden generada
-      const response = await axios.get(`${API_URL}/api/preinscritos-por-codigo`, {
-        params: { codigo: codigoPreInscripcion },
-      });
+      const response = await axios.get(
+        `${API_URL}/api/preinscritos-por-codigo`,
+        {
+          params: { codigo: codigoPreInscripcion },
+        }
+      );
       setResumen(response.data);
-
-      // Paso 3: Si hay estudiantes y hay un id_olimpiada, cargar áreas y categorías
       const estudiantesLista = Array.isArray(response.data)
         ? response.data
         : response.data.estudiantes;
-
-        // Obtener olimpiada para verificar el periodo
       if (estudiantesLista?.length > 0 && estudiantesLista[0].id_olimpiada) {
         const idOlimpiada = estudiantesLista[0].id_olimpiada;
 
         try {
-          // Obtener datos completos de la olimpiada
-          const olimpiadaResponse = await axios.get(`${API_URL}/olimpiada/${idOlimpiada}`);
+          const olimpiadaResponse = await axios.get(
+            `${API_URL}/olimpiada/${idOlimpiada}`
+          );
           const olimpiada = olimpiadaResponse.data;
-
           const fechaIni = olimpiada.fecha_ini + "T00:00:00";
           const fechaFin = olimpiada.fecha_fin + "T00:00:00";
 
-          // Verificar si está en período
           if (!estaEnPeriodo(fechaIni, fechaFin)) {
             setOlimpiadaSeleccionadaInfo({ fechaIni, fechaFin });
             setShowPeriodoModal(true);
             setLoading(false);
-            return; // Detener flujo
+            return;
           }
 
-          // Si está en período, cargar áreas/categorías
           try {
-            const response = await axios.get(`${API_URL}/api/cursoAreaCategoriaPorOlimpiada?id=${idOlimpiada}`);
+            const response = await axios.get(
+              `${API_URL}/api/curso-area-categoria-por-olimpiada?id=${idOlimpiada}`
+            );
             setCursoAreaCategoria(response.data);
           } catch (err2) {
-            console.error("Error al obtener las áreas y categorías:", err2);
             setError("No se pudieron cargar las áreas y categorías.");
           }
         } catch (olimpiadaError) {
-          console.error("Error al obtener la olimpiada:", olimpiadaError);
           setError("No se pudo verificar el período de inscripción.");
           setLoading(false);
           return;
         }
 
-        // Si todo va bien, guardar estudiantes
         if (Array.isArray(estudiantesLista)) {
           setEstudiantes(estudiantesLista);
           processStudents(estudiantesLista);
@@ -153,39 +141,36 @@ const CodigoPreInscripcion = () => {
 
       if (estudiantesLista?.length > 0 && estudiantesLista[0].id_olimpiada) {
         try {
-          const response = await axios.get(`${API_URL}/api/cursoAreaCategoriaPorOlimpiada?id=${estudiantesLista[0].id_olimpiada}`);
+          const response = await axios.get(
+            `${API_URL}/api/curso-area-categoria-por-olimpiada?id=${estudiantesLista[0].id_olimpiada}`
+          );
           setCursoAreaCategoria(response.data);
         } catch (err2) {
-          console.error("Error al obtener las áreas y categorías:", err2);
           setError("No se pudieron cargar las áreas y categorías.");
         }
       }
-
-      // Guardar estudiantes
       if (estudiantesLista && Array.isArray(estudiantesLista)) {
         setEstudiantes(estudiantesLista);
         processStudents(estudiantesLista);
       }
     } catch (err) {
       if (axios.isAxiosError(err) && err.response?.status === 404) {
-        setError("No se encontraron Pre Inscripciones asociadas a este código.");
+        setError(
+          "No se encontraron Pre Inscripciones asociadas a este código."
+        );
       } else {
         setError("Error al verificar el código. Intente nuevamente.");
       }
-      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  // Función para procesar estudiantes
   const processStudents = (estudiantesData) => {
     const processed = estudiantesData.map((est, index) => {
-      // Arrays para recopilar todos los errores posibles
       const errores = [];
       let hasError = false;
       let mensajeError = "";
-      // PASO 2: Verificar otros errores solo si aún no se encontró ninguno
       if (!hasError) {
         if (
           est.estudiante?.nombre &&
@@ -207,16 +192,13 @@ const CodigoPreInscripcion = () => {
           hasError = true;
         }
       }
-
-      // Mensaje de error: mostrar el primer error encontrado
       mensajeError = errores.length > 0 ? errores[0] : "";
-
-      // Obtener áreas para mostrar
-      const areas = est.areas_competencia && Array.isArray(est.areas_competencia)
-        ? est.areas_competencia
-            .map((area) => area.nombre_area)
-            .filter((area) => area)
-        : [];
+      const areas =
+        est.areas_competencia && Array.isArray(est.areas_competencia)
+          ? est.areas_competencia
+              .map((area) => area.nombre_area)
+              .filter((area) => area)
+          : [];
 
       return {
         id: index + 1,
@@ -227,9 +209,9 @@ const CodigoPreInscripcion = () => {
         correo: est.estudiante?.correo || "",
         fechaNacimiento: est.estudiante?.fecha_nacimiento || "",
         areas: areas,
-        error: hasError, // Este valor determina si la tarjeta se muestra en rojo
-        mensajeError: mensajeError, // Mensaje que se muestra en la tarjeta
-        todosErrores: errores, // Lista completa de errores para depuración
+        error: hasError,
+        mensajeError: mensajeError,
+        todosErrores: errores,
         originalData: est,
       };
     });
@@ -237,7 +219,6 @@ const CodigoPreInscripcion = () => {
     setProcessedEstudiantes(processed);
   };
 
-  // Mapa de íconos para áreas
   const areaIcons = {
     Matemáticas: <FaCalculator className="text-blue-600" />,
     Física: <FaAtom className="text-purple-600" />,
@@ -248,12 +229,15 @@ const CodigoPreInscripcion = () => {
     "Astronomía y Astrofísica": <FaAtom className="text-indigo-600" />,
   };
 
-  // Filtrado de estudiantes
   const filteredEstudiantes = processedEstudiantes.filter((estudiante) => {
     const matchesSearch =
       estudiante.nombres.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      estudiante.apellidoPaterno.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      estudiante.apellidoMaterno.toLowerCase().includes(searchTerm.toLowerCase());
+      estudiante.apellidoPaterno
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      estudiante.apellidoMaterno
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
 
     if (filter === "errores") {
       return estudiante.error && matchesSearch;
@@ -262,7 +246,6 @@ const CodigoPreInscripcion = () => {
     return matchesSearch;
   });
 
-  // Paginación
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredEstudiantes.slice(
@@ -270,52 +253,39 @@ const CodigoPreInscripcion = () => {
     indexOfLastItem
   );
   const totalPages = Math.ceil(filteredEstudiantes.length / itemsPerPage);
-
-  // Función para manejar el clic en un estudiante
   const handleStudentClick = (estudiante) => {
     setSelectedStudent(estudiante);
     setModalContent({
       title: "Detalles del Estudiante",
       content: estudiante,
-      type: "details"
+      type: "details",
     });
     setShowModal(true);
   };
 
-  // Función para cerrar el modal
   const handleCloseModal = () => {
     setShowModal(false);
     setSelectedStudent(null);
   };
-const handleCloseModal2 = () => {
+  const handleCloseModal2 = () => {
     setShowModal(false);
     setSelectedStudent(null);
-    navigate("/")
+    navigate("/");
   };
-  // Función para guardar cambios después de editar
+
   const handleSaveEdit = (updatedData) => {
-    // Implementar la lógica para guardar los cambios
-    console.log("Datos actualizados:", updatedData);
-    
-    // Simulación de actualización
     const updatedEstudiantes = estudiantes.map((est, index) => {
       if (index === selectedStudent.id - 1) {
-        // Aquí deberías integrar los cambios de updatedData en est
-        return {...est, ...updatedData};
+        return { ...est, ...updatedData };
       }
       return est;
     });
-
-    // Actualizar el estado
     setEstudiantes(updatedEstudiantes);
     processStudents(updatedEstudiantes);
-    
-    // Cerrar el modal
     setShowModal(false);
     setSelectedStudent(null);
   };
 
-  // Función para enviar todos los cambios al servidor
   const guardarTodosLosCambios = async () => {
     if (!codigoPreInscripcion.trim()) {
       setError("No hay código de pre-inscripción válido.");
@@ -327,25 +297,25 @@ const handleCloseModal2 = () => {
 
     try {
       const datosParaEnviar = {
-        estudiantes: estudiantes
+        estudiantes: estudiantes,
       };
-      console.log("ENVIANDO",datosParaEnviar)
-      const response = await axios.post(`${API_URL}/api/editarLista`, datosParaEnviar);
+      console.log("ENVIANDO", datosParaEnviar);
+      const response = await axios.post(
+        `${API_URL}/api/editar-lista`,
+        datosParaEnviar
+      );
 
       if (response.data.success || response.status === 200) {
-        // Mostrar mensaje de éxito
         setModalContent({
           title: "Éxito",
           content: "Los cambios se han guardado correctamente.",
-          type: "success"
+          type: "success",
         });
         setShowModal(true);
-        
       }
     } catch (err) {
-      console.error("Error al guardar cambios:", err);
       let errorMessage = "Error al guardar los cambios. Intente nuevamente.";
-      
+
       if (axios.isAxiosError(err)) {
         if (err.response?.data?.message) {
           errorMessage = err.response.data.message;
@@ -355,29 +325,19 @@ const handleCloseModal2 = () => {
           errorMessage = "No se encontró el código de pre-inscripción.";
         }
       }
-      
+
       setError(errorMessage);
     } finally {
       setSavingChanges(false);
     }
   };
 
-  // Función para la paginación
   const paginate = (pageNumber) => {
     if (pageNumber > 0 && pageNumber <= totalPages) {
       setCurrentPage(pageNumber);
     }
   };
-
-  // Calcular el total de errores
   const totalErrors = processedEstudiantes.filter((e) => e.error).length;
-
-  const descargarResumenPDF = () => {
-    // Implementar la lógica para descargar el PDF
-    console.log("Descargando resumen en PDF...");
-  };
-
-  // Componente Modal personalizado para reemplazar los módulos importados
   const Modal = ({ show, onClose, title, children }) => {
     if (!show) return null;
 
@@ -394,9 +354,7 @@ const handleCloseModal2 = () => {
                 ×
               </button>
             </div>
-            <div className="relative p-6 flex-auto">
-              {children}
-            </div>
+            <div className="relative p-6 flex-auto">{children}</div>
             <div className="flex items-center justify-end p-4 border-t border-gray-200 rounded-b">
               <button
                 className="text-gray-500 background-transparent font-medium px-4 py-2 text-sm rounded hover:bg-gray-100 mr-2"
@@ -449,15 +407,11 @@ const handleCloseModal2 = () => {
             </button>
           </div>
         </div>
-
-        {/* Lista de Competidores */}
         {processedEstudiantes.length > 0 && (
           <div className="mt-8">
             <h2 className="text-xl font-semibold mb-4 text-center text-gray-700">
               Lista de Competidores
             </h2>
-
-            {/* Panel de resumen */}
             <div className="bg-white p-3 rounded-lg shadow-md mb-4 flex flex-wrap justify-between items-center">
               <div className="flex items-center">
                 <span className="font-medium mr-2">Total inscripciones:</span>
@@ -496,20 +450,16 @@ const handleCloseModal2 = () => {
                 </select>
               </div>
             </div>
-
-            {/* Mensaje de advertencia */}
             {totalErrors > 0 && (
               <div className="bg-yellow-50 border-l-4 border-yellow-400 p-3 mb-4 flex items-start">
                 <FaExclamationCircle className="text-yellow-500 mr-2 mt-1 flex-shrink-0" />
                 <p className="text-yellow-700 text-sm">
                   <span className="font-bold">Nota:</span> Existen {totalErrors}{" "}
-                  competidores con errores que deben corregirse. Las filas marcadas en rojo indican 
-                  los registros con problemas.
+                  competidores con errores que deben corregirse. Las filas
+                  marcadas en rojo indican los registros con problemas.
                 </p>
               </div>
             )}
-
-            {/* Tabla compacta de competidores */}
             <div className="bg-white rounded-lg shadow-md overflow-hidden mb-4">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
@@ -617,8 +567,6 @@ const handleCloseModal2 = () => {
                 </tbody>
               </table>
             </div>
-
-            {/* Paginación */}
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center text-sm text-gray-500">
                 Mostrando {indexOfFirstItem + 1}-
@@ -673,19 +621,17 @@ const handleCloseModal2 = () => {
                 </select>
               </div>
             </div>
-
-            {/* Botón para guardar todos los cambios */}
             <div className="bg-white p-4 rounded-lg shadow-md">
               <div className="flex flex-col sm:flex-row items-center justify-between">
                 <div className="flex items-center mb-3 sm:mb-0">
                   <FaSave className="text-green-600 mr-2" />
                   <span className="text-sm text-gray-700">
-                    {totalErrors > 0 
-                      ? "Corrija los errores antes de guardar los cambios" 
+                    {totalErrors > 0
+                      ? "Corrija los errores antes de guardar los cambios"
                       : "Todos los datos están correctos. Puede guardar los cambios."}
                   </span>
                 </div>
-                
+
                 <button
                   onClick={guardarTodosLosCambios}
                   disabled={savingChanges || totalErrors > 0}
@@ -701,12 +647,13 @@ const handleCloseModal2 = () => {
                   {savingChanges ? "Guardando..." : "Guardar Cambios"}
                 </button>
               </div>
-              
+
               {totalErrors > 0 && (
                 <div className="mt-3 p-2 bg-yellow-50 border-l-4 border-yellow-400 rounded">
                   <p className="text-yellow-700 text-xs">
-                    <strong>Importante:</strong> Debe corregir todos los errores antes de poder guardar los cambios.
-                    Haga clic en cada fila con error para editarla.
+                    <strong>Importante:</strong> Debe corregir todos los errores
+                    antes de poder guardar los cambios. Haga clic en cada fila
+                    con error para editarla.
                   </p>
                 </div>
               )}
@@ -714,22 +661,22 @@ const handleCloseModal2 = () => {
           </div>
         )}
       </div>
-
-      {/* Modal personalizado para reemplazar los modales importados */}
       {showModal && selectedStudent && modalContent.type !== "success" && (
         <EditarEstudianteModal
-            estudiante={selectedStudent}
-            onClose={handleCloseModal}
-            onSave={handleSaveEdit}
-            cursoAreaCategoria={cursoAreaCategoria}
-            estudiantes={estudiantes}
-            onEstudiantesChange={setEstudiantes}
+          estudiante={selectedStudent}
+          onClose={handleCloseModal}
+          onSave={handleSaveEdit}
+          cursoAreaCategoria={cursoAreaCategoria}
+          estudiantes={estudiantes}
+          onEstudiantesChange={setEstudiantes}
         />
       )}
-
-      {/* Modal de éxito */}
       {showModal && modalContent.type === "success" && (
-        <Modal show={showModal} onClose={handleCloseModal2} title={modalContent.title}>
+        <Modal
+          show={showModal}
+          onClose={handleCloseModal2}
+          title={modalContent.title}
+        >
           <div className="text-center">
             <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
               <FaSave className="h-6 w-6 text-green-600" />
@@ -737,9 +684,7 @@ const handleCloseModal2 = () => {
             <h3 className="text-lg font-medium text-gray-900 mb-2">
               {modalContent.title}
             </h3>
-            <p className="text-sm text-gray-500">
-              {modalContent.content}
-            </p>
+            <p className="text-sm text-gray-500">{modalContent.content}</p>
           </div>
         </Modal>
       )}
@@ -750,7 +695,6 @@ const handleCloseModal2 = () => {
         fechaIni={olimpiadaSeleccionadaInfo.fechaIni}
         fechaFin={olimpiadaSeleccionadaInfo.fechaFin}
       />
-
     </div>
   );
 };
