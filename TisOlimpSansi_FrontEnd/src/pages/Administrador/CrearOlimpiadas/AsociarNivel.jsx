@@ -627,12 +627,13 @@ const SelectorAreaGrado = () => {
           areas={modalEstado.areas}
         />
       )}
-            <ModalTareasPendientes
+        <ModalTareasPendientes
         isOpen={modalProgreso.isOpen}
         onClose={cerrarProgreso}
         onContinue={cerrarProgreso}
         nombreOlimpiada={modalProgreso.nombreOlimpiada}
         olimpiadaId={modalProgreso.olimpiadaId}
+        esPrimeraVez={true}
       />
     </div>
   );
