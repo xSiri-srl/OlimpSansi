@@ -15,7 +15,8 @@ const ModalTareasPendientes = ({
   onClose, 
   onContinue,
   nombreOlimpiada = "su olimpiada",
-  olimpiadaId = null // Nuevo prop para el ID de la olimpiada
+  olimpiadaId = null,
+  esPrimeraVez = false // Nuevo prop para indicar si es la primera vez (al crear olimpiada)
 }) => {
   const [progreso, setProgreso] = useState({
     areasAsociadas: false,
@@ -87,11 +88,20 @@ const ModalTareasPendientes = ({
     }, 100);
   };
 
-  // Función para manejar el botón "Configurar ahora" (va al primer paso incompleto)
-  const handleConfigurarAhora = () => {
-    const primeraTareaIncompleta = tareas.find(t => !t.completado);
-    const rutaDestino = primeraTareaIncompleta ? primeraTareaIncompleta.ruta : tareas[0].ruta;
-    handleTareaClick(rutaDestino);
+  // Función para manejar el botón principal
+  const handleBotonPrincipal = () => {
+    if (esPrimeraVez || todasCompletas) {
+      // Si es la primera vez O todas las tareas están completas, redirigir a inicio
+      onClose();
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 100);
+    } else {
+      // Si no es primera vez y hay tareas pendientes, ir al primer paso incompleto
+      const primeraTareaIncompleta = tareas.find(t => !t.completado);
+      const rutaDestino = primeraTareaIncompleta ? primeraTareaIncompleta.ruta : tareas[0].ruta;
+      handleTareaClick(rutaDestino);
+    }
   };
 
   return (
@@ -245,31 +255,44 @@ const ModalTareasPendientes = ({
 
         {/* Footer con botones - fijo */}
         <div className="bg-gray-50 px-6 py-4 flex justify-between items-center flex-shrink-0 border-t">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium transition-colors text-sm"
-          >
-            {todasCompletas ? 'Cerrar' : 'Configurar más tarde'}
-          </button>
-          {!todasCompletas && (
+          {/* Solo mostrar "Configurar más tarde" si NO es primera vez Y NO todas están completas */}
+          {!esPrimeraVez && !todasCompletas && (
             <button
-              onClick={handleConfigurarAhora}
-              disabled={verificando}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-2 rounded-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center text-sm disabled:opacity-50"
+              onClick={onClose}
+              className="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium transition-colors text-sm"
             >
-              {verificando ? (
-                <>
-                  <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-2"></div>
-                  <span>Verificando...</span>
-                </>
-              ) : (
-                <>
-                  <span>Continuar configuración</span>
-                  <FaArrowRight className="ml-2 w-3 h-3" />
-                </>
-              )}
+              Configurar más tarde
             </button>
           )}
+          
+          {/* Espaciador para centrar el botón cuando no hay botón izquierdo */}
+          {(esPrimeraVez || todasCompletas) && <div></div>}
+          
+          {/* Mostrar botón siempre - cambiar texto según el estado */}
+          <button
+            onClick={handleBotonPrincipal}
+            disabled={verificando}
+            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-2 rounded-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center text-sm disabled:opacity-50"
+          >
+            {verificando ? (
+              <>
+                <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-2"></div>
+                <span>Verificando...</span>
+              </>
+            ) : (
+              <>
+                <span>
+                  {todasCompletas 
+                    ? 'Terminar' 
+                    : esPrimeraVez 
+                      ? 'Entendido' 
+                      : 'Continuar configuración'
+                  }
+                </span>
+                <FaArrowRight className="ml-2 w-3 h-3" />
+              </>
+            )}
+          </button>
         </div>
       </div>
     </div>

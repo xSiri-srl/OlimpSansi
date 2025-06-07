@@ -334,6 +334,7 @@ const CrearOlimpiadas = () => {
         onContinue={handleConfigurarAhora}
         nombreOlimpiada={titulo}
         olimpiadaId={olimpiadaCreada}
+        esPrimeraVez={true}
       />
 
       {/* Modal de carga */}

@@ -485,12 +485,13 @@ const AsociarLimiteAreas = () => {
           type={modalEstado.tipoConfirmacion}
         />
       )}
-            <ModalTareasPendientes
+        <ModalTareasPendientes
         isOpen={modalProgreso.isOpen}
         onClose={cerrarProgreso}
         onContinue={cerrarProgreso}
         nombreOlimpiada={modalProgreso.nombreOlimpiada}
         olimpiadaId={modalProgreso.olimpiadaId}
+        esPrimeraVez={true}
       />
     </div>
   );

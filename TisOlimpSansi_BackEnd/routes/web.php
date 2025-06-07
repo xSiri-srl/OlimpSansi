@@ -19,6 +19,7 @@ Route::get('/areas-habilitadas/{id}', [OlimpiadaController::class, 'obtenerCombi
 Route::get('/areas-habilitadas-simple/{id}', [OlimpiadaController::class, 'listarCombinacionesSimple']);
 
 Route::get('/olimpiadas-publicas', [OlimpiadaController::class, 'getTodasLasOlimpiadas']);
+Route::get('/olimpiadas-publicas-completas', [OlimpiadaController::class, 'getOlimpiadasPublicasCompletas']);
 
 Route::get('/olimpiada/{id}', [OlimpiadaController::class, 'show']);
 

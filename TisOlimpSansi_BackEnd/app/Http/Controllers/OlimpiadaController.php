@@ -78,14 +78,7 @@ public function show($id)
     try {
         $olimpiada = OlimpiadaModel::findOrFail($id);
         
-        // CAMBIO: Manejar max_materias null sin establecer valor por defecto en BD
-        $olimpiadaData = $olimpiada->toArray();
-        // Para la UI, si es null, mostramos 1, pero NO lo guardamos en BD
-        if ($olimpiadaData['max_materias'] === null) {
-            $olimpiadaData['max_materias'] = 1; // Solo para mostrar en UI
-        }
-        
-        return response()->json($olimpiadaData);
+        return response()->json($olimpiada->toArray());
     } catch (\Exception $e) {
         return response()->json([
             'error' => 'Olimpiada no encontrada',
@@ -330,6 +323,7 @@ private function obtenerRazonBloqueo($cantidadInscripciones, $periodoTerminado)
     }
     return null;
 }
+<<<<<<< HEAD
 public function obtenerCombinacionesOlimpiada($id_olimpiada)
 {
     try {
@@ -387,10 +381,34 @@ public function obtenerCombinacionesOlimpiada($id_olimpiada)
                 'area' => $areaData['area'],
                 'categorias' => $areaData['categorias']
             ];
+=======
+
+public function getOlimpiadasPublicasCompletas(): JsonResponse
+{
+    try {
+        // Obtener todas las olimpiadas
+        $olimpiadas = OlimpiadaModel::select('id', 'titulo', 'fecha_ini', 'fecha_fin', 'max_materias')
+            ->orderBy('fecha_ini', 'desc')
+            ->get();
+
+        $olimpiadasCompletas = [];
+
+        foreach ($olimpiadas as $olimpiada) {
+            // Verificar si la olimpiada está completamente configurada
+            if ($this->esOlimpiadaCompleta($olimpiada->id, $olimpiada->max_materias)) {
+                $olimpiadasCompletas[] = [
+                    'id' => $olimpiada->id,
+                    'titulo' => $olimpiada->titulo,
+                    'fecha_ini' => $olimpiada->fecha_ini,
+                    'fecha_fin' => $olimpiada->fecha_fin
+                ];
+            }
+>>>>>>> e343cf14f68e1dba40afa21b8bf2be3defa66acc
         }
 
         return response()->json([
             'status' => 200,
+<<<<<<< HEAD
             'message' => 'Combinaciones obtenidas exitosamente.',
             'data' => $resultado
         ], 200);
@@ -404,10 +422,21 @@ public function obtenerCombinacionesOlimpiada($id_olimpiada)
         return response()->json([
             'status' => 500,
             'message' => 'Error al obtener las combinaciones: ' . $e->getMessage(),
+=======
+            'data' => $olimpiadasCompletas,
+        ]);
+    } catch (\Exception $e) {
+        \Log::error('Error al obtener olimpiadas públicas completas: ' . $e->getMessage());
+
+        return response()->json([
+            'status' => 500,
+            'error' => 'Ocurrió un error al recuperar las olimpiadas.'
+>>>>>>> e343cf14f68e1dba40afa21b8bf2be3defa66acc
         ], 500);
     }
 }
 
+<<<<<<< HEAD
 // Función alternativa más simple que solo retorna la lista de combinaciones
 public function listarCombinacionesSimple($id_olimpiada)
 {
@@ -432,4 +461,43 @@ public function listarCombinacionesSimple($id_olimpiada)
         return [];
     }
 }
+=======
+private function esOlimpiadaCompleta($olimpiadaId, $maxMaterias)
+{
+    try {
+        // 1. Verificar que max_materias sea mayor a 0
+        if (!$maxMaterias || $maxMaterias <= 0) {
+            return false;
+        }
+
+        // 2. Verificar que tenga áreas asociadas
+        $tieneAreas = DB::table('olimpiada_area_categorias')
+            ->where('id_olimpiada', $olimpiadaId)
+            ->exists();
+
+        if (!$tieneAreas) {
+            return false;
+        }
+
+        // 3. Verificar que todas las áreas tengan costo mayor a 0
+        $areasSinCosto = DB::table('olimpiada_area_categorias')
+            ->where('id_olimpiada', $olimpiadaId)
+            ->where(function($query) {
+                $query->where('precio', '<=', 0)
+                      ->orWhereNull('precio');
+            })
+            ->exists();
+
+        if ($areasSinCosto) {
+            return false;
+        }
+
+        return true;
+    } catch (\Exception $e) {
+        \Log::error("Error al verificar olimpiada completa {$olimpiadaId}: " . $e->getMessage());
+        return false;
+    }
+}
+
+>>>>>>> e343cf14f68e1dba40afa21b8bf2be3defa66acc
 }
