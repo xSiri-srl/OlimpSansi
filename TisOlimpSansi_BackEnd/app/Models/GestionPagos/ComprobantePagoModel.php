@@ -9,6 +9,7 @@ use App\Models\GestionPagos\OrdenPagoModel;
 class ComprobantePagoModel extends Model
 {
     use HasFactory;
+    protected $table = 'comprobante_pago';
 
     protected $fillable = [
         'id_orden_pago',
