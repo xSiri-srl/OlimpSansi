@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { FaCheck, FaLock, FaPlus, FaTimes } from "react-icons/fa";
-import { categoriasPredefinidasMap } from "../todasLasCategoriasPorArea";
+import { categoriasPredefinidasMap } from "../CatalogoAreasNiveles";
 
 const AreaCompetencia = ({
   combo,

@@ -1,4 +1,4 @@
-export const todasLasCategoriasPorArea = {
+export const CatalogoAreasNiveles = {
   "Astronomía-Astrofísica": [
     { nombre: "1P", desde: "1ro Primaria", hasta: "1ro Primaria" },
     { nombre: "2P", desde: "2do Primaria", hasta: "2do Primaria" },
