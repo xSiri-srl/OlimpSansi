@@ -60,7 +60,7 @@ class AuthController extends Controller
         $permisos = DB::table('rol_accions')
             ->where('id_rol', $usuario->id_rol)
             ->join('acciones', 'rol_accions.id_accion', '=', 'acciones.id')
-            ->pluck('acciones.nombreFuncion');
+            ->pluck('acciones.nombre_funcion');
 
         return response()->json(['permisos' => $permisos]);
     }
