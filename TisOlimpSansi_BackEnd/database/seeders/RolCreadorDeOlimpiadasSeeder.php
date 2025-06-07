@@ -28,7 +28,7 @@ class RolCreadorDeOlimpiadasSeeder extends Seeder
         ]);
 
         // Crear acción: crear_olimpiada
-        $accionId = DB::table('acciones')->insertGetId([
+        $accionId = DB::table('accion')->insertGetId([
             'nombre_funcion' => 'crear_olimpiada',
             'descripcion_funcion' => 'Permite crear nuevas olimpiadas',
             'id_modulo' => $moduloId,

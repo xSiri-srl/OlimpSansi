@@ -37,7 +37,7 @@ class RolContadorSeeder extends Seeder
 
         // Insertar acciones y enlazarlas al rol
         foreach ($acciones as $nombre => $descripcion) {
-            $accionId = DB::table('acciones')->insertGetId([
+            $accionId = DB::table('accion')->insertGetId([
                 'nombre_funcion' => $nombre,
                 'descripcion_funcion' => $descripcion,
                 'id_modulo' => $moduloId,
