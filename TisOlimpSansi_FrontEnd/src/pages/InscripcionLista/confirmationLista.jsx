@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useFormData } from "./form-context";
 import ExitoModal from "./Modales/ExitoModal";
@@ -18,12 +18,6 @@ const ConfirmationLista = ({ setStep }) => {
   const { estudiantes } = useFormData();
   const responsableInscripcion = globalData.responsable_inscripcion;
   const navigate = useNavigate();
-
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState({
-    success: null,
-    message: "",
-  });
   const [uploadProgress, setUploadProgress] = useState(0);
   const [showProgressBar, setShowProgressBar] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -32,10 +26,8 @@ const ConfirmationLista = ({ setStep }) => {
   const [codigoGenerado, setCodigoGenerado] = useState("");
   const [mostrarModal, setMostrarModal] = useState(false);
 
-  
   const handleGoBack = () => {
-
-    setStep(4); // Volver al paso 4 (lista de competidores)
+    setStep(4);
   };
 
   const calcularTotalAreas = () => {
@@ -51,15 +43,7 @@ const ConfirmationLista = ({ setStep }) => {
     return totalAreas;
   };
 
-  const calcularTotalImporte = () => {
-    const totalAreas = calcularTotalAreas();
-    return totalAreas * 20; // 20 Bs por área
-  };
-
   const handleConfirmSubmit = async () => {
-    setIsSubmitting(true);
-    setSubmitStatus({ success: null, message: "" });
-
     setShowProgressBar(true);
     setUploadProgress(0);
     const progressInterval = setInterval(() => {
@@ -67,33 +51,27 @@ const ConfirmationLista = ({ setStep }) => {
         const newValue = prev + 2;
         if (newValue >= 90) {
           clearInterval(progressInterval);
-          return 90; // Mantenemos en 90% hasta que termine la petición
+          return 90;
         }
         return newValue;
       });
     }, 100);
 
-    // Estructura el JSON que se enviará
     const datosPreparados = {
       olimpiada: globalData.olimpiada,
       responsable_inscripcion: responsableInscripcion,
       estudiantes: estudiantes.map((estudiante) => {
-        // Crear una copia del estudiante para manipular
         const estudianteModificado = { ...estudiante };
 
-        // Si hay áreas de competencia, verificar tutores académicos
         if (
           estudianteModificado.areas_competencia &&
           estudianteModificado.areas_competencia.length > 0
         ) {
-          // Asegurar que tutores_academicos sea un array
           if (!estudianteModificado.tutores_academicos) {
             estudianteModificado.tutores_academicos = [];
           }
 
-          // Verificar cada área para asegurarse de que tiene un tutor académico
           estudianteModificado.areas_competencia.forEach((area, index) => {
-            // Si no hay tutor para esta área, crear uno con valores predeterminados
             if (
               !estudianteModificado.tutores_academicos[index] ||
               !estudianteModificado.tutores_academicos[index].tutor
@@ -110,7 +88,6 @@ const ConfirmationLista = ({ setStep }) => {
                 },
               };
             } else {
-              // Si existe el tutor pero tiene campos vacíos, rellenarlos con valores predeterminados
               const tutor =
                 estudianteModificado.tutores_academicos[index].tutor;
 
@@ -142,38 +119,27 @@ const ConfirmationLista = ({ setStep }) => {
     };
 
     try {
-
       const response = await axios.post(
         `${API_URL}/api/inscribir-lista`,
         datosPreparados
       );
 
       if (response.status === 201) {
-        // Completar la barra de progreso
         setUploadProgress(100);
         clearInterval(progressInterval);
 
-        // Guardar el código generado
         setCodigoGenerado(response.data.codigo_generado);
 
-        // Actualizar el estado global con el código generado
         setGlobalData({
           ...globalData,
           codigoGenerado: response.data.codigo_generado,
         });
 
-        setSubmitStatus({
-          success: true,
-          message: "Inscripción registrada correctamente.",
-        });
-
-        // Mostrar modal de éxito
         setShowSuccessModal(true);
       } else {
         throw new Error(`Error en la respuesta: ${response.status}`);
       }
     } catch (error) {
-      console.error("Error al registrar los datos", error);
       clearInterval(progressInterval);
       setShowProgressBar(false);
 
@@ -181,7 +147,9 @@ const ConfirmationLista = ({ setStep }) => {
       let mensajeFinal = rawMessage;
 
       if (rawMessage.includes("Areas/categorias válidas:")) {
-        const [mensajeBase, combinacionesRaw] = rawMessage.split("Combinaciones válidas:");
+        const [mensajeBase, combinacionesRaw] = rawMessage.split(
+          "Combinaciones válidas:"
+        );
         const combinaciones = combinacionesRaw
           .split("-")
           .map((item) => item.trim())
@@ -192,24 +160,15 @@ const ConfirmationLista = ({ setStep }) => {
           .join("\n")}`;
       }
 
-      // ✅ Pasar el string completo como mensaje plano
       setErrorMessage(mensajeFinal);
       setShowErrorModal(true);
-
-      setSubmitStatus({
-        success: false,
-        message: mensajeFinal,
-      });
     } finally {
-      setIsSubmitting(false);
     }
   };
 
   const handleSuccessModalClose = () => {
     setShowSuccessModal(false);
     setShowProgressBar(false);
-
-    console.log(codigoGenerado);
     navigate("/orden-pago", { state: { codigoGenerado } });
   };
 
@@ -223,9 +182,7 @@ const ConfirmationLista = ({ setStep }) => {
           Por favor, revise la información antes de confirmar
         </p>
 
-        {/* Resumen formateado de la información */}
         <div className="mt-4 bg-white rounded-lg shadow-md p-6 text-left max-w-3xl mx-auto">
-          {/* Sección del responsable de inscripción */}
           <div className="mb-6 border-b pb-4">
             <h3 className="text-lg font-semibold text-blue-600">
               Responsable de Inscripción
@@ -247,7 +204,7 @@ const ConfirmationLista = ({ setStep }) => {
               </div>
             </div>
           </div>
-          {/* Sección del colegio */}
+
           <div className="mb-6 border-b pb-4">
             <h3 className="text-lg font-semibold text-blue-600">
               Datos de la Unidad Educativa
@@ -275,7 +232,7 @@ const ConfirmationLista = ({ setStep }) => {
               </div>
             </div>
           </div>
-          {/* Sección de resumen de estudiantes */}
+
           <div className="mb-6 border-b pb-4">
             <h3 className="text-lg font-semibold text-blue-600">
               Resumen de Competidores
@@ -294,7 +251,6 @@ const ConfirmationLista = ({ setStep }) => {
             </div>
           </div>
 
-          {/* Tabla detallada de competidores */}
           <div
             className={`mt-6 ${
               estudiantes.length > 25 ? "max-h-96 overflow-y-auto pr-2" : ""
@@ -317,7 +273,6 @@ const ConfirmationLista = ({ setStep }) => {
                 <tbody>
                   {estudiantes
                     .flatMap((estudiante, estudianteIndex) => {
-                      // Si no hay áreas de competencia, mostrar una fila con datos básicos
                       if (
                         !estudiante.areas_competencia ||
                         !Array.isArray(estudiante.areas_competencia) ||
@@ -336,7 +291,6 @@ const ConfirmationLista = ({ setStep }) => {
                         ];
                       }
 
-                      // Si hay áreas de competencia, crear una fila por cada área
                       return estudiante.areas_competencia.map(
                         (area, areaIndex) => ({
                           id: `${estudianteIndex}-${areaIndex}`,
@@ -372,7 +326,6 @@ const ConfirmationLista = ({ setStep }) => {
           </div>
         </div>
 
-        {/* Botones de navegación */}
         <div className="flex justify-center mt-6 gap-4">
           <button
             onClick={handleGoBack}

@@ -1,4 +1,3 @@
-import React from "react";
 import { FaExclamationTriangle } from "react-icons/fa";
 
 const RegistrosInvalidosModal = ({ mensaje, onClose }) => {

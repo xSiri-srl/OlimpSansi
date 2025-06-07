@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { FaSchool, FaBuilding, FaMapMarkedAlt } from "react-icons/fa";
 import { API_URL } from "../../../../../utils/api";
 import axios from "axios";
@@ -17,16 +17,13 @@ const DatosColegio = ({
   const [distritosList, setDistritosList] = useState([]);
 
   useEffect(() => {
-    axios
-      .post(`${API_URL}/api/colegios/filtro`, {})
-      .then((res) => {
-        setColegiosData(res.data);
-        const departamentosUnicos = [
-          ...new Set(res.data.map((c) => c.departamento)),
-        ];
-        setDepartamentosList(departamentosUnicos);
-      })
-      .catch((err) => console.error("Error al cargar colegios", err));
+    axios.post(`${API_URL}/api/colegios/filtro`, {}).then((res) => {
+      setColegiosData(res.data);
+      const departamentosUnicos = [
+        ...new Set(res.data.map((c) => c.departamento)),
+      ];
+      setDepartamentosList(departamentosUnicos);
+    });
   }, []);
 
   useEffect(() => {
@@ -40,16 +37,16 @@ const DatosColegio = ({
   }, [estudianteData?.colegio?.departamento, colegiosData]);
 
   const cursos = [
-     "3RO PRIMARIA",
-  "4TO PRIMARIA",
-  "5TO PRIMARIA",
-  "6TO PRIMARIA",
-  "1RO SECUNDARIA",
-  "2DO SECUNDARIA",
-  "3RO SECUNDARIA",
-  "4TO SECUNDARIA",
-  "5TO SECUNDARIA",
-  "6TO SECUNDARIA",
+    "3RO PRIMARIA",
+    "4TO PRIMARIA",
+    "5TO PRIMARIA",
+    "6TO PRIMARIA",
+    "1RO SECUNDARIA",
+    "2DO SECUNDARIA",
+    "3RO SECUNDARIA",
+    "4TO SECUNDARIA",
+    "5TO SECUNDARIA",
+    "6TO SECUNDARIA",
   ];
 
   return (
@@ -61,7 +58,7 @@ const DatosColegio = ({
       {mostrarCampo("nombre_colegio") && (
         <div>
           <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-            <FaSchool /> Nombre de la Unidad Educativa 
+            <FaSchool /> Nombre de la Unidad Educativa
           </label>
           <input
             type="text"
@@ -89,7 +86,7 @@ const DatosColegio = ({
       {mostrarCampo("curso") && (
         <div>
           <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-            <FaBuilding /> Curso 
+            <FaBuilding /> Curso
           </label>
           <select
             className={`mt-1 p-2 w-full border rounded-md ${
