@@ -8,7 +8,7 @@ use App\Models\Inscripcion\AreaModel;
 use App\Models\Inscripcion\CategoriaModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class olimpiada_area_categoria extends Model
+class OlimpiadaAreaCategoriaModel extends Model
 {
     use HasFactory;
 

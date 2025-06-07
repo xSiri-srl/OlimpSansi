@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\olimpiada_area_categoria;
+use App\Models\GestionOlimpiadas\OlimpiadaAreaCategoriaModel;
 use App\Models\Inscripcion\CategoriaGradoModel as InscripcionCategoriaGradoModel;
 
 class CategoriaGradoController extends Controller
@@ -31,7 +31,7 @@ class CategoriaGradoController extends Controller
     {
         $olimpiadaId = $request->id;
 
-        $datos = olimpiada_area_categoria::with([
+        $datos = OlimpiadaAreaCategoriaModel::with([
             'area',
             'categoria.grado.grado'
         ])->where('id_olimpiada', $olimpiadaId)->get();

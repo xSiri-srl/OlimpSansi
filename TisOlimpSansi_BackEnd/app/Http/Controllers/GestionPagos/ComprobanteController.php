@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\OrdenPago;
+use App\Models\GestionPagos\OrdenPagoModel;
 use Illuminate\Http\Request;
-use App\Models\comprobantes_pago;
+use App\Models\GestionPagos\ComprobantePagoModel
+;
 
 
 class ComprobanteController extends Controller
@@ -21,14 +22,15 @@ public function guardarComprobante(Request $request)
     $imagen = $request->file('comprobante');
     $comprobantePath = $imagen->store('comprobantes', 'public');
 
-    $ordenPago = OrdenPago::where('codigo_generado', $validated['codigo_generado'])->first();
+    $ordenPago = OrdenPagoModel::where('codigo_generado', $validated['codigo_generado'])->first();
 
     if (!$ordenPago) {
         return response()->json(['message' => 'Código no encontrado.'], 404);
     }
 
    
-    $comprobante = new comprobantes_pago();
+    $comprobante = new ComprobantePagoModel
+();
     $comprobante->id_orden_pago = $ordenPago->id;
     $comprobante->numero_comprobante = $validated['numero_comprobante'];
     $comprobante->comprobante_url = $comprobantePath;

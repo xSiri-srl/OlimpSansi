@@ -12,18 +12,18 @@ use App\Http\Controllers\Inscripcion\EstudianteController;
 use App\Http\Controllers\Inscripcion\TutorAcademicoController;
 use App\Http\Controllers\Inscripcion\ColegioController;
 use App\Http\Controllers\Inscripcion\GradoController;
-use App\Http\Controllers\InscripcionController;
-use App\Http\Controllers\ConvocatoriaController;
+use App\Http\Controllers\Inscripcion\InscripcionController;
+use App\Http\Controllers\GestionOl\ConvocatoriaController;
 use App\Http\Controllers\UserAdminController;
-use App\Http\Controllers\OlimpiadaController;
-use App\Http\Controllers\OlimpiadaAreaController;
-use App\Http\Controllers\CategoriaGradoController;
+use App\Http\Controllers\GestionOlimpiadas\OlimpiadaController;
+use App\Http\Controllers\GestionOlimpiadas\OlimpiadaAreaController;
+use App\Http\Controllers\Inscripcion\CategoriaGradoController;
 
 use App\Http\Controllers\Inscripcion\AreaController;
 use App\Http\Controllers\Inscripcion\CategoriaController;
 
-use App\Http\Controllers\OrdenPagoController;
-use App\Http\Controllers\ComprobanteController;
+use App\Http\Controllers\GestionPagos\OrdenPagoController;
+use App\Http\Controllers\GestionPagos\ComprobanteController;
 use App\Http\Middleware\VerificarPermiso;
 
 Route::controller(UserPruebaController::class)->group(function(){

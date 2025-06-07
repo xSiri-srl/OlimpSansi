@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\OrdenPago;
+use App\Models\GestionPagos\OrdenPagoModel;
 
 use App\Models\Inscripcion\InscripcionModel;
 
@@ -9,7 +9,8 @@ use Illuminate\Http\Request;
 
 use Barryvdh\DomPDF\Facade\Pdf;
 
-use App\Models\comprobantes_pago;
+use App\Models\GestionPagos\ComprobantePagoModel
+;
 
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Log;
@@ -48,7 +49,7 @@ class OrdenPagoController extends Controller
         $writeLog("GD Extension: " . (extension_loaded('gd') ? 'OK' : 'NO'));
         $writeLog("MBString Extension: " . (extension_loaded('mbstring') ? 'OK' : 'NO'));
         
-        $ordenPago = OrdenPago::where('codigo_generado', $validated['codigo_generado'])->first();
+        $ordenPago = OrdenPagoModel::where('codigo_generado', $validated['codigo_generado'])->first();
         if (!$ordenPago) {
             $writeLog("ERROR: Orden de pago no encontrada");
             return response()->json(['message' => 'Orden de pago no encontrada'], 404);
@@ -225,7 +226,7 @@ class OrdenPagoController extends Controller
     public function descargarOrdenPago($codigo)
 {
     // Buscar la orden de pago por el código
-    $ordenPago = OrdenPago::where('codigo_generado', $codigo)->first();
+    $ordenPago = OrdenPagoModel::where('codigo_generado', $codigo)->first();
 
     if (!$ordenPago) {
         return response()->json(['error' => 'Orden de pago no encontrada'], 404);
@@ -255,7 +256,7 @@ public function verificarCodigo(Request $request)
         ]);
 
     
-        $ordenPago = OrdenPago::where('codigo_generado', $validated['codigo_generado'])->first();
+        $ordenPago = OrdenPagoModel::where('codigo_generado', $validated['codigo_generado'])->first();
 
         if (!$ordenPago) {
             return response()->json(['message' => 'Código generado no encontrado. No se puede proceder.'], 404);
@@ -267,7 +268,8 @@ public function verificarCodigo(Request $request)
         }
 
        
-        $comprobante = comprobantes_pago::where('id_orden_pago', $ordenPago->id)->first();
+        $comprobante = ComprobantePagoModel
+::where('id_orden_pago', $ordenPago->id)->first();
         if ($comprobante) {
             return response()->json([
                 'message' => 'Este comprobante ya fue registrado previamente. No puede continuar.'
@@ -455,7 +457,7 @@ public function verificarCodigo(Request $request)
      */
     public function obtenerOrdenPagoPorCodigo($codigo)
     {
-        $ordenPago = OrdenPago::where('codigo_generado', $codigo)->first();
+        $ordenPago = OrdenPagoModel::where('codigo_generado', $codigo)->first();
         
         if (!$ordenPago) {
             return response()->json(['message' => 'Código no encontrado'], 404);
@@ -467,7 +469,7 @@ public function verificarCodigo(Request $request)
     public function obtenerResumenPorCodigo($codigo)
 {
     // Buscar la orden de pago con todas las relaciones necesarias
-    $ordenPago = OrdenPago::with([
+    $ordenPago = OrdenPagoModel::with([
         'responsable', // El responsable está en la tabla orden_pago
         'inscripcion.estudiante.grado',
         'inscripcion.olimpiadaAreaCategoria.categoria',
@@ -542,7 +544,7 @@ public function verificarCodigo(Request $request)
 
     
     public function obtenerOrdenPago(){
-    $ordenesPago = OrdenPago::all();
+    $ordenesPago = OrdenPagoModel::all();
     return response()->json($ordenesPago);
     }
 
@@ -551,7 +553,7 @@ public function verificarCodigo(Request $request)
             //calcular la fecha de hace 7 días
             $fechaLimite = now()->subDays(7);
             
-            $ordenesPago = OrdenPago::where('fecha_emision', '>=', $fechaLimite)
+            $ordenesPago = OrdenPagoModel::where('fecha_emision', '>=', $fechaLimite)
                 ->orderBy('fecha_emision', 'desc')
                 ->get();
                 
@@ -632,7 +634,7 @@ public function verificarCodigo(Request $request)
 
     public function ordenPagoExiste($codigo)
     {
-        $ordenPago = OrdenPago::where('codigo_generado', $codigo)->first();
+        $ordenPago = OrdenPagoModel::where('codigo_generado', $codigo)->first();
     
         if (!$ordenPago) {
             return response()->json(['message' => 'Código no encontrado'], 404);
@@ -670,7 +672,7 @@ public function verificarCodigo(Request $request)
 {
     try {
         // Buscar la orden de pago por código generado
-        $ordenPago = OrdenPago::with(['inscripcion.olimpiadaAreaCategoria'])
+        $ordenPago = OrdenPagoModel::with(['inscripcion.olimpiadaAreaCategoria'])
             ->where('codigo_generado', $codigo)
             ->first();
 

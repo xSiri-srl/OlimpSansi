@@ -4,9 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Models\OrdenPago;
+use App\Models\GestionPagos\OrdenPagoModel;
 
-class comprobantes_pago extends Model
+class ComprobantePagoModel extends Model
 {
     use HasFactory;
 
@@ -19,6 +19,6 @@ class comprobantes_pago extends Model
     ];
 
     public function ordenPago(){
-        return $this->belongsTo(OrdenPago::class, 'id_orden_pago');
+        return $this->belongsTo(OrdenPagoModel::class, 'id_orden_pago');
     }
 }

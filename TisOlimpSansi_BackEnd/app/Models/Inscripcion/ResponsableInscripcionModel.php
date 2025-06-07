@@ -5,7 +5,7 @@ namespace App\Models\Inscripcion;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Inscripcion\InscripcionModel;
-use App\Models\OrdenPago;
+use App\Models\GestionPagos\OrdenPagoModel;
 
 
 class ResponsableInscripcionModel extends Model
@@ -20,7 +20,7 @@ class ResponsableInscripcionModel extends Model
         'complemento',
     ];
     public function ordenPago(){
-        return $this->hasMany(OrdenPago::class, 'id_responsable', 'id');
+        return $this->hasMany(OrdenPagoModel::class, 'id_responsable', 'id');
     }
 
     public static function registrarDesdeRequest($data)

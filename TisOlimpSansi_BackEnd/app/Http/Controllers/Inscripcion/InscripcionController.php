@@ -10,10 +10,10 @@ use App\Models\Inscripcion\GradoModel;
 use App\Models\Inscripcion\InscripcionModel;
 use App\Models\Inscripcion\ResponsableInscripcionModel;
 use App\Models\Inscripcion\TutorAcademicoModel;
-use App\Models\olimpiada_area_categoria;
+use App\Models\GestionOlimpiadas\OlimpiadaAreaCategoriaModel;
 use App\Models\Inscripcion\TutorLegalModel;
-use App\Models\OlimpiadaModel;
-use App\Models\OrdenPago;
+use App\Models\GestionOlimpiadas\OlimpiadaModel;
+use App\Models\GestionPagos\OrdenPagoModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -85,7 +85,7 @@ public function registrar(Request $request)
             throw new \Exception("No se pudo registrar o recuperar el tutor legal.");
         }
 
-        $ordenPago = OrdenPago::create([
+        $ordenPago = OrdenPagoModel::create([
             'id_responsable' => $responsable->id,
             'codigo_generado' => '',
             'monto_total' => 0,
@@ -183,7 +183,7 @@ public function registrarLista(Request $request)
         }
 
         // Crear orden de pago temporal
-        $ordenPago = OrdenPago::create([
+        $ordenPago = OrdenPagoModel::create([
             'id_responsable' => $responsable->id,
             'codigo_generado' => '',
             'monto_total' => 0,
@@ -244,7 +244,7 @@ public function registrarLista(Request $request)
                 $categoria = CategoriaModel::where('nombre_categoria', $areaItem['categoria'])->firstOrFail();
 
                 // Obtener combinación válida
-                $oac = olimpiada_area_categoria::where([
+                $oac = OlimpiadaAreaCategoriaModel::where([
                     ['id_olimpiada', $olimpiadaId],
                     ['id_area', $area->id],
                     ['id_categoria', $categoria->id],
@@ -523,7 +523,7 @@ public function registrosPorCodigo(Request $request)
     try {
         $codigo = $request->input('codigo');
 
-        $ordenPago = OrdenPago::where('codigo_generado', $codigo)->first();
+        $ordenPago = OrdenPagoModel::where('codigo_generado', $codigo)->first();
 
         if (!$ordenPago) {
             return response()->json([

@@ -1,8 +1,8 @@
 <?php
 
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\OlimpiadaController;
-use App\Http\Controllers\OlimpiadaAreaController;
+use App\Http\Controllers\Usuarios\AuthController;
+use App\Http\Controllers\GestionOlimpiadas\OlimpiadaController;
+use App\Http\Controllers\GestionOlimpiadas\OlimpiadaAreaController;
 use App\Http\Middleware\VerifyCsrfToken;
 use App\Helpers\OrdenPagoHelper;
 use Illuminate\Support\Facades\Route;

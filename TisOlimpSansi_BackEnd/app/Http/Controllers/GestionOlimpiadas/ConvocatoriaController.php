@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ConvocatoriaModel;
+use App\Models\GestionOlimpiadas\ConvocatoriaModel;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;

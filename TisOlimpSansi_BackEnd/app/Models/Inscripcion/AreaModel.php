@@ -4,7 +4,7 @@ namespace App\Models\Inscripcion;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Models\olimpiada_area_categoria;
+use App\Models\GestionOlimpiadas\OlimpiadaAreaCategoriaModel;
 
 
 class AreaModel extends Model
@@ -15,6 +15,6 @@ class AreaModel extends Model
         'nombre_area',
     ];
     public function olimpiadaAreaCategoria(){
-        return $this->hasMany(olimpiada_area_categoria::class, 'id_area', 'id');
+        return $this->hasMany(OlimpiadaAreaCategoriaModel::class, 'id_area', 'id');
     }
 }

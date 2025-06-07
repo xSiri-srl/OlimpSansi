@@ -5,7 +5,7 @@ namespace App\Helpers;
 use Exception;
 use NumberToWords\NumberToWords;
 use Illuminate\Support\Facades\DB;
-use App\Models\OrdenPago;
+use App\Models\GestionPagos\OrdenPagoModel;
 
 class OrdenPagoHelper
 {
@@ -71,7 +71,7 @@ class OrdenPagoHelper
     private static function obtenerIdOlimpiada($codigo) {
         try {
             // Buscar la orden de pago por código generado
-            $ordenPago = OrdenPago::with(['inscripcion.olimpiadaAreaCategoria'])
+            $ordenPago = OrdenPagoModel::with(['inscripcion.olimpiadaAreaCategoria'])
                 ->where('codigo_generado', $codigo)
                 ->first();
 

@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\OlimpiadaModel;
+use App\Models\GestionOlimpiadas\OlimpiadaModel;
 use App\Models\Inscripcion\AreaModel as InscripcionAreaModel;
 
 class OlimpiadaAreaModel extends Model

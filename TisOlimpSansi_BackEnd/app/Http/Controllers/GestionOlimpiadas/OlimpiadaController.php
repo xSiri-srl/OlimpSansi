@@ -4,11 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\OlimpiadaModel;
+use App\Models\GestionOlimpiadas\OlimpiadaModel;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use App\Models\olimpiada_area_categoria;
+use App\Models\GestionOlimpiadas\OlimpiadaAreaCategoriaModel;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 
@@ -225,7 +225,7 @@ public function getAreasCategoriasPorOlimpiada(Request $request)
         $idOlimpiada = $request->input('id');
 
         // Obtener todas las relaciones necesarias
-        $registros = olimpiada_area_categoria::with(['area', 'categoria'])
+        $registros = OlimpiadaAreaCategoriaModel::with(['area', 'categoria'])
             ->where('id_olimpiada', $idOlimpiada)
             ->get();
 
