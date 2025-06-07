@@ -45,7 +45,7 @@ class RolContadorSeeder extends Seeder
                 'updated_at' => now(),
             ]);
 
-            DB::table('rol_accions')->insert([
+            DB::table('rol_accion')->insert([
                 'id_rol' => $rolId,
                 'id_accion' => $accionId,
                 'created_at' => now(),

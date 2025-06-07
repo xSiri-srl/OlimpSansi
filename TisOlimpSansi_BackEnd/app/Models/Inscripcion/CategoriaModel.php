@@ -35,7 +35,7 @@ class CategoriaModel extends Model
         public function areas(){
         return $this->belongsToMany(
             AreaModel::class,
-            'olimpiada_area_categorias',
+            'olimpiada_area_categoria',
             'id_categoria',
             'id_area'
         );

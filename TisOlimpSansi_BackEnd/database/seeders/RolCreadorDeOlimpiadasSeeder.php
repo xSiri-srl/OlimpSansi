@@ -37,7 +37,7 @@ class RolCreadorDeOlimpiadasSeeder extends Seeder
         ]);
 
         // Relacionar acción con el rol
-        DB::table('rol_accions')->insert([
+        DB::table('rol_accion')->insert([
             'id_rol' => $rolId,
             'id_accion' => $accionId,
             'created_at' => now(),

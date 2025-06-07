@@ -604,24 +604,24 @@ public function verificarCodigo(Request $request)
         try {
             $ordenesDePago = DB::table('inscripcion')
                 ->join('responsable_inscripcion', 'inscripcion.id_responsable', '=', 'responsable_inscripcion.id')
-                ->join('orden_pagos', 'inscripcion.id_orden_pago', '=', 'orden_pagos.id')
+                ->join('orden_pago', 'inscripcion.id_orden_pago', '=', 'orden_pago.id')
                 ->select(
-                    'orden_pagos.codigo_generado',
-                    'orden_pagos.monto_total',
+                    'orden_pago.codigo_generado',
+                    'orden_pago.monto_total',
                     'responsable_inscripcion.apellido_pa as apellido_paterno',
                     'responsable_inscripcion.apellido_ma as apellido_materno',
                     'responsable_inscripcion.nombre as nombre',
                     'responsable_inscripcion.ci as carnet_identidad',
-                    DB::raw("CASE WHEN orden_pagos.comprobante_url IS NULL THEN false ELSE true END as estado_pago")
+                    DB::raw("CASE WHEN orden_pago.comprobante_url IS NULL THEN false ELSE true END as estado_pago")
                 )
                 ->groupBy(
-                    'orden_pagos.codigo_generado',
-                    'orden_pagos.monto_total',
+                    'orden_pago.codigo_generado',
+                    'orden_pago.monto_total',
                     'responsable_inscripcion.apellido_pa',
                     'responsable_inscripcion.apellido_ma',
                     'responsable_inscripcion.nombre',
                     'responsable_inscripcion.ci',
-                    'orden_pagos.comprobante_url'
+                    'orden_pago.comprobante_url'
                 )
                 ->get();
     
@@ -649,13 +649,13 @@ public function verificarCodigo(Request $request)
     public function dineroRecaudadoPorDepartamento()
     {
         // Subconsulta: obtener sumatoria total por departamento (con montos únicos)
-        $subquery = DB::table('orden_pagos')
-            ->whereNull('orden_pagos.numero_comprobante')
-            ->join('inscripcion', 'inscripcion.id_orden_pago', '=', 'orden_pagos.id')
+        $subquery = DB::table('orden_pago')
+            ->whereNull('orden_pago.numero_comprobante')
+            ->join('inscripcion', 'inscripcion.id_orden_pago', '=', 'orden_pago.id')
             ->join('estudiante', 'estudiante.id', '=', 'inscripcion.id_estudiante')
             ->join('colegio', 'colegio.id', '=', 'estudiante.id_unidad')
             ->groupBy('colegio.departamento')
-            ->select('colegio.departamento', DB::raw('SUM(DISTINCT orden_pagos.monto_total) as monto_total'));
+            ->select('colegio.departamento', DB::raw('SUM(DISTINCT orden_pago.monto_total) as monto_total'));
     
         // Consulta principal: mostrar todos los departamentos con su total o cero
         $resultados = DB::table('colegio')
