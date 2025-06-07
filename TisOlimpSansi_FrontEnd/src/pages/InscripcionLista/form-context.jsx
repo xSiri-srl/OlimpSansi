@@ -1,4 +1,3 @@
-"use client";
 import { createContext, useContext, useState } from "react";
 
 const FormContext = createContext({
@@ -20,4 +19,6 @@ export const FormProvider = ({ children }) => {
     </FormContext.Provider>
   );
 };
+export const useFormData = () => useContext(FormContext);
+
 export const useFormData = () => useContext(FormContext);

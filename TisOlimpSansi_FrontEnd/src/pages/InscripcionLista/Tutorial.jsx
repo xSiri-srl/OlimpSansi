@@ -79,6 +79,7 @@ const Tutorial = () => {
             </button>
           </div>
         </div>
+
         <div className="lg:w-1/2 px-8 lg:px-14 mt-8 lg:mt-0">
           <p className="text-red-600 font-bold text-2xl lg:text-3xl mb-6">
             TENER EN CUENTA ESTAS RECOMENDACIONES DURANTE EL LLENADO:
@@ -140,6 +141,7 @@ const Tutorial = () => {
           </div>
         </div>
       </div>
+
       {isOpen && (
         <div
           onClick={() => setIsOpen(false)}

@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect, useMemo } from "react";
 import {
   FaUser,
@@ -22,7 +20,6 @@ import axios from "axios";
 
 const ListaCompetidores = ({ setStep }) => {
   const { globalData, setGlobalData } = useFormData();
-
   const responsableInscripcion = globalData.responsable_inscripcion;
   const [showTooManyErrorsModal, setShowTooManyErrorsModal] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
@@ -129,6 +126,16 @@ const ListaCompetidores = ({ setStep }) => {
     }
   }, [globalData.olimpiada]);
 
+  const normalizeString = (str) => {
+    if (!str) return "";
+    return str
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/\s+/g, " ")
+      .trim()
+      .toLowerCase();
+  };
+
   const processedEstudiantes = useMemo(() => {
     if (!areasLoaded) {
       return estudiantes.map((est, index) => ({
@@ -159,7 +166,6 @@ const ListaCompetidores = ({ setStep }) => {
           const areaHabilitada = areasHabilitadas.find((ah) => {
             const coincide =
               normalizeArea(ah.area) === normalizeArea(area.nombre_area);
-
             return coincide;
           });
 
@@ -175,6 +181,7 @@ const ListaCompetidores = ({ setStep }) => {
             const categoriaOriginal = convertirCategoriaAOriginal(
               area.categoria
             );
+
             const categoriaValida = areaHabilitada.categorias.some((cat) => {
               const coincide =
                 cat.toUpperCase() === categoriaOriginal.toUpperCase();
@@ -218,6 +225,7 @@ const ListaCompetidores = ({ setStep }) => {
         }
       }
       mensajeError = errores.length > 0 ? errores[0] : "";
+
       const areas = est.areas_competencia
         ? est.areas_competencia
             .map((area) => area.nombre_area)
@@ -290,6 +298,7 @@ const ListaCompetidores = ({ setStep }) => {
     });
 
     setEstudiantes(updatedEstudiantes);
+
     setShowEditModal(false);
     setSelectedStudent(null);
   };
@@ -310,6 +319,7 @@ const ListaCompetidores = ({ setStep }) => {
       setShowErrorModal(true);
       return;
     }
+
     setStep(5);
   };
 
@@ -551,7 +561,6 @@ const ListaCompetidores = ({ setStep }) => {
             </select>
           </div>
         </div>
-
         <div className="flex justify-center mt-6 space-x-4">
           <button
             onClick={() => setStep(3)}

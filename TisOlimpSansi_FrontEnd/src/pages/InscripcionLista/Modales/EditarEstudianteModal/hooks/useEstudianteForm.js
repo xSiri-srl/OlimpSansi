@@ -374,6 +374,7 @@ export const useEstudianteForm = (estudiante) => {
         const esPrimaria = curso.includes("Primaria");
         const esSecundaria = curso.includes("Secundaria");
         const numeroCurso = parseInt(curso.match(/\d+/)?.[0] || "0");
+
         if (area.nombre_area === "Informática") {
           if (esPrimaria && (numeroCurso === 5 || numeroCurso === 6)) {
             if (!area.categoria.includes("Guacamayo")) {
@@ -430,12 +431,16 @@ export const useEstudianteForm = (estudiante) => {
     setErrores(nuevoErrores);
     return Object.keys(nuevoErrores).length === 0;
   };
+
   const tieneError = (campo) => Boolean(errores[campo]);
+
   const mostrarCampo = (campo) => {
     if (seccionActiva === SECCIONES.TODOS) return true;
+
     if (tieneError(campo)) {
       return true;
     }
+
     if (tieneError("ci") || tieneError("apellido_pa") || tieneError("nombre")) {
       if (campo === "ci" || campo === "apellido_pa" || campo === "nombre") {
         return true;
@@ -477,17 +482,20 @@ export const useEstudianteForm = (estudiante) => {
   const validarFormatoCI = (value) => {
     return value.replace(/\D/g, "").substring(0, 8);
   };
+
   const validarFormatoTelefono = (value) => {
     return value.replace(/\D/g, "").substring(0, 9);
   };
 
   const campoEditable = (campo) => {
     if (tieneError(campo)) return true;
+
     if (
       campo === "areas" &&
       Object.keys(errores).some((e) => e.startsWith("categoria_"))
     )
       return true;
+
     if (campo === "nombre" && !estudianteData.estudiante?.nombre) return true;
     if (campo === "apellido_pa" && !estudianteData.estudiante?.apellido_pa)
       return true;
@@ -495,6 +503,7 @@ export const useEstudianteForm = (estudiante) => {
     if (campo === "nombre_colegio" && !estudianteData.colegio?.nombre_colegio)
       return true;
     if (campo === "curso" && !estudianteData.colegio?.curso) return true;
+
     if (
       campo === "areas" &&
       (!estudianteData.areas_competencia ||
@@ -502,6 +511,7 @@ export const useEstudianteForm = (estudiante) => {
         !estudianteData.areas_competencia[0]?.nombre_area)
     )
       return true;
+
     if (campo.startsWith("categoria_")) {
       const index = parseInt(campo.split("_")[1]);
       const area = estudianteData.areas_competencia?.[index]?.nombre_area;
@@ -520,11 +530,14 @@ export const useEstudianteForm = (estudiante) => {
       const field = parts.slice(3).join("_");
       const tutor = estudianteData.tutores_academicos?.[index]?.tutor;
       if (!tutor) return true;
+
       const camposObligatorios = ["nombre", "apellido_pa", "ci"];
       const camposCompletos = camposObligatorios.every(
         (c) => tutor[c] && !tieneError(`tutor_academico_${index}_${c}`)
       );
+
       if (camposCompletos) return false;
+
       if (!tutor[field]) return true;
     }
     return false;

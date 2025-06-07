@@ -47,6 +47,7 @@ export const normalizeForComparison = (text) => {
 
 export const normalizarDatosEstudiante = (originalData) => {
   const normalizedData = JSON.parse(JSON.stringify(originalData));
+
   if (normalizedData.areas_competencia) {
     normalizedData.areas_competencia = normalizedData.areas_competencia.map(
       (area) => {
@@ -95,6 +96,7 @@ export const normalizarDatosEstudiante = (originalData) => {
 
     if (deptoNormalizado) {
       normalizedData.colegio.departamento = deptoNormalizado;
+
       if (normalizedData.colegio?.provincia) {
         const provinciaOriginal = normalizedData.colegio.provincia;
         const provinciaNormalizada = departamentos[deptoNormalizado].find(

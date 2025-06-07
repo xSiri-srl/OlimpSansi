@@ -37,6 +37,7 @@ const AreasCompetencia = ({
       obtenerAreasHabilitadas();
     }
   }, [globalData.olimpiada]);
+
   const areas = useMemo(() => {
     if (!areasHabilitadas?.length) return [];
     return areasHabilitadas.map((areaItem) => areaItem.area);
@@ -55,8 +56,10 @@ const AreasCompetencia = ({
       .replace(/Ú/g, "U")
       .replace(/Ñ/g, "N");
   };
+
   const esCategoriaValida = (area, categoria) => {
     if (!categoria || !area) return true;
+
     const areaNormalizada = normalizeString(area);
     const areaData = areasHabilitadas.find(
       (a) => normalizeString(a.area) === areaNormalizada
@@ -65,6 +68,7 @@ const AreasCompetencia = ({
     if (!areaData || !areaData.categorias) {
       return false;
     }
+
     return areaData.categorias.some(
       (cat) => normalizeString(cat) === normalizeString(categoria)
     );
@@ -72,6 +76,7 @@ const AreasCompetencia = ({
 
   const obtenerCategorias = (area, curso) => {
     if (!area) return [];
+
     const areaNormalizada = normalizeString(area);
     const areaData = areasHabilitadas.find(
       (a) => normalizeString(a.area) === areaNormalizada
@@ -80,6 +85,7 @@ const AreasCompetencia = ({
     if (!areaData || !areaData.categorias) {
       return [];
     }
+
     return areaData.categorias;
   };
 
@@ -100,11 +106,13 @@ const AreasCompetencia = ({
 
   const esAreaHabilitada = (area) => {
     if (!area) return false;
+
     const areaNormalizada = normalizeString(area);
     return areasHabilitadas.some(
       (areaData) => normalizeString(areaData.area) === areaNormalizada
     );
   };
+
   const areaTieneCategorias = (area) => {
     if (!area) return false;
     const categorias = obtenerCategorias(
@@ -121,9 +129,11 @@ const AreasCompetencia = ({
       areasActuales[index]?.categoria,
       index
     );
+
     const areaActual = areasActuales[index]?.nombre_area;
     const areaHabilitada = esAreaHabilitada(areaActual);
     const tieneCategorias = areaTieneCategorias(areaActual);
+
     return (
       campoEditable(`categoria_${index}`) ||
       tieneErrorCategoria ||
@@ -134,13 +144,16 @@ const AreasCompetencia = ({
 
   const esAreaEditable = () => {
     const tieneErrorArea = tieneError("areas");
+
     const areaNoHabilitada =
       areasActuales[0]?.nombre_area &&
       !esAreaHabilitada(areasActuales[0].nombre_area);
+
     const areaSinCategorias =
       areasActuales[0]?.nombre_area &&
       esAreaHabilitada(areasActuales[0].nombre_area) &&
       !areaTieneCategorias(areasActuales[0].nombre_area);
+
     return (
       campoEditable("areas") ||
       tieneErrorArea ||
@@ -180,6 +193,7 @@ const AreasCompetencia = ({
               } ${!esAreaEditable() ? "bg-gray-100" : ""}`}
               value={areasActuales[0]?.nombre_area || ""}
               onChange={(e) => {
+                console.log("Cambiando área a:", e.target.value);
                 handleChange("area_0", "nombre_area", e.target.value);
                 handleChange("area_0", "categoria", "");
               }}

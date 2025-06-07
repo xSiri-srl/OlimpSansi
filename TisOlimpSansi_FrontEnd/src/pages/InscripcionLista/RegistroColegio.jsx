@@ -84,6 +84,7 @@ function RegistroColegio({ setStep }) {
 
     setColegiosFiltrados([...new Set(colegios)]);
   }, [formData.colegio.distrito, formData.colegio.departamento, colegiosData]);
+
   const actualizarSugerencias = (texto) => {
     setBusquedaColegio(texto);
 
@@ -266,6 +267,7 @@ function RegistroColegio({ setStep }) {
                   }}
                 />
               )}
+
               {mostrarSugerencias && (
                 <div
                   ref={sugerenciasRef}
@@ -301,6 +303,7 @@ function RegistroColegio({ setStep }) {
               <p className="text-red-500 text-sm mt-1">{errors.colegio}</p>
             )}
           </div>
+
           <div className="text-center mt-6">
             <button
               onClick={() => setStep(1)}

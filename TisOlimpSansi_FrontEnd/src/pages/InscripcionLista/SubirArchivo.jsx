@@ -189,6 +189,7 @@ function SubirArchivo({ setStep }) {
     };
 
     const estudiantes = [];
+
     const apellidoPaternoIdx = 0;
     const apellidoMaternoIdx = 1;
     const nombresIdx = 2;
@@ -217,6 +218,7 @@ function SubirArchivo({ setStep }) {
 
     for (let i = 2; i < rawData.length; i++) {
       const row = rawData[i];
+
       const tieneDatosSignificativos =
         row &&
         row.length > 0 &&
@@ -299,13 +301,16 @@ function SubirArchivo({ setStep }) {
 
   const formatDate = (dateValue) => {
     if (!dateValue) return "";
+
     if (/^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
       return dateValue;
     }
+
     if (typeof dateValue === "number") {
       const date = new Date(Math.round((dateValue - 25569) * 86400 * 1000));
       return date.toISOString().split("T")[0];
     }
+
     if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(dateValue)) {
       const parts = dateValue.split("/");
       return `${parts[2]}-${parts[1].padStart(2, "0")}-${parts[0].padStart(

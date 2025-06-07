@@ -41,6 +41,7 @@ const RegistroPorLista = () => {
             </div>
           ))}
         </div>
+
         {step === 1 && <RegistroResponsable setStep={setStep} />}
         {step === 2 && <RegistroColegio setStep={setStep} />}
         {step === 3 && <SubirArchivo setStep={setStep} />}

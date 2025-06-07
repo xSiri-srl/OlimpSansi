@@ -24,7 +24,9 @@ const EditarEstudianteModal = ({ estudiante, onClose, onSave }) => {
   } = useEstudianteForm(estudiante);
 
   if (!estudianteData) return null;
+
   const areasActuales = estudianteData.areas_competencia || [];
+
   const handleSave = () => {
     if (validarDatos()) {
       onSave(estudianteData);

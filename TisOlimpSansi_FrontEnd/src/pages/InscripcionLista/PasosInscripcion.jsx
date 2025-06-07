@@ -5,6 +5,7 @@ import { FaCopy } from "react-icons/fa";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
@@ -45,6 +46,7 @@ const PasosInscripcion = () => {
           </p>
         </div>
       </div>
+
       <div className="text-center">
         <h2 className="text-xl font-bold text-gray-800 mb-2">
           GUARDE Y RECUERDE ESTE CÓDIGO DE ORDEN
