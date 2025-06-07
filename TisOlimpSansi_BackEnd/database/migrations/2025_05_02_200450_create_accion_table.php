@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('nombre_funcion');
             $table->string('descripcion_funcion');
-            $table->foreignId('id_modulo')->constrained('modulos');
+            $table->foreignId('id_modulo')->constrained('modulo');
             $table->timestamps();
         });
     }

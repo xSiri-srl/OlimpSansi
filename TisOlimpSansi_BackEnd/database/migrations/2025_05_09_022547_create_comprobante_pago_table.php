@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('comprobante_pago', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_orden_pago')->constrained('orden_pagos')->onDelete('cascade');
+            $table->foreignId('id_orden_pago')->constrained('orden_pago')->onDelete('cascade');
             $table->string('comprobante_url', 500)->nullable();
             $table->string('numero_comprobante', 50)->nullable();
             $table->string('nombre_pagador', 200)->nullable();

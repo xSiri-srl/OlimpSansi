@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('rol_accion', function (Blueprint $table) {
             $table->id();
             $table->foreignId('id_rol')->constrained('rol');
-            $table->foreignId('id_accion')->constrained('acciones');
+            $table->foreignId('id_accion')->constrained('accion');
             $table->timestamps();
         });
     }
