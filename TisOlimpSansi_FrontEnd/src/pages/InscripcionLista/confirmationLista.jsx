@@ -35,7 +35,7 @@ const ConfirmationLista = ({ setStep }) => {
   
   const handleGoBack = () => {
 
-    setStep(4); // Volver al paso 4 (lista de competidores)
+    setStep(4); 
   };
 
   const calcularTotalAreas = () => {
@@ -53,7 +53,7 @@ const ConfirmationLista = ({ setStep }) => {
 
   const calcularTotalImporte = () => {
     const totalAreas = calcularTotalAreas();
-    return totalAreas * 20; // 20 Bs por área
+    return totalAreas * 20; 
   };
 
   const handleConfirmSubmit = async () => {
@@ -67,33 +67,27 @@ const ConfirmationLista = ({ setStep }) => {
         const newValue = prev + 2;
         if (newValue >= 90) {
           clearInterval(progressInterval);
-          return 90; // Mantenemos en 90% hasta que termine la petición
+          return 90; 
         }
         return newValue;
       });
     }, 100);
 
-    // Estructura el JSON que se enviará
     const datosPreparados = {
       olimpiada: globalData.olimpiada,
       responsable_inscripcion: responsableInscripcion,
       estudiantes: estudiantes.map((estudiante) => {
-        // Crear una copia del estudiante para manipular
         const estudianteModificado = { ...estudiante };
 
-        // Si hay áreas de competencia, verificar tutores académicos
         if (
           estudianteModificado.areas_competencia &&
           estudianteModificado.areas_competencia.length > 0
         ) {
-          // Asegurar que tutores_academicos sea un array
           if (!estudianteModificado.tutores_academicos) {
             estudianteModificado.tutores_academicos = [];
           }
 
-          // Verificar cada área para asegurarse de que tiene un tutor académico
           estudianteModificado.areas_competencia.forEach((area, index) => {
-            // Si no hay tutor para esta área, crear uno con valores predeterminados
             if (
               !estudianteModificado.tutores_academicos[index] ||
               !estudianteModificado.tutores_academicos[index].tutor
@@ -110,7 +104,6 @@ const ConfirmationLista = ({ setStep }) => {
                 },
               };
             } else {
-              // Si existe el tutor pero tiene campos vacíos, rellenarlos con valores predeterminados
               const tutor =
                 estudianteModificado.tutores_academicos[index].tutor;
 
@@ -149,14 +142,11 @@ const ConfirmationLista = ({ setStep }) => {
       );
 
       if (response.status === 201) {
-        // Completar la barra de progreso
         setUploadProgress(100);
         clearInterval(progressInterval);
 
-        // Guardar el código generado
         setCodigoGenerado(response.data.codigo_generado);
 
-        // Actualizar el estado global con el código generado
         setGlobalData({
           ...globalData,
           codigoGenerado: response.data.codigo_generado,
@@ -167,7 +157,6 @@ const ConfirmationLista = ({ setStep }) => {
           message: "Inscripción registrada correctamente.",
         });
 
-        // Mostrar modal de éxito
         setShowSuccessModal(true);
       } else {
         throw new Error(`Error en la respuesta: ${response.status}`);
@@ -192,7 +181,6 @@ const ConfirmationLista = ({ setStep }) => {
           .join("\n")}`;
       }
 
-      // ✅ Pasar el string completo como mensaje plano
       setErrorMessage(mensajeFinal);
       setShowErrorModal(true);
 
@@ -317,7 +305,6 @@ const ConfirmationLista = ({ setStep }) => {
                 <tbody>
                   {estudiantes
                     .flatMap((estudiante, estudianteIndex) => {
-                      // Si no hay áreas de competencia, mostrar una fila con datos básicos
                       if (
                         !estudiante.areas_competencia ||
                         !Array.isArray(estudiante.areas_competencia) ||
@@ -336,7 +323,6 @@ const ConfirmationLista = ({ setStep }) => {
                         ];
                       }
 
-                      // Si hay áreas de competencia, crear una fila por cada área
                       return estudiante.areas_competencia.map(
                         (area, areaIndex) => ({
                           id: `${estudianteIndex}-${areaIndex}`,

@@ -9,7 +9,6 @@ export const obtenerCategorias = (area, curso) => {
   const esSecundaria = curso?.includes("Secundaria");
   const numero = parseInt(curso?.match(/\d+/)?.[0] || "0");
   
-  // Para Informática
   if (area === "Informática") {
     if (esPrimaria && (numero === 5 || numero === 6)) {
       return ["\"Guacamayo\" 5to a 6to Primaria"];
@@ -27,7 +26,6 @@ export const obtenerCategorias = (area, curso) => {
     }
   }
   
-  // Para Robótica
   if (area === "Robótica") {
     if (esPrimaria && (numero === 5 || numero === 6)) {
       return [
@@ -50,18 +48,15 @@ export const normalizeForComparison = (text) => {
   return text
     .toLowerCase()
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, ""); // Eliminar acentos
+    .replace(/[\u0300-\u036f]/g, ""); 
 };
 
 export const normalizarDatosEstudiante = (originalData) => {
-  // Crear una copia profunda de los datos originales
   const normalizedData = JSON.parse(JSON.stringify(originalData));
   
-  // Normalizar áreas de competencia para que coincidan con las opciones del desplegable
   if (normalizedData.areas_competencia) {
     normalizedData.areas_competencia = normalizedData.areas_competencia.map(area => {
       if (area.nombre_area) {
-        // Buscar coincidencia en el array de áreas utilizando normalización
         const matchedArea = areas.find(a => 
           normalizeForComparison(a) === normalizeForComparison(area.nombre_area)
         );
@@ -73,10 +68,8 @@ export const normalizarDatosEstudiante = (originalData) => {
     });
   }
   
-  // Normalizar formato del curso
   if (normalizedData.colegio?.curso) {
     const cursoOriginal = normalizedData.colegio.curso;
-    // Buscar una coincidencia aproximada en el array de cursos
     const cursoNormalizado = cursos.find(c => {
       const simplifiedCurso = normalizeForComparison(cursoOriginal).replace(/\s+de\s+/i, " ");
       const simplifiedOption = normalizeForComparison(c).replace(/\s+de\s+/i, " ");
@@ -88,7 +81,6 @@ export const normalizarDatosEstudiante = (originalData) => {
     }
   }
   
-  // Normalizar departamento y provincia
   if (normalizedData.colegio?.departamento) {
     const deptoOriginal = normalizedData.colegio.departamento;
     const deptoNormalizado = Object.keys(departamentos).find(d => 
@@ -98,7 +90,6 @@ export const normalizarDatosEstudiante = (originalData) => {
     if (deptoNormalizado) {
       normalizedData.colegio.departamento = deptoNormalizado;
       
-      // También normalizar la provincia si se encontró el departamento
       if (normalizedData.colegio?.provincia) {
         const provinciaOriginal = normalizedData.colegio.provincia;
         const provinciaNormalizada = departamentos[deptoNormalizado].find(p => 
@@ -112,7 +103,6 @@ export const normalizarDatosEstudiante = (originalData) => {
     }
   }
   
-  // También normalizar nombres de áreas en tutores académicos
   if (normalizedData.tutores_academicos) {
     normalizedData.tutores_academicos = normalizedData.tutores_academicos.map(tutor => {
       if (tutor.nombre_area) {

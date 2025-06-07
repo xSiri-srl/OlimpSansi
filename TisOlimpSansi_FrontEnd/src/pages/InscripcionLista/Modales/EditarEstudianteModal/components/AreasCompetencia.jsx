@@ -42,15 +42,11 @@ const AreasCompetencia = ({
     }
   }, [globalData.olimpiada]);
 
-  // Extraer áreas dinámicamente de areasHabilitadas
   const areas = useMemo(() => {
     if (!areasHabilitadas?.length) return [];
-    
-    // Usar los nombres de áreas tal como vienen de la API
     return areasHabilitadas.map(areaItem => areaItem.area);
   }, [areasHabilitadas]);
 
-  // Función para normalizar strings para comparación
   const normalizeString = (str) => {
     if (!str) return '';
     return str.toString().trim().toUpperCase()
@@ -62,11 +58,9 @@ const AreasCompetencia = ({
       .replace(/Ñ/g, 'N');
   };
 
-  // Función para verificar si una categoría está habilitada para un área específica
   const esCategoriaValida = (area, categoria) => {
-    if (!categoria || !area) return true; // Si no hay categoría seleccionada, no validar aún
+    if (!categoria || !area) return true; 
     
-    // Buscar el área específica en areasHabilitadas usando normalización
     const areaNormalizada = normalizeString(area);
     const areaData = areasHabilitadas.find(a => normalizeString(a.area) === areaNormalizada);
     
@@ -74,14 +68,12 @@ const AreasCompetencia = ({
       return false;
     }
 
-    // Verificar si la categoría existe en las categorías habilitadas
     return areaData.categorias.some(cat => normalizeString(cat) === normalizeString(categoria));
   };
 
   const obtenerCategorias = (area, curso) => {
     if (!area) return [];
     
-    // Buscar el área específica en areasHabilitadas usando normalización
     const areaNormalizada = normalizeString(area);
     const areaData = areasHabilitadas.find(a => normalizeString(a.area) === areaNormalizada);
     
@@ -89,7 +81,6 @@ const AreasCompetencia = ({
       return [];
     }
 
-    // Devolver las categorías tal como vienen de la API
     return areaData.categorias;
   };
   
@@ -100,7 +91,6 @@ const AreasCompetencia = ({
     handleChange(`area_${sectionIndex}`, 'categoria', selectedCategory);
   };
 
-  // Función para obtener mensaje de error de categoría inválida
   const obtenerErrorCategoria = (area, categoria, index) => {
     if (!categoria || !area) return null;
     
@@ -111,25 +101,20 @@ const AreasCompetencia = ({
     return null;
   };
 
-  // Función para verificar si un área está habilitada en esta olimpiada
   const esAreaHabilitada = (area) => {
     if (!area) return false;
     
-    // Usar normalización para comparar
     const areaNormalizada = normalizeString(area);
     return areasHabilitadas.some(areaData => normalizeString(areaData.area) === areaNormalizada);
   };
 
-  // Función para verificar si un área tiene categorías disponibles
   const areaTieneCategorias = (area) => {
     if (!area) return false;
     const categorias = obtenerCategorias(area, estudianteData.colegio?.curso || '');
     return categorias.length > 0;
   };
 
-  // Función para determinar si la categoría debe ser editable
   const esCategoriaEditable = (index) => {
-    // Si hay error en la categoría, debe ser editable para poder corregirlo
     const tieneErrorCategoria = tieneError(`categoria_${index}`);
     const tieneErrorValidacion = obtenerErrorCategoria(
       areasActuales[index]?.nombre_area, 
@@ -137,41 +122,29 @@ const AreasCompetencia = ({
       index
     );
     
-    // Si el área está habilitada y tiene categorías disponibles, 
-    // el campo de categoría debe ser editable
     const areaActual = areasActuales[index]?.nombre_area;
     const areaHabilitada = esAreaHabilitada(areaActual);
     const tieneCategorias = areaTieneCategorias(areaActual);
     
-    // Editable si: 
-    // 1. Campo normalmente editable O 
-    // 2. Hay algún error de categoría O
-    // 3. El área está habilitada y tiene categorías disponibles
     return campoEditable(`categoria_${index}`) || 
            tieneErrorCategoria || 
            tieneErrorValidacion ||
            (areaHabilitada && tieneCategorias);
   };
 
-  // Función para determinar si el área debe ser editable
   const esAreaEditable = () => {
-    // Si hay error en áreas, debe ser editable para poder corregirlo
     const tieneErrorArea = tieneError('areas');
     
-    // Si el área actual no está habilitada en esta olimpiada
     const areaNoHabilitada = areasActuales[0]?.nombre_area && 
                             !esAreaHabilitada(areasActuales[0].nombre_area);
     
-    // Si el área actual no tiene categorías disponibles, debe ser editable
     const areaSinCategorias = areasActuales[0]?.nombre_area && 
                              esAreaHabilitada(areasActuales[0].nombre_area) &&
                              !areaTieneCategorias(areasActuales[0].nombre_area);
     
-    // Editable si: campo normalmente editable O hay algún error O área no habilitada O área sin categorías
     return campoEditable('areas') || tieneErrorArea || areaNoHabilitada || areaSinCategorias;
   };
   
-  // Mostrar loading mientras se cargan las áreas
   if (!areasLoaded) {
     return (
       <div className="space-y-4">
@@ -197,7 +170,6 @@ const AreasCompetencia = ({
               onChange={(e) => {
                 console.log('Cambiando área a:', e.target.value);
                 handleChange('area_0', 'nombre_area', e.target.value);
-                // Limpiar categoría cuando cambie el área
                 handleChange('area_0', 'categoria', '');
               }}
               disabled={!esAreaEditable()}

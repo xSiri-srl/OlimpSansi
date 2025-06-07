@@ -1,5 +1,3 @@
-"use client"
-
 import { createContext, useContext, useState } from "react"
 
 // Crear el contexto
@@ -10,7 +8,6 @@ const FormContext = createContext({
   setEstudiantes: () => {},
 })
 
-// Proveedor del contexto
 export const FormProvider = ({ children }) => {
   const [globalData, setGlobalData] = useState({})
   const [estudiantes, setEstudiantes] = useState([])
@@ -22,5 +19,4 @@ export const FormProvider = ({ children }) => {
   )
 }
 
-// Hook personalizado para usar el contexto
 export const useFormData = () => useContext(FormContext)

@@ -67,8 +67,6 @@ const ProcesoInscripcion = () => {
             Elige la modalidad de inscripción que mejor se adapte a tus necesidades. Sigue los pasos correspondientes para completar tu registro en la olimpiada.
           </p>
         </motion.div>
-
-        {/* Pestañas de navegación */}
         <div className="flex justify-center mb-10">
           <div className="bg-white rounded-full p-1 shadow-md">
             {Object.keys(tabs).map((tab) => (
@@ -88,9 +86,7 @@ const ProcesoInscripcion = () => {
           </div>
         </div>
 
-        {/* Contenido de la pestaña activa */}
         <div className="bg-white rounded-2xl shadow-xl p-6 relative overflow-hidden">
-          {/* Fondo decorativo */}
           <div className="absolute inset-0 overflow-hidden opacity-5">
             <div className="absolute -right-10 -top-10 w-64 h-64 rounded-full bg-purple-500"></div>
             <div className="absolute -left-10 -bottom-10 w-64 h-64 rounded-full bg-blue-500"></div>
@@ -118,10 +114,8 @@ const ProcesoInscripcion = () => {
               <div className="flex-grow">
                 <h3 className="text-2xl font-bold mb-6 text-gray-800">Sigue estos pasos:</h3>
                 <div className="relative">
-                  {/* Línea de tiempo */}
                   <div className="absolute left-5 top-0 bottom-0 w-1 bg-gradient-to-b from-purple-500 to-blue-500 rounded-full"></div>
-                  
-                  {/* Pasos */}
+
                   <div className="space-y-6">
                     {tabs[activeTab].steps.map((step, index) => (
                       <motion.div

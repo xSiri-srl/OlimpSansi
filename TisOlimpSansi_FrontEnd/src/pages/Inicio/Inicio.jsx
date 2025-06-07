@@ -11,7 +11,6 @@ const Inicio = () => {
   const [areas, setAreas] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Iconos para las áreas (mantenemos este mapeo)
   const areaIcons = {
     "Matemáticas": "📐",
     "Física": "⚛️",
@@ -27,16 +26,12 @@ const Inicio = () => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        
-        // Fetch both convocatorias and areas in parallel
         const [convocatoriasResponse, areasResponse] = await Promise.all([
           axios.get(`${API_URL}/api/convocatorias`),
           axios.get(`${API_URL}/api/areas`)
         ]);
         
         setConvocatorias(convocatoriasResponse.data);
-        
-        // Process areas to add icons
         const areasData = areasResponse.data.data || [];
         const areasWithIcons = areasData.map(area => ({
           id: area.id,
@@ -56,16 +51,10 @@ const Inicio = () => {
     fetchData();
   }, []);
 
- 
-  // Combinar las áreas con las convocatorias reales
   const getPdfUrls = () => {
-    // Si no hay áreas, devolver array vacío para evitar errores
     if (!areas.length) return [];
     
-    // Crear una copia profunda del array de áreas
     const pdfUrlsFinal = areas.map(area => ({...area}));
-    
-    // Actualizar con las convocatorias reales
     if (Array.isArray(convocatorias)) {
       convocatorias.forEach(convocatoria => {
         const areaIndex = pdfUrlsFinal.findIndex(area => area.id === convocatoria.id_area);
