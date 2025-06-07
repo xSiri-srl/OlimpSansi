@@ -79,14 +79,11 @@ const CrearOlimpiadas = () => {
     setLoading(true);
 
     try {
-      //--------------------
-      //esto solo se utiliza en todo menos get
       await axios.get(`${API_URL}/api/sanctum/csrf-cookie`, {
         withCredentials: true,
       });
       const csrfToken = Cookies.get("XSRF-TOKEN");
       axios.defaults.headers.common["X-XSRF-TOKEN"] = csrfToken;
-      //----------------------
 
       const userData = JSON.parse(localStorage.getItem("user"));
       const userId = userData?.user?.id;
@@ -107,11 +104,10 @@ const CrearOlimpiadas = () => {
       const olimpiadaId = response.data.id || response.data.data?.id;
       setOlimpiadaCreada(olimpiadaId);
 
-      // Mostrar modal de éxito brevemente antes de mostrar el modal de tareas
+      
       setShowSuccessModal(true);
       setErrorMessage("");
 
-      // Limpiar los campos del formulario
       setTitulo("");
       setPeriodoIns("");
       setFechaIni("");
@@ -119,7 +115,6 @@ const CrearOlimpiadas = () => {
       setFechaIniDate(null);
       setFechaFinalDate(null);
 
-      // Después de un breve momento, mostrar el modal de tareas pendientes
       setTimeout(() => {
         setShowSuccessModal(false);
         setShowTareasModal(true);
@@ -138,12 +133,10 @@ const CrearOlimpiadas = () => {
     }
   };
 
-  // Función para manejar cuando el usuario decide configurar ahora
   const handleConfigurarAhora = () => {
     setShowTareasModal(false);
   };
 
-  // Función para manejar cuando el usuario decide configurar más tarde
   const handleConfigurarMasTarde = () => {
     setShowTareasModal(false);
     navigate("/"); 
@@ -156,7 +149,6 @@ const CrearOlimpiadas = () => {
       </h2>
       <div className="max-w-4xl mx-auto bg-gray-200 p-7 shadow-lg rounded-lg">
         <div className="grid grid-cols-2 gap-8">
-          {/* Título */}
           <div>
             <label className="block text-sm font-medium text-cyan-800 mb-1">
               Título
@@ -173,8 +165,6 @@ const CrearOlimpiadas = () => {
               <p className="text-red-600 text-sm mt-1">{errores.titulo}</p>
             )}
           </div>
-
-          {/* Gestión de inscripción */}
           <div>
             <label className="block text-sm font-medium text-cyan-800 mb-1">
               Gestión
@@ -195,8 +185,6 @@ const CrearOlimpiadas = () => {
               <p className="text-red-600 text-sm mt-1">{errores.periodoIns}</p>
             )}
           </div>
-
-          {/* Fecha de inicio */}
           <div>
             <label className="block text-sm font-medium text-cyan-800 mb-1">
               Inicio de inscripciones
@@ -217,8 +205,6 @@ const CrearOlimpiadas = () => {
               <p className="text-red-600 text-sm mt-1">{errores.fechaIni}</p>
             )}
           </div>
-
-          {/* Fecha final */}
           <div>
             <label className="block text-sm font-medium text-cyan-800 mb-1">
               Fin de inscripciones
@@ -257,7 +243,6 @@ const CrearOlimpiadas = () => {
         </div>
       </div>
 
-      {/* Modal de confirmación */}
       {showConfirmModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md text-center relative">
@@ -292,7 +277,6 @@ const CrearOlimpiadas = () => {
         </div>
       )}
 
-      {/* Modal de éxito */}
       {showSuccessModal && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg text-center w-96">
@@ -327,7 +311,6 @@ const CrearOlimpiadas = () => {
         </div>
       )}
 
-      {/* Modal de tareas pendientes */}
       <ModalTareasPendientes
         isOpen={showTareasModal}
         onClose={handleConfigurarMasTarde}
@@ -337,7 +320,6 @@ const CrearOlimpiadas = () => {
         esPrimeraVez={true}
       />
 
-      {/* Modal de carga */}
       {loading && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg text-center w-96">
