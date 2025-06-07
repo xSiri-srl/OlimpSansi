@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect, useMemo } from "react";
 import {
   FaUser,
@@ -22,14 +20,13 @@ import axios from 'axios'
 
 const ListaCompetidores = ({ setStep }) => {
   const { globalData, setGlobalData } = useFormData();
-
   const responsableInscripcion = globalData.responsable_inscripcion;
   const [showTooManyErrorsModal, setShowTooManyErrorsModal] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [filter, setFilter] = useState("todos"); // 'todos', 'errores'
+  const [filter, setFilter] = useState("todos"); 
   const [searchTerm, setSearchTerm] = useState("");
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -39,10 +36,8 @@ const ListaCompetidores = ({ setStep }) => {
   const [areasHabilitadas, setAreasHabilitadas] = useState([]);
   const [areasLoaded, setAreasLoaded] = useState(false);
   
-  // Get students from context
   const { estudiantes, setEstudiantes } = useFormData();
  
-  // Map area names to icons
   const areaIcons = {
     Matemáticas: <FaCalculator className="text-blue-600" />,
     Física: <FaAtom className="text-purple-600" />,
@@ -53,7 +48,6 @@ const ListaCompetidores = ({ setStep }) => {
     "Astronomía y Astrofísica": <FaAtom className="text-indigo-600" />,
   };
 
-  // Función para normalizar nombres de áreas
   const normalizeArea = (area) => {
     if (!area) return '';
     return area
@@ -67,16 +61,13 @@ const ListaCompetidores = ({ setStep }) => {
       .trim();
   };
 
-  // Función para convertir categoría de formato UI a formato original
   const convertirCategoriaAOriginal = (categoriaUI) => {
     if (!categoriaUI) return '';
     
-    // Si ya es formato original (códigos cortos), devolverlo tal como está
     if (/^[A-Z0-9]+[PS]?$/.test(categoriaUI)) {
       return categoriaUI;
     }
     
-    // Mapeo de categorías UI a códigos originales
     const uiToOriginalMapping = {
       '"Guacamayo" 5to a 6to Primaria': 'GUACAMAYO',
       '"Guanaco" 1ro a 3ro Secundaria': 'GUANACO',
@@ -103,12 +94,10 @@ const ListaCompetidores = ({ setStep }) => {
       
     };
     
-    // Buscar mapeo exacto
     if (uiToOriginalMapping[categoriaUI]) {
       return uiToOriginalMapping[categoriaUI];
     }
     
-    // Si tiene formato con comillas, extraer el contenido
     const match = categoriaUI.match(/\"([^\"]+)\"/);
     if (match && match[1]) {
       return match[1].toUpperCase();
@@ -117,7 +106,6 @@ const ListaCompetidores = ({ setStep }) => {
     return categoriaUI.toUpperCase();
   };
 
-  // Obtener áreas habilitadas al cargar el componente
   useEffect(() => {
     const obtenerAreasHabilitadas = async () => {
       try {
@@ -139,20 +127,17 @@ const ListaCompetidores = ({ setStep }) => {
     }
   }, [globalData.olimpiada]);
 
-  // Función para normalizar nombres (quitar acentos, espacios extra, etc.)
   const normalizeString = (str) => {
     if (!str) return '';
     return str
       .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '') // Quitar acentos
-      .replace(/\s+/g, ' ') // Normalizar espacios
+      .replace(/[\u0300-\u036f]/g, '') 
+      .replace(/\s+/g, ' ') 
       .trim()
       .toLowerCase();
   };
 
-  // Procesar estudiantes solo cuando las áreas estén cargadas
   const processedEstudiantes = useMemo(() => {
-    // No procesar si las áreas aún no están cargadas
     if (!areasLoaded) {
       return estudiantes.map((est, index) => ({
         id: index + 1,
@@ -173,65 +158,40 @@ const ListaCompetidores = ({ setStep }) => {
       let hasError = false;
       let mensajeError = "";
 
-      console.log(`\nValidando estudiante ${index + 1}:`, {
-        nombre: est.estudiante?.nombre,
-        areas: est.areas_competencia
-      });
-
-      // PASO 1: Verificar si las áreas y categorías existen en areasHabilitadas
       if (est.areas_competencia && Array.isArray(est.areas_competencia)) {
         for (const area of est.areas_competencia) {
-          console.log(`  Validando área: "${area.nombre_area}"`);
           
-          // Buscar área habilitada usando comparación normalizada
           const areaHabilitada = areasHabilitadas.find(ah => {
             const coincide = normalizeArea(ah.area) === normalizeArea(area.nombre_area);
-            console.log(`    Comparando "${ah.area}" con "${area.nombre_area}": ${coincide}`);
             return coincide;
           });
           
           if (!areaHabilitada) {
-            console.log(`    ❌ Área no encontrada: ${area.nombre_area}`);
-            console.log(`    Áreas disponibles:`, areasHabilitadas.map(ah => ah.area));
             errores.push(`El área ${area.nombre_area} no está habilitada para esta olimpiada`);
             hasError = true;
             continue;
           }
 
-          console.log(`    ✅ Área encontrada: ${areaHabilitada.area}`);
 
-          // VALIDAR CATEGORÍA
           if (area.categoria) {
-            console.log(`    Validando categoría: "${area.categoria}"`);
-            
-            // Convertir la categoría del estudiante al formato original
             const categoriaOriginal = convertirCategoriaAOriginal(area.categoria);
-            console.log(`    Categoría convertida: "${area.categoria}" -> "${categoriaOriginal}"`);
             
-            // Verificar si la categoría existe en las categorías habilitadas para esta área
             const categoriaValida = areaHabilitada.categorias.some(cat => {
               const coincide = cat.toUpperCase() === categoriaOriginal.toUpperCase();
-              console.log(`      Comparando "${cat}" con "${categoriaOriginal}": ${coincide}`);
               return coincide;
             });
             
             if (!categoriaValida) {
-              console.log(`    ❌ Categoría no válida: ${area.categoria} (${categoriaOriginal})`);
-              console.log(`    Categorías disponibles para ${areaHabilitada.area}:`, areaHabilitada.categorias);
               errores.push(`La categoría "${area.categoria}" no está disponible para el área ${area.nombre_area}`);
               hasError = true;
-            } else {
-              console.log(`    ✅ Categoría válida: ${area.categoria}`);
-            }
+            } 
           } else {
-            console.log(`    ❌ Categoría no especificada para área ${area.nombre_area}`);
             errores.push(`Falta especificar la categoría para el área ${area.nombre_area}`);
             hasError = true;
           }
         }
       }
 
-      // PASO 2: Verificar otros errores solo si no hay errores de áreas/categorías
       if (!hasError) {
         if (est.estudiante?.nombre && !/^[A-ZÁÉÍÓÚÑ\s]+$/i.test(est.estudiante.nombre)) {
           errores.push("El nombre debe contener solo letras");
@@ -247,13 +207,6 @@ const ListaCompetidores = ({ setStep }) => {
 
       mensajeError = errores.length > 0 ? errores[0] : "";
 
-      if (hasError) {
-        console.log(`❌ Estudiante ${index + 1} tiene errores:`, errores);
-      } else {
-        console.log(`✅ Estudiante ${index + 1} válido`);
-      }
-
-      // Obtener áreas para mostrar
       const areas = est.areas_competencia
         ? est.areas_competencia.map(area => area.nombre_area).filter(area => area)
         : [];
@@ -273,7 +226,6 @@ const ListaCompetidores = ({ setStep }) => {
     });
   }, [estudiantes, areasHabilitadas, areasLoaded]);
 
-  // Filtrar estudiantes
   const filteredEstudiantes = processedEstudiantes.filter((estudiante) => {
     const matchesSearch =
       estudiante.nombres.includes(searchTerm.toUpperCase()) ||
@@ -295,7 +247,6 @@ const ListaCompetidores = ({ setStep }) => {
   );
   const totalPages = Math.ceil(filteredEstudiantes.length / itemsPerPage);
 
-  // Validar si hay más de 10 competidores con errores
   useEffect(() => {
     const errorsCount = processedEstudiantes.filter((est) => est.error).length;
     if (errorsCount > 10) {
@@ -305,11 +256,9 @@ const ListaCompetidores = ({ setStep }) => {
 
   const handleTooManyErrorsClose = () => {
     setShowTooManyErrorsModal(false);
-    // Redirigir a la pantalla de subir archivo
     setStep(3);
   };
 
-  // Modificado para mostrar directamente el modal de edición
   const handleStudentClick = (estudiante) => {
     setSelectedStudent(estudiante);
     setShowEditModal(true);
@@ -321,7 +270,6 @@ const ListaCompetidores = ({ setStep }) => {
   };
 
   const handleSaveEdit = (updatedData) => {
-    // Actualizar el estudiante en el array de estudiantes
     const updatedEstudiantes = estudiantes.map((est, index) => {
       if (index === selectedStudent.id - 1) {
         return updatedData;
@@ -329,14 +277,11 @@ const ListaCompetidores = ({ setStep }) => {
       return est;
     });
 
-    // Actualizar el estado global
     setEstudiantes(updatedEstudiantes);
 
-    // Cerrar el modal de edición
     setShowEditModal(false);
     setSelectedStudent(null);
 
-    console.log("Datos actualizados:", updatedData);
   };
 
   const handleSiguiente = () => {
@@ -356,7 +301,6 @@ const ListaCompetidores = ({ setStep }) => {
       return;
     }
 
-    // Avanzar directamente al paso 5 (confirmación)
     setStep(5);
   };
 
@@ -374,7 +318,6 @@ const ListaCompetidores = ({ setStep }) => {
 
   return (
     <div className="p-4">
-      {/* Si las áreas aún no están cargadas, mostrar indicador */}
       {!areasLoaded && (
         <div className="bg-blue-50 border-l-4 border-blue-400 p-3 mb-4">
           <p className="text-blue-700 text-sm">
@@ -428,7 +371,6 @@ const ListaCompetidores = ({ setStep }) => {
           </div>
         </div>
 
-        {/* Mensaje de advertencia */}
         {totalErrors > 0 && (
           <div className="bg-yellow-50 border-l-4 border-yellow-400 p-3 mb-4 flex items-start">
             <FaExclamationCircle className="text-yellow-500 mr-2 mt-1 flex-shrink-0" />
@@ -604,8 +546,6 @@ const ListaCompetidores = ({ setStep }) => {
             </select>
           </div>
         </div>
-
-        {/* Botones de navegación */}
         <div className="flex justify-center mt-6 space-x-4">
           <button
             onClick={() => setStep(3)}

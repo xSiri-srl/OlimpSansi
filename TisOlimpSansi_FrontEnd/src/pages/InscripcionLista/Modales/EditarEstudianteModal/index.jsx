@@ -24,13 +24,10 @@ const EditarEstudianteModal = ({ estudiante, onClose, onSave }) => {
     validarFormatoTelefono
   } = useEstudianteForm(estudiante);
   
-  // Si no hay datos, no renderizar nada
   if (!estudianteData) return null;
 
-  // Obtener las áreas actuales
   const areasActuales = estudianteData.areas_competencia || [];
   
-  // Guardar cambios
   const handleSave = () => {
     if (validarDatos()) {
       onSave(estudianteData);

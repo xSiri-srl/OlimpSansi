@@ -79,7 +79,6 @@ function SubirArchivo({ setStep }) {
     if (file && (allowedTypes.includes(file.type) || file.name.endsWith(".xlsx") || file.name.endsWith(".xls"))) {
       setSelectedFile(file)
       setError("")
-      // Mostrar una vista previa de los datos
       previewExcelFile(file)
     } else {
       setSelectedFile(null)
@@ -98,12 +97,10 @@ function SubirArchivo({ setStep }) {
     }
   }
 
-  // Modificar la función processExcelFile para eliminar la validación de datos faltantes
   const processExcelFile = async (file) => {
     setLoading(true)
     try {
       const data = await readExcelFile(file)
-      console.log("Datos procesados del Excel:", data)
 
       if (!data) {
         setError("No se pudieron extraer datos del archivo Excel.")
@@ -111,14 +108,12 @@ function SubirArchivo({ setStep }) {
         return false
       }
 
-      // Check if the Excel has the correct format but no student data
       if (data.inscripciones.length === 0) {
         setError("El Excel cumple el formato pero no tiene datos. Por favor, agregue información de estudiantes.")
         setLoading(false)
         return false
       }
 
-      // Check if the Excel exceeds the student limit
       if (data.inscripciones.length > 500) {
         setError(
           "El archivo Excel excede el límite de 500 estudiantes. Por favor, divida los datos en múltiples archivos.",
@@ -155,15 +150,11 @@ function SubirArchivo({ setStep }) {
           const workbook = XLSX.read(data, { type: "array" })
           const sheetName = workbook.SheetNames[0]
           const worksheet = workbook.Sheets[sheetName]
-
-          // Convertir a un array de celdas con sus coordenadas
           const rawData = XLSX.utils.sheet_to_json(worksheet, {
             header: 1,
             defval: "",
           })
-          console.log("Datos crudos del Excel (rawData):", rawData)
 
-          // Procesar el formato específico del Excel
           const erroresCabeceras = validarCabecerasExcel(rawData)
           if (erroresCabeceras) {
             reject(new Error("Errores de cabecera:\n" + erroresCabeceras.join("\n")))
@@ -185,7 +176,6 @@ function SubirArchivo({ setStep }) {
     })
   }
 
-  // Función para procesar el formato específico del Excel mostrado
   const processSpecificExcelFormat = (rawData, globalData) => {
     const colegio = {
       departamento: globalData.colegio?.departamento,
@@ -193,10 +183,8 @@ function SubirArchivo({ setStep }) {
       nombre_colegio: globalData.colegio?.nombre_colegio,
     }
 
-    // Encontrar las filas con datos de estudiantes (a partir de la fila 7)
     const estudiantes = []
 
-    // Índices por grupo
     const apellidoPaternoIdx = 0
     const apellidoMaternoIdx = 1
     const nombresIdx = 2
@@ -223,12 +211,9 @@ function SubirArchivo({ setStep }) {
     const tutorAcademicoCiIdx = 20
     const tutorAcademicoCorreoIdx = 21
 
-    // Procesar solo las filas que tienen datos significativos (a partir de la fila 2)
     for (let i = 2; i < rawData.length; i++) {
       const row = rawData[i]
 
-      // Verificar si la fila tiene datos significativos en las columnas principales
-      // Consideramos que una fila tiene datos significativos si tiene al menos datos en una de las primeras columnas
       const tieneDatosSignificativos =
         row &&
         row.length > 0 &&
@@ -306,28 +291,23 @@ function SubirArchivo({ setStep }) {
     }
   }
 
-  // Función para formatear fechas
   const formatDate = (dateValue) => {
     if (!dateValue) return ""
 
-    // Si ya es una fecha en formato YYYY-MM-DD, devolverla tal cual
     if (/^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
       return dateValue
     }
 
-    // Si es un número (fecha de Excel), convertirlo
     if (typeof dateValue === "number") {
       const date = new Date(Math.round((dateValue - 25569) * 86400 * 1000))
       return date.toISOString().split("T")[0]
     }
 
-    // Si es una cadena con formato DD/MM/YYYY
     if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(dateValue)) {
       const parts = dateValue.split("/")
       return `${parts[2]}-${parts[1].padStart(2, "0")}-${parts[0].padStart(2, "0")}`
     }
 
-    // Intentar parsear como fecha
     try {
       const date = new Date(dateValue)
       if (!isNaN(date.getTime())) {
@@ -345,8 +325,7 @@ function SubirArchivo({ setStep }) {
       setLoading(true)
       setUploadProgress(0)
 
-      // barra subiendo
-      const duration = 2000 // 3 segundos
+      const duration = 2000 
       const steps = 100
       const intervalTime = duration / steps
       let progress = 0
