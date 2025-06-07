@@ -1,4 +1,3 @@
-import React from "react";
 import { FaTimes } from "react-icons/fa";
 import { useEstudianteForm } from "./hooks/useEstudianteForm";
 import DatosCompetidor from "./components/DatosCompetidor";

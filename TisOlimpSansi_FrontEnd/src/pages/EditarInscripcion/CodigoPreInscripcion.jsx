@@ -1,6 +1,5 @@
 "use client";
 import { useNavigate } from "react-router-dom";
-
 import { useState } from "react";
 import axios from "axios";
 import {
@@ -13,7 +12,6 @@ import {
   FaChevronLeft,
   FaChevronRight,
   FaExclamationCircle,
-  FaDownload,
   FaSave,
 } from "react-icons/fa";
 import EditarEstudianteModal from "./Modales/EditarEstudianteModal";
