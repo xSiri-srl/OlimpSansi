@@ -111,14 +111,14 @@ export default function FormularioEstudiante() {
     }
   };
 
-  // Cargar la lista de olimpiadas disponibles
+  // Cargar la lista de olimpiadas COMPLETAS disponibles
   useEffect(() => {
     const cargarOlimpiadas = async () => {
       setCargandoOlimpiadas(true);
       setErrorCarga("");
       
       try {
-        const response = await axios.get(`${API_URL}/api/getOlimpiadaz`);
+        const response = await axios.get(`${API_URL}/olimpiadas-publicas-completas`);
         
         if (response.status === 200) {
           setOlimpiadas(response.data.data || []);
@@ -255,7 +255,10 @@ export default function FormularioEstudiante() {
       {!cargandoOlimpiadas && !errorCarga && olimpiadas.length === 0 && (
         <div className="mt-8 p-6 bg-orange-50 border border-orange-200 rounded-lg text-center w-full max-w-2xl">
           <p className="text-orange-700">
-            No hay olimpiadas disponibles en este momento. Por favor, vuelve más tarde.
+            No hay olimpiadas disponibles en este momento. Las olimpiadas deben estar completamente configuradas para aparecer aquí.
+          </p>
+          <p className="text-orange-600 text-sm mt-2">
+            Una olimpiada debe tener: áreas de competencia asignadas, costos definidos y límite de inscripciones establecido.
           </p>
         </div>
       )}

@@ -29,6 +29,7 @@ Route::get('/test-costos/{codigo}', function($codigo) {
 Route::get('/obtener-costos-olimpiada/{id}', [OlimpiadaAreaController::class, 'obtenerCostos']);
 
 Route::get('/olimpiadas-publicas', [OlimpiadaController::class, 'getTodasLasOlimpiadas']);
+Route::get('/olimpiadas-publicas-completas', [OlimpiadaController::class, 'getOlimpiadasPublicasCompletas']);
 
 Route::get('/olimpiada/{id}', [OlimpiadaController::class, 'show']);
 
