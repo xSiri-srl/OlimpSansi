@@ -82,7 +82,7 @@ const EditarConvocatoria = () => {
     }
 
     try {
-      await axios.post(`${API_URL}/api/actualizarConvocatoria/${id}`, formData, {
+      await axios.post(`${API_URL}/api/actualizar-convocatoria/${id}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

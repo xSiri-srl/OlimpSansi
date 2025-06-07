@@ -131,7 +131,7 @@ const CodigoPreInscripcion = () => {
 
           // Si está en período, cargar áreas/categorías
           try {
-            const response = await axios.get(`${API_URL}/api/cursoAreaCategoriaPorOlimpiada?id=${idOlimpiada}`);
+            const response = await axios.get(`${API_URL}/api/curso-area-categoria-por-olimpiada?id=${idOlimpiada}`);
             setCursoAreaCategoria(response.data);
           } catch (err2) {
             console.error("Error al obtener las áreas y categorías:", err2);
@@ -153,7 +153,7 @@ const CodigoPreInscripcion = () => {
 
       if (estudiantesLista?.length > 0 && estudiantesLista[0].id_olimpiada) {
         try {
-          const response = await axios.get(`${API_URL}/api/cursoAreaCategoriaPorOlimpiada?id=${estudiantesLista[0].id_olimpiada}`);
+          const response = await axios.get(`${API_URL}/api/curso-area-categoria-por-olimpiada?id=${estudiantesLista[0].id_olimpiada}`);
           setCursoAreaCategoria(response.data);
         } catch (err2) {
           console.error("Error al obtener las áreas y categorías:", err2);
@@ -330,7 +330,7 @@ const handleCloseModal2 = () => {
         estudiantes: estudiantes
       };
       console.log("ENVIANDO",datosParaEnviar)
-      const response = await axios.post(`${API_URL}/api/editarLista`, datosParaEnviar);
+      const response = await axios.post(`${API_URL}/api/editar-lista`, datosParaEnviar);
 
       if (response.data.success || response.status === 200) {
         // Mostrar mensaje de éxito

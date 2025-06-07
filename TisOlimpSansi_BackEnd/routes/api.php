@@ -26,41 +26,37 @@ use App\Http\Controllers\GestionPagos\OrdenPagoController;
 use App\Http\Controllers\GestionPagos\ComprobanteController;
 use App\Http\Middleware\VerificarPermiso;
 
-Route::controller(UserPruebaController::class)->group(function(){
-    Route::post('/agregarEjemplo', [UserPruebaController::class, 'store']);
-    
-});
 
 //registrarResponsableInscripcion
 Route::controller(ResponsableInscripcionController::class)->group(function(){
 
-    Route::get('/responsablesInscrip', [ResponsableInscripcionController::class, 'index']);
-    Route::post('/agregarTresponsableInscrip', [ResponsableInscripcionController::class, 'store']);
-    Route::get('/responsableInscrip/{id}', [ResponsableInscripcionController::class, 'show']);
-    Route::put('/actualizarResponsableInscrip/{id}', [ResponsableInscripcionController::class, 'update']);
-    Route::delete('/eliminarResponsableInscrip/{id}', [ResponsableInscripcionController::class, 'destroy']);
-    Route::get('/buscarResponsable/{ci}', [ResponsableInscripcionController::class, 'buscarResponsable']);
+    Route::get('/responsables-inscrip', [ResponsableInscripcionController::class, 'index']);
+    Route::post('/agregar-responsable-inscrip', [ResponsableInscripcionController::class, 'store']);
+    Route::get('/responsable-inscrip/{id}', [ResponsableInscripcionController::class, 'show']);
+    Route::put('/actualizar-responsable-inscrip/{id}', [ResponsableInscripcionController::class, 'update']);
+    Route::delete('/eliminar-responsable-inscrip/{id}', [ResponsableInscripcionController::class, 'destroy']);
+    Route::get('/buscar-responsable/{ci}', [ResponsableInscripcionController::class, 'buscarResponsable']);
     
 });
 
 //registrarTutorLegal
 Route::controller(TutorLegalController::class)->group(function(){
-    Route::get('/tutoresLegales', [TutorLegalController::class, 'index']);
-    Route::post('/agregarTutorLegal', [TutorLegalController::class, 'store']);
-    Route::get('/tutorLegal/{id}', [TutorLegalController::class, 'show']);
-    Route::put('/actualizarTutorLegal/{id}', [TutorLegalController::class, 'update']);
-    Route::delete('/eliminarTutorLegal/{id}', [TutorLegalController::class, 'destroy']);
-    Route::get('/buscarTutorLegal/{ci}', [TutorLegalController::class, 'buscarTutorLegal']); // Añadir esta línea
+    Route::get('/tutores-legales', [TutorLegalController::class, 'index']);
+    Route::post('/agregar-tutor-legal', [TutorLegalController::class, 'store']);
+    Route::get('/tutor-legal/{id}', [TutorLegalController::class, 'show']);
+    Route::put('/actualizar-tutor-legal/{id}', [TutorLegalController::class, 'update']);
+    Route::delete('/eliminar-tutor-legal/{id}', [TutorLegalController::class, 'destroy']);
+    Route::get('/buscar-tutor-legal/{ci}', [TutorLegalController::class, 'buscarTutorLegal']); // Añadir esta línea
 }); 
 //registrarTutorAcademico
 Route::controller(TutorAcademicoController::class)->group(function(){
 
-    Route::get('/tutoresAcademicos', [TutorAcademicoController::class, 'index']);
-    Route::post('/agregarTutorAcademico', [TutorAcademicoController::class, 'store']);
-    Route::get('/tutorAcademico/{id}', [TutorAcademicoController::class, 'show']);
-    Route::put('/actualizarTutorAcademico/{id}', [TutorAcademicoController::class, 'update']);
-    Route::delete('/eliminarTutorAcademico/{id}', [TutorAcademicoController::class, 'destroy']);
-    Route::get('/buscarTutor/{ci}', [TutorAcademicoController::class, 'buscarTutor']); 
+    Route::get('/tutores-academicos', [TutorAcademicoController::class, 'index']);
+    Route::post('/agregar-tutor-academico', [TutorAcademicoController::class, 'store']);
+    Route::get('/tutor-academico/{id}', [TutorAcademicoController::class, 'show']);
+    Route::put('/actualizar-tutor-academico/{id}', [TutorAcademicoController::class, 'update']);
+    Route::delete('/eliminar-tutor-academico/{id}', [TutorAcademicoController::class, 'destroy']);
+    Route::get('/buscar-tutor/{ci}', [TutorAcademicoController::class, 'buscarTutor']); 
 });
 
 //SeleccionarAreasCompetencia
@@ -76,19 +72,19 @@ Route::controller(InscripcionCategoriaController::class)->group(function(){
 Route::controller(CategoriaController::class)->group(function(){
 
     Route::get('/categorias', [CategoriaController::class, 'index']);
-    Route::post('/agregarCategoria', [CategoriaController::class, 'store']);
+    Route::post('/agregar-categoria', [CategoriaController::class, 'store']);
     Route::get('/categoria/{id}', [CategoriaController::class, 'show']);
-    Route::put('/actualizarCategoria/{id}', [CategoriaController::class, 'update']);
-    Route::delete('/eliminarCategoria/{id}', [CategoriaController::class, 'destroy']);
+    Route::put('/actualizar-categoria/{id}', [CategoriaController::class, 'update']);
+    Route::delete('/eliminar-categoria/{id}', [CategoriaController::class, 'destroy']);
     
 });
 Route::controller(AreaController::class)->group(function(){
 
     Route::get('/areas', [AreaController::class, 'index']);
-    Route::post('/agregarArea', [AreaController::class, 'store']);
+    Route::post('/agregar-area', [AreaController::class, 'store']);
     Route::get('/area/{id}', [AreaController::class, 'show']);
-    Route::put('/actualizarArea/{id}', [AreaController::class, 'update']);
-    Route::delete('/eliminarArea/{id}', [AreaController::class, 'destroy']);
+    Route::put('/actualizar-area/{id}', [AreaController::class, 'update']);
+    Route::delete('/eliminar-area/{id}', [AreaController::class, 'destroy']);
     
 });
 
@@ -96,51 +92,51 @@ Route::controller(AreaController::class)->group(function(){
 Route::controller(EstudianteController::class)->group(function(){
 
     Route::get('/estudiantes', [EstudianteController::class, 'index']);
-    Route::post('/agregarEstudiante', [EstudianteController::class, 'store']);
+    Route::post('/agregar-estudiante', [EstudianteController::class, 'store']);
     Route::get('/estudiante/{id}', [EstudianteController::class, 'show']);
-    Route::put('/actualizarEstudiante/{id}', [EstudianteController::class, 'update']);
-    Route::delete('/eliminarEstudiante/{id}', [EstudianteController::class, 'destroy']);
+    Route::put('/actualizar-estudiante/{id}', [EstudianteController::class, 'update']);
+    Route::delete('/eliminar-estudiante/{id}', [EstudianteController::class, 'destroy']);
     
 });
 
 Route::controller(ColegioController::class)->group(function(){
 
     Route::get('/colegios', [ColegioController::class, 'index']);
-    Route::post('/agregarColegio', [ColegioController::class, 'store']);
+    Route::post('/agregar-colegio', [ColegioController::class, 'store']);
     Route::get('/colegio/{id}', [ColegioController::class, 'show']);
-    Route::put('/actualizarColegio/{id}', [ColegioController::class, 'update']);
-    Route::delete('/eliminarColegio/{id}', [ColegioController::class, 'destroy']);
+    Route::put('/actualizar-colegio/{id}', [ColegioController::class, 'update']);
+    Route::delete('/eliminar-colegio/{id}', [ColegioController::class, 'destroy']);
     
 });
 
 Route::controller(GradoController::class)->group(function(){
 
     Route::get('/grados', [GradoController::class, 'index']);
-    Route::post('/agregarGrado', [GradoController::class, 'store']);
+    Route::post('/agregar-grado', [GradoController::class, 'store']);
     Route::get('/grado/{id}', [GradoController::class, 'show']);
-    Route::put('/actualizarGrado/{id}', [GradoController::class, 'update']);
-    Route::delete('/eliminarGrado/{id}', [GradoController::class, 'destroy']);
+    Route::put('/actualizar-grado/{id}', [GradoController::class, 'update']);
+    Route::delete('/eliminar-grado/{id}', [GradoController::class, 'destroy']);
     
 });
 
 Route::controller(ConvocatoriaController::class)->group(function(){
 
     Route::get('/convocatorias', [ConvocatoriaController::class, 'index']);
-    Route::post('/agregarConvocatoria', [ConvocatoriaController::class, 'store']);
+    Route::post('/agregar-convocatoria', [ConvocatoriaController::class, 'store']);
     Route::get('/convocatoria/{id}', [ConvocatoriaController::class, 'show']);
-    Route::post('/actualizarConvocatoria/{id}', [ConvocatoriaController::class, 'update']);
-    Route::delete('/eliminarConvocatoria/{id}', [ConvocatoriaController::class, 'destroy']);
-    Route::get('/convocatoriaPorArea/{id}', [ConvocatoriaController::class, 'convocatoriaPorArea']);
+    Route::post('/actualizar-convocatoria/{id}', [ConvocatoriaController::class, 'update']);
+    Route::delete('/eliminar-convocatoria/{id}', [ConvocatoriaController::class, 'destroy']);
+    Route::get('/convocatoria-por-area/{id}', [ConvocatoriaController::class, 'convocatoriaPorArea']);
 });
 
 //olimpiada
 Route::controller(OlimpiadaController::class)->group(function(){
 
     Route::get('/olimpiadas', [OlimpiadaController::class, 'index']);
-    Route::post('/agregarOlimpiada', [OlimpiadaController::class, 'store']);
+    Route::post('/agregar-olimpiada', [OlimpiadaController::class, 'store']);
     Route::get('/olimpiada/{id}', [OlimpiadaController::class, 'show']);
-    Route::post('/actualizarOlimpiada/{id}', [OlimpiadaController::class, 'update']);
-    Route::delete('/eliminarOlimpiada/{id}', [OlimpiadaController::class, 'destroy']);
+    Route::post('/actualizar-olimpiada/{id}', [OlimpiadaController::class, 'update']);
+    Route::delete('/eliminar-olimpiada/{id}', [OlimpiadaController::class, 'destroy']);
 });
 
 
@@ -166,7 +162,7 @@ Route::get('/inscripciones/por-area', [InscripcionController::class, 'inscripcio
 Route::get('/inscripciones/por-categoria', [InscripcionController::class, 'inscripcionesPorCategoria']);
 Route::post('/inscribir', [InscripcionController::class, 'registrar']);
 Route::post('/inscribir-lista', [InscripcionController::class, 'registrarLista']);
-Route::post('/editarLista', [InscripcionController::class, 'actualizarLista']);
+Route::post('/editar-lista', [InscripcionController::class, 'actualizarLista']);
 Route::get('/lista-inscritos', [InscripcionController::class, 'listarInscritos']);
 Route::get('/preinscritos-por-codigo', [InscripcionController::class, 'registrosPorCodigo']);
 //contar preinscritos
@@ -178,27 +174,27 @@ Route::get('/buscarEstudiante/{ci}', [EstudianteController::class, 'buscarEstudi
 
 //filtros para contar 
 Route::post('/colegios/filtro', [ColegioController::class, 'getByFiltro']);
-Route::post('/estudiantes/bydepartamento', [ColegioController::class, 'contarPorDepartamento']);
-Route::post('/estudiantes/byColegio', [ColegioController::class, 'contarPorColegio']);
-Route::post('/estudiantes/byGrado', [ColegioController::class, 'contarPorGrado']);
-Route::post('/estudiantes/byCategoriaArea', [ColegioController::class, 'filtrarPorCategoriaArea']);
-Route::post('/estudiantes/inscritos/bydepartamento', [ColegioController::class, 'contarInscritosPorDepartamento']);
-Route::post('/estudiantes/preinscritos/bydepartamento', [ColegioController::class, 'contarPreinscritosPorDepartamento']);
+Route::post('/estudiantes/departamento', [ColegioController::class, 'contarPorDepartamento']);
+Route::post('/estudiantes/colegio', [ColegioController::class, 'contarPorColegio']);
+Route::post('/estudiantes/grado', [ColegioController::class, 'contarPorGrado']);
+Route::post('/estudiantes/categoria-area', [ColegioController::class, 'filtrarPorCategoriaArea']);
+Route::post('/estudiantes/inscritos/departamento', [ColegioController::class, 'contarInscritosPorDepartamento']);
+Route::post('/estudiantes/preinscritos/departamento', [ColegioController::class, 'contarPreinscritosPorDepartamento']);
 
 
 
 //inscripcion
 //obtener todas las olimpiadas esto sirve tanto para admin como para usuarios no registrados
-Route::get('/getOlimpiadasActuales', [OlimpiadaController::class, 'getOlimpiadasActuales']);
-Route::get('/getOlimpiadaz', [OlimpiadaController::class, 'getOlimpiadas']);
+Route::get('/get-olimpiadasActuales', [OlimpiadaController::class, 'getOlimpiadasActuales']);
+Route::get('/get-olimpiadaz', [OlimpiadaController::class, 'getOlimpiadas']);
 //mostrar todas las areas habilitadas para esa olimpiada
 Route::post('/olimpiadas/areas', [OlimpiadaController::class, 'getAreasPorOlimpiada']);
 
 
-Route::get('/areasCategoriasOlimpiada', [OlimpiadaController::class, 'getAreasCategoriasPorOlimpiada']);
+Route::get('/areas-categorias-olimpiada', [OlimpiadaController::class, 'getAreasCategoriasPorOlimpiada']);
 
 
-Route::get('/cursoAreaCategoriaPorOlimpiada', [CategoriaGradoController::class, 'obtenerCategoriasPorGrado']);
+Route::get('/curso-area-categoria-por-olimpiada', [CategoriaGradoController::class, 'obtenerCategoriasPorGrado']);
 
 //mostrar todas las categorias de esa materia de una olimpiada
 
