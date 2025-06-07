@@ -19,7 +19,7 @@ class RolContadorSeeder extends Seeder
         ]);
 
         // Crear módulo si no existe
-        $moduloId = DB::table('modulos')->insertGetId([
+        $moduloId = DB::table('modulo')->insertGetId([
             'nombre_modulo' => 'Reportes',
             'descripcion_modulo' => 'Consultas relacionadas con pagos e inscripciones',
             'created_at' => now(),
@@ -37,7 +37,7 @@ class RolContadorSeeder extends Seeder
 
         // Insertar acciones y enlazarlas al rol
         foreach ($acciones as $nombre => $descripcion) {
-            $accionId = DB::table('acciones')->insertGetId([
+            $accionId = DB::table('accion')->insertGetId([
                 'nombre_funcion' => $nombre,
                 'descripcion_funcion' => $descripcion,
                 'id_modulo' => $moduloId,
@@ -45,7 +45,7 @@ class RolContadorSeeder extends Seeder
                 'updated_at' => now(),
             ]);
 
-            DB::table('rol_accions')->insert([
+            DB::table('rol_accion')->insert([
                 'id_rol' => $rolId,
                 'id_accion' => $accionId,
                 'created_at' => now(),

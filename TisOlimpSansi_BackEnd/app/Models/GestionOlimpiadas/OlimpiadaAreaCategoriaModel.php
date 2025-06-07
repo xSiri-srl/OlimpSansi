@@ -12,7 +12,7 @@ class OlimpiadaAreaCategoriaModel extends Model
 {
     use HasFactory;
 
-    protected $table = 'olimpiada_area_categorias';
+    protected $table = 'olimpiada_area_categoria';
     protected $fillable = [
         'id_olimpiada',
         'id_area',

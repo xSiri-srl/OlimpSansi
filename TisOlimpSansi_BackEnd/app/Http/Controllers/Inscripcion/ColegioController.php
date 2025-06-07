@@ -168,9 +168,9 @@ class ColegioController extends Controller
     $cantidad = DB::table('estudiante')
         ->join('colegio', 'estudiante.id_unidad', '=', 'colegio.id')
         ->join('inscripcion', 'estudiante.id', '=', 'inscripcion.id_estudiante')
-        ->join('orden_pagos', 'inscripcion.id_orden_pago', '=', 'orden_pagos.id')
+        ->join('orden_pago', 'inscripcion.id_orden_pago', '=', 'orden_pago.id')
         ->where('colegio.departamento', $departamento)
-        ->whereNotNull('orden_pagos.comprobante_url') 
+        ->whereNotNull('orden_pago.comprobante_url') 
         ->count();
 
     return response()->json([
@@ -184,10 +184,10 @@ public function contarPreinscritosPorDepartamento(Request $request)
     $cantidad = DB::table('estudiante')
         ->join('colegio', 'estudiante.id_unidad', '=', 'colegio.id')
         ->join('inscripcion', 'estudiante.id', '=', 'inscripcion.id_estudiante')
-        ->join('orden_pagos', 'inscripcion.id_orden_pago', '=', 'orden_pagos.id')
+        ->join('orden_pago', 'inscripcion.id_orden_pago', '=', 'orden_pago.id')
         ->where('colegio.departamento', $departamento)
-        ->whereNull('orden_pagos.comprobante_url') 
-        ->whereNotNull('orden_pagos.orden_pago_url') 
+        ->whereNull('orden_pago.comprobante_url') 
+        ->whereNotNull('orden_pago.orden_pago_url') 
         ->count();
 
     return response()->json([

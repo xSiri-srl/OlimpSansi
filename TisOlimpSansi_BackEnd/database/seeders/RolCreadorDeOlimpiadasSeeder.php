@@ -20,7 +20,7 @@ class RolCreadorDeOlimpiadasSeeder extends Seeder
         ]);
 
         // Crear el módulo
-        $moduloId = DB::table('modulos')->insertGetId([
+        $moduloId = DB::table('modulo')->insertGetId([
             'nombre_modulo' => 'Gestión de Olimpiadas',
             'descripcion_modulo' => 'Permite gestionar la creación de olimpiadas',
             'created_at' => now(),
@@ -28,7 +28,7 @@ class RolCreadorDeOlimpiadasSeeder extends Seeder
         ]);
 
         // Crear acción: crear_olimpiada
-        $accionId = DB::table('acciones')->insertGetId([
+        $accionId = DB::table('accion')->insertGetId([
             'nombre_funcion' => 'crear_olimpiada',
             'descripcion_funcion' => 'Permite crear nuevas olimpiadas',
             'id_modulo' => $moduloId,
@@ -37,7 +37,7 @@ class RolCreadorDeOlimpiadasSeeder extends Seeder
         ]);
 
         // Relacionar acción con el rol
-        DB::table('rol_accions')->insert([
+        DB::table('rol_accion')->insert([
             'id_rol' => $rolId,
             'id_accion' => $accionId,
             'created_at' => now(),

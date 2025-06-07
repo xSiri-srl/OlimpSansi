@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('acciones', function (Blueprint $table) {
+        Schema::create('auditoria', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre_funcion');
-            $table->string('descripcion_funcion');
-            $table->foreignId('id_modulo')->constrained('modulos');
+            $table->foreignId('id_usuario')->constrained('users');
+            $table->string('accion');
+            $table->string('tabla_afectada');
+            $table->string('id_registro')->nullable();
+            $table->json('cambios')->nullable();
             $table->timestamps();
         });
     }
@@ -25,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('acciones');
+        Schema::dropIfExists('auditoria');
     }
 };

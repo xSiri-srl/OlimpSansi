@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('modulos', function (Blueprint $table) {
+        Schema::create('rol_accion', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre_modulo');
-            $table->string('descripcion_modulo');
+            $table->foreignId('id_rol')->constrained('rol');
+            $table->foreignId('id_accion')->constrained('accion');
             $table->timestamps();
         });
     }
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('modulos');
+        Schema::dropIfExists('rol_accion');
     }
 };
