@@ -489,7 +489,6 @@ const SelectorAreaGrado = () => {
       />
 
       <div className="bg-gray-100 p-4 rounded-lg shadow-md">
-        {/* Mostrar alerta si la olimpiada está bloqueada */}
         {olimpiadaBloqueada && (
           <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
             <div className="flex items-center">

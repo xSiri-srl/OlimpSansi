@@ -1,26 +1,25 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
-import Cookies from 'js-cookie';
+import Cookies from "js-cookie";
 import HeaderSelector from "./AreasCompetencia/HeaderSelector";
-import AreaCosto from "./AreasCompetencia/AreaCosto";
 import AccionesFooter from "./AreasCompetencia/AccionesFooter";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { API_URL } from "../../../utils/api";
-import { useVerificarInscripciones } from "../../Administrador/useVerificarInscripciones";
+import { useVerificarInscripciones } from "../useVerificarInscripciones";
+import axios from "axios";
 import ModalConfirmacion from "./Modales/ModalConfirmacion";
 import ModalAlerta from "./Modales/ModalAlerta";
 import { useNotificarProgreso } from "./hooks/useNotificarProgreso";
 import ModalTareasPendientes from "./Modales/ModalTareasPendientes";
 
-const AsociarCosto = () => {
+const AsignarLimiteAreas = () => {
   const [olimpiadas, setOlimpiadas] = useState([]);
   const [olimpiadaSeleccionada, setOlimpiadaSeleccionada] = useState("");
   const [nombreOlimpiada, setNombreOlimpiada] = useState("");
   const [guardando, setGuardando] = useState(false);
   const [mensajeExito, setMensajeExito] = useState("");
-  const [areasAsociadas, setAreasAsociadas] = useState([]);
-  const [cargando, setCargando] = useState(false);
   const [cargandoOlimpiadas, setCargandoOlimpiadas] = useState(false);
   const [errorCarga, setErrorCarga] = useState("");
+  const [contador, setContador] = useState(1);
   const [olimpiadaBloqueada, setOlimpiadaBloqueada] = useState(false);
   const [cantidadInscripciones, setCantidadInscripciones] = useState(0);
   const [periodoTerminado, setPeriodoTerminado] = useState(false);
@@ -77,11 +76,11 @@ const AsociarCosto = () => {
   const obtenerMensajeBloqueo = () => {
     switch(razonBloqueo) {
       case 'inscripciones_y_periodo':
-        return `Esta olimpiada tiene ${cantidadInscripciones} inscripción(es) registrada(s) y el período de inscripción terminó el ${new Date(fechaFin).toLocaleDateString('es-ES')}. No se pueden modificar los costos de inscripción.`;
+        return `Esta olimpiada tiene ${cantidadInscripciones} inscripción(es) registrada(s) y el período de inscripción terminó el ${new Date(fechaFin).toLocaleDateString('es-ES')}. No se pueden modificar el límite de áreas.`;
       case 'inscripciones':
-        return `Esta olimpiada tiene ${cantidadInscripciones} inscripción(es) registrada(s). No se pueden modificar los costos de inscripción mientras existan inscripciones activas.`;
+        return `Esta olimpiada tiene ${cantidadInscripciones} inscripción(es) registrada(s). No se pueden modificar el límite de áreas mientras existan inscripciones activas.`;
       case 'periodo':
-        return `El período de inscripción para esta olimpiada terminó el ${new Date(fechaFin).toLocaleDateString('es-ES')}. No se pueden modificar los costos de inscripción.`;
+        return `El período de inscripción para esta olimpiada terminó el ${new Date(fechaFin).toLocaleDateString('es-ES')}. No se pueden modificar el límite de áreas.`;
       default:
         return '';
     }
@@ -121,6 +120,24 @@ const AsociarCosto = () => {
         } else {
           throw new Error("Error en la respuesta del servidor");
         }
+      } catch (error) {
+        console.error("Error al cargar olimpiadas:", error);
+        
+        let mensajeError = "Error al conectar con el servidor.";
+        
+        if (error.response) {
+          if (error.response.status === 401) {
+            mensajeError = "No tienes autorización para acceder a esta información.";
+          } else if (error.response.status === 403) {
+            mensajeError = "No tienes permisos suficientes para ver las olimpiadas.";
+          } else {
+            mensajeError = `Error ${error.response.status}: ${error.response.data?.message || "Error del servidor"}`;
+          }
+        } else if (error.message) {
+          mensajeError = error.message;
+        }
+        
+        setErrorCarga(mensajeError);
       } finally {
         setCargandoOlimpiadas(false);
       }
@@ -135,7 +152,7 @@ const AsociarCosto = () => {
         (o) => o.id.toString() === olimpiadaSeleccionada
       );
       setNombreOlimpiada(olimpiada ? olimpiada.titulo : "");
- 
+
       verificarInscripciones(olimpiadaSeleccionada).then(resultado => {
         setOlimpiadaBloqueada(resultado.estaBloqueada);
         setCantidadInscripciones(resultado.cantidad);
@@ -144,10 +161,43 @@ const AsociarCosto = () => {
         setFechaFin(resultado.fechaFin);
       });
 
-      cargarAreasAsociadas(olimpiadaSeleccionada);
+      const cargarNumeroMaximo = async () => {
+        try {
+          await axios.get(`${API_URL}/api/sanctum/csrf-cookie`, {
+            withCredentials: true,
+          });
+          
+          const csrfToken = Cookies.get('XSRF-TOKEN');
+          
+          const config = {
+            headers: {
+              'X-XSRF-TOKEN': csrfToken,
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            withCredentials: true
+          };
+          
+          const response = await axios.get(`${API_URL}/olimpiada/${olimpiadaSeleccionada}`, config);
+     
+          if (response.status === 200 && response.data) {
+            const maxMaterias = Number(response.data.max_materias);
+            if (maxMaterias !== null && maxMaterias !== undefined) {
+              setContador(Number(maxMaterias));
+            } else {
+              setContador(1);
+            }
+          }
+        } catch (error) {
+          console.error("Error al cargar número máximo:", error);
+          setContador(1);
+        }
+      };
+
+      cargarNumeroMaximo();
     } else {
       setNombreOlimpiada("");
-      setAreasAsociadas([]);
+      setContador(1);
       setOlimpiadaBloqueada(false);
       setCantidadInscripciones(0);
       setPeriodoTerminado(false);
@@ -155,9 +205,46 @@ const AsociarCosto = () => {
       setFechaFin(null);
     }
   }, [olimpiadaSeleccionada, olimpiadas]);
+  const guardarConfiguracion = async () => {
+    if (!olimpiadaSeleccionada) {
+      mostrarAlerta("Error", "Por favor seleccione una olimpiada", "warning");
+      return;
+    }
 
-  const cargarAreasAsociadas = async (idOlimpiada) => {
-    setCargando(true);
+    if (olimpiadaBloqueada) {
+      let mensaje = "No se pueden realizar cambios en esta olimpiada.";
+      
+      switch(razonBloqueo) {
+        case 'inscripciones_y_periodo':
+          mensaje = `No se pueden realizar cambios en esta olimpiada porque tiene ${cantidadInscripciones} inscripción(es) registrada(s) y el período de inscripción terminó el ${new Date(fechaFin).toLocaleDateString('es-ES')}.`;
+          break;
+        case 'inscripciones':
+          mensaje = `No se pueden realizar cambios en esta olimpiada porque ya tiene ${cantidadInscripciones} inscripción(es) registrada(s). Para modificar el límite de áreas, primero debe eliminar todas las inscripciones asociadas.`;
+          break;
+        case 'periodo':
+          mensaje = `No se pueden realizar cambios en esta olimpiada porque el período de inscripción terminó el ${new Date(fechaFin).toLocaleDateString('es-ES')}.`;
+          break;
+      }
+      
+      mostrarAlerta("Olimpiada bloqueada", mensaje, "error");
+      return;
+    }
+
+    mostrarConfirmacion(
+      "Confirmar cambio de límite",
+      `¿Está seguro que desea establecer el límite de áreas por participante en ${contador} ${contador === 1 ? 'área' : 'áreas'} para la olimpiada "${nombreOlimpiada}"?`,
+      () => {
+        cerrarModal();
+        ejecutarGuardado();
+      },
+      "info"
+    );
+  };
+
+  const ejecutarGuardado = async () => {
+    setGuardando(true);
+    setMensajeExito("");
+
     try {
       await axios.get(`${API_URL}/api/sanctum/csrf-cookie`, {
         withCredentials: true,
@@ -173,129 +260,29 @@ const AsociarCosto = () => {
         },
         withCredentials: true
       };
-      
-      const response = await axios.get(`${API_URL}/areas-olimpiada/${idOlimpiada}`, config);
-      
-      if (response.status === 200 && response.data.data) {
-        setAreasAsociadas(response.data.data.map(area => ({
-          ...area,
-          costoInscripcion: area.costoInscripcion !== null && area.costoInscripcion !== undefined ? 
-            area.costoInscripcion.toString() : 
-            ""
-        })));
-      } else {
-        throw new Error("Error al obtener áreas asociadas");
-      }
-    } catch (error) {
-      mostrarAlerta("Error", "Error al cargar las áreas asociadas a la olimpiada", "error");
-    } finally {
-      setCargando(false);
-    }
-  };
 
-  const actualizarCosto = (areaId, nuevoCosto) => {
-    if (olimpiadaBloqueada) {
-      let mensaje = "No se pueden realizar cambios en esta olimpiada.";
-      
-      switch(razonBloqueo) {
-        case 'inscripciones_y_periodo':
-          mensaje = `No se pueden realizar cambios en esta olimpiada porque tiene ${cantidadInscripciones} inscripción(es) registrada(s) y el período de inscripción terminó el ${new Date(fechaFin).toLocaleDateString('es-ES')}.`;
-          break;
-        case 'inscripciones':
-          mensaje = `No se pueden realizar cambios en esta olimpiada porque ya tiene ${cantidadInscripciones} inscripción(es) registrada(s). Para modificar los costos, primero debe eliminar todas las inscripciones asociadas.`;
-          break;
-        case 'periodo':
-          mensaje = `No se pueden realizar cambios en esta olimpiada porque el período de inscripción terminó el ${new Date(fechaFin).toLocaleDateString('es-ES')}.`;
-          break;
-      }
-      
-      mostrarAlerta("Olimpiada bloqueada", mensaje, "error");
-      return;
-    }
-    
-    setAreasAsociadas(prev => 
-      prev.map(area => 
-        area.id === areaId 
-          ? { ...area, costoInscripcion: nuevoCosto } 
-          : area
-      )
-    );
-  };
-
-  const guardarConfiguracion = async () => {
-    if (!olimpiadaSeleccionada) {
-      mostrarAlerta("Error", "Por favor seleccione una olimpiada", "warning");
-      return;
-    }
-
-    if (olimpiadaBloqueada) {
-      let mensaje = "No se pueden realizar cambios en esta olimpiada.";
-      
-      switch(razonBloqueo) {
-        case 'inscripciones_y_periodo':
-          mensaje = `No se pueden realizar cambios en esta olimpiada porque tiene ${cantidadInscripciones} inscripción(es) registrada(s) y el período de inscripción terminó el ${new Date(fechaFin).toLocaleDateString('es-ES')}.`;
-          break;
-        case 'inscripciones':
-          mensaje = `No se pueden realizar cambios en esta olimpiada porque ya tiene ${cantidadInscripciones} inscripción(es) registrada(s). Para modificar los costos, primero debe eliminar todas las inscripciones asociadas.`;
-          break;
-        case 'periodo':
-          mensaje = `No se pueden realizar cambios en esta olimpiada porque el período de inscripción terminó el ${new Date(fechaFin).toLocaleDateString('es-ES')}.`;
-          break;
-      }
-      
-      mostrarAlerta("Olimpiada bloqueada", mensaje, "error");
-      return;
-    }
-
-    const totalAreas = areasAsociadas.length;
-    const areasConCosto = areasAsociadas.filter(area => area.costoInscripcion && parseFloat(area.costoInscripcion) > 0).length;
-    
-    mostrarConfirmacion(
-      "Confirmar actualización de costos",
-      `¿Está seguro que desea actualizar los costos de inscripción para la olimpiada "${nombreOlimpiada}"?\n\nSe actualizarán ${totalAreas} área(s) de competencia.\n${areasConCosto} área(s) tendrán costo de inscripción.`,
-      () => {
-        cerrarModal();
-        ejecutarGuardado();
-      },
-      "info"
-    );
-  };
-
-  const ejecutarGuardado = async () => {
-    setGuardando(true);
-
-    try {
-      await axios.get(`${API_URL}/api/sanctum/csrf-cookie`, {
-        withCredentials: true,
-      });
-      
-      const csrfToken = Cookies.get('XSRF-TOKEN');
-      axios.defaults.headers.common['X-XSRF-TOKEN'] = csrfToken;
-  
       const datosAEnviar = {
-        id_olimpiada: olimpiadaSeleccionada,
-        areas: areasAsociadas.map(area => ({
-          id: area.id,
-          costoInscripcion: area.costoInscripcion || "0"
-        }))
+        id: parseInt(olimpiadaSeleccionada),
+        numMax: contador,
       };
+    
       const response = await axios.post(
-        `${API_URL}/actualizar-costos-olimpiada`,
+        `${API_URL}/olimpiada/max-materias`,
         datosAEnviar,
-        { withCredentials: true }
+        config
       );
 
-      if (response.status === 200) {
-        setMensajeExito("¡Costos asignados exitosamente!");
+      if (response.status === 200 || response.status === 201) {
+        setMensajeExito("¡Límite de áreas actualizado exitosamente!");
         setTimeout(() => setMensajeExito(""), 3000);
-
-        cargarAreasAsociadas(olimpiadaSeleccionada);
         setTimeout(() => mostrarProgreso(olimpiadaSeleccionada, nombreOlimpiada), 1000);
       } else {
-        throw new Error("Error al guardar los costos");
+        throw new Error("Error al guardar el límite de áreas");
       }
     } catch (error) {
-      let mensaje = "Error al guardar la configuración de costos";
+      console.error("Error al guardar:", error);
+      
+      let mensaje = "Error al guardar la configuración";
       
       if (error.response) {
         if (error.response.status === 401) {
@@ -325,18 +312,27 @@ const AsociarCosto = () => {
     }
   };
 
+  const incrementar = () => {
+    if (contador < 7 && !olimpiadaBloqueada) {
+      setContador(contador + 1);
+    }
+  };
+
+  const decrementar = () => {
+    if (contador > 1 && !olimpiadaBloqueada) {
+      setContador(contador - 1);
+    }
+  };
+
   return (
     <div className="p-6 max-w-5xl mx-auto">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">  
-        Costo de Inscripción
-      </h2>
       <HeaderSelector
         nombreOlimpiada={nombreOlimpiada}
         olimpiadas={olimpiadas}
         olimpiadaSeleccionada={olimpiadaSeleccionada}
         setOlimpiadaSeleccionada={setOlimpiadaSeleccionada}
-        titulo="Asignación de Costos"
-        subtitulo="Defina los costos de inscripción para las áreas de competencia"
+        titulo="Asignación de límite de áreas por participante"
+        subtitulo="Defina el límite de áreas por participante"
         cargando={cargandoOlimpiadas}
         error={errorCarga}
       />
@@ -358,30 +354,76 @@ const AsociarCosto = () => {
 
         {!olimpiadaSeleccionada ? (
           <div className="p-8 text-center text-gray-600">
-            Seleccione una olimpiada para administrar los costos de sus áreas de competencia
+            Seleccione una olimpiada para asignar un límite de áreas por participante.
           </div>
-        ) : cargando || verificando ? (
-          <div className="p-8 text-center text-gray-600">
-            <div className="flex justify-center mb-4">
-              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
-            </div>
-            {cargando ? "Cargando áreas de competencia..." : "Verificando inscripciones..."}
-          </div>
-        ) : areasAsociadas.length === 0 ? (
-          <div className="p-8 text-center text-gray-600">
-            No hay áreas de competencia asociadas a esta olimpiada. 
-            Primero debe asignar áreas de competencia en la sección "Asignar Áreas".
+        ) : cargandoOlimpiadas || verificando ? (
+          <div className="text-center py-8">
+            <div className="animate-spin mx-auto h-8 w-8 border-t-2 border-b-2 border-blue-500 rounded-full"></div>
+            <p className="mt-2 text-gray-600">
+              {cargandoOlimpiadas ? "Cargando olimpiadas..." : "Verificando inscripciones..."}
+            </p>
           </div>
         ) : (
-          <div className="space-y-6">
-            {areasAsociadas.map((area) => (
-              <AreaCosto
-                key={area.id}
-                area={area}
-                actualizarCosto={(nuevoCosto) => actualizarCosto(area.id, nuevoCosto)}
-                bloqueado={olimpiadaBloqueada} 
-              />
-            ))}
+          <div className={`flex flex-col items-center justify-center p-8 bg-gradient-to-b from-blue-50 to-gray-100 rounded-xl shadow-lg border border-blue-100 ${olimpiadaBloqueada ? 'opacity-50' : ''}`}>
+            <div className="text-center mb-8">
+              <h3 className="text-lg font-semibold text-gray-700 mb-2">
+                Número máximo de áreas por participante
+              </h3>
+              <p className="text-sm text-gray-500 max-w-md">
+                Configure cuántas áreas de competencia puede seleccionar cada participante
+              </p>
+            </div>
+
+            <div className="flex items-center justify-center space-x-8">
+              <button
+                onClick={decrementar}
+                disabled={contador === 1 || olimpiadaBloqueada}
+                className={`flex items-center justify-center w-12 h-12 rounded-full shadow-md transition-all duration-200 transform hover:scale-105 ${
+                  contador === 1 || olimpiadaBloqueada
+                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                    : "bg-blue-500 hover:bg-blue-600 text-white active:translate-y-1"
+                }`}
+              >
+                <FaChevronLeft size={20} />
+              </button>
+              <div className="flex flex-col items-center">
+                <div className="text-6xl font-bold text-blue-600 mb-2 min-w-[80px] text-center">
+                  {contador}
+                </div>
+                <div className="text-sm font-medium text-gray-600">
+                  {contador === 1 ? "área" : "áreas"}
+                </div>
+              </div>
+              <button
+                onClick={incrementar}
+                disabled={contador === 7 || olimpiadaBloqueada}
+                className={`flex items-center justify-center w-12 h-12 rounded-full shadow-md transition-all duration-200 transform hover:scale-105 ${
+                  contador === 7 || olimpiadaBloqueada
+                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                    : "bg-blue-500 hover:bg-blue-600 text-white active:translate-y-1"
+                }`}
+              >
+                <FaChevronRight size={20} />
+              </button>
+            </div>
+            <div className="flex space-x-2 mt-6">
+              {[1, 2, 3, 4, 5, 6, 7].map((num) => (
+                <div
+                  key={num}
+                  className={`w-3 h-3 rounded-full transition-all duration-200 ${
+                    num === contador
+                      ? "bg-blue-500 scale-125"
+                      : num < contador
+                      ? "bg-blue-300"
+                      : "bg-gray-300"
+                  }`}
+                />
+              ))}
+            </div>
+
+            <div className="text-xs text-gray-400 mt-4">
+              Rango: 1 - 7 áreas
+            </div>
           </div>
         )}
 
@@ -390,9 +432,8 @@ const AsociarCosto = () => {
           olimpiadaSeleccionada={olimpiadaSeleccionada}
           guardando={guardando}
           mensajeExito={mensajeExito}
-          textoBoton="Guardar Costos"
-          bloqueado={olimpiadaBloqueada} 
-          
+          textoBoton="Guardar Número de Áreas"
+          bloqueado={olimpiadaBloqueada}
         />
       </div>
 
@@ -425,8 +466,7 @@ const AsociarCosto = () => {
         esPrimeraVez={true}
       />
     </div>
-    
   );
 };
 
-export default AsociarCosto;
+export default AsignarLimiteAreas;
