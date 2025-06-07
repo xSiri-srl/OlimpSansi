@@ -38,9 +38,7 @@ class OrdenPagoModel extends Model
         return $this->belongsTo(ResponsableInscripcionModel::class, 'id_responsable', 'id');
     }
 
-    public function ComprobantePagoModel
-(){
-        return $this->hasMany(ComprobantePagoModel
-::class, 'id_orden_pago');
+    public function comprobantePago(){
+        return $this->hasMany(ComprobantePagoModel::class, 'id_orden_pago');
     }
 }

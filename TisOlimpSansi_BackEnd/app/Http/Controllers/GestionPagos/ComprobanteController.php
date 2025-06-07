@@ -29,8 +29,7 @@ public function guardarComprobante(Request $request)
     }
 
    
-    $comprobante = new ComprobantePagoModel
-();
+    $comprobante = new ComprobantePagoModel();
     $comprobante->id_orden_pago = $ordenPago->id;
     $comprobante->numero_comprobante = $validated['numero_comprobante'];
     $comprobante->comprobante_url = $comprobantePath;

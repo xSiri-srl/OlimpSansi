@@ -268,8 +268,7 @@ public function verificarCodigo(Request $request)
         }
 
        
-        $comprobante = ComprobantePagoModel
-::where('id_orden_pago', $ordenPago->id)->first();
+        $comprobante = ComprobantePagoModel::where('id_orden_pago', $ordenPago->id)->first();
         if ($comprobante) {
             return response()->json([
                 'message' => 'Este comprobante ya fue registrado previamente. No puede continuar.'
