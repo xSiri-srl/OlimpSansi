@@ -13,15 +13,20 @@ export default function ModalPeriodo({ isOpen, onClose, fechaIni, fechaFin }) {
     });
   };
 
-  // Determinar si la inscripción no ha comenzado o ya terminó
+  // FUNCIÓN CORREGIDA - Determinar si la inscripción no ha comenzado o ya terminó
   const getEstadoInscripcion = () => {
     const ahora = new Date();
     const inicio = new Date(fechaIni);
     const fin = new Date(fechaFin);
     
+    // Normalizar fechas para comparar solo días
+    ahora.setHours(0, 0, 0, 0);
+    inicio.setHours(0, 0, 0, 0);
+    fin.setHours(23, 59, 59, 999); // Incluir todo el día final
+    
     if (ahora < inicio) {
       return "no_iniciada";
-    } else if (ahora > fin) {
+    } else if (ahora > fin) {  // Cambio: > en lugar de >=
       return "finalizada";
     }
     return "activa"; // No debería ocurrir si el modal se muestra correctamente

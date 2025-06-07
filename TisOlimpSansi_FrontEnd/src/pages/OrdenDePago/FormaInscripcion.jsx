@@ -42,7 +42,13 @@ export default function FormularioEstudiante() {
         gradoAreaCurso
       }));
 
-      navigate("/inscripcion/responsable");
+      navigate("/inscripcion/responsable", {
+      
+    state: { 
+      id: olimpiadaSeleccionada,
+      gradoAreaCurso 
+  }
+  });
 
     } catch (err) {
       console.error("Error al obtener los datos de la olimpiada:", err);
@@ -68,17 +74,61 @@ export default function FormularioEstudiante() {
 
   // Función para verificar si estamos dentro del período de inscripción
   const estaEnPeriodo = (fechaIni, fechaFin) => {
-    const ahora = new Date();
-    const inicio = new Date(fechaIni);
-    const fin = new Date(fechaFin);
-    
-    // Establecer horas a 0 para comparar solo fechas
-    ahora.setHours(0, 0, 0, 0);
-    inicio.setHours(0, 0, 0, 0);
-    fin.setHours(23, 59, 59, 999);
-    
-    return ahora > inicio && ahora <= fin;
-  };
+  const ahora = new Date();
+  const inicio = new Date(fechaIni);
+  const fin = new Date(fechaFin);
+  
+  // Establecer horas para comparar correctamente
+  ahora.setHours(0, 0, 0, 0);
+  inicio.setHours(0, 0, 0, 0);
+  fin.setHours(23, 59, 59, 999); // Incluir todo el día final
+  
+  // CORRECCIÓN: Cambiar la primera condición para incluir el día de inicio
+  return ahora >= inicio && ahora <= fin;
+};
+
+// CORRECCIÓN PARA ModalPeriodo.js
+// Función para determinar el estado de la inscripción
+const getEstadoInscripcion = () => {
+  const ahora = new Date();
+  const inicio = new Date(fechaIni);
+  const fin = new Date(fechaFin);
+  
+  // Normalizar fechas para comparar solo días
+  ahora.setHours(0, 0, 0, 0);
+  inicio.setHours(0, 0, 0, 0);
+  fin.setHours(23, 59, 59, 999); // Incluir todo el día final
+  
+  if (ahora < inicio) {
+    return "no_iniciada";
+  } else if (ahora > fin) {
+    return "finalizada";
+  }
+  return "activa"; // Esto significa que está en período válido
+};
+
+// DEBUGGING - Función para verificar las fechas (agregar temporalmente)
+const debugFechas = (fechaIni, fechaFin) => {
+  const ahora = new Date();
+  const inicio = new Date(fechaIni);
+  const fin = new Date(fechaFin);
+  
+  console.log("=== DEBUG FECHAS ===");
+  console.log("Fecha actual:", ahora.toISOString());
+  console.log("Fecha inicio:", inicio.toISOString());
+  console.log("Fecha fin:", fin.toISOString());
+  
+  ahora.setHours(0, 0, 0, 0);
+  inicio.setHours(0, 0, 0, 0);
+  fin.setHours(23, 59, 59, 999);
+  
+  console.log("Después de normalizar:");
+  console.log("Ahora:", ahora.toISOString());
+  console.log("Inicio:", inicio.toISOString());
+  console.log("Fin:", fin.toISOString());
+  console.log("¿Está en período?", ahora >= inicio && ahora <= fin);
+  console.log("==================");
+};
 
   // Manejador modificado para la selección de olimpiada
   const handleOlimpiadaChange = (e) => {

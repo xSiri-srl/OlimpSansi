@@ -40,16 +40,16 @@ const DatosColegio = ({
   }, [estudianteData?.colegio?.departamento, colegiosData]);
 
   const cursos = [
-    "3ro de Primaria",
-    "4to de Primaria",
-    "5to de Primaria",
-    "6to de Primaria",
-    "1ro de Secundaria",
-    "2do de Secundaria",
-    "3ro de Secundaria",
-    "4to de Secundaria",
-    "5to de Secundaria",
-    "6to de Secundaria",
+     "3RO PRIMARIA",
+  "4TO PRIMARIA",
+  "5TO PRIMARIA",
+  "6TO PRIMARIA",
+  "1RO SECUNDARIA",
+  "2DO SECUNDARIA",
+  "3RO SECUNDARIA",
+  "4TO SECUNDARIA",
+  "5TO SECUNDARIA",
+  "6TO SECUNDARIA",
   ];
 
   return (

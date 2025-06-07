@@ -261,10 +261,16 @@ public function registrarLista(Request $request)
             $olimpiadaId = $data['olimpiada'];
             $olimpiada = OlimpiadaModel::findOrFail($olimpiadaId);
             $limiteAreas = $olimpiada->max_materias;
-            $inscritas = InscripcionModel::where('id_estudiante', $estudiante->id)->count();
+            
+            // Contar inscripciones existentes EN LA MISMA OLIMPIADA
+            $inscritasEnOlimpiada = InscripcionModel::join('olimpiada_area_categorias as oac', 'inscripcion.id_olimpiada_area_categoria', '=', 'oac.id')
+                ->where([
+                    ['inscripcion.id_estudiante', $estudiante->id],
+                    ['oac.id_olimpiada', $olimpiadaId]
+                ])->count();
 
-            if ($inscritas + count($item['areas_competencia']) > $limiteAreas) {
-                throw new \Exception("El estudiante '{$estudiante->nombre} {$estudiante->apellido_pa}' supera el límite de áreas permitidas.");
+            if ($inscritasEnOlimpiada + count($item['areas_competencia']) > $limiteAreas) {
+                throw new \Exception("El estudiante '{$estudiante->nombre} {$estudiante->apellido_pa}' supera el límite de áreas permitidas para esta olimpiada.");
             }
 
             // Tutor legal
@@ -287,14 +293,13 @@ public function registrarLista(Request $request)
                     ['id_categoria', $categoria->id],
                 ])->first();
 
-               if (!$oac) {
-                   $combinacionesValidas = DB::table('olimpiada_area_categorias as oac')
+                if (!$oac) {
+                    $combinacionesValidas = DB::table('olimpiada_area_categorias as oac')
                         ->join('area as a', 'a.id', '=', 'oac.id_area')
                         ->join('categoria as c', 'c.id', '=', 'oac.id_categoria')
                         ->where('oac.id_olimpiada', $olimpiadaId)
                         ->select('a.nombre_area', 'c.nombre_categoria')
                         ->get();
-
 
                     $mensaje = "No está asociada esta área y/o categoría en la olimpiada. Combinaciones válidas:\n";
 
@@ -305,15 +310,17 @@ public function registrarLista(Request $request)
                     throw new \Exception($mensaje);
                 }
 
-
-                // Validar si ya está inscrito a esta misma combinación
-                $yaInscrito = InscripcionModel::where([
-                    ['id_estudiante', $estudiante->id],
-                    ['id_olimpiada_area_categoria', $oac->id],
-                ])->exists();
+                // Validar si ya está inscrito en la misma área y categoría EN LA MISMA OLIMPIADA
+                $yaInscrito = InscripcionModel::join('olimpiada_area_categorias as oac', 'inscripcion.id_olimpiada_area_categoria', '=', 'oac.id')
+                    ->where([
+                        ['inscripcion.id_estudiante', $estudiante->id],
+                        ['oac.id_olimpiada', $olimpiadaId],
+                        ['oac.id_area', $area->id],
+                        ['oac.id_categoria', $categoria->id],
+                    ])->exists();
 
                 if ($yaInscrito) {
-                    throw new \Exception("El estudiante '{$estudiante->nombre} {$estudiante->apellido_pa}' ya está inscrito en esta área y categoría para esta olimpiada.");
+                    throw new \Exception("El estudiante '{$estudiante->nombre} {$estudiante->apellido_pa}' ya está inscrito en el área '{$area->nombre_area}' y categoría '{$categoria->nombre_categoria}' para esta olimpiada.");
                 }
 
                 // Registrar inscripción

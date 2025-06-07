@@ -32,16 +32,9 @@ const ConfirmationLista = ({ setStep }) => {
   const [codigoGenerado, setCodigoGenerado] = useState("");
   const [mostrarModal, setMostrarModal] = useState(false);
 
-  useEffect(() => {
-    console.log(globalData);
-    globalData.areas_competencia?.forEach((area) => {
-      console.log("Nombre del área:", area.nombre_area);
-      console.log("Categoría:", area.categoria);
-    });
-  }, [globalData]);
-
+  
   const handleGoBack = () => {
-    console.log("Confirmation: Atrás button clicked");
+
     setStep(4); // Volver al paso 4 (lista de competidores)
   };
 
@@ -149,7 +142,7 @@ const ConfirmationLista = ({ setStep }) => {
     };
 
     try {
-      console.log(datosPreparados);
+
       const response = await axios.post(
         `${API_URL}/api/inscribir-lista`,
         datosPreparados

@@ -17,7 +17,6 @@ function RegistroResponsable({ setStep }) {
 const location = useLocation();
 const state = location.state;
 const olimpiada = parseInt(state?.id, 10);
-console.log(olimpiada)
   const [errors, setErrors] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSearching, setIsSearching] = useState(false)
