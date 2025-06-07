@@ -1,4 +1,4 @@
-import { useState} from "react";
+import { useState, useEffect} from "react";
 import ProcesoRegistro from "./ProcesoRegistro";
 import { FaUser, FaIdCard } from "react-icons/fa";
 import InscripcionEstudiante from "./InscripcionEstudiante";
@@ -18,8 +18,22 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
   const [isSearching, setIsSearching] = useState(false);
   const [responsableFound, setResponsableFound] = useState(false);
   const { globalData, setGlobalData } = useFormData();
+  const state = location.state;
+  const olimpiada = parseInt(state?.id, 10);
+  const gradoAreaCurso = state?.gradoAreaCurso;
 
-  // Función para validar campos del formulario
+ useEffect(() => {
+  if (olimpiada && gradoAreaCurso) {
+    const subirOlimpiada = {
+      ...globalData,
+      olimpiada: olimpiada, 
+      gradoAreaCurso 
+    };
+    setGlobalData(subirOlimpiada);
+  }
+}, [olimpiada, gradoAreaCurso]);
+
+  console.log("global",globalData)
   const validateInput = (value, fieldName, regex, minWords = 1) => {
     const { isValid, errorMessage } = validateField(value, regex, minWords);
     setErrors((prev) => ({ ...prev, [fieldName]: errorMessage }));
