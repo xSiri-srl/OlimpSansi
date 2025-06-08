@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { API_URL } from "../../../utils/api";
+import { useNavigate } from "react-router-dom";
 
 const useCodigoPreInscripcion = () => {
   const [codigoPreInscripcion, setCodigoPreInscripcion] = useState("");
@@ -20,6 +21,7 @@ const useCodigoPreInscripcion = () => {
     fechaIni: "",
     fechaFin: "",
   });
+  const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
   const [modalContent, setModalContent] = useState({
     title: "",

@@ -6,7 +6,7 @@ import {
   FaTimesCircle,
   FaExclamationTriangle,
 } from "react-icons/fa";
-import ExitoModal from "./../InscripcionLista/Modales/ExitoModal";
+import ExitoModal from "../InscripcionLista/Modales/ExitoModal";
 import { API_URL } from "../../utils/api";
 const Confirmation = ({ navigate, handleBack }) => {
   const { globalData } = useFormData();

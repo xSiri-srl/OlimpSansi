@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 export const useEstudianteForm = (estudiante, ests, onEstudiantesChange) => {
   const [estudianteData, setEstudianteData] = useState(null);
@@ -331,16 +332,16 @@ export const useEstudianteForm = (estudiante, ests, onEstudiantesChange) => {
     }
 
     const tutorAcademicoData = estudianteData.tutores_academicos[0].tutor;
-    if (!tutorData.correo) {
-      nuevoErrores[`tutor_academico_${0}_correo`] =
-        "El correo del tutor académico es requerido";
-    } else if (
-      !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(
-        tutorAcademicoData.correo
-      )
-    ) {
-      nuevoErrores[`tutor_academico_${0}_correo`] =
-        "El correo del tutor académico no es válido";
+
+    if (tutorAcademicoData.correo !== "") {
+      if (
+        !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(
+          tutorAcademicoData.correo
+        )
+      ) {
+        nuevoErrores[`tutor_academico_${0}_correo`] =
+          "El correo del tutor académico no es válido";
+      }
     }
 
     setErrores(nuevoErrores);
