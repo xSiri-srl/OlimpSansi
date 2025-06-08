@@ -75,7 +75,6 @@ export default function App() {
                 path="/inscripcion/tutor-academico"
                 element={<InscripcionTutorAcademico />}
               />
-              <Route path="/inscripcion/propuesta" element={<Propuesta />} />
               <Route
                 path="/editar-preinscripcion"
                 element={<CodigoPreInscripcion />}
