@@ -67,21 +67,33 @@ class OrdenPagoController extends Controller
         
         $writeLog("Inscripción encontrada - ID: " . $inscripcion->id);
         
+        // Configurar rutas para DomPDF
+        $writeLog("Configurando rutas para DomPDF...");
+        $publicPath = public_path();
+        $basePath = base_path();
+        
+        $writeLog("Public path: " . $publicPath);
+        $writeLog("Base path: " . $basePath);
+        
+        // Configurar DomPDF antes de usarlo
+        $options = new \Dompdf\Options();
+        $options->set('isRemoteEnabled', true);
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isPhpEnabled', true);
+        $options->set('tempDir', sys_get_temp_dir());
+        $options->set('fontDir', storage_path('fonts/'));
+        $options->set('fontCache', storage_path('fonts/'));
+        $options->set('chroot', [$publicPath, $basePath, storage_path()]);
+        
+        $writeLog("Opciones DomPDF configuradas");
     
         $storagePath = storage_path('app/public');
         $ordenesPath = $storagePath . '/ordenes_pago';
         
         $writeLog("Storage path: " . $storagePath);
         $writeLog("Ordenes path: " . $ordenesPath);
-        $writeLog("Current working directory: " . getcwd());
-        $writeLog("Base path: " . base_path());
         
-       
-        $writeLog("Storage path exists: " . (is_dir($storagePath) ? 'YES' : 'NO'));
-        $writeLog("Storage path readable: " . (is_readable($storagePath) ? 'YES' : 'NO'));
-        $writeLog("Storage path writable: " . (is_writable($storagePath) ? 'YES' : 'NO'));
-        
-   
+        // Verificar y crear directorios
         if (!is_dir(storage_path('app'))) {
             $created = mkdir(storage_path('app'), 0755, true);
             $writeLog("Creando storage/app: " . ($created ? 'OK' : 'FALLÓ'));
@@ -96,11 +108,17 @@ class OrdenPagoController extends Controller
             $created = mkdir($ordenesPath, 0755, true);
             $writeLog("Creando ordenes_pago: " . ($created ? 'OK' : 'FALLÓ'));
         }
+        
+        // Crear directorio de fonts si no existe
+        if (!is_dir(storage_path('fonts'))) {
+            $created = mkdir(storage_path('fonts'), 0755, true);
+            $writeLog("Creando fonts: " . ($created ? 'OK' : 'FALLÓ'));
+        }
        
         $writeLog("Final - Storage writable: " . (is_writable($storagePath) ? 'YES' : 'NO'));
         $writeLog("Final - Ordenes writable: " . (is_writable($ordenesPath) ? 'YES' : 'NO'));
         
-     
+        // Verificar vista
         $writeLog("Verificando vista pdf.orden_pago...");
         if (!view()->exists('pdf.orden_pago')) {
             $writeLog("ERROR: Vista pdf.orden_pago no encontrada");
@@ -108,26 +126,50 @@ class OrdenPagoController extends Controller
         }
         $writeLog("Vista encontrada OK");
         
-      
+        // Generar PDF
         $writeLog("Iniciando generación PDF...");
         
         try {
-         
+            // Aumentar límites
             ini_set('memory_limit', '512M');
             ini_set('max_execution_time', 300);
             
             $writeLog("Límites aumentados - Memory: " . ini_get('memory_limit') . " Time: " . ini_get('max_execution_time'));
             
-            $pdf = Pdf::loadView('pdf.orden_pago', [
-                'ordenPago' => $ordenPago,
-                'inscripcion' => $inscripcion,
-            ]);
-            
-            $writeLog("PDF objeto creado exitosamente");
-            
-            // Verificar que el PDF se puede generar
-            $pdfContent = $pdf->output();
-            $writeLog("PDF content generado - Tamaño: " . strlen($pdfContent) . " bytes");
+            // Método 1: Usar DomPDF directamente con configuración personalizada
+            try {
+                $writeLog("Intentando método DomPDF directo...");
+                
+                $html = view('pdf.orden_pago', [
+                    'ordenPago' => $ordenPago,
+                    'inscripcion' => $inscripcion,
+                ])->render();
+                
+                $writeLog("HTML renderizado exitosamente. Tamaño: " . strlen($html) . " bytes");
+                
+                $dompdf = new \Dompdf\Dompdf($options);
+                $dompdf->loadHtml($html);
+                $dompdf->setPaper('A4', 'portrait');
+                $dompdf->render();
+                
+                $pdfContent = $dompdf->output();
+                $writeLog("PDF generado con DomPDF directo - Tamaño: " . strlen($pdfContent) . " bytes");
+                
+            } catch (\Exception $directError) {
+                $writeLog("Error con DomPDF directo: " . $directError->getMessage());
+                
+                // Método 2: Usar Laravel PDF con configuración
+                $writeLog("Intentando método Laravel PDF...");
+                
+                $pdf = Pdf::setOptions($options->getOptions())
+                    ->loadView('pdf.orden_pago', [
+                        'ordenPago' => $ordenPago,
+                        'inscripcion' => $inscripcion,
+                    ]);
+                
+                $pdfContent = $pdf->output();
+                $writeLog("PDF generado con Laravel PDF - Tamaño: " . strlen($pdfContent) . " bytes");
+            }
             
             if (strlen($pdfContent) == 0) {
                 throw new \Exception("PDF generado está vacío");
@@ -137,10 +179,11 @@ class OrdenPagoController extends Controller
             $writeLog("ERROR generando PDF: " . $pdfError->getMessage());
             $writeLog("PDF Error File: " . $pdfError->getFile());
             $writeLog("PDF Error Line: " . $pdfError->getLine());
+            $writeLog("PDF Stack Trace: " . $pdfError->getTraceAsString());
             return response()->json(['message' => 'Error generando PDF: ' . $pdfError->getMessage()], 500);
         }
         
-
+        // Guardar archivo
         $fileName = 'orden_pago_' . $ordenPago->codigo_generado . '.pdf';
         $filePath = 'ordenes_pago/' . $fileName;
         $fullPath = $ordenesPath . '/' . $fileName;
@@ -173,12 +216,10 @@ class OrdenPagoController extends Controller
             
         } catch (\Exception $saveError) {
             $writeLog("ERROR guardando PDF: " . $saveError->getMessage());
-            $writeLog("Save Error File: " . $saveError->getFile());
-            $writeLog("Save Error Line: " . $saveError->getLine());
             return response()->json(['message' => 'Error guardando PDF: ' . $saveError->getMessage()], 500);
         }
         
-        
+        // Actualizar base de datos
         $writeLog("Actualizando base de datos...");
         $ordenPago->orden_pago_url = $filePath;
         $ordenPago->save();
@@ -215,12 +256,6 @@ class OrdenPagoController extends Controller
         ], 500);
     }
 }
-
-
-
-
-
-
 
     /**
      * Descarga la orden de pago como PDF

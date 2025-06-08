@@ -13,7 +13,7 @@ use App\Http\Controllers\Inscripcion\TutorAcademicoController;
 use App\Http\Controllers\Inscripcion\ColegioController;
 use App\Http\Controllers\Inscripcion\GradoController;
 use App\Http\Controllers\Inscripcion\InscripcionController;
-use App\Http\Controllers\GestionOl\ConvocatoriaController;
+use App\Http\Controllers\GestionOlimpiadas\ConvocatoriaController;
 use App\Http\Controllers\UserAdminController;
 use App\Http\Controllers\GestionOlimpiadas\OlimpiadaController;
 use App\Http\Controllers\GestionOlimpiadas\OlimpiadaAreaController;
