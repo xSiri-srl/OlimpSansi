@@ -108,7 +108,7 @@ const TutorAcademico = ({
         />
         {tieneError(`tutor_academico_${areaIndex}_ci`) && (
           <p className="text-red-500 text-xs mt-1">
-            {errores[`tutor_academico_${areaIndex}_ci`]}
+            {errores[`tutor_academico_${0}_ci`]}
           </p>
         )}
       </div>
@@ -124,6 +124,7 @@ const TutorAcademico = ({
               ? "bg-gray-100"
               : ""
           } ${
+            estudianteData.tutores_academicos?.[0]?.tutor?.correo !== "" &&
             tieneError(`tutor_academico_${areaIndex}_correo`)
               ? "border-red-500 bg-red-50"
               : ""
@@ -131,13 +132,13 @@ const TutorAcademico = ({
           value={
             estudianteData.tutores_academicos?.[areaIndex]?.tutor?.correo || ""
           }
-          onChange={(e) => {
-            handleChange(
-              `tutor_academico_${areaIndex}`,
-              "correo",
-              e.target.value
-            );
-          }}
+            onChange={(e) => {
+              handleChange(
+                `tutor_academico_${areaIndex}`,
+                "correo",
+                e.target.value
+              );
+            }}
           disabled={estudianteData.tutores_academicos?.[0]?.tutor?.ci == ""}
           maxLength={30}
         />
