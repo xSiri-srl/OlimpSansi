@@ -3,7 +3,6 @@ import axios from "axios";
 import { API_URL } from "../../../utils/api";
 
 export const useOrdenPago = () => {
-  // Estados principales
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [codigoGenerado, setCodigoGenerado] = useState("");
@@ -15,15 +14,12 @@ export const useOrdenPago = () => {
   const [progreso, setProgreso] = useState(0);
   const [pdfUrl, setPdfUrl] = useState(null);
   const [mostrarPrevisualizacion, setMostrarPrevisualizacion] = useState(false);
-
-  // Estados para costos
   const [idOlimpiada, setIdOlimpiada] = useState("");
   const [costoUnico, setCostoUnico] = useState(null);
   const [costosPorArea, setCostosPorArea] = useState([]);
   const [tieneCostoUnico, setTieneCostoUnico] = useState(false);
   const [costosLoading, setCostosLoading] = useState(false);
 
-  // Effect para manejo de progreso
   useEffect(() => {
     let timer;
     if (cargando || descargando) {
@@ -41,14 +37,12 @@ export const useOrdenPago = () => {
     return () => clearInterval(timer);
   }, [cargando, descargando]);
 
-  // Effect para obtener costos cuando cambia la olimpiada
   useEffect(() => {
     if (idOlimpiada) {
       obtenerCostos();
     }
   }, [idOlimpiada]);
 
-  // Función para obtener PDF
   const obtenerPdf = async () => {
     try {
       const pdfResponse = await axios.get(
@@ -64,7 +58,6 @@ export const useOrdenPago = () => {
     }
   };
 
-  // Función principal para verificar código
   const verificarCodigo = async () => {
     setLoading(true);
     setError("");
@@ -94,7 +87,6 @@ export const useOrdenPago = () => {
     }
   };
 
-  // Función para obtener resumen
   const obtenerResumen = async (codigo) => {
     try {
       const response = await axios.get(
@@ -106,7 +98,6 @@ export const useOrdenPago = () => {
     }
   };
 
-  // Función para obtener olimpiada
   const obtenerOlimpiada = async () => {
     try {
       const response = await axios.get(
@@ -119,7 +110,6 @@ export const useOrdenPago = () => {
     }
   };
 
-  // Función para obtener costos
   const obtenerCostos = async () => {
     if (!idOlimpiada) {
       setError("ID de olimpiada no disponible");
@@ -159,8 +149,6 @@ export const useOrdenPago = () => {
       setCostosLoading(false);
     }
   };
-
-  // Función para calcular total
   const calcularTotal = () => {
     if (!resumen || !resumen.inscritos || resumen.inscritos.length === 0)
       return 0;
@@ -187,7 +175,6 @@ export const useOrdenPago = () => {
     return 0;
   };
 
-  // Función para obtener desglose por área
   const obtenerDesglosePorArea = () => {
     if (!resumen || !resumen.inscritos) return [];
 
@@ -211,7 +198,6 @@ export const useOrdenPago = () => {
     });
   };
 
-  // Función para confirmar generar orden
   const confirmarGenerarOrden = async () => {
     setMostrarModal(false);
     setCargando(true);
@@ -245,7 +231,6 @@ export const useOrdenPago = () => {
     }
   };
 
-  // Función para descargar
   const handleDownload = async () => {
     setDescargando(true);
     setProgreso(0);
@@ -277,12 +262,10 @@ export const useOrdenPago = () => {
     }
   };
 
-  // Función para toggle previsualización
   const togglePrevisualizacion = () => {
     setMostrarPrevisualizacion(!mostrarPrevisualizacion);
   };
 
-  // Función para manejar cambio de código
   const handleCodigoChange = (codigo) => {
     setCodigoGenerado(codigo);
     setResumen(null);
@@ -297,7 +280,6 @@ export const useOrdenPago = () => {
   };
 
   return {
-    // Estados
     error,
     loading,
     codigoGenerado,
@@ -313,11 +295,7 @@ export const useOrdenPago = () => {
     costosPorArea,
     tieneCostoUnico,
     costosLoading,
-
-    // Setters
     setMostrarModal,
-
-    // Funciones
     verificarCodigo,
     calcularTotal,
     obtenerDesglosePorArea,

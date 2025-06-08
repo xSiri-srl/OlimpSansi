@@ -1,4 +1,3 @@
-import React from "react";
 import {
   FaCloudUploadAlt,
   FaDownload,
@@ -17,7 +16,6 @@ const AccionesOrdenPago = ({
   mostrarPrevisualizacion,
   mostrarModal,
   progreso,
-  codigoGenerado,
   confirmarGenerarOrden,
   togglePrevisualizacion,
   handleDownload,
@@ -25,7 +23,6 @@ const AccionesOrdenPago = ({
 }) => {
   return (
     <>
-      {/* Botones de acción */}
       <div className="flex flex-col sm:flex-row justify-center gap-4 mt-6">
         <button
           onClick={() => setMostrarModal(true)}
@@ -70,7 +67,6 @@ const AccionesOrdenPago = ({
         </button>
       </div>
 
-      {/* Previsualización del PDF */}
       {mostrarPrevisualizacion && pdfUrl && (
         <div className="mt-6 max-w-3xl mx-auto">
           <h3 className="text-lg font-semibold text-gray-700 mb-4">
@@ -86,7 +82,6 @@ const AccionesOrdenPago = ({
         </div>
       )}
 
-      {/* Modal de confirmación */}
       {mostrarModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white p-8 rounded shadow-lg max-w-md w-full">
@@ -141,7 +136,6 @@ const AccionesOrdenPago = ({
         </div>
       )}
 
-      {/* Modal de carga - Generando */}
       {cargando && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white px-8 py-6 rounded-lg shadow-xl w-80 text-center">
@@ -163,7 +157,6 @@ const AccionesOrdenPago = ({
         </div>
       )}
 
-      {/* Modal de carga - Descargando */}
       {descargando && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96">

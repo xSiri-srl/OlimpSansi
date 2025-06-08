@@ -1,5 +1,3 @@
-import React from "react";
-
 const ResumenPreinscripcion = ({
   resumen,
   costosLoading,
@@ -17,7 +15,6 @@ const ResumenPreinscripcion = ({
         Resumen de Preinscripción
       </h2>
       <div className="mt-4 bg-white rounded-lg shadow-md p-6 text-left max-w-3xl mx-auto">
-        {/* Información del Responsable */}
         <div className="mb-6 border-b pb-4">
           <h3 className="text-lg font-semibold text-blue-600">
             Responsable de Inscripción
@@ -37,8 +34,6 @@ const ResumenPreinscripcion = ({
             </div>
           </div>
         </div>
-
-        {/* Tabla de Competidores */}
         <div
           className={`mt-6 ${
             resumen.inscritos.length > 25 ? "max-h-96 overflow-y-auto pr-2" : ""
@@ -76,8 +71,6 @@ const ResumenPreinscripcion = ({
             </div>
           </div>
         </div>
-
-        {/* Sección de Importe */}
         <div className="mt-6 border-t pt-4">
           <h3 className="text-lg font-semibold text-blue-600 mb-3">Importe</h3>
 

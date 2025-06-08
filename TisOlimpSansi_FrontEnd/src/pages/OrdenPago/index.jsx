@@ -6,7 +6,6 @@ import AccionesOrdenPago from "./componentes/AccionesOrdenPago";
 
 const GenerarOrdenPago = () => {
   const {
-    // Estados
     error,
     loading,
     codigoGenerado,
@@ -22,11 +21,7 @@ const GenerarOrdenPago = () => {
     costosPorArea,
     tieneCostoUnico,
     costosLoading,
-
-    // Setters
     setMostrarModal,
-
-    // Funciones
     verificarCodigo,
     calcularTotal,
     obtenerDesglosePorArea,
@@ -39,7 +34,6 @@ const GenerarOrdenPago = () => {
   return (
     <div className="p-6 sm:p-10">
       <div className="max-w-4xl mx-auto bg-gray-100 p-6 sm:p-9 shadow-lg rounded-lg">
-        {/* Componente de verificación de código */}
         <CodigoVerificacion
           codigoGenerado={codigoGenerado}
           error={error}
@@ -48,7 +42,6 @@ const GenerarOrdenPago = () => {
           handleCodigoChange={handleCodigoChange}
         />
 
-        {/* Componente del resumen de preinscripción */}
         <ResumenPreinscripcion
           resumen={resumen}
           costosLoading={costosLoading}
@@ -59,7 +52,6 @@ const GenerarOrdenPago = () => {
           calcularTotal={calcularTotal}
         />
 
-        {/* Componente de acciones (solo se muestra si hay resumen) */}
         {resumen && (
           <AccionesOrdenPago
             cargando={cargando}

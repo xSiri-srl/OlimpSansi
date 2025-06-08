@@ -16,7 +16,7 @@ import RegistroPorLista from "./pages/InscripcionLista/RegistroPorLista";
 import SubirArchivo from "./pages/InscripcionLista/SubirArchivo";
 import ListaCompetidores from "./pages/InscripcionLista/ListaCompetidores";
 import { FormProvider } from "./pages/InscripcionLista/form-context";
-import GenerarOrdenPago from "./pages/OrdenPago/GenerarOrdenPago";
+import GenerarOrdenPago from "./pages/OrdenPago/index";
 import PanelDatos from "./pages/Administrador/PanelDatos";
 import DescargarListas from "./pages/Administrador/Reportes/DescargarListas";
 import PreInscritos from "./pages/Administrador/Reportes/PreInscritos";
