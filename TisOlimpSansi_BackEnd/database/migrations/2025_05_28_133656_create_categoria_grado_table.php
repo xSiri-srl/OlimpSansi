@@ -16,9 +16,7 @@ return new class extends Migration
 
             $table->foreign('id_categoria')->references('id')->on('categoria')->onDelete('cascade');
             $table->foreign('id_grado')->references('id')->on('grado')->onDelete('cascade');
-            
-            // Índice único para evitar duplicados
-            $table->unique(['id_categoria', 'id_grado']);
+        
         });
     }
 
