@@ -5,21 +5,15 @@ import ModalCosto from "./ModalCosto";
 const AreaCosto = ({ area, actualizarCosto }) => {
   const [modalCostoOpen, setModalCostoOpen] = useState(false);
   
-  // Función mejorada para mapear áreas a imágenes
   const getAreaImage = (areaName) => {
     if (!areaName) return "/placeholder.svg";
-    
-    // Normalizar el nombre para manejo consistente
     const normalizedName = String(areaName)
       .toLowerCase()
       .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")  // Quitar acentos
-      .replace(/[-_\s]+/g, " ")         // Unificar separadores
-      .trim();                          // Quitar espacios al inicio y final
-    
-    console.log(`Buscando imagen para área: "${areaName}" (normalizado: "${normalizedName}")`);
-    
-    // Mapeo más flexible usando coincidencias parciales
+      .replace(/[\u0300-\u036f]/g, "")  
+      .replace(/[-_\s]+/g, " ")        
+      .trim();                          
+  
     if (normalizedName.includes("matematica")) return "/images/matematicaas.png";
     if (normalizedName.includes("fisica")) return "/images/fisica.png";
     if (normalizedName.includes("quimica")) return "/images/quimica.png";
@@ -27,12 +21,9 @@ const AreaCosto = ({ area, actualizarCosto }) => {
     if (normalizedName.includes("informatica")) return "/images/informatica.png";
     if (normalizedName.includes("robotica")) return "/images/robotica.png";
     if (normalizedName.includes("astronom")) return "/images/astronomia.png";
-    
-    console.log(`⚠️ No se encontró imagen para: "${areaName}"`);
     return "/placeholder.svg";
   };
 
-  // Función para manejar la confirmación del modal
   const handleModalConfirm = (nuevoCosto) => {
     actualizarCosto(nuevoCosto);
     setModalCostoOpen(false);
@@ -41,7 +32,6 @@ const AreaCosto = ({ area, actualizarCosto }) => {
   return (
     <div className="bg-white p-4 rounded-lg shadow-md border-l-4 border-blue-500 transition-all duration-300">
       <div className="flex items-start">
-        {/* Imagen del área */}
         <div className="w-32 mr-6 text-center">
           <img 
             src={getAreaImage(area.area)} 
@@ -54,9 +44,7 @@ const AreaCosto = ({ area, actualizarCosto }) => {
           />
         </div>
 
-        {/* Contenido principal */}
         <div className="flex-1">
-          {/* Título del área */}
           <div className="mb-3 flex justify-between items-center">
             <h2 className="text-xl font-bold text-blue-700">{area.area}</h2>
             <div className="flex items-center">
@@ -65,8 +53,6 @@ const AreaCosto = ({ area, actualizarCosto }) => {
               </span>
             </div>
           </div>
-
-          {/* Información de niveles simplificada */}
           {(area.niveles || area.rangos) && (
             <div className="mt-2">
               <p className="text-sm text-gray-600">
@@ -78,8 +64,6 @@ const AreaCosto = ({ area, actualizarCosto }) => {
               </p>
             </div>
           )}
-
-          {/* Información de costo actual */}
           <div className="mt-4 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
             <div className="flex items-center justify-between">
               <div className="flex items-center">
@@ -100,8 +84,6 @@ const AreaCosto = ({ area, actualizarCosto }) => {
           </div>
         </div>
       </div>
-
-      {/* Modal para configurar el costo */}
       <ModalCosto
         isOpen={modalCostoOpen}
         onClose={() => setModalCostoOpen(false)}

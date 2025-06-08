@@ -100,7 +100,7 @@ const EditarConvocatoria = () => {
       const file = e.target.files[0];
       setDocumento(file);
       setDocumentoNombre(file.name);
-      setRutaDocumento(""); // Se elimina el documento anterior
+      setRutaDocumento(""); 
     }
   };
 
@@ -116,7 +116,6 @@ const EditarConvocatoria = () => {
       </h1>
 
       <div className="space-y-6">
-        {/* TÍTULO */}
         <div>
           <label className="block text-sm font-medium text-cyan-800 mb-1">Título</label>
           <input
@@ -130,8 +129,6 @@ const EditarConvocatoria = () => {
           />
           {errores.titulo && <p className="text-red-500 text-sm mt-1">El título es obligatorio.</p>}
         </div>
-
-        {/* ÁREA */}
         <div>
           <label className="block text-sm font-medium text-cyan-800 mb-1">Área</label>
           <select
@@ -150,8 +147,6 @@ const EditarConvocatoria = () => {
           </select>
           {errores.area && <p className="text-red-500 text-sm mt-1">Debes seleccionar un área.</p>}
         </div>
-
-        {/* DOCUMENTO */}
         <div>
           <label className="block text-sm font-medium text-cyan-800 mb-1">
             Subir el documento PDF de la convocatoria
@@ -190,8 +185,6 @@ const EditarConvocatoria = () => {
             )}
           </div>
         </div>
-
-        {/* BOTÓN */}
         <div className="flex justify-end">
           <button
             className="bg-blue-600 text-white px-6 py-2 rounded-md transition duration-300 ease-in-out hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500 shadow-md"
@@ -201,8 +194,6 @@ const EditarConvocatoria = () => {
           </button>
         </div>
       </div>
-
-      {/* MODAL DE ÉXITO */}
       {showSuccessModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
           <div className="bg-white p-6 rounded-lg shadow-xl text-center">
@@ -218,8 +209,6 @@ const EditarConvocatoria = () => {
           </div>
         </div>
       )}
-
-      {/* MODAL DE ERROR */}
       {showErrorModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
           <div className="bg-white p-6 rounded-lg shadow-xl text-center">

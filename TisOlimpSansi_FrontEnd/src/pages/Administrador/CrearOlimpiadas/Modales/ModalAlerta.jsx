@@ -5,7 +5,7 @@ const ModalAlerta = ({
   onClose, 
   title, 
   message, 
-  type = "error", // error, success, warning, info
+  type = "error",
   buttonText = "Entendido"
 }) => {
   if (!isOpen) return null;
@@ -36,7 +36,7 @@ const ModalAlerta = ({
           icon: 'text-blue-600',
           button: 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500'
         };
-      default: // error
+      default: 
         return {
           bg: 'bg-red-100',
           border: 'border-red-400',
@@ -70,7 +70,7 @@ const ModalAlerta = ({
                   d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         );
-      default: // error
+      default: 
         return (
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 

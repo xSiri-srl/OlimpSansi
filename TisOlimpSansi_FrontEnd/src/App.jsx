@@ -8,7 +8,7 @@ import InscripcionEstudiante from "./pages/OrdenDePago/InscripcionEstudiante";
 import InscripcionTutorLegal from "./pages/OrdenDePago/InscripcionTutorLegal";
 import SubirComprobante from "./pages/Comprobante/SubirComprobante";
 import AreaCompetencia from "./pages/OrdenDePago/AreasCompetencia";
-import InscripcionTutorAcademico from "./pages/OrdenDePago/IncripcionTutorAcademico";
+import InscripcionTutorAcademico from "./pages/OrdenDePago/InscripcionTutorAcademico";
 import FormaInscripcion from "./pages/OrdenDePago/FormaInscripcion";
 import OrdenPago from "./pages/OrdenDePago/OrdenDePago";
 import Tutorial from "./pages/InscripcionLista/Tutorial";
@@ -16,8 +16,7 @@ import RegistroPorLista from "./pages/InscripcionLista/RegistroPorLista";
 import SubirArchivo from "./pages/InscripcionLista/SubirArchivo";
 import ListaCompetidores from "./pages/InscripcionLista/ListaCompetidores";
 import { FormProvider } from "./pages/InscripcionLista/form-context";
-import PasosInscripcion from "./pages/InscripcionLista/PasosInscripcion";
-import GenerarOrdenPago from "./pages/OrdenPago/index";
+import GenerarOrdenPago from "./pages/OrdenPago/GenerarOrdenPago";
 import PanelDatos from "./pages/Administrador/PanelDatos";
 import DescargarListas from "./pages/Administrador/Reportes/DescargarListas";
 import PreInscritos from "./pages/Administrador/Reportes/PreInscritos";
@@ -29,14 +28,14 @@ import SubirConvocatoria from "./pages/Administrador/Convocatorias/SubirConvocat
 
 import EditarConvocatoria from "./pages/Administrador/Convocatorias/EditarConvocatoria";
 import CrearOlimpiadas from "./pages/Administrador/CrearOlimpiadas/CrearOlimpiadas";
-import AsociarNivel from "./pages/Administrador/CrearOlimpiadas/AsociarNivel";
-import AsociarCosto from "./pages/Administrador/CrearOlimpiadas/AsociarCosto";
-import AsociarLimite from "./pages/Administrador/CrearOlimpiadas/AsociarLimiteAreas";
+import AsociarAreaNivel from "./pages/Administrador/CrearOlimpiadas/AsociarAreaNivel";
 import RutaPrivada from "./components/RutasPrivadas";
 import DesasignarAreaNivel from "./pages/Administrador/CrearOlimpiadas/DesasignarAreaNivel";
 import CodigoPreInscripcion from "./pages/EditarInscripcion";
 import { useState } from "react";
 import { FormDataContext } from "./pages/OrdenDePago/form-data-context";
+import AsignarCosto from "./pages/Administrador/CrearOlimpiadas/AsignarCosto";
+import AsignarLimiteAreas from "./pages/Administrador/CrearOlimpiadas/AsignarLimiteAreas";
 
 export default function App() {
   const [globalData, setGlobalData] = useState({});
@@ -140,11 +139,15 @@ export default function App() {
                   path="/admin/crear-olimpiada"
                   element={<CrearOlimpiadas />}
                 />
-                <Route path="/admin/asociar-nivel" element={<AsociarNivel />} />
-                <Route path="/admin/asociar-costo" element={<AsociarCosto />} />
                 <Route
-                  path="/admin/asociar-limite"
-                  element={<AsociarLimite />}
+                  path="/admin/asignar-area-nivel"
+                  element={<AsociarAreaNivel />}
+                />
+
+                <Route path="/admin/asignar-costo" element={<AsignarCosto />} />
+                <Route
+                  path="/admin/asignar-limite"
+                  element={<AsignarLimiteAreas />}
                 />
                 <Route
                   path="/admin/des-asignar-costo"

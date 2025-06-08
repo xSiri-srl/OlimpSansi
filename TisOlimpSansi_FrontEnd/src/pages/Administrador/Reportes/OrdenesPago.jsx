@@ -49,7 +49,7 @@ function OrdenesPago() {
         ? orden.estado_pago === 1
         : estado === "no_pagado"
         ? orden.estado_pago === 0
-        : true; // Si estado no se ha seleccionado, mostrar todo
+        : true; 
 
     return coincideBusqueda && coincideEstado;
   });
@@ -120,7 +120,7 @@ function OrdenesPago() {
   };
 
   const generarNombreArchivo = (tipo) => {
-    const fechaActual = new Date().toISOString().slice(0, 10); // formato YYYY-MM-DD
+    const fechaActual = new Date().toISOString().slice(0, 10); 
     return `ordenes_pago_${fechaActual}.${tipo}`;
   };
 
@@ -142,7 +142,6 @@ function OrdenesPago() {
 
   return (
     <div className="relative p-6 bg-white shadow-md rounded-xl">
-      {/* Botón arriba a la derecha */}
       <div className="absolute top-9 right-6">
         <button
           onClick={() => navigate(-1)}
@@ -152,8 +151,6 @@ function OrdenesPago() {
           <HiArrowCircleRight className="w-5 h-5" />
         </button>
       </div>
-
-      {/* Título centrado */}
       <h1 className="text-sky-950 font-bold text-3xl text-center">
         Lista de Ordenes de Pago
       </h1>

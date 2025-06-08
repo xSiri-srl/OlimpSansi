@@ -31,9 +31,8 @@ const SelectorAreaGrado = () => {
   const [fechaFin, setFechaFin] = useState(null);
   const { modalProgreso, mostrarProgreso, cerrarProgreso } = useNotificarProgreso();
 
-  // Estados para modales
   const [modalEstado, setModalEstado] = useState({
-    tipo: null, // 'confirmacion', 'alerta', 'validacion'
+    tipo: null,
     titulo: "",
     mensaje: "",
     isOpen: false,
@@ -41,7 +40,6 @@ const SelectorAreaGrado = () => {
     datos: null
   });
 
-  // Función para cerrar modal
   const cerrarModal = () => {
     setModalEstado({
       tipo: null,
@@ -52,8 +50,6 @@ const SelectorAreaGrado = () => {
       datos: null
     });
   };
-
-  // Función para mostrar alerta
   const mostrarAlerta = (titulo, mensaje, tipo = "error") => {
     setModalEstado({
       tipo: 'alerta',
@@ -66,7 +62,6 @@ const SelectorAreaGrado = () => {
     });
   };
 
-  // Función para mostrar confirmación
   const mostrarConfirmacion = (titulo, mensaje, onConfirm, tipo = "warning") => {
     setModalEstado({
       tipo: 'confirmacion',
@@ -79,7 +74,6 @@ const SelectorAreaGrado = () => {
     });
   };
 
-  // Función para mostrar validación
   const mostrarValidacion = (titulo, mensaje, validationType, areas = [], onConfirm = null) => {
     setModalEstado({
       tipo: 'validacion',
@@ -106,7 +100,6 @@ const SelectorAreaGrado = () => {
     }
   };
 
-  // BASE DE DATOS DETERMINADA
   const [combinaciones, setCombinaciones] = useState([
     {
       area: "Astronomía-Astrofísica",
@@ -145,7 +138,6 @@ const SelectorAreaGrado = () => {
     },
   ]);
 
-  // Cargar los grados desde el backend
   useEffect(() => {
     const cargarGrados = async () => {
       try {
@@ -155,7 +147,6 @@ const SelectorAreaGrado = () => {
         
         if (response.status === 200 && response.data.data) {
           setTodosLosGrados(response.data.data);
-          console.log("Grados cargados:", response.data.data);
         }
       } catch (error) {
         console.error("Error al cargar grados:", error);
@@ -171,14 +162,13 @@ const SelectorAreaGrado = () => {
       setErrorCarga("");
       
       try {
-        // Obtener CSRF token para autenticación
+
         await axios.get(`${API_URL}/api/sanctum/csrf-cookie`, {
           withCredentials: true,
         });
         
         const csrfToken = Cookies.get('XSRF-TOKEN');
-        
-        // Configurar headers para la solicitud
+
         const config = {
           headers: {
             'X-XSRF-TOKEN': csrfToken,
@@ -187,8 +177,7 @@ const SelectorAreaGrado = () => {
           },
           withCredentials: true
         };
-        
-        // Usar la ruta correcta según web.php (protegida por middleware)
+
         const response = await axios.get(`${API_URL}/getOlimpiadas`, config);
         
         if (response.status === 200) {
@@ -235,17 +224,14 @@ const SelectorAreaGrado = () => {
       );
       setNombreOlimpiada(olimpiada ? olimpiada.titulo : "");
       
-      // Verificar si la olimpiada tiene inscripciones o período terminado
       verificarInscripciones(olimpiadaSeleccionada).then(resultado => {
         setOlimpiadaBloqueada(resultado.estaBloqueada);
         setCantidadInscripciones(resultado.cantidad);
-        // Agregar nuevos estados para manejar la información adicional
         setPeriodoTerminado(resultado.periodoTerminado);
         setRazonBloqueo(resultado.razonBloqueo);
         setFechaFin(resultado.fechaFin);
       });
-      
-      // Cargar áreas ya asociadas a esta olimpiada
+
       cargarAreasAsociadas(olimpiadaSeleccionada);
     } else {
       setNombreOlimpiada("");
@@ -254,7 +240,6 @@ const SelectorAreaGrado = () => {
       setPeriodoTerminado(false);
       setRazonBloqueo(null);
       
-      // Restablecer todas las áreas a no habilitadas cuando no hay olimpiada seleccionada
       setCombinaciones(prev => 
         prev.map(combo => ({...combo, habilitado: false}))
       );
@@ -265,14 +250,12 @@ const SelectorAreaGrado = () => {
     setCargandoAreas(true);
     
     try {
-      // Obtener CSRF token para autenticación
       await axios.get(`${API_URL}/api/sanctum/csrf-cookie`, {
         withCredentials: true,
       });
       
       const csrfToken = Cookies.get('XSRF-TOKEN');
-      
-      // Configurar headers para la solicitud
+
       const config = {
         headers: {
           'X-XSRF-TOKEN': csrfToken,
@@ -284,20 +267,16 @@ const SelectorAreaGrado = () => {
       
       const response = await axios.get(`${API_URL}/areas-olimpiada/${idOlimpiada}`, config);
       
-      console.log("Áreas asociadas:", response.data);
-      
       if (response.status === 200 && response.data.data) {
         const areasAsociadas = response.data.data;
-        
-        // Función auxiliar para normalizar nombres
+
         const normalizarNombre = (nombre) => {
           if (!nombre) return '';
           return nombre.toUpperCase()
             .normalize("NFD").replace(/[\u0300-\u036f]/g, "") 
             .replace(/[^A-Z0-9\s\-]/g, ""); 
         };
-        
-        // Crear un mapa de áreas asociadas normalizadas para búsqueda eficiente
+
         const areasNormalizadasMap = new Map();
         
         areasAsociadas.forEach(area => {
@@ -311,9 +290,7 @@ const SelectorAreaGrado = () => {
             const areaAsociada = areasNormalizadasMap.get(nombreNormalizado);
             
             if (areaAsociada) {
-              console.log(`✅ COINCIDENCIA ENCONTRADA para "${combo.area}"`);
-              
-              // Usar las categorías del backend
+   
               return {
                 ...combo,
                 habilitado: true,
@@ -321,7 +298,6 @@ const SelectorAreaGrado = () => {
                 categorias: areaAsociada.categorias || []
               };
             } else {
-              console.log(`❌ NO HAY COINCIDENCIA para "${combo.area}"`);
               return {
                 ...combo,
                 habilitado: false,
@@ -368,15 +344,11 @@ const SelectorAreaGrado = () => {
       mostrarAlerta("Olimpiada bloqueada", mensaje, "error");
       return;
     }
-
-    // Validar que haya al menos un área habilitada
     const areasHabilitadas = combinaciones.filter(combo => combo.habilitado);
     if (areasHabilitadas.length === 0) {
       mostrarAlerta("Áreas requeridas", "Debe habilitar al menos un área de competencia", "warning");
       return;
     }
-    
-    // Validar que todas las áreas tengan categorías
     const areasSinCategorias = areasHabilitadas.filter(combo => 
       !combo.categorias || combo.categorias.length === 0
     );
@@ -391,14 +363,11 @@ const SelectorAreaGrado = () => {
       );
       return;
     }
-
-    // Verificar categorías duplicadas
     let tieneCategoriaDuplicada = false;
     let areaDuplicada = "";
     let categoriaDuplicada = "";
     
     areasHabilitadas.forEach(combo => {
-      // Crear un conjunto para rastrear categorías únicas
       const categoriasVistas = new Set();
       
       combo.categorias.forEach(cat => {
@@ -420,8 +389,6 @@ const SelectorAreaGrado = () => {
       );
       return;
     }
-
-    // Mostrar confirmación antes de guardar
     mostrarConfirmacion(
       "Confirmar guardado",
       `¿Está seguro que desea guardar la configuración de áreas para la olimpiada "${nombreOlimpiada}"?\n\nSe asociarán ${areasHabilitadas.length} área(s) de competencia.`,
@@ -437,14 +404,12 @@ const SelectorAreaGrado = () => {
     setGuardando(true);
 
     try {
-      // Obtener CSRF token para autenticación
       await axios.get(`${API_URL}/api/sanctum/csrf-cookie`, {
         withCredentials: true,
       });
       
       const csrfToken = Cookies.get('XSRF-TOKEN');
       
-      // Configurar headers para la solicitud
       const config = {
         headers: {
           'X-XSRF-TOKEN': csrfToken,
@@ -454,13 +419,11 @@ const SelectorAreaGrado = () => {
         withCredentials: true
       };
       
-      // Preparar datos para enviar
       const datosAEnviar = {
         id_olimpiada: olimpiadaSeleccionada,
         areas: combinaciones
           .filter(combo => combo.habilitado)
           .map((combo) => {
-            // Transformar las categorías al formato esperado por el backend
             const categoriasFormateadas = combo.categorias.map(cat => ({
               nivel: cat.nombre,
               desde: cat.desde,
@@ -474,10 +437,6 @@ const SelectorAreaGrado = () => {
             };
           })
       };
-
-      console.log("Guardando configuración:", datosAEnviar);
-
-      // Enviar la solicitud al servidor
       const response = await axios.post(
         `${API_URL}/asociar-areas-olimpiada`,
         datosAEnviar,
@@ -488,7 +447,6 @@ const SelectorAreaGrado = () => {
         setMensajeExito("¡Áreas asociadas exitosamente!");
         setTimeout(() => setMensajeExito(""), 3000);
         setTimeout(() => mostrarProgreso(olimpiadaSeleccionada, nombreOlimpiada), 1000);
-        // Recargar las áreas para mostrar el estado actualizado
         cargarAreasAsociadas(olimpiadaSeleccionada);
       } else {
         throw new Error("Error al guardar la configuración");
@@ -531,7 +489,6 @@ const SelectorAreaGrado = () => {
       />
 
       <div className="bg-gray-100 p-4 rounded-lg shadow-md">
-        {/* Mostrar alerta si la olimpiada está bloqueada */}
         {olimpiadaBloqueada && (
           <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
             <div className="flex items-center">
@@ -594,7 +551,6 @@ const SelectorAreaGrado = () => {
         )}
       </div>
 
-      {/* Modales */}
       {modalEstado.tipo === 'alerta' && (
         <ModalAlerta
           isOpen={modalEstado.isOpen}

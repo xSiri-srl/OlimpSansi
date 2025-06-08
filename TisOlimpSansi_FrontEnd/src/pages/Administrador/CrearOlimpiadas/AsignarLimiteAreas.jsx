@@ -4,14 +4,14 @@ import HeaderSelector from "./AreasCompetencia/HeaderSelector";
 import AccionesFooter from "./AreasCompetencia/AccionesFooter";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { API_URL } from "../../../utils/api";
-import { useVerificarInscripciones } from "../../Administrador/useVerificarInscripciones";
+import { useVerificarInscripciones } from "../useVerificarInscripciones";
 import axios from "axios";
 import ModalConfirmacion from "./Modales/ModalConfirmacion";
 import ModalAlerta from "./Modales/ModalAlerta";
 import { useNotificarProgreso } from "./hooks/useNotificarProgreso";
 import ModalTareasPendientes from "./Modales/ModalTareasPendientes";
 
-const AsociarLimiteAreas = () => {
+const AsignarLimiteAreas = () => {
   const [olimpiadas, setOlimpiadas] = useState([]);
   const [olimpiadaSeleccionada, setOlimpiadaSeleccionada] = useState("");
   const [nombreOlimpiada, setNombreOlimpiada] = useState("");
@@ -29,9 +29,8 @@ const AsociarLimiteAreas = () => {
 
   const { verificarInscripciones, verificando } = useVerificarInscripciones();
 
-  // Estados para modales
   const [modalEstado, setModalEstado] = useState({
-    tipo: null, // 'confirmacion', 'alerta'
+    tipo: null, 
     titulo: "",
     mensaje: "",
     isOpen: false,
@@ -39,7 +38,6 @@ const AsociarLimiteAreas = () => {
     datos: null
   });
 
-  // Función para cerrar modal
   const cerrarModal = () => {
     setModalEstado({
       tipo: null,
@@ -51,7 +49,6 @@ const AsociarLimiteAreas = () => {
     });
   };
 
-  // Función para mostrar alerta
   const mostrarAlerta = (titulo, mensaje, tipo = "error") => {
     setModalEstado({
       tipo: 'alerta',
@@ -64,7 +61,6 @@ const AsociarLimiteAreas = () => {
     });
   };
 
-  // Función para mostrar confirmación
   const mostrarConfirmacion = (titulo, mensaje, onConfirm, tipo = "warning") => {
     setModalEstado({
       tipo: 'confirmacion',
@@ -77,7 +73,6 @@ const AsociarLimiteAreas = () => {
     });
   };
 
-  // Función para obtener el mensaje de bloqueo apropiado
   const obtenerMensajeBloqueo = () => {
     switch(razonBloqueo) {
       case 'inscripciones_y_periodo':
@@ -91,7 +86,6 @@ const AsociarLimiteAreas = () => {
     }
   };
 
-  // Cargar lista de olimpiadas al montar el componente
   useEffect(() => {
     const cargarOlimpiadas = async () => {
       setCargandoOlimpiadas(true);
@@ -152,7 +146,6 @@ const AsociarLimiteAreas = () => {
     cargarOlimpiadas();
   }, []);
 
-  // Cargar nombre y número máximo de áreas cuando cambia la olimpiada seleccionada
   useEffect(() => {
     if (olimpiadaSeleccionada) {
       const olimpiada = olimpiadas.find(
@@ -160,7 +153,6 @@ const AsociarLimiteAreas = () => {
       );
       setNombreOlimpiada(olimpiada ? olimpiada.titulo : "");
 
-      // Verificar si la olimpiada tiene inscripciones o período terminado
       verificarInscripciones(olimpiadaSeleccionada).then(resultado => {
         setOlimpiadaBloqueada(resultado.estaBloqueada);
         setCantidadInscripciones(resultado.cantidad);
@@ -187,15 +179,13 @@ const AsociarLimiteAreas = () => {
           };
           
           const response = await axios.get(`${API_URL}/olimpiada/${olimpiadaSeleccionada}`, config);
-          
-          console.log("Respuesta de max_materias:", response.data); // Para depuración
-          
+     
           if (response.status === 200 && response.data) {
             const maxMaterias = Number(response.data.max_materias);
             if (maxMaterias !== null && maxMaterias !== undefined) {
               setContador(Number(maxMaterias));
             } else {
-              setContador(1); // Valor por defecto para UI solamente
+              setContador(1);
             }
           }
         } catch (error) {
@@ -215,15 +205,12 @@ const AsociarLimiteAreas = () => {
       setFechaFin(null);
     }
   }, [olimpiadaSeleccionada, olimpiadas]);
-
-  // Guardar configuración de número máximo de áreas
   const guardarConfiguracion = async () => {
     if (!olimpiadaSeleccionada) {
       mostrarAlerta("Error", "Por favor seleccione una olimpiada", "warning");
       return;
     }
 
-    // Verificar si la olimpiada tiene inscripciones o período terminado antes de proceder
     if (olimpiadaBloqueada) {
       let mensaje = "No se pueden realizar cambios en esta olimpiada.";
       
@@ -243,7 +230,6 @@ const AsociarLimiteAreas = () => {
       return;
     }
 
-    // Mostrar confirmación antes de guardar
     mostrarConfirmacion(
       "Confirmar cambio de límite",
       `¿Está seguro que desea establecer el límite de áreas por participante en ${contador} ${contador === 1 ? 'área' : 'áreas'} para la olimpiada "${nombreOlimpiada}"?`,
@@ -274,15 +260,12 @@ const AsociarLimiteAreas = () => {
         },
         withCredentials: true
       };
-      
-      // Usar el formato original que funcionaba
+
       const datosAEnviar = {
         id: parseInt(olimpiadaSeleccionada),
         numMax: contador,
       };
-
-      console.log("Datos a enviar:", datosAEnviar); // Para depuración
-      
+    
       const response = await axios.post(
         `${API_URL}/olimpiada/max-materias`,
         datosAEnviar,
@@ -329,14 +312,12 @@ const AsociarLimiteAreas = () => {
     }
   };
 
-  // Incrementar el contador
   const incrementar = () => {
     if (contador < 7 && !olimpiadaBloqueada) {
       setContador(contador + 1);
     }
   };
 
-  // Decrementar el contador
   const decrementar = () => {
     if (contador > 1 && !olimpiadaBloqueada) {
       setContador(contador - 1);
@@ -357,7 +338,6 @@ const AsociarLimiteAreas = () => {
       />
 
       <div className="bg-gray-100 p-4 rounded-lg shadow-md">
-        {/* Mostrar alerta si la olimpiada está bloqueada */}
         {olimpiadaBloqueada && (
           <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
             <div className="flex items-center">
@@ -395,7 +375,6 @@ const AsociarLimiteAreas = () => {
             </div>
 
             <div className="flex items-center justify-center space-x-8">
-              {/* Botón para decrementar */}
               <button
                 onClick={decrementar}
                 disabled={contador === 1 || olimpiadaBloqueada}
@@ -407,8 +386,6 @@ const AsociarLimiteAreas = () => {
               >
                 <FaChevronLeft size={20} />
               </button>
-
-              {/* Contador central */}
               <div className="flex flex-col items-center">
                 <div className="text-6xl font-bold text-blue-600 mb-2 min-w-[80px] text-center">
                   {contador}
@@ -417,8 +394,6 @@ const AsociarLimiteAreas = () => {
                   {contador === 1 ? "área" : "áreas"}
                 </div>
               </div>
-
-              {/* Botón para incrementar */}
               <button
                 onClick={incrementar}
                 disabled={contador === 7 || olimpiadaBloqueada}
@@ -431,8 +406,6 @@ const AsociarLimiteAreas = () => {
                 <FaChevronRight size={20} />
               </button>
             </div>
-
-            {/* Indicadores de puntos */}
             <div className="flex space-x-2 mt-6">
               {[1, 2, 3, 4, 5, 6, 7].map((num) => (
                 <div
@@ -464,7 +437,6 @@ const AsociarLimiteAreas = () => {
         />
       </div>
 
-      {/* Modales */}
       {modalEstado.tipo === 'alerta' && (
         <ModalAlerta
           isOpen={modalEstado.isOpen}
@@ -497,4 +469,4 @@ const AsociarLimiteAreas = () => {
   );
 };
 
-export default AsociarLimiteAreas;
+export default AsignarLimiteAreas;

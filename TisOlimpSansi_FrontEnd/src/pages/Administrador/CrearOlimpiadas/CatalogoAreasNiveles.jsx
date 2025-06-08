@@ -1,9 +1,4 @@
-/**
- * Definición de todas las categorías por área.
- * Centralizado para mantener consistencia en toda la aplicación.
- */
-
-export const todasLasCategoriasPorArea = {
+export const CatalogoAreasNiveles = {
   "Astronomía-Astrofísica": [
     { nombre: "1P", desde: "1ro Primaria", hasta: "1ro Primaria" },
     { nombre: "2P", desde: "2do Primaria", hasta: "2do Primaria" },
@@ -84,10 +79,6 @@ export const todasLasCategoriasPorArea = {
   ]
 };
 
-/**
- * Catálogo de todas las categorías con sus rangos correspondientes.
- * Utilizado para mapeo y referencias rápidas.
- */
 export const categoriasPredefinidasMap = {
   "1P": { nombre: "1P", desde: "1ro Primaria", hasta: "1ro Primaria" },
   "2P": { nombre: "2P", desde: "2do Primaria", hasta: "2do Primaria" },

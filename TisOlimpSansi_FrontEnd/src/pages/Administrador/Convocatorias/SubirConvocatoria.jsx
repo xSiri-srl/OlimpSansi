@@ -87,7 +87,6 @@ const SubirConvocatoria = () => {
   const handlePublicar = async () => {
     if (!validarCampos()) return;
   
-    // Since we're now using IDs directly, we don't need to find the area
     const id_area = area;
     
     const yaExiste = await existeConvocatoria(id_area);
@@ -100,7 +99,7 @@ const SubirConvocatoria = () => {
           const idConvocatoria = yaExiste.data.id;
           const formData = new FormData();
           formData.append("titulo", titulo);
-          formData.append("id_area", id_area); // Use id_area directly
+          formData.append("id_area", id_area); 
           if (documento instanceof File) {
             formData.append("documento_pdf", documento);
           }
@@ -129,7 +128,7 @@ const SubirConvocatoria = () => {
   
     const formData = new FormData();
     formData.append("titulo", titulo.trim());
-    formData.append("id_area", id_area); // Use id_area directly
+    formData.append("id_area", id_area); 
     formData.append("documento_pdf", documento);
 
     try {

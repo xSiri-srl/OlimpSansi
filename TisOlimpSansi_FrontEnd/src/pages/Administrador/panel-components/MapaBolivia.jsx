@@ -68,17 +68,16 @@ const MapaBolivia = ({ darkMode }) => {
     useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [tipoInscripcion, setTipoInscripcion] = useState("inscritos"); // inscritos o preinscritos
+  const [tipoInscripcion, setTipoInscripcion] = useState("inscritos"); 
 
   useEffect(() => {
     fetchDepartamentoData();
-  }, [tipoInscripcion]); // Re-fetch cuando cambia el tipo de inscripción
+  }, [tipoInscripcion]); 
 
   const fetchDepartamentoData = async () => {
     try {
       setLoading(true);
 
-      // Lista de departamentos de Bolivia
       const departamentos = [
         "La Paz",
         "Cochabamba",
@@ -91,7 +90,6 @@ const MapaBolivia = ({ darkMode }) => {
         "Pando",
       ];
 
-      // Mapeo de nombres de departamentos a IDs usados en el componente
       const departamentoToId = {
         "La Paz": "BOL.LA_PAZ",
         Cochabamba: "BOL.COCHABAMBA",
@@ -104,13 +102,11 @@ const MapaBolivia = ({ darkMode }) => {
         Pando: "BOL.PANDO",
       };
 
-      // Seleccionar endpoint según tipo de inscripción
       const endpoint =
         tipoInscripcion === "inscritos"
           ? "/api/estudiantes/inscritos/departamento"
           : "/api/estudiantes/preinscritos/departamento";
 
-      // Hacer solicitudes para cada departamento
       const promises = departamentos.map(async (departamento) => {
         const response = await axios.post(`${API_URL}${endpoint}`, {
           departamento,
@@ -166,7 +162,6 @@ const MapaBolivia = ({ darkMode }) => {
           Distribución de Estudiantes por Departamento
         </h3>
 
-        {/* Toggle para cambiar entre inscritos y pre-inscritos */}
         <div className="flex justify-center mt-2 mb-3">
           <div
             className={`inline-flex rounded-md shadow-sm ${
@@ -216,30 +211,26 @@ const MapaBolivia = ({ darkMode }) => {
         </p>
       </div>
 
-      {/* Mapa simplificado de Bolivia */}
       <div className="grid grid-cols-3 gap-2 h-[300px]">
         {inscripcionesPorDepartamento.map((dept) => {
           const nombreDep =
             boliviaGeoFeatures.features.find((f) => f.id === dept.id)
               ?.properties?.name || "";
 
-          // Encontrar el valor máximo para normalizar la intensidad
           const maxValue = Math.max(
             ...inscripcionesPorDepartamento.map((d) => d.value),
             1
           );
 
-          // Normalizar la intensidad basada en el valor máximo (mínimo 20%, máximo 100%)
           const intensity =
             maxValue > 0
               ? Math.min(100, Math.max(20, (dept.value / maxValue) * 100))
-              : 20; // Valor por defecto si no hay inscritos
+              : 20; 
 
-          // Color según tipo de inscripción
           const colorBase =
             tipoInscripcion === "inscritos"
-              ? "rgba(37, 99, 235, " // Azul para inscritos
-              : "rgba(234, 88, 12, "; // Naranja para pre-inscritos
+              ? "rgba(37, 99, 235, " 
+              : "rgba(234, 88, 12, "; 
 
           const bgColor = darkMode
             ? tipoInscripcion === "inscritos"

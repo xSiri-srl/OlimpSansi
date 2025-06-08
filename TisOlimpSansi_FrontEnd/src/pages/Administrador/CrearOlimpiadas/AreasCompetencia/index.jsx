@@ -80,7 +80,6 @@ const AreasCompetenciaManager = () => {
     return;
   }
     areasHabilitadas.forEach(combo => {
-    // Crear un conjunto para rastrear categorías únicas
     const categoriasVistas = new Set();
     
     combo.categorias.forEach(cat => {
@@ -155,17 +154,11 @@ const AreasCompetenciaManager = () => {
         return comboCopia;
       });
 
-      console.log("Guardando configuración:", {
-        id_olimpiada: olimpiadaSeleccionada,
-        combinaciones: datosAEnviar,
-      });
-
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       setMensajeExito("¡Configuración guardada exitosamente!");
       setTimeout(() => setMensajeExito(""), 3000);
     } catch (error) {
-      console.error("Error al guardar:", error);
       alert("Error al guardar la configuración");
     } finally {
       setGuardando(false);

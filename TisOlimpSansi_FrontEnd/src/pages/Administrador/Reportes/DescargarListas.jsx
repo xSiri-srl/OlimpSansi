@@ -131,7 +131,7 @@ function DescargarListas() {
     const doc = new jsPDF({
       orientation: "landscape",
       unit: "mm",
-      format: [260, 406], // tamaño de las tablas en el doc
+      format: [260, 406],
     });
 
     doc.text("Lista de Inscritos", 14, 10);
@@ -190,7 +190,7 @@ function DescargarListas() {
   };
 
   const descargarExcel = () => {
-    setCargandoExcel(true); // Activa animación
+    setCargandoExcel(true);
 
     const ws = XLSX.utils.json_to_sheet(resultadosFiltrados);
     const wb = XLSX.utils.book_new();
@@ -203,12 +203,12 @@ function DescargarListas() {
     saveAs(blob, generarNombreArchivo("xlsx"));
 
     setTimeout(() => {
-      setCargandoExcel(false); // Finaliza animación
+      setCargandoExcel(false); 
     }, 1000);
   };
 
   const generarNombreArchivo = (tipo) => {
-    const fechaActual = new Date().toISOString().slice(0, 10); // formato YYYY-MM-DD
+    const fechaActual = new Date().toISOString().slice(0, 10); 
     const nombreArea = area || "todas-las-areas";
     const nombreCategoria = categoria || "todas-las-categorias";
 
@@ -355,7 +355,7 @@ function DescargarListas() {
               value={departamentoSeleccionado}
               onChange={(e) => {
                 setDepartamentoSeleccionado(e.target.value);
-                setProvinciaSeleccionada(""); // resetea provincia si cambia departamento
+                setProvinciaSeleccionada(""); 
               }}
               className="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm text-gray-700"
             >

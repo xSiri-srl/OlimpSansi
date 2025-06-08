@@ -5,13 +5,13 @@ import HeaderSelector from "./AreasCompetencia/HeaderSelector";
 import AreaCosto from "./AreasCompetencia/AreaCosto";
 import AccionesFooter from "./AreasCompetencia/AccionesFooter";
 import { API_URL } from "../../../utils/api";
-import { useVerificarInscripciones } from "../../Administrador/useVerificarInscripciones";
+import { useVerificarInscripciones } from "../useVerificarInscripciones";
 import ModalConfirmacion from "./Modales/ModalConfirmacion";
 import ModalAlerta from "./Modales/ModalAlerta";
 import { useNotificarProgreso } from "./hooks/useNotificarProgreso";
 import ModalTareasPendientes from "./Modales/ModalTareasPendientes";
 
-const AsociarCosto = () => {
+const AsignarCosto = () => {
   const [olimpiadas, setOlimpiadas] = useState([]);
   const [olimpiadaSeleccionada, setOlimpiadaSeleccionada] = useState("");
   const [nombreOlimpiada, setNombreOlimpiada] = useState("");
@@ -30,9 +30,8 @@ const AsociarCosto = () => {
 
   const { verificarInscripciones, verificando } = useVerificarInscripciones();
 
-  // Estados para modales
   const [modalEstado, setModalEstado] = useState({
-    tipo: null, // 'confirmacion', 'alerta'
+    tipo: null, 
     titulo: "",
     mensaje: "",
     isOpen: false,
@@ -40,7 +39,6 @@ const AsociarCosto = () => {
     datos: null
   });
 
-  // Función para cerrar modal
   const cerrarModal = () => {
     setModalEstado({
       tipo: null,
@@ -52,7 +50,6 @@ const AsociarCosto = () => {
     });
   };
 
-  // Función para mostrar alerta
   const mostrarAlerta = (titulo, mensaje, tipo = "error") => {
     setModalEstado({
       tipo: 'alerta',
@@ -65,7 +62,6 @@ const AsociarCosto = () => {
     });
   };
 
-  // Función para mostrar confirmación
   const mostrarConfirmacion = (titulo, mensaje, onConfirm, tipo = "warning") => {
     setModalEstado({
       tipo: 'confirmacion',
@@ -78,7 +74,6 @@ const AsociarCosto = () => {
     });
   };
 
-  // Función para obtener el mensaje de bloqueo apropiado
   const obtenerMensajeBloqueo = () => {
     switch(razonBloqueo) {
       case 'inscripciones_y_periodo':
@@ -92,7 +87,6 @@ const AsociarCosto = () => {
     }
   };
 
-  // Cargar la lista de olimpiadas disponibles
   useEffect(() => {
     const cargarOlimpiadas = async () => {
       setCargandoOlimpiadas(true);
@@ -127,24 +121,6 @@ const AsociarCosto = () => {
         } else {
           throw new Error("Error en la respuesta del servidor");
         }
-      } catch (error) {
-        console.error("Error al cargar olimpiadas:", error);
-        
-        let mensajeError = "Error al conectar con el servidor.";
-        
-        if (error.response) {
-          if (error.response.status === 401) {
-            mensajeError = "No tienes autorización para acceder a esta información.";
-          } else if (error.response.status === 403) {
-            mensajeError = "No tienes permisos suficientes para ver las olimpiadas.";
-          } else {
-            mensajeError = `Error ${error.response.status}: ${error.response.data?.message || "Error del servidor"}`;
-          }
-        } else if (error.message) {
-          mensajeError = error.message;
-        }
-        
-        setErrorCarga(mensajeError);
       } finally {
         setCargandoOlimpiadas(false);
       }
@@ -153,15 +129,13 @@ const AsociarCosto = () => {
     cargarOlimpiadas();
   }, []);
 
-  // Actualizar nombre de olimpiada cuando se selecciona una
   useEffect(() => {
     if (olimpiadaSeleccionada) {
       const olimpiada = olimpiadas.find(
         (o) => o.id.toString() === olimpiadaSeleccionada
       );
       setNombreOlimpiada(olimpiada ? olimpiada.titulo : "");
-      
-      // Verificar si la olimpiada tiene inscripciones o período terminado
+ 
       verificarInscripciones(olimpiadaSeleccionada).then(resultado => {
         setOlimpiadaBloqueada(resultado.estaBloqueada);
         setCantidadInscripciones(resultado.cantidad);
@@ -169,8 +143,7 @@ const AsociarCosto = () => {
         setRazonBloqueo(resultado.razonBloqueo);
         setFechaFin(resultado.fechaFin);
       });
-      
-      // Cargar las áreas asociadas a esta olimpiada
+
       cargarAreasAsociadas(olimpiadaSeleccionada);
     } else {
       setNombreOlimpiada("");
@@ -183,7 +156,6 @@ const AsociarCosto = () => {
     }
   }, [olimpiadaSeleccionada, olimpiadas]);
 
-  // Función para cargar las áreas ya asociadas a una olimpiada
   const cargarAreasAsociadas = async (idOlimpiada) => {
     setCargando(true);
     try {
@@ -204,12 +176,9 @@ const AsociarCosto = () => {
       
       const response = await axios.get(`${API_URL}/areas-olimpiada/${idOlimpiada}`, config);
       
-      console.log("Áreas asociadas:", response.data);
-      
       if (response.status === 200 && response.data.data) {
         setAreasAsociadas(response.data.data.map(area => ({
           ...area,
-          // Asegurar que costoInscripcion sea un string vacío o el valor existente
           costoInscripcion: area.costoInscripcion !== null && area.costoInscripcion !== undefined ? 
             area.costoInscripcion.toString() : 
             ""
@@ -218,14 +187,12 @@ const AsociarCosto = () => {
         throw new Error("Error al obtener áreas asociadas");
       }
     } catch (error) {
-      console.error("Error al cargar áreas asociadas:", error);
       mostrarAlerta("Error", "Error al cargar las áreas asociadas a la olimpiada", "error");
     } finally {
       setCargando(false);
     }
   };
 
-  // Actualizar el costo de un área
   const actualizarCosto = (areaId, nuevoCosto) => {
     if (olimpiadaBloqueada) {
       let mensaje = "No se pueden realizar cambios en esta olimpiada.";
@@ -255,14 +222,12 @@ const AsociarCosto = () => {
     );
   };
 
-  // Guardar todas las configuraciones de costo
   const guardarConfiguracion = async () => {
     if (!olimpiadaSeleccionada) {
       mostrarAlerta("Error", "Por favor seleccione una olimpiada", "warning");
       return;
     }
 
-    // Verificar si la olimpiada tiene inscripciones o período terminado antes de proceder
     if (olimpiadaBloqueada) {
       let mensaje = "No se pueden realizar cambios en esta olimpiada.";
       
@@ -282,7 +247,6 @@ const AsociarCosto = () => {
       return;
     }
 
-    // Mostrar confirmación antes de guardar
     const totalAreas = areasAsociadas.length;
     const areasConCosto = areasAsociadas.filter(area => area.costoInscripcion && parseFloat(area.costoInscripcion) > 0).length;
     
@@ -307,8 +271,7 @@ const AsociarCosto = () => {
       
       const csrfToken = Cookies.get('XSRF-TOKEN');
       axios.defaults.headers.common['X-XSRF-TOKEN'] = csrfToken;
-      
-      // Preparar datos para enviar - solo enviamos los datos de costo
+  
       const datosAEnviar = {
         id_olimpiada: olimpiadaSeleccionada,
         areas: areasAsociadas.map(area => ({
@@ -316,9 +279,6 @@ const AsociarCosto = () => {
           costoInscripcion: area.costoInscripcion || "0"
         }))
       };
-
-      console.log("Guardando configuración de costos:", datosAEnviar);
-
       const response = await axios.post(
         `${API_URL}/actualizar-costos-olimpiada`,
         datosAEnviar,
@@ -328,15 +288,13 @@ const AsociarCosto = () => {
       if (response.status === 200) {
         setMensajeExito("¡Costos asignados exitosamente!");
         setTimeout(() => setMensajeExito(""), 3000);
-        
-        // Recargar áreas para mostrar datos actualizados
+
         cargarAreasAsociadas(olimpiadaSeleccionada);
         setTimeout(() => mostrarProgreso(olimpiadaSeleccionada, nombreOlimpiada), 1000);
       } else {
         throw new Error("Error al guardar los costos");
       }
     } catch (error) {
-      console.error("Error al guardar costos:", error);
       let mensaje = "Error al guardar la configuración de costos";
       
       if (error.response) {
@@ -384,7 +342,6 @@ const AsociarCosto = () => {
       />
 
       <div className="bg-gray-100 p-4 rounded-lg shadow-md">
-        {/* Mostrar alerta si la olimpiada está bloqueada */}
         {olimpiadaBloqueada && (
           <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
             <div className="flex items-center">
@@ -434,11 +391,11 @@ const AsociarCosto = () => {
           guardando={guardando}
           mensajeExito={mensajeExito}
           textoBoton="Guardar Costos"
-          bloqueado={olimpiadaBloqueada} // Pasar estado de bloqueo
+          bloqueado={olimpiadaBloqueada} 
+          
         />
       </div>
 
-      {/* Modales */}
       {modalEstado.tipo === 'alerta' && (
         <ModalAlerta
           isOpen={modalEstado.isOpen}
@@ -472,4 +429,4 @@ const AsociarCosto = () => {
   );
 };
 
-export default AsociarCosto;
+export default AsignarCosto;
