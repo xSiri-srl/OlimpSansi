@@ -100,43 +100,44 @@ const SelectorAreaGrado = () => {
     }
   };
 
-  const [combinaciones, setCombinaciones] = useState([
-    {
-      area: "Astronomía-Astrofísica",
-      habilitado: false,
-      categorias: []
-    },
-    {
-      area: "Biología",
-      habilitado: false,
-      categorias: []
-    },
-    {
-      area: "Física",
-      habilitado: false,
-      categorias: []
-    },
-    {
-      area: "Informática",
-      habilitado: false,
-      categorias: []
-    },
-    {
-      area: "Matemáticas",
-      habilitado: false,
-      categorias: []
-    },
-    {
-      area: "Química",
-      habilitado: false,
-      categorias: []
-    },
-    {
-      area: "Robótica",
-      habilitado: false,
-      categorias: []
-    },
-  ]);
+const [combinaciones, setCombinaciones] = useState([
+  {
+    area: "ASTRONOMIA Y ASTROFISICA",
+    habilitado: false,
+    categorias: []
+  },
+  {
+    area: "BIOLOGIA",
+    habilitado: false,
+    categorias: []
+  },
+  {
+    area: "FISICA",
+    habilitado: false,
+    categorias: []
+  },
+  {
+    area: "INFORMATICA",
+    habilitado: false,
+    categorias: []
+  },
+  {
+    area: "MATEMATICAS",
+    habilitado: false,
+    categorias: []
+  },
+  {
+    area: "QUIMICA",
+    habilitado: false,
+    categorias: []
+  },
+  {
+    area: "ROBOTICA",
+    habilitado: false,
+    categorias: []
+  },
+]);
+
 
   useEffect(() => {
     const cargarGrados = async () => {

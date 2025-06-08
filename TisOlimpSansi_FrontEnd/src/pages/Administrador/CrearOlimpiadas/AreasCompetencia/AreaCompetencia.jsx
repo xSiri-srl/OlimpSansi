@@ -46,13 +46,13 @@ const AreaCompetencia = ({
   };
   const getAreaImage = (area) => {
     const imageMap = {
-      "Matemáticas": "/images/matematicaas.png",
-      "Física": "/images/fisica.png",
-      "Química": "/images/quimica.png",
-      "Biología": "/images/biologia.png",
-      "Informática": "/images/informatica.png",
-      "Robótica": "/images/robotica.png",
-      "Astronomía-Astrofísica": "/images/astronomia.png",
+      "MATEMATICAS": "/images/matematicaas.png",
+      "FISICA": "/images/fisica.png",
+      "QUIMICA": "/images/quimica.png",
+      "BIOLOGIA": "/images/biologia.png",
+      "INFORMATICA": "/images/informatica.png",
+      "ROBOTICA": "/images/robotica.png",
+      "ASTRONOMIA Y ASTROFISICA": "/images/astronomia.png",
     };
     
     return imageMap[area] || "/placeholder.svg";
