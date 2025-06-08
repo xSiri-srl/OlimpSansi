@@ -5,23 +5,23 @@ import ModalCosto from "./ModalCosto";
 const AreaCosto = ({ area, actualizarCosto }) => {
   const [modalCostoOpen, setModalCostoOpen] = useState(false);
   
-  const getAreaImage = (areaName) => {
-    if (!areaName) return "/placeholder.svg";
-    const normalizedName = String(areaName)
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")  
-      .replace(/[-_\s]+/g, " ")        
-      .trim();                          
+const getAreaImage = (areaName) => {
+  if (!areaName) return "/placeholder.svg";
+  const normalizedName = String(areaName)
+    .toUpperCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")  
+    .replace(/[-_\s]+/g, " ")        
+    .trim();                          
   
-    if (normalizedName.includes("matematica")) return "/images/matematicaas.png";
-    if (normalizedName.includes("fisica")) return "/images/fisica.png";
-    if (normalizedName.includes("quimica")) return "/images/quimica.png";
-    if (normalizedName.includes("biologia")) return "/images/biologia.png";
-    if (normalizedName.includes("informatica")) return "/images/informatica.png";
-    if (normalizedName.includes("robotica")) return "/images/robotica.png";
-    if (normalizedName.includes("astronom")) return "/images/astronomia.png";
-    return "/placeholder.svg";
+  if (normalizedName.includes("MATEMATICA")) return "/images/matematicaas.png";
+  if (normalizedName.includes("FISICA")) return "/images/fisica.png";
+  if (normalizedName.includes("QUIMICA")) return "/images/quimica.png";
+  if (normalizedName.includes("BIOLOGIA")) return "/images/biologia.png";
+  if (normalizedName.includes("INFORMATICA")) return "/images/informatica.png";
+  if (normalizedName.includes("ROBOTICA")) return "/images/robotica.png";
+  if (normalizedName.includes("ASTRONOM")) return "/images/astronomia.png";
+  return "/placeholder.svg";
   };
 
   const handleModalConfirm = (nuevoCosto) => {

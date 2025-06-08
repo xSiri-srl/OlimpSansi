@@ -93,50 +93,52 @@ const DesasignarAreaNivel = () => {
         return '';
     }
   };
-  const [combinaciones, setCombinaciones] = useState([
-    {
-      area: "Astronomía-Astrofísica",
-      habilitado: false,
-      categorias: [],
-      categoriasEliminadas: []
-    },
-    {
-      area: "Biología",
-      habilitado: false,
-      categorias: [],
-      categoriasEliminadas: []
-    },
-    {
-      area: "Física",
-      habilitado: false,
-      categorias: [],
-      categoriasEliminadas: []
-    },
-    {
-      area: "Informática",
-      habilitado: false,
-      categorias: [],
-      categoriasEliminadas: []
-    },
-    {
-      area: "Matemáticas",
-      habilitado: false,
-      categorias: [],
-      categoriasEliminadas: []
-    },
-    {
-      area: "Química",
-      habilitado: false,
-      categorias: [],
-      categoriasEliminadas: []
-    },
-    {
-      area: "Robótica",
-      habilitado: false,
-      categorias: [],
-      categoriasEliminadas: []
-    },
-  ]);
+
+const [combinaciones, setCombinaciones] = useState([
+  {
+    area: "ASTRONOMIA Y ASTROFISICA",
+    habilitado: false,
+    categorias: [],
+    categoriasEliminadas: []
+  },
+  {
+    area: "BIOLOGIA",
+    habilitado: false,
+    categorias: [],
+    categoriasEliminadas: []
+  },
+  {
+    area: "FISICA",
+    habilitado: false,
+    categorias: [],
+    categoriasEliminadas: []
+  },
+  {
+    area: "INFORMATICA",
+    habilitado: false,
+    categorias: [],
+    categoriasEliminadas: []
+  },
+  {
+    area: "MATEMATICAS",
+    habilitado: false,
+    categorias: [],
+    categoriasEliminadas: []
+  },
+  {
+    area: "QUIMICA",
+    habilitado: false,
+    categorias: [],
+    categoriasEliminadas: []
+  },
+  {
+    area: "ROBOTICA",
+    habilitado: false,
+    categorias: [],
+    categoriasEliminadas: []
+  },
+]);
+
   useEffect(() => {
     const cargarGrados = async () => {
       try {

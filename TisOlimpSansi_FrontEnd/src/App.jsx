@@ -150,7 +150,7 @@ export default function App() {
                   element={<AsignarLimiteAreas />}
                 />
                 <Route
-                  path="/admin/des-asignar-costo"
+                  path="/admin/desasignar-area-nivel"
                   element={<DesasignarAreaNivel />}
                 />
               </Route>
