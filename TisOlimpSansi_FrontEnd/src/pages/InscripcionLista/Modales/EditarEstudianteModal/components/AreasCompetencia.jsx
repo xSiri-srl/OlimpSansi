@@ -21,19 +21,12 @@ const AreasCompetencia = ({
     const obtenerAreasHabilitadas = async () => {
       try {
         const olimpiadaId = globalData.olimpiada;
-        const response = await axios.post(
-            `${API_URL}/api/curso-area-categoria-olimpiada`,
-            {
-              olimpiadaId: olimpiadaId
-            }
+        const response = await axios.get(
+            `${API_URL}/api/curso-area-categoria-por-olimpiada?id=${olimpiadaId}`
           );
 
         const data = response.data || {};
-        setGradoAreaCurso(data.gradoAreaCurso || {});
-        setGlobalData(prevState => ({
-          ...prevState,
-          gradoAreaCurso
-        }));
+        setGradoAreaCurso(data || {});
         setAreasLoaded(true);
       } catch (error) {
         console.error("Error obteniendo áreas habilitadas:", error);
@@ -46,7 +39,6 @@ const AreasCompetencia = ({
       obtenerAreasHabilitadas();
     }
   }, [globalData.olimpiada]);
-  console.log(globalData);
   // Obtener áreas disponibles para el curso del estudiante
   const areasDisponiblesPorCurso = useMemo(() => {
     const curso = estudianteData.colegio?.curso;

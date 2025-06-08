@@ -57,44 +57,5 @@ class CategoriaGradoController extends Controller
 
         return response()->json($resultado);
     }
-    public function obtenerCategoriasPorGradoPost(Request $request)
-{
-    $olimpiadaId = $request->olimpiadaId; // Cambié de $request->id a $request->olimpiadaId
-
-    $datos = OlimpiadaAreaCategoriaModel::with([
-        'area',
-        'categoria.grados' // Usando la relación belongsToMany correcta
-    ])->where('id_olimpiada', $olimpiadaId)->get();
-
-    $resultado = [];
-
-    foreach ($datos as $registro) {
-        $categoria = $registro->categoria;
-        $area = $registro->area;
-
-        // Verificar que existan los datos necesarios
-        if (!$categoria || !$area || !$categoria->grados) {
-            continue;
-        }
-
-        $nombreArea = $area->nombre_area;
-        $nombreCategoria = $categoria->nombre_categoria;
-
-        // Iterar sobre los grados relacionados con la categoría
-        foreach ($categoria->grados as $grado) {
-            $nombreGrado = $grado->nombre_grado;
-            
-            // Evitar duplicados en el array
-            if (!isset($resultado[$nombreGrado]['areas'][$nombreArea])) {
-                $resultado[$nombreGrado]['areas'][$nombreArea] = [];
-            }
-            
-            if (!in_array($nombreCategoria, $resultado[$nombreGrado]['areas'][$nombreArea])) {
-                $resultado[$nombreGrado]['areas'][$nombreArea][] = $nombreCategoria;
-            }
-        }
-    }
-
-    return response()->json($resultado);
-}
+  
 }
