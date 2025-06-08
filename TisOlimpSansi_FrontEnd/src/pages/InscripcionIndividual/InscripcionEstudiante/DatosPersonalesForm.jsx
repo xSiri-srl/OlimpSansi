@@ -26,7 +26,6 @@ export default function DatosPersonalesForm({
         Datos Personales
       </h2>
       <div className="space-y-4 w-full max-w-md">
-        {/* Campo de CI modificado */}
         <div className="relative">
           <TextField
             label="Carnet de Identidad"
@@ -47,7 +46,6 @@ export default function DatosPersonalesForm({
           )}
         </div>
 
-        {/* Mensaje informativo si encontramos estudiante */}
         {estudianteFound && (
           <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
             Estudiante encontrado en el sistema. Se han cargado los datos automáticamente.

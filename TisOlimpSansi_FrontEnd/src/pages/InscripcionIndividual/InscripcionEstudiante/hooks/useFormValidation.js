@@ -4,7 +4,6 @@ import { validateBirthDate } from "../../utils/dateValidation";
 export default function useFormValidation(formData, esNuevoColegio) {
   const [errors, setErrors] = useState({});
   
-  // Función para validar campos de entrada
   const validateInput = (value, fieldName, regex) => {
     if (!value) {
       setErrors((prev) => ({ ...prev, [fieldName]: "Campo obligatorio." }));
@@ -20,13 +19,11 @@ export default function useFormValidation(formData, esNuevoColegio) {
     return true;
   };
 
-  // Función para validar email
   const validateEmail = (email) => {
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return validateInput(email, "correo", emailRegex);
   };
 
-  // Verificar si el formulario es válido
   const isFormValid =
     formData.estudiante?.nombres &&
     formData.estudiante?.ci &&
@@ -46,7 +43,6 @@ export default function useFormValidation(formData, esNuevoColegio) {
     formData.estudiante?.colegio.length >= 2 &&
     formData.estudiante?.nombres.split(" ").length <= 2;
 
-  // Validar todos los campos y devolver si es válido
   const validateAllFields = () => {
     const isApellidoPaternoValid = validateInput(
       formData.estudiante?.apellidoPaterno,

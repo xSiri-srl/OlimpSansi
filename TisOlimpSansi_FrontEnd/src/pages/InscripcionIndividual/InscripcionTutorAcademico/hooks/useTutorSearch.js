@@ -36,7 +36,6 @@ export function useTutorSearch({ setTutoresPorArea, setErrors }) {
             [area]: true,
           }));
 
-          console.log("Tutor encontrado:", tutor);
         } else {
           setTutoresEncontrados((prev) => ({
             ...prev,

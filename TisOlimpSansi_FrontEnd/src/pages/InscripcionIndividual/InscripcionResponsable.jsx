@@ -33,23 +33,19 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
   }
 }, [olimpiada, gradoAreaCurso]);
 
-  console.log("global",globalData)
   const validateInput = (value, fieldName, regex, minWords = 1) => {
     const { isValid, errorMessage } = validateField(value, regex, minWords);
     setErrors((prev) => ({ ...prev, [fieldName]: errorMessage }));
     return isValid;
   };
 
-  // Función para buscar un responsable por CI en la base de datos
   const buscarResponsablePorCI = async (ci) => {
     if (ci?.length >= 7) {
       setIsSearching(true);
-      console.log("Buscando responsable con CI:", ci);
       
       try {
      
         const response = await axios.get(`${API_URL}/api/buscarResponsable/${ci}`);
-        console.log("Respuesta recibida:", response.data);
         
         if (response.data.found) {
           const responsable = response.data.responsable;
@@ -58,10 +54,8 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
           handleInputChange('responsable', 'apellidoMaterno', responsable.apellido_ma);
           setResponsableFound(true);
           
-          console.log("Responsable encontrado:", responsable);
         } else {
           setResponsableFound(false);
-          console.log("No se encontró responsable con ese CI");
         }
       } catch (error) {
         console.error("Error al buscar responsable:", error);
@@ -75,12 +69,10 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
     }
   };
   
-  // Manejador para cambios en el campo CI
   const handleCIChange = (value) => {
     handleInputChange("responsable", "ci", value);
     setErrors((prev) => ({ ...prev, ci: "" }));
     
-    // Si el CI tiene 7-8 dígitos, buscar en la base de datos
     if (value.length >= 7 && value.length <= 8) {
       buscarResponsablePorCI(value);
     } else if (value.length < 7) {
@@ -88,9 +80,7 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
     }
   };
 
-  // Manejador para enviar el formulario y avanzar
   const handleSubmitAndNext = () => {
-    // Validar todos los campos
     const isApellidoPaternoValid = validateInput(
       formData.responsable?.apellidoPaterno,
       "apellidoPaterno",
@@ -120,7 +110,6 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
       }));
     }
 
-    // Si algún campo no es válido, detener el proceso
     if (
       !isApellidoPaternoValid ||
       !isApellidoMaternoValid ||
@@ -133,7 +122,6 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
     setIsSubmitting(true);
 
     try {
-      // Actualizar el objeto global con los datos del responsable
       const updatedData = {
         ...globalData, 
         responsable_inscripcion: {
@@ -144,12 +132,8 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
         },
       };
 
-      // Guardar en el contexto global
       setGlobalData(updatedData);
 
-      console.log("Datos guardados en JSON:", updatedData);
-
-      // Continuar al siguiente paso
       handleNext();
     } catch (error) {
       console.error("Error al procesar los datos:", error);
@@ -161,7 +145,6 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
     }
   };
 
-  // Verificar si el formulario es válido para habilitar el botón
   const isFormValid =
     formData.responsable?.nombres &&
     formData.responsable?.ci &&
@@ -177,7 +160,6 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
   return (
     <div className="flex justify-center">
       <div className="w-full max-w-2xl">
-        {/* Título */}
         <div className="text-center mb-6">
           <h2 className="text-lg font-semibold mb-2 text-gray-500">
             Responsable de Registro
@@ -186,8 +168,7 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
             Estos datos corresponden a la persona que pagará en caja.
           </p>
         </div>
-  
-        {/* Formulario */}
+
         <div className="space-y-4">
           <div>
               <TextField
@@ -206,7 +187,6 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
               {responsableFound && <div className="ml-2 text-green-500">✓ Encontrado</div>}
           </div>
           
-          {/* Mensaje informativo cuando se encuentra un responsable */}
           {responsableFound && (
             <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
               Responsable encontrado en el sistema. Los datos han sido cargados automáticamente.
@@ -265,7 +245,6 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
             />
           </div>
 
-          {/* Mensaje de error general */}
           {errors.general && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
               {errors.general}
@@ -273,7 +252,6 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
           )}
         </div>
 
-        {/* Botón */}
         <div className="flex justify-center mt-8">
           <button
             onClick={handleSubmitAndNext}
@@ -293,7 +271,6 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
 };
 
 const InscripcionResponsable = () => {
-  //const [globalData, setGlobalData] = useState({});
   const steps = [
     "Responsable de Inscripción",
     "Competidor",
@@ -304,7 +281,6 @@ const InscripcionResponsable = () => {
   ];
 
   return (
-    //<FormDataContext.Provider value={{ globalData, setGlobalData }}>
       <ProcesoRegistro
         steps={steps}
         nextRoute="/subirComprobante"
@@ -317,7 +293,6 @@ const InscripcionResponsable = () => {
         <InscripcionTutorAcademico />
         <Confirmation />
       </ProcesoRegistro>
-    //</FormDataContext.Provider>
   );
 };
 

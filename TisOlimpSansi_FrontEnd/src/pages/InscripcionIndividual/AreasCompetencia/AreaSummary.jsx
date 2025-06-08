@@ -11,7 +11,6 @@ const AreaSummary = ({
       <p className="font-semibold mb-1">Áreas seleccionadas:</p>
       <ul className="list-disc list-inside text-sm">
         {seleccionadas.map((area, index) => {
-          // Mostrar la categoría automática para áreas que no son Informática o Robótica
           let categoriaInfo = "";
           if (categoriasSeleccionadas[area]) {
             categoriaInfo = ` - ${categoriasSeleccionadas[area]}`;

@@ -3,20 +3,17 @@ import { API_URL } from "../../../../utils/api";
 import axios from "axios";
 
 export default function useColegioData(formData, handleInputChange) {
-  // Estados para manejar datos de colegios
   const [colegiosData, setColegiosData] = useState([]);
   const [departamentosList, setDepartamentosList] = useState([]);
   const [distritosList, setDistritosList] = useState([]);
   const [colegiosFiltrados, setColegiosFiltrados] = useState([]);
   const [sugerencias, setSugerencias] = useState([]);
   const [mostrarSugerencias, setMostrarSugerencias] = useState(false);
-  // Inicializar con el valor existente del colegio si está disponible
   const [busquedaColegio, setBusquedaColegio] = useState(formData.estudiante?.colegio || "");
   const [esNuevoColegio, setEsNuevoColegio] = useState(false);
 
   const sugerenciasRef = useRef(null);
 
-  // Cargar datos de colegios al iniciar
   useEffect(() => {
     axios
       .post(`${API_URL}/api/colegios/filtro`, {})
@@ -30,14 +27,12 @@ export default function useColegioData(formData, handleInputChange) {
       .catch((err) => console.error("Error al cargar colegios", err));
   }, []);
 
-  // Sincronizar busquedaColegio con formData cuando cambia
   useEffect(() => {
     if (formData.estudiante?.colegio && formData.estudiante.colegio !== busquedaColegio) {
       setBusquedaColegio(formData.estudiante.colegio);
     }
   }, [formData.estudiante?.colegio]);
 
-  // Filtrar distritos cuando cambia el departamento
   useEffect(() => {
     const distritos = colegiosData
       .filter(
@@ -48,7 +43,6 @@ export default function useColegioData(formData, handleInputChange) {
     setDistritosList([...new Set(distritos)]);
   }, [formData.estudiante?.departamentoSeleccionado, colegiosData]);
 
-  // Filtrar colegios cuando cambia el distrito
   useEffect(() => {
     const colegios = colegiosData
       .filter(
@@ -65,7 +59,6 @@ export default function useColegioData(formData, handleInputChange) {
     colegiosData,
   ]);
 
-  // Actualizar sugerencias cuando cambia el texto de búsqueda
   const actualizarSugerencias = (texto) => {
     setBusquedaColegio(texto);
 
@@ -83,7 +76,6 @@ export default function useColegioData(formData, handleInputChange) {
     setMostrarSugerencias(true);
     setEsNuevoColegio(filtrados.length === 0);
 
-    // Si hay una coincidencia exacta o no hay coincidencias, actualizar el valor del colegio
     if (
       filtrados.length === 1 &&
       filtrados[0].toLowerCase() === texto.toLowerCase()
@@ -94,7 +86,6 @@ export default function useColegioData(formData, handleInputChange) {
     }
   };
 
-  // Seleccionar una sugerencia
   const seleccionarSugerencia = (sugerencia) => {
     setBusquedaColegio(sugerencia);
     handleInputChange("estudiante", "colegio", sugerencia);
@@ -102,7 +93,6 @@ export default function useColegioData(formData, handleInputChange) {
     setEsNuevoColegio(false);
   };
 
-  // Limpiar búsqueda de colegio
   const limpiarBusquedaColegio = () => {
     setBusquedaColegio("");
     handleInputChange("estudiante", "colegio", "");

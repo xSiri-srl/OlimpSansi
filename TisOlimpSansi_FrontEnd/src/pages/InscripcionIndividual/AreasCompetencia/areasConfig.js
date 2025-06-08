@@ -1,4 +1,3 @@
-// Datos estáticos
 export const primeraFila = [
   { nombre: "MATEMATICAS", imgSrc: "/images/matematicaas.png" },
   { nombre: "FISICA", imgSrc: "/images/fisica.png" },

@@ -43,16 +43,13 @@ export default function InscripcionTutorLegal({
   const buscarTutorLegalPorCI = async (ci) => {
     if (ci?.length >= 7) {
       setIsSearching(true);
-      console.log("Buscando tutor legal con CI:", ci);
 
       try {
         const response = await axios.get(`${API_URL}/api/buscar-tutor-legal/${ci}`);
-        console.log("Respuesta recibida:", response.data);
 
         if (response.data.found) {
           const tutorLegal = response.data.tutorLegal;
 
-          // Convertir valores a string para asegurar compatibilidad
           handleInputChange(
             "legal",
             "nombres",
@@ -75,23 +72,15 @@ export default function InscripcionTutorLegal({
             String(tutorLegal.numero_celular || "")
           );
 
-          // Asegurarse de que el rol esté establecido
           const rol = tutorLegal.tipo || "Tutor Legal";
           handleInputChange("legal", "correoPertenece", rol);
 
-          // Limpiar todos los errores - AÑADIR ESTA LÍNEA
           setErrors({});
 
           setTutorLegalFound(true);
-          console.log("Tutor legal encontrado:", tutorLegal);
 
-          // ELIMINAR o COMENTAR estas líneas
-          // setTimeout(() => {
-          //   validateAllFields();
-          // }, 100);
         } else {
           setTutorLegalFound(false);
-          console.log("No se encontró tutor legal con ese CI");
         }
       } catch (error) {
         console.error("Error al buscar tutor legal:", error);
@@ -108,7 +97,6 @@ export default function InscripcionTutorLegal({
     handleInputChange("legal", "ci", value);
     setErrors((prev) => ({ ...prev, ci: "" }));
 
-    // Si el CI tiene 7-8 dígitos, buscar en la base de datos
     if (value.length >= 7 && value.length <= 8) {
       buscarTutorLegalPorCI(value);
     } else if (value.length < 7) {
@@ -178,7 +166,6 @@ export default function InscripcionTutorLegal({
       };
 
       setGlobalData(updatedData);
-      console.log("Datos del tutor legal actualizados en JSON:", updatedData);
 
       handleInputChange("legal", "isComplete", true);
       handleNext();
@@ -204,7 +191,7 @@ export default function InscripcionTutorLegal({
     formData.legal?.nombres?.length >= 2 &&
     formData.legal?.apellidoMaterno?.length >= 2 &&
     formData.legal?.apellidoPaterno?.length >= 2 &&
-    formData.legal?.telefono?.length >= 7 && // Más flexible con la longitud del teléfono
+    formData.legal?.telefono?.length >= 7 && 
     !isSubmitting;
 
   return (
@@ -220,7 +207,6 @@ export default function InscripcionTutorLegal({
         </div>
 
         <div className="space-y-4">
-          {/* Campo de Carnet de Identidad como primer campo del formulario */}
           <div className="relative">
             <TextField
               label="Carnet de Identidad"

@@ -6,7 +6,6 @@ import {
   FaTimesCircle,
 } from "react-icons/fa";
 import { SelectField } from "../components/FormComponents";
-//import { CURSOS } from "./constants";
 
 export default function DatosColegioForm({
   formData,
@@ -100,7 +99,6 @@ export default function DatosColegioForm({
               />
             )}
 
-            {/* Sugerencias */}
             {mostrarSugerencias && (
               <div
                 ref={sugerenciasRef}

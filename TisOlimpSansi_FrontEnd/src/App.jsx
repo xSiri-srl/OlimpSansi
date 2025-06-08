@@ -22,7 +22,6 @@ import DescargarListas from "./pages/Administrador/Reportes/DescargarListas";
 import PreInscritos from "./pages/Administrador/Reportes/PreInscritos";
 import InscritosVerificados from "./pages/Administrador/Reportes/InscritosVerificados";
 import OrdenesPago from "./pages/Administrador/Reportes/OrdenesPago";
-import Propuesta from "./pages/InscripcionIndividual/Propuesta";
 import ConvocatoriasPublicadas from "./pages/Administrador/Convocatorias/ConvocatoriasPublicadas";
 import SubirConvocatoria from "./pages/Administrador/Convocatorias/SubirConvocatoria";
 

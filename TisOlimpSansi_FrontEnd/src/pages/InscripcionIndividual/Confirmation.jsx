@@ -22,17 +22,13 @@ const Confirmation = ({ navigate, handleBack }) => {
   const [mostrarModal, setMostrarModal] = useState(false);
 
   useEffect(() => {
-    console.log(globalData);
-    console.log(codigoGenerado);
     globalData.areas_competencia?.forEach((area) => {
-      console.log("Nombre del área:", area.nombre_area);
-      console.log("Categoría:", area.categoria);
+
     });
   }, [globalData]);
 
   const handleGoBack = (e) => {
     e.preventDefault();
-    console.log("Confirmation: Atrás button clicked");
     handleBack();
   };
 
@@ -40,7 +36,6 @@ const Confirmation = ({ navigate, handleBack }) => {
     setIsSubmitting(true);
     setSubmitStatus({ success: null, message: "" });
 
-    // Iniciar barra de progreso
     setShowProgressBar(true);
     setUploadProgress(0);
     const progressInterval = setInterval(() => {
@@ -48,7 +43,7 @@ const Confirmation = ({ navigate, handleBack }) => {
         const newValue = prev + 2;
         if (newValue >= 90) {
           clearInterval(progressInterval);
-          return 90; // Mantenemos en 90% hasta que termine la petición
+          return 90; 
         }
         return newValue;
       });
@@ -62,7 +57,6 @@ const Confirmation = ({ navigate, handleBack }) => {
       const codigoGenerado = response.data.codigo_generado;
       setCodigoGenerado(codigoGenerado);
 
-      // Completar la barra de progreso
       setUploadProgress(100);
       clearInterval(progressInterval);
 
@@ -75,7 +69,6 @@ const Confirmation = ({ navigate, handleBack }) => {
       setShowSuccessModal(true);
     } catch (error) {
       console.error("Error al registrar los datos", error);
-      console.log("Respuesta del error:", error.response); 
       clearInterval(progressInterval);
       setShowProgressBar(false);
       setSubmitStatus({
@@ -91,9 +84,6 @@ const Confirmation = ({ navigate, handleBack }) => {
   const handleSuccessModalClose = () => {
     setShowSuccessModal(false);
     setShowProgressBar(false);
-
-    // Navegar a la pantalla de orden de pago
-    console.log(codigoGenerado);
     navigate("/orden-pago", { state: { codigoGenerado } });
   };
 
@@ -104,7 +94,6 @@ const Confirmation = ({ navigate, handleBack }) => {
         Por favor, revise la información antes de confirmar
       </p>
 
-      {/* Resumen formateado de la información */}
       <div className="mt-4 bg-white rounded-lg shadow-md p-6 text-left max-w-3xl mx-auto">
         {/* Sección del responsable de inscripción */}
         <div className="mb-6 border-b pb-4">
@@ -207,7 +196,6 @@ const Confirmation = ({ navigate, handleBack }) => {
               globalData.areas_competencia.map((area, index) => (
                 <div key={index} className="bg-gray-100 rounded px-3 py-2 mb-2">
                   <p className="font-medium">{area.nombre_area || ""}</p>
-                  {/* Mostrar categoría para todas las áreas */}
                   {area.categoria && (
                     <div className="mt-1">
                       <span className="text-sm text-gray-500">Categoría: </span>
@@ -319,14 +307,13 @@ const Confirmation = ({ navigate, handleBack }) => {
         </div>
       </div>
 
-      {/* Mensaje de estado */}
       {submitStatus.success === false && (
         <div className="mt-4 p-3 rounded-md bg-red-100 text-red-700">
           {submitStatus.message}
         </div>
       )}
 
-      {/* Botones de navegación */}
+   
       <div className="flex justify-center mt-6 gap-4">
         <button
           onClick={handleGoBack}
@@ -381,7 +368,6 @@ const Confirmation = ({ navigate, handleBack }) => {
         </div>
       )}
 
-      {/* Barra de progreso */}
       {showProgressBar && (
         <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-40">
           <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
@@ -402,8 +388,6 @@ const Confirmation = ({ navigate, handleBack }) => {
           </div>
         </div>
       )}
-
-      {/* Modal de éxito */}
       {showSuccessModal && (
         <ExitoModal
           mensaje="Su registro ha sido procesado exitosamente."

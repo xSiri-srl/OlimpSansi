@@ -6,7 +6,6 @@ export default function ModalConfirmacion({ area, onConfirm, onCancel }) {
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
         <div className="flex flex-col items-center text-center">
-          {/* Icono llamativo */}
           <div className="text-blue-600 mb-4">
             <FaChalkboardTeacher size={60} className="animate-pulse" />
           </div>

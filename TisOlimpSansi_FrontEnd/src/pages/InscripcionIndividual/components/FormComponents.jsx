@@ -1,6 +1,3 @@
-import React from "react";
-
-// Componente para campos de texto con validación
 export const TextField = ({
   label,
   icon,
@@ -18,10 +15,8 @@ export const TextField = ({
     const newValue = e.target.value;
     if (newValue.startsWith(" ")) return;
     
-    // Si hay una transformación (como toUpperCase), aplicarla
     const transformedValue = transform ? transform(newValue) : newValue;
     
-    // Si hay una expresión regular para validar, verificar
     if (regex && !(regex.test(transformedValue) || transformedValue === "")) {
       return;
     }
@@ -48,7 +43,6 @@ export const TextField = ({
   );
 };
 
-// Componente para campos de selección (dropdown)
 export const SelectField = ({
   label,
   icon,
@@ -84,7 +78,6 @@ export const SelectField = ({
   );
 };
 
-// Componente para grupos de radio buttons
 export const RadioGroupField = ({
   label,
   name,
@@ -116,7 +109,6 @@ export const RadioGroupField = ({
   );
 };
 
-// Componente para campos de fecha
 export const DateField = ({
   label,
   icon,
