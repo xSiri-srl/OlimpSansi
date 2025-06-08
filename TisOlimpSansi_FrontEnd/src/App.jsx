@@ -17,7 +17,7 @@ import SubirArchivo from "./pages/InscripcionLista/SubirArchivo";
 import ListaCompetidores from "./pages/InscripcionLista/ListaCompetidores";
 import { FormProvider } from "./pages/InscripcionLista/form-context";
 import PasosInscripcion from "./pages/InscripcionLista/PasosInscripcion";
-import GenerarOrdenPago from "./pages/OrdenPago/GenerarOrdenPago";
+import GenerarOrdenPago from "./pages/OrdenPago/index";
 import PanelDatos from "./pages/Administrador/PanelDatos";
 import DescargarListas from "./pages/Administrador/Reportes/DescargarListas";
 import PreInscritos from "./pages/Administrador/Reportes/PreInscritos";
@@ -34,7 +34,7 @@ import AsociarCosto from "./pages/Administrador/CrearOlimpiadas/AsociarCosto";
 import AsociarLimite from "./pages/Administrador/CrearOlimpiadas/AsociarLimiteAreas";
 import RutaPrivada from "./components/RutasPrivadas";
 import DesasignarAreaNivel from "./pages/Administrador/CrearOlimpiadas/DesasignarAreaNivel";
-import CodigoPreInscripcion from "./pages/EditarInscripcion/CodigoPreInscripcion";
+import CodigoPreInscripcion from "./pages/EditarInscripcion";
 import { useState } from "react";
 import { FormDataContext } from "./pages/OrdenDePago/form-data-context";
 
@@ -76,13 +76,10 @@ export default function App() {
                 path="/inscripcion/tutor-academico"
                 element={<InscripcionTutorAcademico />}
               />
-              <Route 
-                path="/inscripcion/propuesta" 
-                element={<Propuesta />} 
-              />
-              <Route 
-                path="/editar-preinscripcion" 
-                element={<CodigoPreInscripcion/>} 
+              <Route path="/inscripcion/propuesta" element={<Propuesta />} />
+              <Route
+                path="/editar-preinscripcion"
+                element={<CodigoPreInscripcion />}
               />
               {/* ORDEN DE PAGO GENERADA */}
               <Route path="/orden-pago" element={<OrdenPago />} />
@@ -149,12 +146,11 @@ export default function App() {
                   path="/admin/asociar-limite"
                   element={<AsociarLimite />}
                 />
-                <Route 
-                path="/admin/des-asignar-costo" 
-                element={<DesasignarAreaNivel />} 
+                <Route
+                  path="/admin/des-asignar-costo"
+                  element={<DesasignarAreaNivel />}
                 />
               </Route>
-              
             </Routes>
           </FormProvider>
         </div>
