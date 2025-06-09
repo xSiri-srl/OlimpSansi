@@ -18,22 +18,11 @@ const OlimpiadaSelector = ({ onOlimpiadaChange, darkMode }) => {
       const response = await axios.get(`${API_URL}/api/get-olimpiadaz`);
       const olimpiadasData = response.data.data || [];
       
-      console.log('🔍 OlimpiadaSelector - Olimpiadas recibidas:', olimpiadasData);
       
       setOlimpiadas(olimpiadasData);
-      
-      if (olimpiadasData.length > 0) {
-        const primeraOlimpiada = olimpiadasData[0];
-        console.log('🔍 OlimpiadaSelector - Seleccionando primera olimpiada:', primeraOlimpiada);
-        
-        setOlimpiadaSeleccionada(primeraOlimpiada.id.toString());
-        
-        // IMPORTANTE: Llamar a onOlimpiadaChange INMEDIATAMENTE
-        console.log('🔍 OlimpiadaSelector - Llamando onOlimpiadaChange con:', primeraOlimpiada);
-        onOlimpiadaChange(primeraOlimpiada);
-      }
+ 
     } catch (error) {
-      console.error('❌ OlimpiadaSelector - Error:', error);
+      console.error('OlimpiadaSelector - Error:', error);
     } finally {
       setLoading(false);
     }

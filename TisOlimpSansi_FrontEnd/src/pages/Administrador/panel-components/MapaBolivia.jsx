@@ -63,7 +63,7 @@ const boliviaGeoFeatures = {
   ],
 };
 
-const MapaBolivia = ({ darkMode }) => {
+const MapaBolivia = ({ darkMode, olimpiadaSeleccionada }) => {
   const [inscripcionesPorDepartamento, setInscripcionesPorDepartamento] =
     useState([]);
   const [loading, setLoading] = useState(true);
@@ -71,8 +71,10 @@ const MapaBolivia = ({ darkMode }) => {
   const [tipoInscripcion, setTipoInscripcion] = useState("inscritos"); 
 
   useEffect(() => {
-    fetchDepartamentoData();
-  }, [tipoInscripcion]); 
+    if (olimpiadaSeleccionada) {
+      fetchDepartamentoData();
+    }
+  }, [tipoInscripcion, olimpiadaSeleccionada]); 
 
   const fetchDepartamentoData = async () => {
     try {
@@ -110,6 +112,7 @@ const MapaBolivia = ({ darkMode }) => {
       const promises = departamentos.map(async (departamento) => {
         const response = await axios.post(`${API_URL}${endpoint}`, {
           departamento,
+          olimpiada_id: olimpiadaSeleccionada.id
         });
 
         return {
@@ -129,6 +132,17 @@ const MapaBolivia = ({ darkMode }) => {
       setLoading(false);
     }
   };
+
+  // Si no hay olimpiada seleccionada, mostrar mensaje
+  if (!olimpiadaSeleccionada) {
+    return (
+      <div className="h-[400px] w-full flex items-center justify-center">
+        <p className={`${darkMode ? "text-gray-300" : "text-gray-600"} text-center`}>
+          Seleccione una olimpiada para ver la distribución por departamentos
+        </p>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -161,6 +175,9 @@ const MapaBolivia = ({ darkMode }) => {
         <h3 className="text-xl font-semibold">
           Distribución de Estudiantes por Departamento
         </h3>
+        <p className={`text-sm ${darkMode ? "text-gray-400" : "text-gray-600"} mb-2`}>
+          {olimpiadaSeleccionada.titulo}
+        </p>
 
         <div className="flex justify-center mt-2 mb-3">
           <div

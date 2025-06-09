@@ -140,8 +140,8 @@ Route::get('/obtener-olimpiada/{codigo}', [OrdenPagoController::class, 'obtenerI
 Route::post('/guardar-comprobante', [ComprobanteController::class, 'guardarComprobante']);
 
 
-Route::get('/inscripciones/por-area', [InscripcionController::class, 'inscripcionesPorArea']);
-Route::get('/inscripciones/por-categoria', [InscripcionController::class, 'inscripcionesPorCategoria']);
+
+
 Route::post('/inscribir', [InscripcionController::class, 'registrar']);
 Route::post('/inscribir-lista', [InscripcionController::class, 'registrarLista']);
 Route::post('/editar-lista', [InscripcionController::class, 'actualizarLista']);
@@ -160,8 +160,7 @@ Route::post('/estudiantes/departamento', [ColegioController::class, 'contarPorDe
 Route::post('/estudiantes/colegio', [ColegioController::class, 'contarPorColegio']);
 Route::post('/estudiantes/grado', [ColegioController::class, 'contarPorGrado']);
 Route::post('/estudiantes/categoria-area', [ColegioController::class, 'filtrarPorCategoriaArea']);
-Route::post('/estudiantes/inscritos/departamento', [ColegioController::class, 'contarInscritosPorDepartamento']);
-Route::post('/estudiantes/preinscritos/departamento', [ColegioController::class, 'contarPreinscritosPorDepartamento']);
+
 
 
 
@@ -180,8 +179,7 @@ Route::get('/curso-area-categoria-por-olimpiada', [CategoriaGradoController::cla
 Route::get('/categorias-grado', [CategoriaGradoController::class, 'obtenerCategoriasGrado']);
 
 
-Route::get('/inscripciones/por-area', [InscripcionController::class, 'inscripcionesPorArea']);
-Route::get('/inscripciones/por-categoria', [InscripcionController::class, 'inscripcionesPorCategoria']);
+
 Route::post('/inscribir', [InscripcionController::class, 'registrar']);
 Route::post('/inscribir-lista', [InscripcionController::class, 'registrarLista']);
 Route::post('/editar-lista', [InscripcionController::class, 'actualizarLista']);
@@ -205,12 +203,6 @@ Route::get('/obtener-olimpiada/{codigo}', [OrdenPagoController::class, 'obtenerI
 
 Route::post('/guardar-comprobante', [ComprobanteController::class, 'guardarComprobante']);
 
-//contar preinscritos
-Route::get('/estudiantes/pre-inscritos', [InscripcionController::class, 'contarPreinscritos']);
-Route::get('/estudiantes/inscritos', [InscripcionController::class, 'contarInscritos']);
-
-// Nuevas rutas para estadísticas por olimpiada
-
 
 
 Route::get('/orden-pago-olimpiada', [OrdenPagoController::class, 'obtenerOrdenPagoPorOlimpiada']);
@@ -219,7 +211,13 @@ Route::get('/estudiantes/inscritos-olimpiada', [InscripcionController::class, 'c
 
 
 Route::get('/ordenes-recientes', [OrdenPagoController::class, 'obtenerOrdenesConResponsable']);
-Route::get('/probar-costos/{codigo}', function ($codigo) {
-    $resultado = OrdenPagoHelper::obtenerCostosOlimpiada($codigo);
-    return response()->json($resultado);
-});
+
+
+
+Route::post('/estudiantes/inscritos/departamento', [ColegioController::class, 'contarInscritosPorDepartamento']);
+Route::post('/estudiantes/preinscritos/departamento', [ColegioController::class, 'contarPreinscritosPorDepartamento']);
+
+
+
+Route::get('/inscripciones/por-area', [InscripcionController::class, 'inscripcionesPorArea']);
+Route::get('/inscripciones/por-categoria', [InscripcionController::class, 'inscripcionesPorCategoria']);

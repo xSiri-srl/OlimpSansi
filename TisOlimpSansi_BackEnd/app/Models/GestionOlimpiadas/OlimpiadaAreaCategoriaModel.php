@@ -20,15 +20,22 @@ class OlimpiadaAreaCategoriaModel extends Model
         'precio',
     ];
 
-
+    // ESTA RELACIÓN ES CRÍTICA
     public function inscripcion()
     {
         return $this->hasMany(InscripcionModel::class, 'id_olimpiada_area_categoria');
     }
+    
+    public function olimpiada()
+    {
+        return $this->belongsTo(\App\Models\GestionOlimpiadas\OlimpiadaModel::class, 'id_olimpiada');
+    }
+    
     public function area()
     {
         return $this->belongsTo(AreaModel::class, 'id_area');
     }
+    
     public function categoria()
     {
         return $this->belongsTo(CategoriaModel::class, 'id_categoria');

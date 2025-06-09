@@ -9,8 +9,7 @@ const OrdenesRecientes = ({ darkMode, olimpiadaSeleccionada }) => {
   const [error, setError] = useState(null);
   
   useEffect(() => {
-    console.log('OrdenesRecientes - olimpiadaSeleccionada:', olimpiadaSeleccionada);
-    
+   
     const fetchOrdenesRecientes = async () => {
       try {
         setLoading(true);
@@ -26,16 +25,14 @@ const OrdenesRecientes = ({ darkMode, olimpiadaSeleccionada }) => {
           return;
         }
 
-        // Usar id o ID (por si acaso hay inconsistencia en el naming)
-        const olimpiadaId = olimpiadaSeleccionada.id || olimpiadaSeleccionada.ID;
+       
+        const olimpiadaId = olimpiadaSeleccionada.id;
         
-        console.log('Fetching órdenes para olimpiada ID:', olimpiadaId);
- 
         const response = await axios.get(`${API_URL}/api/ordenes-recientes`, {
           params: { olimpiada_id: olimpiadaId }
         });
 
-        console.log('Response órdenes recientes:', response.data);
+      
         setOrders(response.data || []);
         
       } catch (err) {
@@ -55,7 +52,7 @@ const OrdenesRecientes = ({ darkMode, olimpiadaSeleccionada }) => {
       <div className={`${darkMode ? "bg-gray-800" : "bg-white"} rounded-lg shadow-md overflow-hidden`}>
         <div className={`${darkMode ? "bg-gray-700" : "bg-gray-50"} px-6 py-4 border-b ${darkMode ? "border-gray-700" : "border-gray-200"}`}>
           <h3 className={`text-lg font-semibold ${darkMode ? "text-white" : "text-gray-800"}`}>
-            Órdenes de Pago Recientes
+            Órdenes de Pago
           </h3>
         </div>
         <div className="p-6 flex justify-center items-center">
@@ -70,7 +67,7 @@ const OrdenesRecientes = ({ darkMode, olimpiadaSeleccionada }) => {
       <div className={`${darkMode ? "bg-gray-800" : "bg-white"} rounded-lg shadow-md overflow-hidden`}>
         <div className={`${darkMode ? "bg-gray-700" : "bg-gray-50"} px-6 py-4 border-b ${darkMode ? "border-gray-700" : "border-gray-200"}`}>
           <h3 className={`text-lg font-semibold ${darkMode ? "text-white" : "text-gray-800"}`}>
-            Órdenes de Pago Recientes
+            Órdenes de Pago
           </h3>
         </div>
         <div className="p-6 text-center text-red-500">
@@ -93,14 +90,11 @@ const OrdenesRecientes = ({ darkMode, olimpiadaSeleccionada }) => {
       <div className={`${darkMode ? "bg-gray-800" : "bg-white"} rounded-lg shadow-md overflow-hidden`}>
         <div className={`${darkMode ? "bg-gray-700" : "bg-gray-50"} px-6 py-4 border-b ${darkMode ? "border-gray-700" : "border-gray-200"}`}>
           <h3 className={`text-lg font-semibold ${darkMode ? "text-white" : "text-gray-800"}`}>
-            Órdenes de Pago Recientes
+            Órdenes de Pago
           </h3>
         </div>
         <div className="p-6 text-center text-gray-500">
           Selecciona una olimpiada para ver las órdenes recientes
-          <p className="text-xs mt-2 opacity-60">
-            Debug: olimpiadaSeleccionada = {JSON.stringify(olimpiadaSeleccionada)}
-          </p>
         </div>
       </div>
     );
@@ -111,11 +105,11 @@ const OrdenesRecientes = ({ darkMode, olimpiadaSeleccionada }) => {
       <div className={`${darkMode ? "bg-gray-800" : "bg-white"} rounded-lg shadow-md overflow-hidden`}>
         <div className={`${darkMode ? "bg-gray-700" : "bg-gray-50"} px-6 py-4 border-b ${darkMode ? "border-gray-700" : "border-gray-200"}`}>
           <h3 className={`text-lg font-semibold ${darkMode ? "text-white" : "text-gray-800"}`}>
-            Órdenes de Pago Recientes
+            Órdenes de Pago 
           </h3>
         </div>
         <div className="p-6 text-center text-gray-500">
-          No hay órdenes de pago en los últimos 7 días para esta olimpiada
+          No hay órdenes de pago en esta olimpiada
         </div>
       </div>
     );
@@ -125,7 +119,7 @@ const OrdenesRecientes = ({ darkMode, olimpiadaSeleccionada }) => {
     <div className={`${darkMode ? "bg-gray-800" : "bg-white"} rounded-lg shadow-md overflow-hidden`}>
       <div className={`${darkMode ? "bg-gray-700" : "bg-gray-50"} px-6 py-4 border-b ${darkMode ? "border-gray-700" : "border-gray-200"}`}>
         <h3 className={`text-lg font-semibold ${darkMode ? "text-white" : "text-gray-800"}`}>
-          Órdenes de Pago Recientes (últimos 7 días)
+          Órdenes de Pago
         </h3>
         {olimpiadaSeleccionada && (
           <p className={`text-sm ${darkMode ? "text-gray-400" : "text-gray-600"} mt-1`}>

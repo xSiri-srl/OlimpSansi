@@ -6,6 +6,7 @@ import OlimpiadaSelector from "./panel-components/OlimpiadaSelector";
 import useDashboardData from "./panel-hooks/useDashboardData";
 import PieChartSection from "./panel-components/PieChartSection";
 import MapSection from "./panel-components/MapaSection";
+import GraficoCompararInscripciones from "./panel-components/GraficoCompararInscripciones";
 
 const PanelDatos = () => {
   const [darkMode, setDarkMode] = useState(false);
@@ -15,7 +16,6 @@ const PanelDatos = () => {
   const toggleDarkMode = () => setDarkMode(!darkMode);
   const handleOlimpiadaChange = (olimpiada) => setOlimpiadaSeleccionada(olimpiada);
 
-  // Vista inicial / loading / error...
   if (!olimpiadaSeleccionada || loading || error) {
     return (
       <div className={`${darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-800"} min-h-screen`}>
@@ -38,7 +38,7 @@ const PanelDatos = () => {
     );
   }
 
-  // Vista principal con datos
+ 
   return (
     <div className={`${darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-800"} min-h-screen`}>
       <div className="container mx-auto px-4 py-8">
@@ -61,8 +61,8 @@ const PanelDatos = () => {
           olimpiadaSeleccionada={olimpiadaSeleccionada}
         />
         <PieChartSection stats={stats} darkMode={darkMode} />
-        {/*<MapSection darkMode={darkMode} />
-        <GraficoCompararInscripciones darkMode={darkMode} />*/}
+        <MapSection darkMode={darkMode} olimpiadaSeleccionada={olimpiadaSeleccionada} />
+        <GraficoCompararInscripciones darkMode={darkMode} olimpiadaSeleccionada={olimpiadaSeleccionada}/>
       </div>
     </div>
   );
