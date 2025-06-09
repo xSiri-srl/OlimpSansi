@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/Inicio/Inicio";
 import Navbar from "./components/Navbar";
-import Login from "./components/login";
+import Login from "./components/Login";
 import { ThemeProvider } from "./ThemeContext";
 import InscripcionResponsable from "./pages/InscripcionIndividual/InscripcionResponsable";
 import InscripcionEstudiante from "./pages/InscripcionIndividual/InscripcionEstudiante";

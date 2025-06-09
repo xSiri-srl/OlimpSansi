@@ -15,7 +15,7 @@ use Illuminate\Http\Request;
 Route::post('/login', [AuthController::class, 'login']);
 
 
-Route::post('/registro', [AuthController::class, 'register']);
+//Route::post('/registro', [AuthController::class, 'register']);
 
 Route::get('/obtener-costos-olimpiada/{id}', [OlimpiadaAreaController::class, 'obtenerCostos']);
 Route::get('/areas-habilitadas/{id}', [OlimpiadaController::class, 'obtenerCombinacionesOlimpiada']);
