@@ -25,7 +25,6 @@ const AsignarLimiteAreas = () => {
   const [periodoTerminado, setPeriodoTerminado] = useState(false);
   const [razonBloqueo, setRazonBloqueo] = useState(null);
   const [fechaFin, setFechaFin] = useState(null);
-  // Nuevo estado para la cantidad de áreas asociadas
   const [cantidadAreasAsociadas, setCantidadAreasAsociadas] = useState(0);
   const [cargandoAreas, setCargandoAreas] = useState(false);
   const { modalProgreso, mostrarProgreso, cerrarProgreso } = useNotificarProgreso();
@@ -89,7 +88,6 @@ const AsignarLimiteAreas = () => {
     }
   };
 
-  // Nueva función para obtener la cantidad de áreas asociadas
   const obtenerCantidadAreasAsociadas = async (olimpiadaId) => {
     try {
       setCargandoAreas(true);
@@ -112,7 +110,6 @@ const AsignarLimiteAreas = () => {
       const response = await axios.get(`${API_URL}/areas-olimpiada/${olimpiadaId}`, config);
       
       if (response.status === 200 && response.data && response.data.data) {
-        // Contar las áreas únicas asociadas
         const areasUnicas = new Set();
         response.data.data.forEach(area => {
           areasUnicas.add(area.id);
@@ -196,7 +193,6 @@ const AsignarLimiteAreas = () => {
       );
       setNombreOlimpiada(olimpiada ? olimpiada.titulo : "");
 
-      // Obtener cantidad de áreas asociadas
       obtenerCantidadAreasAsociadas(olimpiadaSeleccionada);
 
       verificarInscripciones(olimpiadaSeleccionada).then(resultado => {
@@ -278,7 +274,6 @@ const AsignarLimiteAreas = () => {
       return;
     }
 
-    // Nueva validación: verificar si el contador excede las áreas disponibles
     if (cantidadAreasAsociadas === 0) {
       mostrarAlerta(
         "Sin áreas asociadas", 
@@ -383,7 +378,6 @@ const AsignarLimiteAreas = () => {
     if (contador < 7 && !olimpiadaBloqueada) {
       const nuevoContador = contador + 1;
       
-      // Validar si el nuevo valor excede las áreas disponibles
       if (cantidadAreasAsociadas > 0 && nuevoContador > cantidadAreasAsociadas) {
         mostrarAlerta(
           "Límite máximo alcanzado", 
@@ -403,7 +397,6 @@ const AsignarLimiteAreas = () => {
     }
   };
 
-  // Calcular el máximo permitido dinámicamente
   const maximoPermitido = cantidadAreasAsociadas > 0 ? Math.min(7, cantidadAreasAsociadas) : 7;
 
   return (
