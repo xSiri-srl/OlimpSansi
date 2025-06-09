@@ -730,5 +730,43 @@ public function verificarCodigo(Request $request)
         return response()->json(['message' => 'Error interno del servidor', 'error' => $e->getMessage()], 500);
     }
 }
+    public function obtenerOrdenPagoPorOlimpiada(Request $request)
+    {
+        $olimpiadaId = $request->input('olimpiada_id');
+        
+        if (!$olimpiadaId) {
+            return response()->json(['error' => 'ID de olimpiada requerido'], 400);
+        }
+
+        try {
+            $ordenes = DB::table('orden_pago')
+                ->join('inscripcion', 'orden_pago.id', '=', 'inscripcion.id_orden_pago')
+                ->join('olimpiada_area_categoria', 'inscripcion.id_olimpiada_area_categoria', '=', 'olimpiada_area_categoria.id')
+                ->where('olimpiada_area_categoria.id_olimpiada', $olimpiadaId)
+                ->select('orden_pago.*')
+                ->distinct('orden_pago.id')
+                ->get();
+
+            return response()->json($ordenes);
+        } catch (\Exception $e) {
+            \Log::error('Error al obtener órdenes de pago por olimpiada: ' . $e->getMessage());
+            return response()->json([
+                'error' => 'Error interno del servidor'
+            ], 500);
+        }
+    }
+
+    public function obtenerOrdenPago2()
+    {
+        try {
+            $ordenesPago = OrdenPagoModel::all();
+            return response()->json($ordenesPago);
+        } catch (\Exception $e) {
+            \Log::error('Error al obtener órdenes de pago: ' . $e->getMessage());
+            return response()->json([
+                'error' => 'Error interno del servidor'
+            ], 500);
+        }
+    }
 
 }

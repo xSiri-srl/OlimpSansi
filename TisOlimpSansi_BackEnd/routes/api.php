@@ -178,8 +178,38 @@ Route::get('/areas-categorias-olimpiada', [OlimpiadaController::class, 'getAreas
 
 Route::get('/curso-area-categoria-por-olimpiada', [CategoriaGradoController::class, 'obtenerCategoriasPorGrado']);
 
-//mostrar todas las categorias de esa materia de una olimpiada
+Route::get('/inscripciones/por-area', [InscripcionController::class, 'inscripcionesPorArea']);
+Route::get('/inscripciones/por-categoria', [InscripcionController::class, 'inscripcionesPorCategoria']);
+Route::post('/inscribir', [InscripcionController::class, 'registrar']);
+Route::post('/inscribir-lista', [InscripcionController::class, 'registrarLista']);
+Route::post('/editar-lista', [InscripcionController::class, 'actualizarLista']);
+Route::get('/lista-inscritos', [InscripcionController::class, 'listarInscritos']);
+Route::get('/preinscritos-por-codigo', [InscripcionController::class, 'registrosPorCodigo']);
 
+Route::get('/orden-pago', [OrdenPagoController::class, 'obtenerOrdenPago']);
+Route::get('/orden-pago-olimpiada', [OrdenPagoController::class, 'obtenerOrdenPagoPorOlimpiada']);
+Route::post('/orden-pago/pdf', [OrdenPagoController::class, 'generarYGuardarOrdenPagoPDF']);
+Route::get('/orden-pago/{codigoGenerado}', [OrdenPagoController::class, 'descargarOrdenPago']);
+Route::post('/verificar-codigo-generado', [OrdenPagoController::class, 'verificarCodigo']);
+Route::post('/procesar-comprobanteOCR', [OrdenPagoController::class, 'procesarComprobante']);
+Route::get('/obtener-orden-pago/{codigo}', [OrdenPagoController::class, 'obtenerOrdenPagoPorCodigo']);
+Route::get('/resumen-orden-pago/{codigo}', [OrdenPagoController::class, 'obtenerResumenPorCodigo']);
+Route::get('/dinero-por-departamento', [OrdenPagoController::class, 'dineroRecaudadoPorDepartamento']);
+Route::get('/ordenes-recientes', [OrdenPagoController::class, 'obtenerOrdenesConResponsable']);
+Route::get('/orden-de-pago/info', [OrdenPagoController::class, 'getInfOrdenesDePago']);
+Route::get('/orden-pago-existe/{codigo}', [OrdenPagoController::class, 'ordenPagoExiste']);
+Route::get('/todas-publicas', [OlimpiadaController::class, 'getTodasLasOlimpiadas']);
+Route::get('/obtener-olimpiada/{codigo}', [OrdenPagoController::class, 'obtenerIdOlimpiada']);
+
+Route::post('/guardar-comprobante', [ComprobanteController::class, 'guardarComprobante']);
+
+//contar preinscritos
+Route::get('/estudiantes/pre-inscritos', [InscripcionController::class, 'contarPreinscritos']);
+Route::get('/estudiantes/inscritos', [InscripcionController::class, 'contarInscritos']);
+
+// Nuevas rutas para estadísticas por olimpiada
+Route::get('/estudiantes/pre-inscritos-olimpiada', [InscripcionController::class, 'contarPreinscritosPorOlimpiada']);
+Route::get('/estudiantes/inscritos-olimpiada', [InscripcionController::class, 'contarInscritosPorOlimpiada']);
 
 
 
