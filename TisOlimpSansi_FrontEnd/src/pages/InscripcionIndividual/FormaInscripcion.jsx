@@ -30,18 +30,17 @@ export default function FormularioEstudiante() {
   }, [globalData]);
 
   const handleSeleccion = async () => {
+    console.log(olimpiadaSeleccionada)
+        
     try {
-      // Si ya tenemos gradoAreaCurso en globalData, no necesitamos hacer la petición
-      let gradoAreaCurso = globalData?.gradoAreaCurso;
       
-      if (!gradoAreaCurso) {
         const response = await axios.get(`${API_URL}/api/curso-area-categoria-por-olimpiada?id=${olimpiadaSeleccionada}`);
-        gradoAreaCurso = response.data;
-
+        const gradoAreaCurso = response.data;
+          
         if (!gradoAreaCurso || gradoAreaCurso.length === 0) {
           throw new Error("No se encontraron datos de grado, área y curso.");
         }
-      }
+      
 
       setGlobalData(prevState => ({
         ...prevState,
@@ -51,8 +50,9 @@ export default function FormularioEstudiante() {
         },
         gradoAreaCurso
       }));
-
+console.log(gradoAreaCurso),
       navigate("/inscripcion/responsable", {
+        
         state: { 
           id: olimpiadaSeleccionada,
           gradoAreaCurso 
