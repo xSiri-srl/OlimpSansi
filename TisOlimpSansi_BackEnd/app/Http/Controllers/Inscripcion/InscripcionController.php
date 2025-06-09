@@ -47,6 +47,7 @@ public function registrar(Request $request)
         );
         $grado = GradoModel::where('nombre_grado', $data['colegio']['curso'])->firstOrFail();
 
+       
         // ESTUDIANTE (verificar si ya existe)
         $estudiante = EstudianteModel::where([
             'nombre' => $data['estudiante']['nombre'],
@@ -64,7 +65,7 @@ public function registrar(Request $request)
             ]);
         }
 
-      
+     
         $olimpiada = OlimpiadaModel::findOrFail($data['olimpiada']['id']);
         $limiteAreas = $olimpiada->max_materias;
         
@@ -100,7 +101,22 @@ public function registrar(Request $request)
         foreach ($data['areas_competencia'] as $item) {
             $area = AreaModel::where('nombre_area', $item['nombre_area'])->firstOrFail();
             $categoria = CategoriaModel::where('nombre_categoria', $item['categoria'])->firstOrFail();
+            
+            $yaInscrito = InscripcionModel::join('olimpiada_area_categoria as oac', 'inscripcion.id_olimpiada_area_categoria', '=', 'oac.id')->where([
+                        ['inscripcion.id_estudiante', $estudiante->id],
+                        ['oac.id_olimpiada', $olimpiada->id],
+                        ['oac.id_area', $area->id],
+                        ['oac.id_categoria', $categoria->id],
+                    ])->exists();
 
+                if ($yaInscrito) {
+                     return response()->json([
+                    'status' => 500,
+                    'error' => "El estudiante '{$estudiante->nombre} {$estudiante->apellido_pa}' ya está inscrito en el área '{$area->nombre_area}' y categoría '{$categoria->nombre_categoria}' para esta olimpiada."
+                ], 500);
+                    
+                }
+                
             $oac = DB::table('olimpiada_area_categoria')
                 ->where([
                     ['id_olimpiada', '=', $data['olimpiada']['id']],

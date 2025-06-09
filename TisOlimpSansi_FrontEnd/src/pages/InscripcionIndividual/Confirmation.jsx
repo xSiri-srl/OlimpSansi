@@ -7,7 +7,9 @@ import {
   FaExclamationTriangle,
 } from "react-icons/fa";
 import ExitoModal from "../InscripcionLista/Modales/ExitoModal";
+import ErrorModal from "../InscripcionLista/Modales/RegistrosInvalidosModal";
 import { API_URL } from "../../utils/api";
+
 const Confirmation = ({ navigate, handleBack }) => {
   const { globalData } = useFormData();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -18,6 +20,8 @@ const Confirmation = ({ navigate, handleBack }) => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [showProgressBar, setShowProgressBar] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [codigoGenerado, setCodigoGenerado] = useState("");
   const [mostrarModal, setMostrarModal] = useState(false);
 
@@ -65,22 +69,42 @@ const Confirmation = ({ navigate, handleBack }) => {
         message: "Inscripción registrada correctamente.",
       });
 
-
       setShowSuccessModal(true);
     } catch (error) {
       console.error("Error al registrar los datos", error);
       clearInterval(progressInterval);
       setShowProgressBar(false);
+      
+      // Procesar el mensaje de error similar a ConfirmationLista
+      let rawMessage = error.response?.data?.message || error.response?.data?.error || error.message || "";
+      let mensajeFinal = rawMessage;
+
+      if (rawMessage.includes("Areas/categorias válidas:")) {
+        const [mensajeBase, combinacionesRaw] = rawMessage.split(
+          "Combinaciones válidas:"
+        );
+        const combinaciones = combinacionesRaw
+          .split("-")
+          .map((item) => item.trim())
+          .filter((item) => item.length > 0);
+
+        mensajeFinal = `${mensajeBase.trim()}\n\nCombinaciones válidas:\n${combinaciones
+          .map((c) => `• ${c}`)
+          .join("\n")}`;
+      }
+
+      setErrorMessage(mensajeFinal);
+      setShowErrorModal(true);
+      
       setSubmitStatus({
         success: false,
-        message:
-          error.response?.data?.error ||
-          "Error al registrar los datos",
+        message: mensajeFinal,
       });
     } finally {
       setIsSubmitting(false);
     }
   };
+
   const handleSuccessModalClose = () => {
     setShowSuccessModal(false);
     setShowProgressBar(false);
@@ -307,12 +331,7 @@ const Confirmation = ({ navigate, handleBack }) => {
         </div>
       </div>
 
-      {submitStatus.success === false && (
-        <div className="mt-4 p-3 rounded-md bg-red-100 text-red-700">
-          {submitStatus.message}
-        </div>
-      )}
-
+      {/* Removido el mensaje de error inline ya que ahora usamos el modal */}
    
       <div className="flex justify-center mt-6 gap-4">
         <button
@@ -388,10 +407,18 @@ const Confirmation = ({ navigate, handleBack }) => {
           </div>
         </div>
       )}
+      
       {showSuccessModal && (
         <ExitoModal
           mensaje="Su registro ha sido procesado exitosamente."
           onClose={handleSuccessModalClose}
+        />
+      )}
+      
+      {showErrorModal && (
+        <ErrorModal
+          mensaje={errorMessage}
+          onClose={() => setShowErrorModal(false)}
         />
       )}
     </div>
