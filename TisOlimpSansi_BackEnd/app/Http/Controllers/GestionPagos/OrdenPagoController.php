@@ -39,13 +39,7 @@ class OrdenPagoController extends Controller
         $validated = $request->validate([
             'codigo_generado' => 'required|string|max:255',
         ]);
-        
-        $writeLog("Validación OK - Código: " . $validated['codigo_generado']);
-        $writeLog("PHP Version: " . phpversion());
-        $writeLog("Server: " . ($_SERVER['SERVER_SOFTWARE'] ?? 'Unknown'));
-        $writeLog("Memory Limit: " . ini_get('memory_limit'));
-        $writeLog("Max Execution Time: " . ini_get('max_execution_time'));
-        
+
         // Verificar extensiones necesarias
         $writeLog("DOM Extension: " . (extension_loaded('dom') ? 'OK' : 'NO'));
         $writeLog("GD Extension: " . (extension_loaded('gd') ? 'OK' : 'NO'));

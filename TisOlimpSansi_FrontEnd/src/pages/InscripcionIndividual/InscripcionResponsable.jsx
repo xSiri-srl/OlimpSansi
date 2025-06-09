@@ -6,7 +6,7 @@ import AreasCompetencia from "./AreasCompetencia";
 import InscripcionTutorLegal from "./InscripcionTutorLegal";
 import InscripcionTutorAcademico from "./InscripcionTutorAcademico";
 import Confirmation from "./Confirmation";
-import { FormDataContext, useFormData } from "./form-data-context";
+import {  useFormData } from "./form-data-context";
 import { TextField } from "./components/FormComponents";
 import { validateField, validateCI } from "./utils/validationsUtils";
 import { API_URL } from "../../utils/api";
@@ -24,6 +24,7 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
 
  useEffect(() => {
   if (olimpiada && gradoAreaCurso) {
+
     const subirOlimpiada = {
       ...globalData,
       olimpiada: olimpiada, 
@@ -133,7 +134,7 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
       };
 
       setGlobalData(updatedData);
-
+    console.log('Datos que estan:', globalData);
       handleNext();
     } catch (error) {
       console.error("Error al procesar los datos:", error);
