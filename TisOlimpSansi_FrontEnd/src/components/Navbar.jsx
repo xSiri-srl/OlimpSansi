@@ -39,7 +39,7 @@ const Navbar = () => {
     axios.defaults.headers.common["X-XSRF-TOKEN"] = csrf
 
     await axios.post(`${API_URL}/logout`, {}, { withCredentials: true })
-    setRole("responsable")
+    setRole(0)
     setShowSidebar(false)
     navigate("/")
   }
@@ -96,7 +96,7 @@ const Navbar = () => {
               {role === 1 ? "AdminCreador":"Responsable"}
             </span>
 
-            {role ==="responsable" ? (
+            {role ===0 ? (
               <button
                 
                 onClick={() => {
