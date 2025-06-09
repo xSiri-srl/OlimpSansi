@@ -10,7 +10,7 @@ export const navbarLinksByRole = {
   1: [ // Reportes
     { id: 1, title: "Inicio", link: "/" },
     { id: 2, title: "Generar Reportes", link: "/admin/generar-reportes" },
-    { id: 3, title: "Subir Convocatoria", link: "/admin/convocatoria" },
+ 
   ],
   2: [ // CreadorOlimpiada
     { id: 1, title: "Inicio", link: "/" },
