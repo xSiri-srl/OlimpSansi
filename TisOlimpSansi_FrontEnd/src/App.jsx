@@ -32,17 +32,17 @@ import RutaPrivada from "./components/RutasPrivadas";
 import DesasignarAreaNivel from "./pages/Administrador/CrearOlimpiadas/DesasignarAreaNivel";
 import CodigoPreInscripcion from "./pages/EditarInscripcion";
 import { useState } from "react";
-import { FormDataContext } from "./pages/InscripcionIndividual/form-data-context";
+import { FormDataProvider } from "./pages/InscripcionIndividual/form-data-context";
 import AsignarCosto from "./pages/Administrador/CrearOlimpiadas/AsignarCosto";
 import AsignarLimiteAreas from "./pages/Administrador/CrearOlimpiadas/AsignarLimiteAreas";
 
 export default function App() {
-  const [globalData, setGlobalData] = useState({});
   return (
     <ThemeProvider>
-      <FormDataContext.Provider value={{ globalData, setGlobalData }}>
+      <FormDataProvider >
         <Navbar />
         <div className="pt-20">
+          
           <FormProvider>
             {/* ORDEN DE PAGO */}
             <Routes>
@@ -154,8 +154,9 @@ export default function App() {
               </Route>
             </Routes>
           </FormProvider>
+        
         </div>
-      </FormDataContext.Provider>
+ </FormDataProvider >
     </ThemeProvider>
   );
 }
