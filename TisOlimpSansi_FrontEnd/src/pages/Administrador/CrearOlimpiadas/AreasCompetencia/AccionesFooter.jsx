@@ -5,7 +5,8 @@ const AccionesFooter = ({
   olimpiadaSeleccionada, 
   guardando, 
   mensajeExito,
-  textoBoton = "Guardar Configuración"
+  textoBoton = "Guardar Configuración",
+  bloqueado = false
 }) => {
   return (
     <div className="mt-8 flex justify-between items-center">
@@ -18,9 +19,9 @@ const AccionesFooter = ({
       </div>
       <button
         onClick={guardarConfiguracion}
-        disabled={!olimpiadaSeleccionada || guardando}
+        disabled={!olimpiadaSeleccionada || guardando || bloqueado}
         className={`px-4 py-2 text-white rounded-md shadow transition duration-150 ease-in-out ${
-          !olimpiadaSeleccionada || guardando
+          !olimpiadaSeleccionada || guardando || bloqueado
             ? "bg-gray-400 cursor-not-allowed"
             : "bg-blue-500 hover:bg-blue-600"
         }`}
