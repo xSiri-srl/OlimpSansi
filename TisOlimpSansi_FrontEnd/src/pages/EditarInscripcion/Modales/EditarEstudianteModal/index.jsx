@@ -13,6 +13,7 @@ const EditarEstudianteModal = ({
   cursoAreaCategoria,
   estudiantes,
   onEstudiantesChange,
+  nuevosErrores
 }) => {
   const {
     estudianteData,
@@ -25,9 +26,9 @@ const EditarEstudianteModal = ({
     validarFormatoCI,
     validarFormatoTelefono,
     validarCorreo,
-  } = useEstudianteForm(estudiante, estudiantes, onEstudiantesChange);
+  } = useEstudianteForm(estudiante, estudiantes, onEstudiantesChange, nuevosErrores);
   if (!estudianteData) return null;
-
+  
   const areasActuales = estudianteData.areas_competencia || [];
   const handleSave = () => {
     if (validarDatos()) {
@@ -113,7 +114,7 @@ const EditarEstudianteModal = ({
             onClick={handleSave}
             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
           >
-            Guardar Cambios
+            Guardar
           </button>
         </div>
       </div>

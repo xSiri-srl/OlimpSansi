@@ -47,6 +47,7 @@ const CodigoPreInscripcion = () => {
     guardarTodosLosCambios,
     paginate,
     totalErrors,
+    nuevosErrores,
   } = useCodigoPreInscripcion();
 
   const Modal = ({ show, onClose, title, children }) => {
@@ -131,11 +132,12 @@ const CodigoPreInscripcion = () => {
           cursoAreaCategoria={cursoAreaCategoria}
           estudiantes={estudiantes}
           onEstudiantesChange={setEstudiantes}
+          nuevosErrores={nuevosErrores}
         />
       )}
       {showModal && modalContent.type === "success" && (
         <Modal
-          show={showModal}
+          show={true}
           onClose={handleCloseModal2}
           title={modalContent.title}
         >

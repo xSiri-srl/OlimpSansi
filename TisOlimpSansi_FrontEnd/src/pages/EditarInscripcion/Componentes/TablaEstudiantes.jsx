@@ -36,12 +36,14 @@ const TablaEstudiantes = ({
     "Astronomía y Astrofísica": <FaAtom className="text-indigo-600" />,
   };
 
+  console.log(filteredEstudiantes);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredEstudiantes.slice(
     indexOfFirstItem,
     indexOfLastItem
   );
+
 
   return (
     <>

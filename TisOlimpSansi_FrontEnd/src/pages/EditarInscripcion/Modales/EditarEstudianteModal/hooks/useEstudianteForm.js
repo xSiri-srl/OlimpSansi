@@ -1,13 +1,16 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-export const useEstudianteForm = (estudiante, ests, onEstudiantesChange) => {
+export const useEstudianteForm = (estudiante, ests, onEstudiantesChange, nuevosErrores) => {
   const [estudianteData, setEstudianteData] = useState(null);
   const [errores, setErrores] = useState({});
   const [estudiantes, setEstudiantes] = useState(ests);
+  const [estOrig, setEstOrig] = useState(null);
+
 
   useEffect(() => {
     if (estudiante?.originalData) {
+      setEstOrig(estudiante);
       const normalizedData = estudiante.originalData;
       setEstudianteData(normalizedData);
     }
@@ -16,7 +19,6 @@ export const useEstudianteForm = (estudiante, ests, onEstudiantesChange) => {
   const handleChange = (section, field, value) => {
     setEstudianteData((prev) => {
       const newData = { ...prev };
-
       if (section === "estudiante") {
         newData.estudiante = { ...newData.estudiante, [field]: value };
         if (field === "correo") {
@@ -163,190 +165,231 @@ export const useEstudianteForm = (estudiante, ests, onEstudiantesChange) => {
     });
   };
 
-  const validarDatos = () => {
-    const nuevoErrores = {};
+const validarDatos = () => {
+  const nuevoErrores = {};
 
-    if (!estudianteData.estudiante?.nombre) {
-      nuevoErrores.nombre = "El nombre es obligatorio";
-    } else if (!/^[A-ZÁÉÍÓÚÑ\s]+$/i.test(estudianteData.estudiante.nombre)) {
-      nuevoErrores.nombre = "El nombre debe contener solo letras";
-    }
+  if (!estudianteData.estudiante?.nombre) {
+    nuevoErrores.nombre = "El nombre es obligatorio";
+  } else if (!/^[A-ZÁÉÍÓÚÑ\s]+$/i.test(estudianteData.estudiante.nombre)) {
+    nuevoErrores.nombre = "El nombre debe contener solo letras";
+  }
 
-    if (!estudianteData.estudiante?.apellido_pa) {
-      nuevoErrores.apellido_pa = "El apellido paterno es obligatorio";
-    } else if (
-      !/^[A-ZÁÉÍÓÚÑ\s]+$/i.test(estudianteData.estudiante.apellido_pa)
+  if (!estudianteData.estudiante?.apellido_pa) {
+    nuevoErrores.apellido_pa = "El apellido paterno es obligatorio";
+  } else if (
+    !/^[A-ZÁÉÍÓÚÑ\s]+$/i.test(estudianteData.estudiante.apellido_pa)
+  ) {
+    nuevoErrores.apellido_pa =
+      "El apellido paterno debe contener solo letras";
+  }
+
+  if (
+    estudianteData.estudiante?.apellido_ma &&
+    !/^[A-ZÁÉÍÓÚÑ\s]+$/i.test(estudianteData.estudiante.apellido_ma)
+  ) {
+    nuevoErrores.apellido_ma =
+      "El apellido materno debe contener solo letras";
+  }
+
+  if (!estudianteData.estudiante?.ci) {
+    nuevoErrores.ci = "El CI es obligatorio";
+  } else if (!/^\d{7,8}$/.test(estudianteData.estudiante.ci)) {
+    nuevoErrores.ci = "El CI debe contener entre 7 y 8 dígitos numéricos";
+  }
+
+  if (estudianteData.tutor_legal) {
+    if (
+      estudianteData.tutor_legal.nombre &&
+      !/^[A-ZÁÉÍÓÚÑ\s]+$/i.test(estudianteData.tutor_legal.nombre)
     ) {
-      nuevoErrores.apellido_pa =
-        "El apellido paterno debe contener solo letras";
+      nuevoErrores.tutor_legal_nombre =
+        "El nombre del tutor debe contener solo letras";
     }
 
     if (
-      estudianteData.estudiante?.apellido_ma &&
-      !/^[A-ZÁÉÍÓÚÑ\s]+$/i.test(estudianteData.estudiante.apellido_ma)
+      estudianteData.tutor_legal.apellido_pa &&
+      !/^[A-ZÁÉÍÓÚÑ\s]+$/i.test(estudianteData.tutor_legal.apellido_pa)
     ) {
-      nuevoErrores.apellido_ma =
-        "El apellido materno debe contener solo letras";
+      nuevoErrores.tutor_legal_apellido_pa =
+        "El apellido paterno del tutor debe contener solo letras";
     }
 
-    if (!estudianteData.estudiante?.ci) {
-      nuevoErrores.ci = "El CI es obligatorio";
-    } else if (!/^\d{7,8}$/.test(estudianteData.estudiante.ci)) {
-      nuevoErrores.ci = "El CI debe contener entre 7 y 8 dígitos numéricos";
+    if (
+      estudianteData.tutor_legal.apellido_ma &&
+      !/^[A-ZÁÉÍÓÚÑ\s]+$/i.test(estudianteData.tutor_legal.apellido_ma)
+    ) {
+      nuevoErrores.tutor_legal_apellido_ma =
+        "El apellido materno del tutor debe contener solo letras";
     }
 
-    if (estudianteData.tutor_legal) {
-      if (
-        estudianteData.tutor_legal.nombre &&
-        !/^[A-ZÁÉÍÓÚÑ\s]+$/i.test(estudianteData.tutor_legal.nombre)
-      ) {
-        nuevoErrores.tutor_legal_nombre =
-          "El nombre del tutor debe contener solo letras";
-      }
-
-      if (
-        estudianteData.tutor_legal.apellido_pa &&
-        !/^[A-ZÁÉÍÓÚÑ\s]+$/i.test(estudianteData.tutor_legal.apellido_pa)
-      ) {
-        nuevoErrores.tutor_legal_apellido_pa =
-          "El apellido paterno del tutor debe contener solo letras";
-      }
-
-      if (
-        estudianteData.tutor_legal.apellido_ma &&
-        !/^[A-ZÁÉÍÓÚÑ\s]+$/i.test(estudianteData.tutor_legal.apellido_ma)
-      ) {
-        nuevoErrores.tutor_legal_apellido_ma =
-          "El apellido materno del tutor debe contener solo letras";
-      }
-
-      if (estudianteData.tutor_legal?.ci) {
-        if (!/^\d{7,8}$/.test(estudianteData.tutor_legal.ci)) {
-          nuevoErrores.tutor_legal_ci =
-            "El CI del tutor debe contener entre 7 y 8 dígitos numéricos";
-        }
-      }
-
-      if (estudianteData.tutor_legal?.numero_celular) {
-        if (!/^\d{7,9}$/.test(estudianteData.tutor_legal.numero_celular)) {
-          nuevoErrores.tutor_legal_telefono =
-            "El teléfono debe contener entre 7 y 9 dígitos numéricos";
-        }
+    if (estudianteData.tutor_legal?.ci) {
+      if (!/^\d{7,8}$/.test(estudianteData.tutor_legal.ci)) {
+        nuevoErrores.tutor_legal_ci =
+          "El CI del tutor debe contener entre 7 y 8 dígitos numéricos";
       }
     }
-    estudianteData.tutores_academicos?.forEach((tutor, index) => {
-      const tutorData = tutor?.tutor || {};
-      const hasTutorData =
-        tutorData.nombre ||
-        tutorData.apellido_pa ||
-        tutorData.apellido_ma ||
-        tutorData.ci ||
-        tutorData.correo;
 
-      if (hasTutorData) {
-        if (!tutorData.nombre) {
-          nuevoErrores[`tutor_academico_${index}_nombre`] =
-            "El nombre del tutor académico es requerido";
-        } else if (!/^[A-ZÁÉÍÓÚÑ\s]+$/i.test(tutorData.nombre)) {
-          nuevoErrores[`tutor_academico_${index}_nombre`] =
-            "El nombre del tutor académico debe contener solo letras";
-        }
-
-        if (!tutorData.apellido_pa) {
-          nuevoErrores[`tutor_academico_${index}_apellido_pa`] =
-            "El apellido paterno del tutor académico es requerido";
-        } else if (!/^[A-ZÁÉÍÓÚÑ\s]+$/i.test(tutorData.apellido_pa)) {
-          nuevoErrores[`tutor_academico_${index}_apellido_pa`] =
-            "El apellido paterno del tutor académico debe contener solo letras";
-        }
-        if (!tutorData.apellido_ma) {
-          nuevoErrores[`tutor_academico_${index}_apellido_ma`] =
-            "El apellido materno del tutor académico es requerido";
-        } else if (!/^[A-ZÁÉÍÓÚÑ\s]+$/i.test(tutorData.apellido_ma)) {
-          nuevoErrores[`tutor_academico_${index}_apellido_ma`] =
-            "El apellido materno del tutor académico debe contener solo letras";
-        }
-
-        if (
-          tutorData.apellido_ma &&
-          !/^[A-ZÁÉÍÓÚÑ\s]+$/i.test(tutorData.apellido_ma)
-        ) {
-          nuevoErrores[`tutor_academico_${index}_apellido_ma`] =
-            "El apellido materno del tutor académico debe contener solo letras";
-        }
-
-        if (!tutorData.ci) {
-          nuevoErrores[`tutor_academico_${index}_ci`] =
-            "El CI del tutor académico es requerido";
-        } else if (!/^\d{7,8}$/.test(tutorData.ci)) {
-          nuevoErrores[`tutor_academico_${index}_ci`] =
-            "El CI del tutor académico debe contener entre 7 y 8 dígitos numéricos";
-        }
+    if (estudianteData.tutor_legal?.numero_celular) {
+      if (!/^\d{8}$/.test(estudianteData.tutor_legal.numero_celular)) {
+        nuevoErrores.tutor_legal_telefono =
+          "El teléfono debe contener 8 dígitos numéricos";
       }
+    }
+  }
+  
+  estudianteData.tutores_academicos?.forEach((tutor, index) => {
+    const tutorData = tutor?.tutor || {};
+    const hasTutorData =
+      tutorData.nombre ||
+      tutorData.apellido_pa ||
+      tutorData.apellido_ma ||
+      tutorData.ci ||
+      tutorData.correo;
+
+    if (hasTutorData) {
+      if (!tutorData.nombre) {
+        nuevoErrores[`tutor_academico_${index}_nombre`] =
+          "El nombre del tutor académico es requerido";
+      } else if (!/^[A-ZÁÉÍÓÚÑ\s]+$/i.test(tutorData.nombre)) {
+        nuevoErrores[`tutor_academico_${index}_nombre`] =
+          "El nombre del tutor académico debe contener solo letras";
+      }
+
+      if (!tutorData.apellido_pa) {
+        nuevoErrores[`tutor_academico_${index}_apellido_pa`] =
+          "El apellido paterno del tutor académico es requerido";
+      } else if (!/^[A-ZÁÉÍÓÚÑ\s]+$/i.test(tutorData.apellido_pa)) {
+        nuevoErrores[`tutor_academico_${index}_apellido_pa`] =
+          "El apellido paterno del tutor académico debe contener solo letras";
+      }
+      if (!tutorData.apellido_ma) {
+        nuevoErrores[`tutor_academico_${index}_apellido_ma`] =
+          "El apellido materno del tutor académico es requerido";
+      } else if (!/^[A-ZÁÉÍÓÚÑ\s]+$/i.test(tutorData.apellido_ma)) {
+        nuevoErrores[`tutor_academico_${index}_apellido_ma`] =
+          "El apellido materno del tutor académico debe contener solo letras";
+      }
+
+      if (
+        tutorData.apellido_ma &&
+        !/^[A-ZÁÉÍÓÚÑ\s]+$/i.test(tutorData.apellido_ma)
+      ) {
+        nuevoErrores[`tutor_academico_${index}_apellido_ma`] =
+          "El apellido materno del tutor académico debe contener solo letras";
+      }
+
+      if (!tutorData.ci) {
+        nuevoErrores[`tutor_academico_${index}_ci`] =
+          "El CI del tutor académico es requerido";
+      } else if (!/^\d{7,8}$/.test(tutorData.ci)) {
+        nuevoErrores[`tutor_academico_${index}_ci`] =
+          "El CI del tutor académico debe contener entre 7 y 8 dígitos numéricos";
+      }
+    }
+  });
+
+  if (!estudianteData.colegio?.nombre_colegio)
+    nuevoErrores.nombre_colegio = "El nombre del colegio es obligatorio";
+  if (!estudianteData.colegio?.curso)
+    nuevoErrores.curso = "El curso es obligatorio";
+
+  // Validación de área de competencia
+  if (
+    !estudianteData.areas_competencia ||
+    estudianteData.areas_competencia[0].nombre_area == "" ||
+    !estudianteData.areas_competencia[0]?.nombre_area
+  ) {
+    const mensaje = "Debe seleccionar un área de competencia";
+    nuevoErrores.areas = mensaje;
+    if (nuevosErrores && estOrig?.id) {
+      nuevosErrores(estOrig.id, mensaje);
+    }
+  }
+
+  // Validación de categoría
+  if (
+    !estudianteData.areas_competencia ||
+    estudianteData.areas_competencia[0].categoria == "" ||
+    !estudianteData.areas_competencia[0]?.categoria
+  ) {
+    let mensaje;
+    if (estudianteData.areas_competencia[0].nombre_area == "") {
+      mensaje = "Debe seleccionar un área de competencia y luego una categoria";
+    } else {
+      mensaje = `Debe seleccionar una categoría para ${estudianteData.areas_competencia[0].nombre_area}`;
+    }
+    nuevoErrores[`categoria_${0}`] = mensaje;
+    if (nuevosErrores && estOrig?.id) {
+      nuevosErrores(estOrig.id, mensaje);
+    }
+  }
+
+  // Validación de área repetida para el mismo estudiante
+  if (
+    estudianteData.areas_competencia &&
+    estudianteData.areas_competencia[0]?.nombre_area &&
+    estudianteData.areas_competencia[0]?.categoria &&
+    estudiantes &&
+    estudianteData.estudiante?.ci
+  ) {
+    const areaActual = estudianteData.areas_competencia[0].nombre_area;
+    const ciActual = estudianteData.estudiante.ci;
+    const idActual = estOrig.originalData.id_inscripcion;
+
+    // Buscar si existe otro estudiante con el mismo CI pero diferente ID que tenga la misma área
+    const areaRepetida = estudiantes.some((est) => {
+      return (
+        est.estudiante?.ci === ciActual &&
+        est.id_inscripcion !== idActual &&
+        est.areas_competencia &&
+        est.areas_competencia.some((area) => area.nombre_area === areaActual)
+      );
     });
-    if (!estudianteData.colegio?.nombre_colegio)
-      nuevoErrores.nombre_colegio = "El nombre del colegio es obligatorio";
-    if (!estudianteData.colegio?.curso)
-      nuevoErrores.curso = "El curso es obligatorio";
 
-    if (
-      !estudianteData.areas_competencia ||
-      estudianteData.areas_competencia[0].nombre_area == "" ||
-      !estudianteData.areas_competencia[0]?.nombre_area
-    ) {
-      nuevoErrores.areas = "Debe seleccionar un área de competencia";
-    }
-    if (
-      !estudianteData.areas_competencia ||
-      estudianteData.areas_competencia[0].categoria == "" ||
-      !estudianteData.areas_competencia[0]?.categoria
-    ) {
-      if (estudianteData.areas_competencia[0].nombre_area == "") {
-        nuevoErrores[
-          `categoria_${0}`
-        ] = `Debe seleccionar un área de competencia y luego una categoria`;
-      } else {
-        nuevoErrores[
-          `categoria_${0}`
-        ] = `Debe seleccionar una categoría para ${estudianteData.areas_competencia[0].nombre_area}`;
+    if (areaRepetida) {
+      const mensaje = "Esta area se esta repitiendo en el mismo estudiante, seleccione otra";
+      nuevoErrores.areas = mensaje;
+      if (nuevosErrores && estOrig?.id) {
+        nuevosErrores(estOrig.id, mensaje);
       }
     }
+  }
 
-    const tutorData = estudianteData.tutor_legal;
-    if (!tutorData.correo) {
-      nuevoErrores[`tutor_legal_correo`] = "El correo del tutor es requerido";
-    } else if (
-      !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(tutorData.correo)
-    ) {
-      nuevoErrores[`tutor_legal_correo`] = "El correo del tutor no es válido";
-    }
+  const tutorData = estudianteData.tutor_legal;
+  if (!tutorData.correo) {
+    nuevoErrores[`tutor_legal_correo`] = "El correo del tutor es requerido";
+  } else if (
+    !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(tutorData.correo)
+  ) {
+    nuevoErrores[`tutor_legal_correo`] = "El correo del tutor no es válido";
+  }
 
-    if (!estudianteData.estudiante?.correo) {
-      nuevoErrores.correo = "El correo del estudiante es obligatorio";
-    } else if (
+  if (!estudianteData.estudiante?.correo) {
+    nuevoErrores.correo = "El correo del estudiante es obligatorio";
+  } else if (
+    !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(
+      estudianteData.estudiante.correo
+    )
+  ) {
+    nuevoErrores.correo = "El correo del estudiante no es válido";
+  }
+
+  const tutorAcademicoData = estudianteData.tutores_academicos[0].tutor;
+
+  if (tutorAcademicoData.correo !== "") {
+    if (
       !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(
-        estudianteData.estudiante.correo
+        tutorAcademicoData.correo
       )
     ) {
-      nuevoErrores.correo = "El correo del estudiante no es válido";
+      nuevoErrores[`tutor_academico_${0}_correo`] =
+        "El correo del tutor académico no es válido";
     }
+  }
 
-    const tutorAcademicoData = estudianteData.tutores_academicos[0].tutor;
-
-    if (tutorAcademicoData.correo !== "") {
-      if (
-        !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(
-          tutorAcademicoData.correo
-        )
-      ) {
-        nuevoErrores[`tutor_academico_${0}_correo`] =
-          "El correo del tutor académico no es válido";
-      }
-    }
-
-    setErrores(nuevoErrores);
-    return Object.keys(nuevoErrores).length === 0;
-  };
+  setErrores(nuevoErrores);
+  return Object.keys(nuevoErrores).length === 0;
+};
   const tieneError = (campo) => Boolean(errores[campo]);
   const mostrarCampo = (campo) => {
     return true;

@@ -205,6 +205,7 @@ const useCodigoPreInscripcion = () => {
   };
 
   const filteredEstudiantes = processedEstudiantes.filter((estudiante) => {
+    console.log(estudiante.nombres);
     const matchesSearch =
       estudiante.nombres.toLowerCase().includes(searchTerm.toLowerCase()) ||
       estudiante.apellidoPaterno
@@ -230,6 +231,13 @@ const useCodigoPreInscripcion = () => {
       type: "details",
     });
     setShowModal(true);
+  };
+
+  const nuevosErrores = (id, mensaje) => {
+    const nuevos = processedEstudiantes.map(e =>
+      e.id === id ? { ...e, error: true, mensajeError: mensaje } : e
+    );
+    setProcessedEstudiantes(nuevos);
   };
 
   const handleCloseModal = () => {
@@ -355,6 +363,7 @@ const useCodigoPreInscripcion = () => {
     guardarTodosLosCambios,
     paginate,
     totalErrors,
+    nuevosErrores
   };
 };
 
