@@ -3,7 +3,7 @@
 use App\Http\Controllers\AuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
+use App\helpers\OrdenPagoHelper;
 use App\Http\Controllers\NombreDeHU1\UserPruebaController;
 use App\Http\Controllers\Inscripcion\ResponsableInscripcionController;
 use App\Http\Controllers\Inscripcion\TutorLegalController; 
@@ -214,4 +214,7 @@ Route::get('/estudiantes/pre-inscritos-olimpiada', [InscripcionController::class
 Route::get('/estudiantes/inscritos-olimpiada', [InscripcionController::class, 'contarInscritosPorOlimpiada']);
 
 
-
+Route::get('/probar-costos/{codigo}', function ($codigo) {
+    $resultado = OrdenPagoHelper::obtenerCostosOlimpiada($codigo);
+    return response()->json($resultado);
+});

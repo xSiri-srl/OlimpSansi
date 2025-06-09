@@ -116,7 +116,7 @@ class OrdenPagoHelper
             }
 
             // Obtener costos únicos por área (agrupando por área)
-            $costos = DB::table('olimpiada_area_categorias as oac')
+            $costos = DB::table('olimpiada_area_categoria as oac')
                 ->join('area as a', 'oac.id_area', '=', 'a.id')
                 ->where('oac.id_olimpiada', $idOlimpiada)
                 ->select(
