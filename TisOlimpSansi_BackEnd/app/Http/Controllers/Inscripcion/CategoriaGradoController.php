@@ -57,4 +57,5 @@ class CategoriaGradoController extends Controller
 
         return response()->json($resultado);
     }
+  
 }
