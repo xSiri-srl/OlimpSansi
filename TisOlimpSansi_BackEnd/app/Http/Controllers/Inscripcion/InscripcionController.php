@@ -773,8 +773,9 @@ public function actualizarLista(Request $request)
             $estudiantes = DB::table('inscripcion')
                 ->join('olimpiada_area_categoria', 'inscripcion.id_olimpiada_area_categoria', '=', 'olimpiada_area_categoria.id')
                 ->join('orden_pago', 'inscripcion.id_orden_pago', '=', 'orden_pago.id')
+                ->leftJoin('comprobante_pago', 'orden_pago.id', '=', 'comprobante_pago.id_orden_pago')
                 ->where('olimpiada_area_categoria.id_olimpiada', $olimpiadaId)
-                ->whereNull('orden_pago.numero_comprobante')
+                ->whereNull('comprobante_pago.numero_comprobante')
                 ->distinct('inscripcion.id_estudiante')
                 ->count('inscripcion.id_estudiante');
 
@@ -802,8 +803,9 @@ public function actualizarLista(Request $request)
             $estudiantes = DB::table('inscripcion')
                 ->join('olimpiada_area_categoria', 'inscripcion.id_olimpiada_area_categoria', '=', 'olimpiada_area_categoria.id')
                 ->join('orden_pago', 'inscripcion.id_orden_pago', '=', 'orden_pago.id')
+                ->join('comprobante_pago', 'orden_pago.id', '=', 'comprobante_pago.id_orden_pago')
                 ->where('olimpiada_area_categoria.id_olimpiada', $olimpiadaId)
-                ->whereNotNull('orden_pago.numero_comprobante')
+                ->whereNotNull('comprobante_pago.numero_comprobante')
                 ->distinct('inscripcion.id_estudiante')
                 ->count('inscripcion.id_estudiante');
 

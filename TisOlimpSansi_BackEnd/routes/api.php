@@ -131,7 +131,7 @@ Route::post('/procesar-comprobanteOCR', [OrdenPagoController::class, 'procesarCo
 Route::get('/obtener-orden-pago/{codigo}', [OrdenPagoController::class, 'obtenerOrdenPagoPorCodigo']);
 Route::get('/resumen-orden-pago/{codigo}', [OrdenPagoController::class, 'obtenerResumenPorCodigo']);
 Route::get('/dinero-por-departamento', [OrdenPagoController::class, 'dineroRecaudadoPorDepartamento']);
-Route::get('/ordenes-recientes', [OrdenPagoController::class, 'obtenerOrdenesConResponsable']);
+
 Route::get('/orden-de-pago/info', [OrdenPagoController::class, 'getInfOrdenesDePago']);
 Route::get('/orden-pago-existe/{codigo}', [OrdenPagoController::class, 'ordenPagoExiste']);
 Route::get('/todas-publicas', [OlimpiadaController::class, ' getTodasLasOlimpiadas']);
@@ -189,7 +189,7 @@ Route::get('/lista-inscritos', [InscripcionController::class, 'listarInscritos']
 Route::get('/preinscritos-por-codigo', [InscripcionController::class, 'registrosPorCodigo']);
 
 Route::get('/orden-pago', [OrdenPagoController::class, 'obtenerOrdenPago']);
-Route::get('/orden-pago-olimpiada', [OrdenPagoController::class, 'obtenerOrdenPagoPorOlimpiada']);
+
 Route::post('/orden-pago/pdf', [OrdenPagoController::class, 'generarYGuardarOrdenPagoPDF']);
 Route::get('/orden-pago/{codigoGenerado}', [OrdenPagoController::class, 'descargarOrdenPago']);
 Route::post('/verificar-codigo-generado', [OrdenPagoController::class, 'verificarCodigo']);
@@ -197,7 +197,7 @@ Route::post('/procesar-comprobanteOCR', [OrdenPagoController::class, 'procesarCo
 Route::get('/obtener-orden-pago/{codigo}', [OrdenPagoController::class, 'obtenerOrdenPagoPorCodigo']);
 Route::get('/resumen-orden-pago/{codigo}', [OrdenPagoController::class, 'obtenerResumenPorCodigo']);
 Route::get('/dinero-por-departamento', [OrdenPagoController::class, 'dineroRecaudadoPorDepartamento']);
-Route::get('/ordenes-recientes', [OrdenPagoController::class, 'obtenerOrdenesConResponsable']);
+
 Route::get('/orden-de-pago/info', [OrdenPagoController::class, 'getInfOrdenesDePago']);
 Route::get('/orden-pago-existe/{codigo}', [OrdenPagoController::class, 'ordenPagoExiste']);
 Route::get('/todas-publicas', [OlimpiadaController::class, 'getTodasLasOlimpiadas']);
@@ -210,8 +210,12 @@ Route::get('/estudiantes/pre-inscritos', [InscripcionController::class, 'contarP
 Route::get('/estudiantes/inscritos', [InscripcionController::class, 'contarInscritos']);
 
 // Nuevas rutas para estadísticas por olimpiada
+
+
+
+Route::get('/orden-pago-olimpiada', [OrdenPagoController::class, 'obtenerOrdenPagoPorOlimpiada']);
 Route::get('/estudiantes/pre-inscritos-olimpiada', [InscripcionController::class, 'contarPreinscritosPorOlimpiada']);
 Route::get('/estudiantes/inscritos-olimpiada', [InscripcionController::class, 'contarInscritosPorOlimpiada']);
 
 
-
+Route::get('/ordenes-recientes', [OrdenPagoController::class, 'obtenerOrdenesConResponsable']);

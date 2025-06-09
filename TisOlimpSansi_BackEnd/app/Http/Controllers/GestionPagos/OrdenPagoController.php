@@ -584,53 +584,72 @@ public function verificarCodigo(Request $request)
     return response()->json($ordenesPago);
     }
 
-    public function obtenerOrdenesConResponsable(){
-        try {
-            //calcular la fecha de hace 7 días
-            $fechaLimite = now()->subDays(7);
-            
-            $ordenesPago = OrdenPagoModel::where('fecha_emision', '>=', $fechaLimite)
-                ->orderBy('fecha_emision', 'desc')
-                ->get();
-                
-            $resultado = [];
-            
-            foreach ($ordenesPago as $orden) {
-                $inscripcion = InscripcionModel::where('id_orden_pago', $orden->id)
-                    ->with('responsable')
-                    ->first();
-                    
-                $responsable = $inscripcion ? $inscripcion->responsable : null;
-                
-                $nombreResponsable = 'No disponible';
-                if ($responsable) {
-                    $nombreResponsable = trim(
-                        ($responsable->nombre ?? '') . ' ' .
-                        ($responsable->apellido_pa ?? '') . ' ' .
-                        ($responsable->apellido_ma ?? '')
-                    );
-                }
-                
-                $fecha = $orden->fecha_emision ? 
-                    date('d M Y', strtotime($orden->fecha_emision)) : 
-                    'Fecha no disponible';
-                    
-                $resultado[] = [
-                    'id' => $orden->codigo_generado,
-                    'responsable' => $nombreResponsable,
-                    'fecha' => $fecha,
-                    'monto' => $orden->monto_total,
-                    'estado' => $orden->numero_comprobante ? 'pagado' : 'pendiente'
-                ];
-            }
-                
-            return response()->json($resultado);
-            
-        } catch (\Exception $e) {
-            \Log::error('Error en obtenerOrdenesConResponsable: ' . $e->getMessage());
-            return response()->json(['error' => 'Error al procesar la solicitud'], 500);
+public function obtenerOrdenesConResponsable(Request $request){
+    try {
+        // Validar que se envíe el olimpiada_id
+        $olimpiadaId = $request->query('olimpiada_id');
+        \Log::info('obtenerOrdenesConResponsable llamado con olimpiada_id: ' . $olimpiadaId);
+        
+        if (!$olimpiadaId) {
+            return response()->json(['error' => 'olimpiada_id es requerido'], 400);
         }
+        
+        // Calcular la fecha de hace 7 días
+        $fechaLimite = now()->subDays(7);
+        
+        // Obtener las órdenes de pago con sus relaciones
+        $ordenesPago = OrdenPagoModel::with([
+                'responsable', // Relación directa con responsable_inscripcion
+                'comprobantePago' // Para verificar si tiene comprobante
+            ])
+            ->whereHas('inscripciones', function($query) use ($olimpiadaId) {
+                $query->whereHas('olimpiadaAreaCategoria', function($subQuery) use ($olimpiadaId) {
+                    $subQuery->where('id_olimpiada', $olimpiadaId);
+                });
+            })
+            ->where('fecha_emision', '>=', $fechaLimite)
+            ->orderBy('fecha_emision', 'desc')
+            ->get();
+            
+        \Log::info('Órdenes encontradas: ' . $ordenesPago->count());
+        
+        $resultado = $ordenesPago->map(function($orden) {
+            // Obtener el responsable directamente de la relación
+            $responsable = $orden->responsable;
+            
+            $nombreResponsable = 'No disponible';
+            if ($responsable) {
+                $nombreResponsable = trim(
+                    ($responsable->nombre ?? '') . ' ' .
+                    ($responsable->apellido_pa ?? '') . ' ' .
+                    ($responsable->apellido_ma ?? '')
+                );
+            }
+            
+            $fecha = $orden->fecha_emision ? 
+                $orden->fecha_emision->format('d M Y') : 
+                'Fecha no disponible';
+            
+            // Determinar estado basado en el campo estado de la orden
+            $estado = $orden->estado;
+                
+            return [
+                'id' => $orden->codigo_generado,
+                'responsable' => $nombreResponsable,
+                'fecha' => $fecha,
+                'monto' => number_format($orden->monto_total, 2),
+                'estado' => $estado
+            ];
+        });
+            
+        return response()->json($resultado->toArray());
+        
+    } catch (\Exception $e) {
+        \Log::error('Error en obtenerOrdenesConResponsable: ' . $e->getMessage());
+        \Log::error('Stack trace: ' . $e->getTraceAsString());
+        return response()->json(['error' => 'Error al procesar la solicitud', 'message' => $e->getMessage()], 500);
     }
+}
 
 
 
@@ -742,8 +761,14 @@ public function verificarCodigo(Request $request)
             $ordenes = DB::table('orden_pago')
                 ->join('inscripcion', 'orden_pago.id', '=', 'inscripcion.id_orden_pago')
                 ->join('olimpiada_area_categoria', 'inscripcion.id_olimpiada_area_categoria', '=', 'olimpiada_area_categoria.id')
+                ->leftJoin('comprobante_pago', 'orden_pago.id', '=', 'comprobante_pago.id_orden_pago')
                 ->where('olimpiada_area_categoria.id_olimpiada', $olimpiadaId)
-                ->select('orden_pago.*')
+                ->select(
+                    'orden_pago.*',
+                    'comprobante_pago.numero_comprobante',
+                    'comprobante_pago.nombre_pagador',
+                    'comprobante_pago.fecha_subida_imagen_comprobante'
+                )
                 ->distinct('orden_pago.id')
                 ->get();
 

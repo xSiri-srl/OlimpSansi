@@ -13,25 +13,27 @@ const OlimpiadaSelector = ({ onOlimpiadaChange, darkMode }) => {
 
   const fetchOlimpiadas = async () => {
     try {
-      console.log('Intentando cargar olimpiadas desde:', `${API_URL}/api/get-olimpiadaz`);
+      console.log('🔍 OlimpiadaSelector - Cargando olimpiadas...');
       
-      // Usar el endpoint correcto que ya existe en tu backend
       const response = await axios.get(`${API_URL}/api/get-olimpiadaz`);
+      const olimpiadasData = response.data.data || [];
       
-      console.log('Respuesta del servidor:', response.data);
+      console.log('🔍 OlimpiadaSelector - Olimpiadas recibidas:', olimpiadasData);
       
-      setOlimpiadas(response.data.data || []);
+      setOlimpiadas(olimpiadasData);
       
-      // Seleccionar la primera olimpiada por defecto
-      if (response.data.data && response.data.data.length > 0) {
-        const primeraOlimpiada = response.data.data[0];
-        setOlimpiadaSeleccionada(primeraOlimpiada.id);
+      if (olimpiadasData.length > 0) {
+        const primeraOlimpiada = olimpiadasData[0];
+        console.log('🔍 OlimpiadaSelector - Seleccionando primera olimpiada:', primeraOlimpiada);
+        
+        setOlimpiadaSeleccionada(primeraOlimpiada.id.toString());
+        
+        // IMPORTANTE: Llamar a onOlimpiadaChange INMEDIATAMENTE
+        console.log('🔍 OlimpiadaSelector - Llamando onOlimpiadaChange con:', primeraOlimpiada);
         onOlimpiadaChange(primeraOlimpiada);
       }
     } catch (error) {
-      console.error('Error al cargar olimpiadas:', error);
-      console.error('URL intentada:', `${API_URL}/api/get-olimpiadaz`);
-      console.error('Error completo:', error.response || error.message);
+      console.error('❌ OlimpiadaSelector - Error:', error);
     } finally {
       setLoading(false);
     }
@@ -39,10 +41,27 @@ const OlimpiadaSelector = ({ onOlimpiadaChange, darkMode }) => {
 
   const handleOlimpiadaChange = (e) => {
     const olimpiadaId = e.target.value;
+    console.log('🔄 OlimpiadaSelector - Cambio de selección:', olimpiadaId);
+    
     setOlimpiadaSeleccionada(olimpiadaId);
     
-    const olimpiada = olimpiadas.find(o => o.id.toString() === olimpiadaId);
-    onOlimpiadaChange(olimpiada);
+    if (olimpiadaId === '') {
+      console.log('🔄 OlimpiadaSelector - Selección vacía, enviando null');
+      onOlimpiadaChange(null);
+      return;
+    }
+    
+    const olimpiada = olimpiadas.find(o => 
+      o.id.toString() === olimpiadaId || o.id === parseInt(olimpiadaId)
+    );
+    
+    console.log('🔄 OlimpiadaSelector - Olimpiada encontrada:', olimpiada);
+    
+    if (olimpiada) {
+      onOlimpiadaChange(olimpiada);
+    } else {
+      console.error(' OlimpiadaSelector - No se encontró olimpiada con ID:', olimpiadaId);
+    }
   };
 
   if (loading) {
@@ -78,18 +97,12 @@ const OlimpiadaSelector = ({ onOlimpiadaChange, darkMode }) => {
       >
         <option value="">Seleccione una olimpiada</option>
         {olimpiadas.map((olimpiada) => (
-          <option key={olimpiada.id} value={olimpiada.id}>
+          <option key={olimpiada.id} value={olimpiada.id.toString()}>
             {olimpiada.titulo} ({new Date(olimpiada.fecha_ini).getFullYear()})
           </option>
         ))}
       </select>
       
-      {/* Debug info - puedes remover esto después */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="mt-2 text-xs text-gray-500">
-          Olimpiadas cargadas: {olimpiadas.length}
-        </div>
-      )}
     </div>
   );
 };

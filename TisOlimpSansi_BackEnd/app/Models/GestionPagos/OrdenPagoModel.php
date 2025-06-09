@@ -39,6 +39,6 @@ class OrdenPagoModel extends Model
     }
 
     public function comprobantePago(){
-        return $this->hasMany(ComprobantePagoModel::class, 'id_orden_pago');
+        return $this->hasOne(ComprobantePagoModel::class, 'id_orden_pago');
     }
 }
