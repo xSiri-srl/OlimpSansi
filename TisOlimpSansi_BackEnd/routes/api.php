@@ -59,16 +59,7 @@ Route::controller(TutorAcademicoController::class)->group(function(){
     Route::get('/buscar-tutor/{ci}', [TutorAcademicoController::class, 'buscarTutor']); 
 });
 
-//SeleccionarAreasCompetencia
-Route::controller(InscripcionCategoriaController::class)->group(function(){
 
-    Route::get('/todasInscripciones', [InscripcionCategoriaController::class, 'index']);
-    Route::post('/agregarInscripcionCategoria', [InscripcionCategoriaController::class, 'store']);
-    Route::get('/inscripcionCategoria/{id}', [InscripcionCategoriaController::class, 'show']);
-    Route::put('/actualizarInscripcionCategoria/{id}', [InscripcionCategoriaController::class, 'update']);
-    Route::delete('/eliminarInscripcionCategoria/{id}', [InscripcionCategoriaController::class, 'destroy']);
-    
-});
 Route::controller(CategoriaController::class)->group(function(){
 
     Route::get('/categorias', [CategoriaController::class, 'index']);
@@ -129,15 +120,6 @@ Route::controller(ConvocatoriaController::class)->group(function(){
     Route::get('/convocatoria-por-area/{id}', [ConvocatoriaController::class, 'convocatoriaPorArea']);
 });
 
-//olimpiada
-Route::controller(OlimpiadaController::class)->group(function(){
-
-    Route::get('/olimpiadas', [OlimpiadaController::class, 'index']);
-    Route::post('/agregar-olimpiada', [OlimpiadaController::class, 'store']);
-    Route::get('/olimpiada/{id}', [OlimpiadaController::class, 'show']);
-    Route::post('/actualizar-olimpiada/{id}', [OlimpiadaController::class, 'update']);
-    Route::delete('/eliminar-olimpiada/{id}', [OlimpiadaController::class, 'destroy']);
-});
 
 
 

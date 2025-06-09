@@ -67,7 +67,6 @@ const Login = () => {
     try {
       const data = await loginUser(username, password);
       setLoginError("");
-      localStorage.setItem("user", JSON.stringify(data));
       navigate("/admin/crear-olimpiada");
     } catch (error) {
       console.error(error);
@@ -165,7 +164,7 @@ const Login = () => {
             </button>
           </form>
 
-         {/*<p className="mt-6 text-center text-sm text-gray-600">
+         {<p className="mt-6 text-center text-sm text-gray-600">
             {showRegister ? "¿Ya tienes cuenta?" : "¿No tienes cuenta?"}{" "}
             <button
               onClick={() => setShowRegister(!showRegister)}
@@ -173,7 +172,7 @@ const Login = () => {
             >
               {showRegister ? "Iniciar sesión" : "Registrarse"}
             </button>
-          </p>*/ } 
+          </p> } 
         </div>
       </div>
     </div>

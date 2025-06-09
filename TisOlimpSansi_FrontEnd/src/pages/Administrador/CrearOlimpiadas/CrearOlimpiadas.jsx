@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import DatePicker, { registerLocale } from "react-datepicker";
 import es from "date-fns/locale/es";
@@ -18,6 +18,7 @@ import { API_URL } from "../../../utils/api";
 
 // Importar el nuevo modal
 import ModalTareasPendientes from "./Modales/ModalTareasPendientes";
+import obtenerUsuario from "../../../funciones/obtenerUser";
 
 const CrearOlimpiadas = () => {
   const [titulo, setTitulo] = useState("");
@@ -34,9 +35,17 @@ const CrearOlimpiadas = () => {
   const [showTareasModal, setShowTareasModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [olimpiadaCreada, setOlimpiadaCreada] = useState(null);
-  
+  const [idUser,setIdUser] = useState(null)
   const years = Array.from({ length: 2030 - 2025 + 1 }, (_, i) => 2025 + i);
-
+    
+  useEffect(() => {
+    (async () => {
+      const usuario = await obtenerUsuario();
+      if (usuario) {
+        setIdUser(usuario.id);
+      }
+    })();
+  }, []); 
   const validarCampos = () => {
     // Convertir la fecha actual a string en formato YYYY-MM-DD
     const hoy = new Date();
@@ -85,11 +94,8 @@ const CrearOlimpiadas = () => {
       const csrfToken = Cookies.get("XSRF-TOKEN");
       axios.defaults.headers.common["X-XSRF-TOKEN"] = csrfToken;
 
-      const userData = JSON.parse(localStorage.getItem("user"));
-      const userId = userData?.user?.id;
-
       const olimpiadaData = {
-        id_user: userId,
+        id_user: idUser,
         titulo,
         fecha_ini: fechaIni,
         fecha_fin: fechaFinal,

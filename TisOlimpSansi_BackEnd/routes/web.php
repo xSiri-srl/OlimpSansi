@@ -37,6 +37,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Rutas para olimpiadas - solo usuarios con permiso crear_olimpiada
     Route::middleware('permiso:crear_olimpiada')->group(function () {
+         Route::post('/agregar-olimpiada', [OlimpiadaController::class, 'store']);
         // Obtener olimpiadas
         Route::get('/getOlimpiadas', [OlimpiadaController::class, 'getOlimpiadas']);
         Route::post('/olimpiada/max-materias', [OlimpiadaController::class, 'setNumMaxMaterias']);
@@ -66,12 +67,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/desasociar-categorias-olimpiada', [OlimpiadaAreaController::class, 'desasociarCategorias']);
    
     });
-});
-
-Route::controller(OlimpiadaController::class)->group(function(){
-    //crear olimpiadas
-    Route::post('/agregar-olimpiada', [OlimpiadaController::class, 'store'])
-    ->middleware(['auth:sanctum', 'permiso:crear_olimpiada']);
 });
 
 Route::get('/areas-olimpiada/{id}', [OlimpiadaAreaController::class, 'getAreasPorOlimpiada']);

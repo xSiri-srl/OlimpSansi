@@ -41,10 +41,10 @@ const PanelDatos = () => {
       <div className="container mx-auto px-4 py-8">
         <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
         <StatisticsCards stats={stats} darkMode={darkMode} />
-        <ChartsSection chartData={chartData} darkMode={darkMode} />
+        {/*<ChartsSection chartData={chartData} darkMode={darkMode} />
         <PieChartSection stats={stats} darkMode={darkMode} />
         <MapSection darkMode={darkMode} />
-        <GraficoCompararInscripciones darkMode={darkMode} />
+        <GraficoCompararInscripciones darkMode={darkMode} />*/}
       </div>
     </div>
   );

@@ -22,17 +22,10 @@ const SubirComprobante = () => {
   const [errorNumero, setErrorNumero] = useState("");
   const [errorNombre, setErrorNombre] = useState("");
   const [errorFecha, setErrorFecha] = useState("");
-
-  const storedCodigoGenerado = localStorage.getItem("codigoGenerado");
-
   const [codigoGenerado, setCodigoGenerado] = useState(
-    storedCodigoGenerado || ""
+    ""
   );
-  useEffect(() => {
-    if (codigoGenerado) {
-      localStorage.setItem("codigoGenerado", codigoGenerado);
-    }
-  }, [codigoGenerado]);
+
 
   const handleFinalizar = () => {
     let valid = true;
@@ -86,7 +79,6 @@ const SubirComprobante = () => {
   };
 
   const handleAceptar = () => {
-    localStorage.removeItem("codigoGenerado");
     setCodigoGenerado("");
     setStep(1);
     setSelectedFile(null);
