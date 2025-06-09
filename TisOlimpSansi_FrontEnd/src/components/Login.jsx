@@ -14,7 +14,7 @@ const Login = () => {
   const [newUsername, setNewUsername] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [registerError, setRegisterError] = useState("");
-  const [rolBasico] = useState(1);
+  const [rolBasico] = useState(2); // Cambiado a 2 para CreadorDeOlimpiada
   const navigate = useNavigate();
   const [auth, setAuth] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -67,7 +67,8 @@ const Login = () => {
     try {
       const data = await loginUser(username, password);
       setLoginError("");
-      navigate("/admin/crear-olimpiada");
+      // Redirigir a inicio en lugar de crear olimpiada
+      navigate("/", { replace: true });
     } catch (error) {
       console.error(error);
       setLoginError(error.response?.data?.message || "Error al iniciar sesión");
