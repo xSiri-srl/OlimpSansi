@@ -195,6 +195,8 @@ Route::get('/areas-categorias-olimpiada', [OlimpiadaController::class, 'getAreas
 
 
 Route::get('/curso-area-categoria-por-olimpiada', [CategoriaGradoController::class, 'obtenerCategoriasPorGrado']);
+Route::get('/categorias-grado', [CategoriaGradoController::class, 'obtenerCategoriasGrado']);
+
 
 //mostrar todas las categorias de esa materia de una olimpiada
 

@@ -39,6 +39,7 @@ const AreasCompetencia = ({
       obtenerAreasHabilitadas();
     }
   }, [globalData.olimpiada]);
+
   // Obtener áreas disponibles para el curso del estudiante
   const areasDisponiblesPorCurso = useMemo(() => {
     const curso = estudianteData.colegio?.curso;
@@ -67,19 +68,28 @@ const AreasCompetencia = ({
       .replace(/Ñ/g, "N");
   };
 
+  // FUNCIÓN CORREGIDA: Validar que la categoría esté disponible para el curso específico del estudiante
   const esCategoriaValida = (area, categoria) => {
     if (!categoria || !area) return true;
 
-    const areaNormalizada = normalizeString(area);
-    const areaKey = Object.keys(areasDisponiblesPorCurso).find(
-      (key) => normalizeString(key) === areaNormalizada
-    );
+    const curso = estudianteData.colegio?.curso;
+    if (!curso) return false;
 
-    if (!areaKey || !areasDisponiblesPorCurso[areaKey]) {
+    // Verificar que el curso tenga esta área y categoría específica
+    if (!gradoAreaCurso[curso] || !gradoAreaCurso[curso].areas) {
       return false;
     }
 
-    const categoriasDisponibles = areasDisponiblesPorCurso[areaKey];
+    const areaNormalizada = normalizeString(area);
+    const areaKey = Object.keys(gradoAreaCurso[curso].areas).find(
+      (key) => normalizeString(key) === areaNormalizada
+    );
+
+    if (!areaKey || !gradoAreaCurso[curso].areas[areaKey]) {
+      return false;
+    }
+
+    const categoriasDisponibles = gradoAreaCurso[curso].areas[areaKey];
     return categoriasDisponibles.some(
       (cat) => normalizeString(cat) === normalizeString(categoria)
     );
@@ -220,7 +230,6 @@ const AreasCompetencia = ({
               } ${!esAreaEditable() ? "bg-gray-100" : ""}`}
               value={areasActuales[0]?.nombre_area || ""}
               onChange={(e) => {
-                console.log("Cambiando área a:", e.target.value);
                 handleChange("area_0", "nombre_area", e.target.value);
                 handleChange("area_0", "categoria", "");
               }}
