@@ -312,7 +312,7 @@ const AreaCompetencia = ({
               ))}
             </div>
           ) : (
-            <p className="italic">No hay categorías asociadas. {modoAsociacion ? "Haga clic en 'Asociar Categorías' para agregar." : "Este área no tiene categorías configuradas."}</p>
+            <p className="italic">No hay categorías asociadas. {modoAsociacion ? "Haga click en 'Ver Categorías' para agregar." : "Este área no tiene categorías configuradas."}</p>
           )}
         </div>
             )}
