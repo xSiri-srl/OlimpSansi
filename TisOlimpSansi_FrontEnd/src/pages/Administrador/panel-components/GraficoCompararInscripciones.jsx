@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-
 import { ResponsiveBar } from '@nivo/bar';
 import { FaSpinner } from 'react-icons/fa';
 import { API_URL } from '../../../utils/api';
 import axios from 'axios';
 
-const GraficoCompararInscripciones = ({ darkMode }) => {
+const GraficoCompararInscripciones = ({ darkMode, olimpiadaSeleccionada }) => {
   const [vistaActual, setVistaActual] = useState('area');
   const [datosGrafico, setDatosGrafico] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -17,93 +16,53 @@ const GraficoCompararInscripciones = ({ darkMode }) => {
         setLoading(true);
         setError(null);
 
+        // Validar que se haya seleccionado una olimpiada
+        if (!olimpiadaSeleccionada || !olimpiadaSeleccionada.id) {
+          setError("Debe seleccionar una olimpiada para visualizar los datos");
+          setDatosGrafico([]);
+          setLoading(false);
+          return;
+        }
+
         const endpoint = vistaActual === 'area' 
-          ? `${API_URL}/api/inscripciones/por-area` 
-          : `${API_URL}/api/inscripciones/por-categoria`;
+          ? `inscripciones/por-area` 
+          : `inscripciones/por-categoria`;
         
-        const response = await axios.get(`${API_URL}/api`);
+        const response = await axios.get(`${API_URL}/api/${endpoint}`, {
+          params: {
+            olimpiada_id: olimpiadaSeleccionada.id
+          }
+        });
+        
         setDatosGrafico(response.data || []);
       } catch (err) {
         console.error("Error al cargar datos:", err);
-        setError("No se pudieron cargar los datos para el gráfico");
+        
+        if (err.response && err.response.status === 400) {
+          setError("Error: ID de olimpiada requerido");
+        } else {
+          setError("No se pudieron cargar los datos para el gráfico");
+        }
 
-        const datosPrueba = vistaActual === 'area' ? getDatosPruebaArea() : getDatosPruebaCategoria();
-        setDatosGrafico(datosPrueba);
+        // Usar datos de prueba solo en caso de error de conexión
+        if (!err.response) {
+          const datosPrueba = vistaActual === 'area' ? getDatosPruebaArea() : getDatosPruebaCategoria();
+          setDatosGrafico(datosPrueba);
+        }
       } finally {
         setLoading(false);
       }
     };
     
     fetchData();
-  }, [vistaActual]);
+  }, [vistaActual, olimpiadaSeleccionada]);
 
   const getDatosPruebaArea = () => {
-    return [
-      {
-        area: "Matemáticas",
-        inscritos: 45,
-        preinscritos: 28
-      },
-      {
-        area: "Física",
-        inscritos: 38,
-        preinscritos: 24
-      },
-      {
-        area: "Química",
-        inscritos: 32,
-        preinscritos: 19
-      },
-      {
-        area: "Biología",
-        inscritos: 29,
-        preinscritos: 21
-      },
-      {
-        area: "Informática",
-        inscritos: 41,
-        preinscritos: 26
-      },
-      {
-        area: "Robótica",
-        inscritos: 27,
-        preinscritos: 17
-      },
-      {
-        area: "Astronomía",
-        inscritos: 22,
-        preinscritos: 14
-      }
-    ];
+    return [];
   };
  
   const getDatosPruebaCategoria = () => {
     return [
-      {
-        categoria: "Primaria A",
-        inscritos: 25,
-        preinscritos: 18
-      },
-      {
-        categoria: "Primaria B",
-        inscritos: 28,
-        preinscritos: 22
-      },
-      {
-        categoria: "Secundaria A",
-        inscritos: 32,
-        preinscritos: 19
-      },
-      {
-        categoria: "Secundaria B",
-        inscritos: 38,
-        preinscritos: 25
-      },
-      {
-        categoria: "Secundaria C",
-        inscritos: 35,
-        preinscritos: 20
-      }
     ];
   };
  
@@ -135,12 +94,49 @@ const GraficoCompararInscripciones = ({ darkMode }) => {
       </div>
     );
   }
+
+  // Mostrar mensaje si no hay olimpiada seleccionada
+  if (!olimpiadaSeleccionada || !olimpiadaSeleccionada.id) {
+    return (
+      <div className={`${darkMode ? "bg-gray-800" : "bg-white"} rounded-lg shadow-md p-6 mb-8`}>
+        <h2 className={`text-xl font-bold ${darkMode ? "text-white" : "text-gray-800"} mb-4`}>
+          Comparativa de Inscripciones
+        </h2>
+        <div className="flex justify-center items-center py-16">
+          <div className={`text-center ${darkMode ? "text-gray-400" : "text-gray-500"}`}>
+            <p className="text-lg mb-2">Por favor, selecciona una olimpiada</p>
+            <p className="text-sm">Los datos se mostrarán una vez que selecciones una olimpiada específica</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Mostrar mensaje si no hay datos
+  if (datosGrafico.length === 0 && !error) {
+    return (
+      <div className={`${darkMode ? "bg-gray-800" : "bg-white"} rounded-lg shadow-md p-6 mb-8`}>
+        <h2 className={`text-xl font-bold ${darkMode ? "text-white" : "text-gray-800"} mb-4`}>
+          Comparativa de Inscripciones - {olimpiadaSeleccionada.titulo}
+        </h2>
+        <div className="flex justify-center items-center py-16">
+          <div className={`text-center ${darkMode ? "text-gray-400" : "text-gray-500"}`}>
+            <p className="text-lg mb-2">No hay inscripciones para esta olimpiada</p>
+            <p className="text-sm">Los datos aparecerán cuando haya inscripciones registradas</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
   
   return (
     <div className={`${darkMode ? "bg-gray-800" : "bg-white"} rounded-lg shadow-md p-6 mb-8`}>
-      <h2 className={`text-xl font-bold ${darkMode ? "text-white" : "text-gray-800"} mb-4`}>
+      <h2 className={`text-xl font-bold ${darkMode ? "text-white" : "text-gray-800"} mb-2`}>
         Comparativa de Inscripciones
       </h2>
+      <p className={`text-sm ${darkMode ? "text-gray-400" : "text-gray-600"} mb-4`}>
+        {olimpiadaSeleccionada.titulo}
+      </p>
       
       <div className="flex justify-center mb-6">
         <div className={`inline-flex rounded-md shadow-sm ${darkMode ? "bg-gray-700" : "bg-gray-200"}`} role="group">
@@ -168,10 +164,10 @@ const GraficoCompararInscripciones = ({ darkMode }) => {
       </div>
       
       {error && (
-        <div className={`text-center mb-4 ${
-          darkMode ? "text-yellow-400" : "text-yellow-600"
+        <div className={`text-center mb-4 p-3 rounded ${
+          darkMode ? "bg-yellow-900 text-yellow-300" : "bg-yellow-100 text-yellow-800"
         }`}>
-          <p>Usando datos de ejemplo para visualización. {error}</p>
+          <p>{error}</p>
         </div>
       )}
    

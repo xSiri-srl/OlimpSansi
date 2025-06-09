@@ -5,6 +5,9 @@ use App\Http\Controllers\GestionOlimpiadas\OlimpiadaController;
 use App\Http\Controllers\GestionOlimpiadas\OlimpiadaAreaController;
 use App\Http\Middleware\VerifyCsrfToken;
 use App\Helpers\OrdenPagoHelper;
+use App\Http\Controllers\GestionPagos\OrdenPagoController;
+use App\Http\Controllers\Inscripcion\ColegioController;
+use App\Http\Controllers\Inscripcion\InscripcionController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 
@@ -12,7 +15,7 @@ use Illuminate\Http\Request;
 Route::post('/login', [AuthController::class, 'login']);
 
 
-Route::post('/registro', [AuthController::class, 'register']);
+//Route::post('/registro', [AuthController::class, 'register']);
 
 Route::get('/obtener-costos-olimpiada/{id}', [OlimpiadaAreaController::class, 'obtenerCostos']);
 Route::get('/areas-habilitadas/{id}', [OlimpiadaController::class, 'obtenerCombinacionesOlimpiada']);
@@ -37,6 +40,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Rutas para olimpiadas - solo usuarios con permiso crear_olimpiada
     Route::middleware('permiso:crear_olimpiada')->group(function () {
+         Route::post('/agregar-olimpiada', [OlimpiadaController::class, 'store']);
         // Obtener olimpiadas
         Route::get('/getOlimpiadas', [OlimpiadaController::class, 'getOlimpiadas']);
         Route::post('/olimpiada/max-materias', [OlimpiadaController::class, 'setNumMaxMaterias']);
@@ -66,12 +70,27 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/desasociar-categorias-olimpiada', [OlimpiadaAreaController::class, 'desasociarCategorias']);
    
     });
-});
 
-Route::controller(OlimpiadaController::class)->group(function(){
-    //crear olimpiadas
-    Route::post('/agregar-olimpiada', [OlimpiadaController::class, 'store'])
-    ->middleware(['auth:sanctum', 'permiso:crear_olimpiada']);
+    // Route::middleware('permiso:ver_preinscritos')->group(function () {
+    //     Route::get('/estudiantes/pre-inscritos-olimpiada', [InscripcionController::class, 'contarPreinscritosPorOlimpiada']);
+        
+    //     Route::post('/estudiantes/preinscritos/departamento', [ColegioController::class, 'contarPreinscritosPorDepartamento']);
+
+    //     Route::get('/inscripciones/por-area', [InscripcionController::class, 'inscripcionesPorArea']);
+    //     Route::get('/inscripciones/por-categoria', [InscripcionController::class, 'inscripcionesPorCategoria']);
+
+    // });
+
+    // Route::middleware('permiso:ver_ordenes_pago')->group(function () {
+    //     Route::get('/orden-pago-olimpiada', [OrdenPagoController::class, 'obtenerOrdenPagoPorOlimpiada']);
+    //     Route::get('/ordenes-recientes', [OrdenPagoController::class, 'obtenerOrdenesConResponsable']);
+
+    // });
+    // Route::middleware('permiso:ver_inscripciones_verificadas')->group(function () {
+    //     Route::get('/estudiantes/inscritos-olimpiada', [InscripcionController::class, 'contarInscritosPorOlimpiada']);
+    //     Route::post('/estudiantes/inscritos/departamento', [ColegioController::class, 'contarInscritosPorDepartamento']);
+    // });
+    
 });
 
 Route::get('/areas-olimpiada/{id}', [OlimpiadaAreaController::class, 'getAreasPorOlimpiada']);

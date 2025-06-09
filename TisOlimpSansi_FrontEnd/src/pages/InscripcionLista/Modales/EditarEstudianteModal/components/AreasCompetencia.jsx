@@ -14,6 +14,7 @@ const AreasCompetencia = ({
 }) => {
   const [areasHabilitadas, setAreasHabilitadas] = useState([]);
   const [areasLoaded, setAreasLoaded] = useState(false);
+  const [gradoAreaCurso, setGradoAreaCurso] = useState({});
   const { globalData, setGlobalData } = useFormData();
 
   useEffect(() => {
@@ -21,14 +22,15 @@ const AreasCompetencia = ({
       try {
         const olimpiadaId = globalData.olimpiada;
         const response = await axios.get(
-          `${API_URL}/areas-habilitadas/${olimpiadaId}`
-        );
+            `${API_URL}/api/curso-area-categoria-por-olimpiada?id=${olimpiadaId}`
+          );
 
-        const areasData = response.data.data || [];
-        setAreasHabilitadas(areasData);
+        const data = response.data || {};
+        setGradoAreaCurso(data || {});
         setAreasLoaded(true);
       } catch (error) {
-        setAreasHabilitadas([]);
+        console.error("Error obteniendo áreas habilitadas:", error);
+        setGradoAreaCurso({});
         setAreasLoaded(true);
       }
     };
@@ -38,10 +40,19 @@ const AreasCompetencia = ({
     }
   }, [globalData.olimpiada]);
 
+  // Obtener áreas disponibles para el curso del estudiante
+  const areasDisponiblesPorCurso = useMemo(() => {
+    const curso = estudianteData.colegio?.curso;
+    if (!curso || !gradoAreaCurso[curso]) {
+      return {};
+    }
+    return gradoAreaCurso[curso].areas || {};
+  }, [gradoAreaCurso, estudianteData.colegio?.curso]);
+
+  // Obtener lista de áreas disponibles
   const areas = useMemo(() => {
-    if (!areasHabilitadas?.length) return [];
-    return areasHabilitadas.map((areaItem) => areaItem.area);
-  }, [areasHabilitadas]);
+    return Object.keys(areasDisponiblesPorCurso);
+  }, [areasDisponiblesPorCurso]);
 
   const normalizeString = (str) => {
     if (!str) return "";
@@ -57,36 +68,48 @@ const AreasCompetencia = ({
       .replace(/Ñ/g, "N");
   };
 
+  // FUNCIÓN CORREGIDA: Validar que la categoría esté disponible para el curso específico del estudiante
   const esCategoriaValida = (area, categoria) => {
     if (!categoria || !area) return true;
 
-    const areaNormalizada = normalizeString(area);
-    const areaData = areasHabilitadas.find(
-      (a) => normalizeString(a.area) === areaNormalizada
-    );
+    const curso = estudianteData.colegio?.curso;
+    if (!curso) return false;
 
-    if (!areaData || !areaData.categorias) {
+    // Verificar que el curso tenga esta área y categoría específica
+    if (!gradoAreaCurso[curso] || !gradoAreaCurso[curso].areas) {
       return false;
     }
 
-    return areaData.categorias.some(
+    const areaNormalizada = normalizeString(area);
+    const areaKey = Object.keys(gradoAreaCurso[curso].areas).find(
+      (key) => normalizeString(key) === areaNormalizada
+    );
+
+    if (!areaKey || !gradoAreaCurso[curso].areas[areaKey]) {
+      return false;
+    }
+
+    const categoriasDisponibles = gradoAreaCurso[curso].areas[areaKey];
+    return categoriasDisponibles.some(
       (cat) => normalizeString(cat) === normalizeString(categoria)
     );
   };
 
-  const obtenerCategorias = (area, curso) => {
+  const obtenerCategorias = (area) => {
     if (!area) return [];
 
     const areaNormalizada = normalizeString(area);
-    const areaData = areasHabilitadas.find(
-      (a) => normalizeString(a.area) === areaNormalizada
+    const areaKey = Object.keys(areasDisponiblesPorCurso).find(
+      (key) => normalizeString(key) === areaNormalizada
     );
 
-    if (!areaData || !areaData.categorias) {
+    if (!areaKey || !areasDisponiblesPorCurso[areaKey]) {
       return [];
     }
 
-    return areaData.categorias;
+    // Eliminar duplicados si los hay
+    const categorias = areasDisponiblesPorCurso[areaKey];
+    return [...new Set(categorias)];
   };
 
   const handleCategoriaChange = (e, sectionIndex) => {
@@ -98,7 +121,7 @@ const AreasCompetencia = ({
     if (!categoria || !area) return null;
 
     if (!esCategoriaValida(area, categoria)) {
-      return `La categoría "${categoria}" no está habilitada para ${area}`;
+      return `La categoría "${categoria}" no está habilitada para ${area} en ${estudianteData.colegio?.curso || "este curso"}`;
     }
 
     return null;
@@ -108,17 +131,14 @@ const AreasCompetencia = ({
     if (!area) return false;
 
     const areaNormalizada = normalizeString(area);
-    return areasHabilitadas.some(
-      (areaData) => normalizeString(areaData.area) === areaNormalizada
+    return Object.keys(areasDisponiblesPorCurso).some(
+      (areaKey) => normalizeString(areaKey) === areaNormalizada
     );
   };
 
   const areaTieneCategorias = (area) => {
     if (!area) return false;
-    const categorias = obtenerCategorias(
-      area,
-      estudianteData.colegio?.curso || ""
-    );
+    const categorias = obtenerCategorias(area);
     return categorias.length > 0;
   };
 
@@ -175,6 +195,23 @@ const AreasCompetencia = ({
     );
   }
 
+  // Si no hay curso definido o no hay áreas para ese curso
+  if (!estudianteData.colegio?.curso || areas.length === 0) {
+    return (
+      <div className="space-y-4">
+        <h4 className="font-medium text-blue-700 border-b pb-1">
+          ÁREA DE COMPETENCIA
+        </h4>
+        <div className="text-gray-500 text-center py-4">
+          {!estudianteData.colegio?.curso 
+            ? "Debe seleccionar un curso para ver las áreas disponibles"
+            : `No hay áreas disponibles para ${estudianteData.colegio.curso}`
+          }
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <h4 className="font-medium text-blue-700 border-b pb-1">
@@ -184,7 +221,7 @@ const AreasCompetencia = ({
       <div className="space-y-4">
         <div>
           <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-            Área de competencia
+            Área de competencia para {estudianteData.colegio?.curso}
           </label>
           <div className="flex gap-2">
             <select
@@ -193,7 +230,6 @@ const AreasCompetencia = ({
               } ${!esAreaEditable() ? "bg-gray-100" : ""}`}
               value={areasActuales[0]?.nombre_area || ""}
               onChange={(e) => {
-                console.log("Cambiando área a:", e.target.value);
                 handleChange("area_0", "nombre_area", e.target.value);
                 handleChange("area_0", "categoria", "");
               }}
@@ -213,16 +249,14 @@ const AreasCompetencia = ({
           {areasActuales[0]?.nombre_area &&
             !esAreaHabilitada(areasActuales[0].nombre_area) && (
               <p className="text-red-500 text-xs mt-1 font-medium">
-                El área "{areasActuales[0].nombre_area}" no está habilitada en
-                esta olimpiada
+                El área "{areasActuales[0].nombre_area}" no está habilitada para {estudianteData.colegio?.curso || "este curso"} en esta olimpiada
               </p>
             )}
           {areasActuales[0]?.nombre_area &&
             esAreaHabilitada(areasActuales[0].nombre_area) &&
             !areaTieneCategorias(areasActuales[0].nombre_area) && (
               <p className="text-red-500 text-xs mt-1 font-medium">
-                El área "{areasActuales[0].nombre_area}" no tiene categorías
-                disponibles para {estudianteData.colegio?.curso || "su curso"}
+                El área "{areasActuales[0].nombre_area}" no tiene categorías disponibles para {estudianteData.colegio?.curso || "este curso"}
               </p>
             )}
         </div>
@@ -248,10 +282,7 @@ const AreasCompetencia = ({
               disabled={!esCategoriaEditable(0)}
             >
               <option value="">Seleccione una categoría</option>
-              {obtenerCategorias(
-                areasActuales[0].nombre_area,
-                estudianteData.colegio?.curso || ""
-              ).map((cat) => (
+              {obtenerCategorias(areasActuales[0].nombre_area).map((cat) => (
                 <option key={cat} value={cat}>
                   {cat}
                 </option>
@@ -299,10 +330,7 @@ const AreasCompetencia = ({
               disabled={!esCategoriaEditable(1)}
             >
               <option value="">Seleccione una categoría</option>
-              {obtenerCategorias(
-                areasActuales[1].nombre_area,
-                estudianteData.colegio?.curso || ""
-              ).map((cat) => (
+              {obtenerCategorias(areasActuales[1].nombre_area).map((cat) => (
                 <option key={cat} value={cat}>
                   {cat}
                 </option>

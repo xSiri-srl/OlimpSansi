@@ -531,7 +531,7 @@ const [combinaciones, setCombinaciones] = useState([
           })
         );
 
-        setMensajeExito("Categoría eliminada del frontend. Presione 'Guardar Configuración' para aplicar los cambios permanentemente.");
+        setMensajeExito("Categoría eliminada. Presione 'Guardar Configuración' para aplicar los cambios permanentemente.");
         setTimeout(() => setMensajeExito(""), 3000);
         
         cerrarModal();

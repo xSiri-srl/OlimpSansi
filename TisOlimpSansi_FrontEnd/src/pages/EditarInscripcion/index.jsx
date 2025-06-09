@@ -1,12 +1,12 @@
 "use client";
 import { useNavigate } from "react-router-dom";
 import { FaSave } from "react-icons/fa";
-import FormularioCodigo from "./Componentes/FormularioCodigo";
-import TablaEstudiantes from "./Componentes/TablaEstudiantes";
-import PanelAcciones from "./Componentes/PanelAcciones";
+import FormularioCodigo from "./components/FormularioCodigo";
+import TablaEstudiantes from "./components/TablaEstudiantes";
+import PanelAcciones from "./components/PanelAcciones";
 import EditarEstudianteModal from "./Modales/EditarEstudianteModal";
 import ModalPeriodo from "./Modales/ModalPeriodo";
-import useCodigoPreInscripcion from "./Hooks/useCodigoPreInscripcion";
+import useCodigoPreInscripcion from "./hooks/useCodigoPreInscripcion";
 
 const CodigoPreInscripcion = () => {
   const navigate = useNavigate();

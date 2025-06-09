@@ -7,32 +7,39 @@ import axios from "axios"
 import { useNavigate, useLocation, Link } from "react-router-dom"
 import Cookies from "js-cookie"
 import { API_URL } from "../utils/api"
+import obtenerUsuario from "../funciones/obtenerUser"
 
 const Navbar = () => {
-  const [open, setOpen] = useState(false)
-  const [showSidebar, setShowSidebar] = useState(false)
-  const [role, setRole] = useState("responsable")
-  const navigate = useNavigate()
-  const location = useLocation()
+  const [open, setOpen] = useState(false);
+  const [role, setRole] = useState(0);
+  const [showSidebar, setShowSidebar] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
+  // nombres legibles para mostrar en el perfil
+  const roleNames = {
+    0: "Responsable",
+    1: "Reportes",
+    2: "CreadorOlimpiada",
+  };
+
+  
   useEffect(() => {
+    (async () => {
+      const usuario = await obtenerUsuario();
+      if (usuario) setRole(usuario.id_rol);
+    })();
+  }, [location.pathname]);
 
-    const rol = JSON.parse(localStorage.getItem("user"))?.user?.id_rol
-    if (rol) {
-      setRole("admin")
-    }
-  }, [location.pathname])
 
-  const navbarLinks = navbarLinksByRole[role] || []
+  const navbarLinks = navbarLinksByRole[role] || navbarLinksByRole[0];
 
   const handleLogout = async () => {
     const csrf = Cookies.get("XSRF-TOKEN")
     axios.defaults.headers.common["X-XSRF-TOKEN"] = csrf
 
     await axios.post(`${API_URL}/logout`, {}, { withCredentials: true })
-    localStorage.removeItem("user")
-    localStorage.clear();
-    setRole("responsable")
+    setRole(0)
     setShowSidebar(false)
     navigate("/")
   }
@@ -86,10 +93,10 @@ const Navbar = () => {
             <h2 className="text-xl font-bold mb-4">Perfil</h2>
             <p className="mb-2">Rol actual:</p>
             <span className="block text-primary font-semibold capitalize mb-4">
-              {role === "admin" ? "Administrador" : "Responsable"}
+              {role === 1 ? "AdminCreador":"Responsable"}
             </span>
 
-            {role !== "admin" ? (
+            {role ===0 ? (
               <button
                 
                 onClick={() => {

@@ -1,40 +1,58 @@
 import React, { useState, useEffect } from "react";
 import { FaCircle } from "react-icons/fa";
-
-import  { API_URL } from "../../../utils/api";
+import { API_URL } from "../../../utils/api";
 import axios from "axios";
 
-const OrdenesRecientes = ({ darkMode }) => {
+const OrdenesRecientes = ({ darkMode, olimpiadaSeleccionada }) => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
   useEffect(() => {
+   
     const fetchOrdenesRecientes = async () => {
       try {
         setLoading(true);
- 
-        const response = await axios.get(`${API_URL}/api/ordenes-recientes`);
+        setError(null);
 
-        setOrders(response.data);
+        // Verificación más robusta de olimpiada seleccionada
+        if (!olimpiadaSeleccionada || 
+            typeof olimpiadaSeleccionada !== 'object' || 
+            (!olimpiadaSeleccionada.id && !olimpiadaSeleccionada.ID)) {
+          console.log('No hay olimpiada seleccionada válida');
+          setOrders([]);
+          setLoading(false);
+          return;
+        }
+
+       
+        const olimpiadaId = olimpiadaSeleccionada.id;
+        
+        const response = await axios.get(`${API_URL}/api/ordenes-recientes`, {
+          params: { olimpiada_id: olimpiadaId }
+        });
+
+      
+        setOrders(response.data || []);
         
       } catch (err) {
         console.error("Error al cargar órdenes recientes:", err);
         setError("Error al cargar datos del servidor");
+        setOrders([]);
       } finally {
         setLoading(false);
       }
     };
     
     fetchOrdenesRecientes();
-  }, []);
+  }, [olimpiadaSeleccionada]); 
 
   if (loading) {
     return (
       <div className={`${darkMode ? "bg-gray-800" : "bg-white"} rounded-lg shadow-md overflow-hidden`}>
         <div className={`${darkMode ? "bg-gray-700" : "bg-gray-50"} px-6 py-4 border-b ${darkMode ? "border-gray-700" : "border-gray-200"}`}>
           <h3 className={`text-lg font-semibold ${darkMode ? "text-white" : "text-gray-800"}`}>
-            Órdenes de Pago Recientes
+            Órdenes de Pago
           </h3>
         </div>
         <div className="p-6 flex justify-center items-center">
@@ -49,11 +67,34 @@ const OrdenesRecientes = ({ darkMode }) => {
       <div className={`${darkMode ? "bg-gray-800" : "bg-white"} rounded-lg shadow-md overflow-hidden`}>
         <div className={`${darkMode ? "bg-gray-700" : "bg-gray-50"} px-6 py-4 border-b ${darkMode ? "border-gray-700" : "border-gray-200"}`}>
           <h3 className={`text-lg font-semibold ${darkMode ? "text-white" : "text-gray-800"}`}>
-            Órdenes de Pago Recientes
+            Órdenes de Pago
           </h3>
         </div>
         <div className="p-6 text-center text-red-500">
           {error}
+          <p className="text-xs mt-2 opacity-60">
+            Debug: olimpiadaSeleccionada = {JSON.stringify(olimpiadaSeleccionada)}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Verificación más específica para mostrar el mensaje de selección
+  const hasValidOlimpiada = olimpiadaSeleccionada && 
+                           typeof olimpiadaSeleccionada === 'object' && 
+                           (olimpiadaSeleccionada.id || olimpiadaSeleccionada.ID);
+
+  if (!hasValidOlimpiada) {
+    return (
+      <div className={`${darkMode ? "bg-gray-800" : "bg-white"} rounded-lg shadow-md overflow-hidden`}>
+        <div className={`${darkMode ? "bg-gray-700" : "bg-gray-50"} px-6 py-4 border-b ${darkMode ? "border-gray-700" : "border-gray-200"}`}>
+          <h3 className={`text-lg font-semibold ${darkMode ? "text-white" : "text-gray-800"}`}>
+            Órdenes de Pago
+          </h3>
+        </div>
+        <div className="p-6 text-center text-gray-500">
+          Selecciona una olimpiada para ver las órdenes recientes
         </div>
       </div>
     );
@@ -64,11 +105,11 @@ const OrdenesRecientes = ({ darkMode }) => {
       <div className={`${darkMode ? "bg-gray-800" : "bg-white"} rounded-lg shadow-md overflow-hidden`}>
         <div className={`${darkMode ? "bg-gray-700" : "bg-gray-50"} px-6 py-4 border-b ${darkMode ? "border-gray-700" : "border-gray-200"}`}>
           <h3 className={`text-lg font-semibold ${darkMode ? "text-white" : "text-gray-800"}`}>
-            Órdenes de Pago Recientes
+            Órdenes de Pago 
           </h3>
         </div>
         <div className="p-6 text-center text-gray-500">
-          No hay órdenes de pago en los últimos 7 días
+          No hay órdenes de pago en esta olimpiada
         </div>
       </div>
     );
@@ -78,8 +119,13 @@ const OrdenesRecientes = ({ darkMode }) => {
     <div className={`${darkMode ? "bg-gray-800" : "bg-white"} rounded-lg shadow-md overflow-hidden`}>
       <div className={`${darkMode ? "bg-gray-700" : "bg-gray-50"} px-6 py-4 border-b ${darkMode ? "border-gray-700" : "border-gray-200"}`}>
         <h3 className={`text-lg font-semibold ${darkMode ? "text-white" : "text-gray-800"}`}>
-          Órdenes de Pago Recientes (últimos 7 días)
+          Órdenes de Pago
         </h3>
+        {olimpiadaSeleccionada && (
+          <p className={`text-sm ${darkMode ? "text-gray-400" : "text-gray-600"} mt-1`}>
+            {olimpiadaSeleccionada.titulo || olimpiadaSeleccionada.nombre || 'Olimpiada'}
+          </p>
+        )}
       </div>
       
       <div className="overflow-auto max-h-[400px]">
