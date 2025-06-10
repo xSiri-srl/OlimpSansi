@@ -3,28 +3,75 @@ import { motion } from "framer-motion";
 import { FaCalendarTimes } from "react-icons/fa";
 
 export default function ModalPeriodo({ isOpen, onClose, fechaIni, fechaFin }) {
-  const formatFecha = (fechaString) => {
-    const fecha = new Date(fechaString);
-    return fecha.toLocaleDateString("es-ES", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
-  const getEstadoInscripcion = () => {
+  
+  const obtenerFechaBolivia = () => {
     const ahora = new Date();
-    const inicio = new Date(fechaIni);
-    const fin = new Date(fechaFin);
+    const fechaBolivia = new Date(ahora.toLocaleString("en-US", {timeZone: "America/La_Paz"}));
+    return fechaBolivia;
+  };
 
-    if (ahora < inicio) {
-      return "no_iniciada";
-    } else if (ahora > fin) {
-      return "finalizada";
+  const formatFecha = (fechaString) => {
+    try {
+      const fechaLimpia = fechaString.replace('T00:00:00-04:00', '').replace('T23:59:59-04:00', '');
+      const fecha = new Date(fechaLimpia + 'T12:00:00');
+      
+      return fecha.toLocaleDateString("es-ES", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+    } catch (error) {
+      console.error('Error al formatear fecha:', error);
+      const fecha = new Date(fechaString.split('T')[0]);
+      return fecha.toLocaleDateString("es-ES", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
     }
-    return "activa";
+  };
+
+  const getEstadoInscripcion = () => {
+    try {
+      const ahoraBolivia = obtenerFechaBolivia();
+      
+      const fechaIniStr = fechaIni.replace('T00:00:00-04:00', '').replace('T23:59:59-04:00', '');
+      const fechaFinStr = fechaFin.replace('T00:00:00-04:00', '').replace('T23:59:59-04:00', '');
+      
+      const inicio = new Date(fechaIniStr + 'T00:00:00');
+      const fin = new Date(fechaFinStr + 'T23:59:59');
+      
+      const soloFechaHoy = new Date(ahoraBolivia.getFullYear(), ahoraBolivia.getMonth(), ahoraBolivia.getDate());
+      const soloFechaInicio = new Date(inicio.getFullYear(), inicio.getMonth(), inicio.getDate());
+      const soloFechaFin = new Date(fin.getFullYear(), fin.getMonth(), fin.getDate());
+
+      if (soloFechaHoy < soloFechaInicio) {
+        return "no_iniciada";
+      } else if (soloFechaHoy > soloFechaFin) {
+        return "finalizada";
+      }
+      return "activa";
+    } catch (error) {
+      console.error('Error al determinar estado de edición:', error);
+      const ahora = new Date();
+      const inicio = new Date(fechaIni.split('T')[0]);
+      const fin = new Date(fechaFin.split('T')[0]);
+
+      const hoy = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate());
+      const inicioSoloFecha = new Date(inicio.getFullYear(), inicio.getMonth(), inicio.getDate());
+      const finSoloFecha = new Date(fin.getFullYear(), fin.getMonth(), fin.getDate());
+
+      if (hoy < inicioSoloFecha) {
+        return "no_iniciada";
+      } else if (hoy > finSoloFecha) {
+        return "finalizada";
+      }
+      return "activa";
+    }
   };
 
   const estadoInscripcion = getEstadoInscripcion();
+  
   useEffect(() => {
     const handleEscKey = (event) => {
       if (event.key === "Escape" && isOpen) {
@@ -62,20 +109,20 @@ export default function ModalPeriodo({ isOpen, onClose, fechaIni, fechaFin }) {
 
         <h2 className="text-2xl font-bold text-gray-800 mb-4">
           {estadoInscripcion === "no_iniciada"
-            ? "Editar inscripción aún no esta disponible"
-            : "Inscripción finalizada, ya no se pueden editar las inscripciones"}
+            ? "Edición aún no disponible"
+            : "Período de edición finalizado"}
         </h2>
 
         <div className="text-gray-600 mb-6">
           <p className="mb-4">
             {estadoInscripcion === "no_iniciada"
-              ? "La edición de inscripciones para esta olimpiada aún no ha comenzado."
+              ? "La edición de inscripciones para esta olimpiada aún no está disponible."
               : "El período de edición para esta olimpiada ya ha finalizado."}
           </p>
 
           <div className="bg-gray-50 p-4 rounded-lg">
             <p className="font-semibold text-gray-700 mb-1">
-              Periodo para editar la inscripción:
+              Período de inscripción:
             </p>
             <p>
               <span className="font-medium">Inicia:</span>{" "}
