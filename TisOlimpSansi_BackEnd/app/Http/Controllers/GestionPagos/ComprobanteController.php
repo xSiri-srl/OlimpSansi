@@ -11,6 +11,7 @@ use App\Models\GestionPagos\ComprobantePagoModel
 
 class ComprobanteController extends Controller
 {
+
 public function guardarComprobante(Request $request)
 {
     $validated = $request->validate([
@@ -20,16 +21,45 @@ public function guardarComprobante(Request $request)
         'nombre_pagador' => 'required|string',
     ]);
 
-    $imagen = $request->file('comprobante');
-    $comprobantePath = $imagen->store('comprobantes', 'public');
-
-    $ordenPago = OrdenPagoModel::where('codigo_generado', $validated['codigo_generado'])->first();
+    // Buscar la orden de pago con el responsable
+    $ordenPago = OrdenPagoModel::with('responsable')->where('codigo_generado', $validated['codigo_generado'])->first();
 
     if (!$ordenPago) {
         return response()->json(['message' => 'Código no encontrado.'], 404);
     }
 
-   
+    // Validar que el número de comprobante sea único
+    $comprobanteExistente = ComprobantePagoModel::where('numero_comprobante', $validated['numero_comprobante'])->first();
+    if ($comprobanteExistente) {
+        return response()->json([
+            'message' => 'El número de comprobante ya existe. Por favor, ingrese un número diferente.',
+            'field' => 'numero_comprobante'
+        ], 400);
+    }
+
+    // Validar que el nombre del responsable coincida
+    $responsable = $ordenPago->responsable;
+    $nombreCompletoResponsable = trim(
+        ($responsable->nombre ?? '') . ' ' . 
+        ($responsable->apellido_pa ?? '') . ' ' . 
+        ($responsable->apellido_ma ?? '')
+    );
+
+    // Normalizar nombres para comparación (quitar espacios extra, convertir a minúsculas)
+    $nombreIngresado = preg_replace('/\s+/', ' ', trim(strtolower($validated['nombre_pagador'])));
+    $nombreRegistrado = preg_replace('/\s+/', ' ', trim(strtolower($nombreCompletoResponsable)));
+
+    if ($nombreIngresado !== $nombreRegistrado) {
+        return response()->json([
+            'message' => 'El nombre del pagador no coincide con el responsable registrado. Nombre registrado: ' . $nombreCompletoResponsable,
+            'field' => 'nombre_pagador',
+            'nombre_esperado' => $nombreCompletoResponsable
+        ], 400);
+    }
+
+    $imagen = $request->file('comprobante');
+    $comprobantePath = $imagen->store('comprobantes', 'public');
+
     $comprobante = new ComprobantePagoModel();
     $comprobante->id_orden_pago = $ordenPago->id;
     $comprobante->numero_comprobante = $validated['numero_comprobante'];

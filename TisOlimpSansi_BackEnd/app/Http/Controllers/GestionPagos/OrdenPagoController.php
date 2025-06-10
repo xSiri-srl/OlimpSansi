@@ -786,4 +786,29 @@ public function verificarCodigo(Request $request)
         }
     }
 
+public function obtenerNombreResponsable(Request $request)
+{
+    $validated = $request->validate([
+        'codigo_generado' => 'required|string|max:255',
+    ]);
+
+    $ordenPago = OrdenPagoModel::with('responsable')->where('codigo_generado', $validated['codigo_generado'])->first();
+
+    if (!$ordenPago) {
+        return response()->json(['message' => 'Código generado no encontrado.'], 404);
+    }
+
+    $responsable = $ordenPago->responsable;
+    $nombreCompleto = trim(
+        ($responsable->nombre ?? '') . ' ' . 
+        ($responsable->apellido_pa ?? '') . ' ' . 
+        ($responsable->apellido_ma ?? '')
+    );
+
+    return response()->json([
+        'nombre_responsable' => $nombreCompleto,
+        'ci_responsable' => $responsable->ci ?? null
+    ]);
+}
+
 }

@@ -22,32 +22,34 @@ const SubirComprobante = () => {
   const [errorNumero, setErrorNumero] = useState("");
   const [errorNombre, setErrorNombre] = useState("");
   const [errorFecha, setErrorFecha] = useState("");
-  const [codigoGenerado, setCodigoGenerado] = useState(
-    ""
-  );
-
+  const [codigoGenerado, setCodigoGenerado] = useState("");
+  const [nombreResponsableRegistrado, setNombreResponsableRegistrado] = useState("");
+  const [errorNumeroUnico, setErrorNumeroUnico] = useState("");
 
   const handleFinalizar = () => {
     let valid = true;
 
+    // Limpiar errores previos
+    setErrorNumero("");
+    setErrorNombre("");
+    setErrorFecha("");
+    setErrorNumeroUnico("");
+
+    // Validar número de comprobante
     const regexNumero = /^[0-9]+$/;
     if (!regexNumero.test(numeroComprobante)) {
       setErrorNumero("Sólo se permiten números.");
       valid = false;
-    } else {
-      setErrorNumero("");
     }
 
+    // Validar nombre del responsable
     const regexNombre = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
     if (!regexNombre.test(comprobanteNombre)) {
-      setErrorNombre(
-        "Sólo se permiten letras, acentuación y espacios en blanco."
-      );
+      setErrorNombre("Sólo se permiten letras, acentuación y espacios en blanco.");
       valid = false;
-    } else {
-      setErrorNombre("");
     }
 
+    // Validar fecha
     const regexFecha = /^\d{2}-\d{2}-\d{2}$/;
     if (!regexFecha.test(fechaComprobante)) {
       setErrorFecha("Sólo fechas con el formato dd-mm-aa");
@@ -67,14 +69,11 @@ const SubirComprobante = () => {
       ) {
         setErrorFecha("Sólo se permiten comprobantes del mes y año vigentes.");
         valid = false;
-      } else {
-        setErrorFecha("");
       }
     }
 
     if (valid) {
       guardarComprobante();
-      setStep(5);
     }
   };
 
@@ -89,6 +88,8 @@ const SubirComprobante = () => {
     setcomprobanteNombre("");
     setfechaComprobante("");
     setComprobantePath("");
+    setNombreResponsableRegistrado("");
+    setErrorNumeroUnico("");
 
     window.location.href = "/";
   };
@@ -130,6 +131,7 @@ const SubirComprobante = () => {
       setStep(3);
     }
   };
+
   const handleScanAgain = () => {
     setStep(3);
   };
@@ -152,11 +154,23 @@ const SubirComprobante = () => {
       );
 
       if (response.status === 200) {
+        // Obtener el nombre del responsable registrado
+        try {
+          const responsableResponse = await axios.post(
+            `${API_URL}/api/obtener-nombre-responsable`,
+            {
+              codigo_generado: codigoGenerado,
+            }
+          );
+          setNombreResponsableRegistrado(responsableResponse.data.nombre_responsable);
+        } catch (err) {
+          console.error("Error al obtener nombre del responsable:", err);
+        }
+        
         setStep(2);
       }
     } catch (err) {
       setError(err.response?.data?.message || "Error al verificar el código.");
-
       return;
     } finally {
       setLoading(false);
@@ -220,6 +234,7 @@ const SubirComprobante = () => {
 
     setLoading(true);
     setError(null);
+    setErrorNumeroUnico("");
 
     const formData = new FormData();
     formData.append("codigo_generado", codigoGenerado);
@@ -240,7 +255,16 @@ const SubirComprobante = () => {
         setStep(5);
       }
     } catch (err) {
-      setError(err.response?.data?.message || "Error al guardar.");
+      const errorMessage = err.response?.data?.message || "Error al guardar.";
+      const errorField = err.response?.data?.field;
+      
+      if (errorField === 'numero_comprobante') {
+        setErrorNumeroUnico(errorMessage);
+      } else if (errorField === 'nombre_pagador') {
+        setErrorNombre(errorMessage);
+      } else {
+        setError(errorMessage);
+      }
     } finally {
       setLoading(false);
     }
@@ -280,6 +304,7 @@ const SubirComprobante = () => {
             </div>
           ))}
         </div>
+
         {step === 1 && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-gray-300 p-4 rounded-md">
@@ -533,6 +558,7 @@ const SubirComprobante = () => {
             )}
           </div>
         )}
+
         {step === 4 && (
           <div className="text-center">
             <h2 className="text-xl font-semibold mb-4 text-gray-600">
@@ -571,18 +597,29 @@ const SubirComprobante = () => {
                       type="text"
                       placeholder="Ej. 123456"
                       value={numeroComprobante}
-                      onChange={(e) => setNumeroComprobante(e.target.value)}
+                      onChange={(e) => {
+                        setNumeroComprobante(e.target.value);
+                        setErrorNumeroUnico(""); // Limpiar error al escribir
+                      }}
                       className={`w-full p-2 border ${
-                        errorNumero ? "border-red-500" : "border-gray-300"
+                        errorNumero || errorNumeroUnico ? "border-red-500" : "border-gray-300"
                       } rounded-md focus:outline-none focus:ring-2`}
                     />
                     {errorNumero && (
                       <p className="text-red-500 text-sm mt-1">{errorNumero}</p>
                     )}
+                    {errorNumeroUnico && (
+                      <p className="text-red-500 text-sm mt-1">{errorNumeroUnico}</p>
+                    )}
                   </div>
                   <div>
                     <label className="text-gray-700 text-sm font-medium mb-1">
                       Nombre del responsable *
+                      {nombreResponsableRegistrado && (
+                        <span className="text-blue-600 text-xs ml-1">
+                          (Debe ser: {nombreResponsableRegistrado})
+                        </span>
+                      )}
                     </label>
                     <input
                       type="text"
@@ -618,9 +655,9 @@ const SubirComprobante = () => {
               </div>
             </div>
             <p className="text-3xl font-bold mt-6">
-              Verifique que sus datos esten correctos
+              Verifique que sus datos estén correctos
             </p>
-            <p className="text-2xl  font-semibold mt-6">
+            <p className="text-2xl font-semibold mt-6">
               ¿Los datos que ingresó son correctos?
             </p>
             <div className="flex justify-center mt-4 space-x-4">
@@ -642,8 +679,14 @@ const SubirComprobante = () => {
                 {loading ? "Finalizando..." : "Finalizar"}
               </button>
             </div>
+
+            {/* Mostrar error general si existe */}
+            {error && (
+              <div className="text-red-500 text-center mt-4">{error}</div>
+            )}
           </div>
         )}
+
         {step === 5 && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
             <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm text-center">
