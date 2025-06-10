@@ -52,7 +52,7 @@ const olimpiada = parseInt(state?.id, 10);
       setIsSearching(true)
       try {
   
-        const response = await axios.get(`${API_URL}/api/buscarResponsable/${ci}`)
+        const response = await axios.get(`${API_URL}/api/buscar-responsable/${ci}`)
         if (response.data.found) {
           const responsable = response.data.responsable
           handleInputChange('responsable', 'nombres', responsable.nombre)

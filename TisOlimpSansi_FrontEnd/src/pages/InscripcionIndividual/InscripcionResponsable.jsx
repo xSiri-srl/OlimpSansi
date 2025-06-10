@@ -46,7 +46,7 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
       
       try {
      
-        const response = await axios.get(`${API_URL}/api/buscarResponsable/${ci}`);
+        const response = await axios.get(`${API_URL}/api/buscar-responsable/${ci}`);
         
         if (response.data.found) {
           const responsable = response.data.responsable;
