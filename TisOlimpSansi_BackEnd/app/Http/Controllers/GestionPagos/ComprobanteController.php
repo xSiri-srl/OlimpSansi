@@ -51,7 +51,7 @@ public function guardarComprobante(Request $request)
 
     if ($nombreIngresado !== $nombreRegistrado) {
         return response()->json([
-            'message' => 'El nombre del pagador no coincide con el responsable registrado. Nombre registrado: ' . $nombreCompletoResponsable,
+            'message' => 'El nombre del responsable de inscripción no coincide con el registrado.',
             'field' => 'nombre_pagador',
             'nombre_esperado' => $nombreCompletoResponsable
         ], 400);

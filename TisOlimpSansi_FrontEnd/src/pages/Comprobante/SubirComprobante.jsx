@@ -615,11 +615,6 @@ const SubirComprobante = () => {
                   <div>
                     <label className="text-gray-700 text-sm font-medium mb-1">
                       Nombre del responsable *
-                      {nombreResponsableRegistrado && (
-                        <span className="text-blue-600 text-xs ml-1">
-                          (Debe ser: {nombreResponsableRegistrado})
-                        </span>
-                      )}
                     </label>
                     <input
                       type="text"
