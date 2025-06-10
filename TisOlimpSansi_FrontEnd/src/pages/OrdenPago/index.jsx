@@ -3,6 +3,7 @@ import { useOrdenPago } from "./hooks/useOrdenPago";
 import CodigoVerificacion from "./componentes/CodigoVerificacion";
 import ResumenPreinscripcion from "./componentes/ResumenPreInscripcion";
 import AccionesOrdenPago from "./componentes/AccionesOrdenPago";
+import ModalPeriodo from "./componentes/ModalPeriodo";
 
 const GenerarOrdenPago = () => {
   const {
@@ -21,7 +22,10 @@ const GenerarOrdenPago = () => {
     costosPorArea,
     tieneCostoUnico,
     costosLoading,
+    showPeriodoModal,
+    olimpiadaInfo,
     setMostrarModal,
+    setShowPeriodoModal,
     verificarCodigo,
     calcularTotal,
     obtenerDesglosePorArea,
@@ -68,6 +72,14 @@ const GenerarOrdenPago = () => {
             setMostrarModal={setMostrarModal}
           />
         )}
+
+        <ModalPeriodo
+          isOpen={showPeriodoModal}
+          onClose={() => setShowPeriodoModal(false)}
+          fechaIni={olimpiadaInfo.fechaIni}
+          fechaFin={olimpiadaInfo.fechaFin}
+          titulo={olimpiadaInfo.titulo}
+        />
       </div>
     </div>
   );

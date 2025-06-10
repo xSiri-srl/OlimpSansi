@@ -19,6 +19,12 @@ export const useOrdenPago = () => {
   const [costosPorArea, setCostosPorArea] = useState([]);
   const [tieneCostoUnico, setTieneCostoUnico] = useState(false);
   const [costosLoading, setCostosLoading] = useState(false);
+  const [showPeriodoModal, setShowPeriodoModal] = useState(false);
+  const [olimpiadaInfo, setOlimpiadaInfo] = useState({
+    fechaIni: "",
+    fechaFin: "",
+    titulo: ""
+  });
 
   useEffect(() => {
     let timer;
@@ -43,6 +49,41 @@ export const useOrdenPago = () => {
     }
   }, [idOlimpiada]);
 
+  const obtenerFechaBolivia = () => {
+    const ahora = new Date();
+    const fechaBolivia = new Date(ahora.toLocaleString("en-US", {timeZone: "America/La_Paz"}));
+    return fechaBolivia;
+  };
+
+  const estaEnPeriodo = (fechaIni, fechaFin) => {
+    try {
+      const ahoraBolivia = obtenerFechaBolivia();
+      
+      const fechaIniStr = fechaIni.replace('T00:00:00-04:00', '').replace('T23:59:59-04:00', '');
+      const fechaFinStr = fechaFin.replace('T00:00:00-04:00', '').replace('T23:59:59-04:00', '');
+      
+      const inicio = new Date(fechaIniStr + 'T00:00:00');
+      const fin = new Date(fechaFinStr + 'T23:59:59');
+      
+      const soloFechaHoy = new Date(ahoraBolivia.getFullYear(), ahoraBolivia.getMonth(), ahoraBolivia.getDate());
+      const soloFechaInicio = new Date(inicio.getFullYear(), inicio.getMonth(), inicio.getDate());
+      const soloFechaFin = new Date(fin.getFullYear(), fin.getMonth(), fin.getDate());
+      
+      return soloFechaHoy >= soloFechaInicio && soloFechaHoy <= soloFechaFin;
+    } catch (error) {
+      console.error('Error al validar período:', error);
+      const ahora = new Date();
+      const inicio = new Date(fechaIni.split('T')[0]);
+      const fin = new Date(fechaFin.split('T')[0]);
+      
+      const hoy = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate());
+      const inicioSoloFecha = new Date(inicio.getFullYear(), inicio.getMonth(), inicio.getDate());
+      const finSoloFecha = new Date(fin.getFullYear(), fin.getMonth(), fin.getDate());
+      
+      return hoy >= inicioSoloFecha && hoy <= finSoloFecha;
+    }
+  };
+
   const obtenerPdf = async () => {
     try {
       const pdfResponse = await axios.get(
@@ -58,6 +99,7 @@ export const useOrdenPago = () => {
     }
   };
 
+
   const verificarCodigo = async () => {
     setLoading(true);
     setError("");
@@ -68,6 +110,24 @@ export const useOrdenPago = () => {
       if (response.status === 200) {
         await obtenerResumen(codigoGenerado);
         await obtenerOlimpiada();
+        
+        const idOlimpiada = response.data?.id_olimpiada || 
+                           (await axios.get(`${API_URL}/api/obtener-olimpiada/${codigoGenerado}`)).data.id_olimpiada;
+        
+        const olimpiadaResponse = await axios.get(`${API_URL}/olimpiada/${idOlimpiada}`);
+        const olimpiada = olimpiadaResponse.data;
+        
+        if (!estaEnPeriodo(olimpiada.fecha_ini, olimpiada.fecha_fin)) {
+          setOlimpiadaInfo({
+            fechaIni: olimpiada.fecha_ini,
+            fechaFin: olimpiada.fecha_fin,
+            titulo: olimpiada.titulo
+          });
+          setShowPeriodoModal(true);
+          setLoading(false);
+          return;
+        }
+        
         const existeResponse = await axios.get(
           `${API_URL}/api/orden-pago-existe/${codigoGenerado}`
         );
@@ -87,6 +147,8 @@ export const useOrdenPago = () => {
     }
   };
 
+
+
   const obtenerResumen = async (codigo) => {
     try {
       const response = await axios.get(
@@ -105,6 +167,18 @@ export const useOrdenPago = () => {
       );
       const idOlimpiada = response.data.id_olimpiada;
       setIdOlimpiada(idOlimpiada);
+
+      const olimpiadaResponse = await axios.get(
+        `${API_URL}/olimpiada/${idOlimpiada}`
+      );
+      const olimpiada = olimpiadaResponse.data;
+      
+      setOlimpiadaInfo({
+        fechaIni: olimpiada.fecha_ini,
+        fechaFin: olimpiada.fecha_fin,
+        titulo: olimpiada.titulo
+      });
+
     } catch (error) {
       setError("Error al obtener la olimpiada asociada a la orden de pago");
     }
@@ -149,6 +223,7 @@ export const useOrdenPago = () => {
       setCostosLoading(false);
     }
   };
+
   const calcularTotal = () => {
     if (!resumen || !resumen.inscritos || resumen.inscritos.length === 0)
       return 0;
@@ -200,6 +275,14 @@ export const useOrdenPago = () => {
 
   const confirmarGenerarOrden = async () => {
     setMostrarModal(false);
+    
+    if (olimpiadaInfo.fechaIni && olimpiadaInfo.fechaFin) {
+      if (!estaEnPeriodo(olimpiadaInfo.fechaIni, olimpiadaInfo.fechaFin)) {
+        setShowPeriodoModal(true);
+        return;
+      }
+    }
+
     setCargando(true);
     setProgreso(0);
 
@@ -277,6 +360,12 @@ export const useOrdenPago = () => {
     setCostoUnico(null);
     setCostosPorArea([]);
     setTieneCostoUnico(false);
+    setShowPeriodoModal(false);
+    setOlimpiadaInfo({
+      fechaIni: "",
+      fechaFin: "",
+      titulo: ""
+    });
   };
 
   return {
@@ -295,7 +384,10 @@ export const useOrdenPago = () => {
     costosPorArea,
     tieneCostoUnico,
     costosLoading,
+    showPeriodoModal,
+    olimpiadaInfo,
     setMostrarModal,
+    setShowPeriodoModal,
     verificarCodigo,
     calcularTotal,
     obtenerDesglosePorArea,
