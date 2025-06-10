@@ -222,5 +222,4 @@ Route::post('/estudiantes/preinscritos/departamento', [ColegioController::class,
 Route::get('/inscripciones/por-area', [InscripcionController::class, 'inscripcionesPorArea']);
 Route::get('/inscripciones/por-categoria', [InscripcionController::class, 'inscripcionesPorCategoria']);
 
-<?php
 Route::post('/obtener-nombre-responsable', [OrdenPagoController::class, 'obtenerNombreResponsable']);

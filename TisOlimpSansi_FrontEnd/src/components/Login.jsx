@@ -44,7 +44,7 @@ const Login = () => {
     return response.data;
   };
 
-  /*const registerUser = async (username, password, rol) => {
+  const registerUser = async (username, password, rol) => {
     await axios.get(`${API_URL}/sanctum/csrf-cookie`, { withCredentials: true });
     const csrf = Cookies.get("XSRF-TOKEN");
     axios.defaults.headers.common["X-XSRF-TOKEN"] = csrf;
@@ -60,7 +60,7 @@ const Login = () => {
       { withCredentials: true }
     );
     return response.data;
-  };*/
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -75,7 +75,7 @@ const Login = () => {
     }
   };
 
-  /*const handleRegister = async (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
     try {
       await registerUser(newUsername, newPassword, rolBasico);
@@ -88,7 +88,7 @@ const Login = () => {
       console.error(error);
       setRegisterError(error.response?.data?.message || "Error al registrarse");
     }
-  };*/
+  };
 
   return (
     <div className="min-h-screen flex">
@@ -166,7 +166,13 @@ const Login = () => {
           </form>
 
          {<p className="mt-6 text-center text-sm text-gray-600">
-           
+            {showRegister ? "¿Ya tienes cuenta?" : "¿No tienes cuenta?"}{" "}
+            <button
+              onClick={() => setShowRegister(!showRegister)}
+              className="text-indigo-600 hover:underline font-medium"
+            >
+              {showRegister ? "Iniciar sesión" : "Registrarse"}
+            </button>
           </p> } 
         </div>
       </div>
