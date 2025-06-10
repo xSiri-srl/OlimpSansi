@@ -21,7 +21,6 @@ export default function FormularioEstudiante() {
     fechaFin: ""
   });
 
-  // Verificar si ya hay datos de olimpiada en globalData al cargar el componente
   useEffect(() => {
     if (globalData?.olimpiada?.id) {
       setOlimpiadaSeleccionada(globalData.olimpiada.id.toString());
@@ -80,15 +79,31 @@ console.log(gradoAreaCurso),
   };
 
   const estaEnPeriodo = (fechaIni, fechaFin) => {
-    const ahora = new Date();
-    const inicio = new Date(fechaIni);
-    const fin = new Date(fechaFin);
-    
-    ahora.setHours(0, 0, 0, 0);
-    inicio.setHours(0, 0, 0, 0);
-    fin.setHours(23, 59, 59, 999); 
-    
-    return ahora >= inicio && ahora <= fin;
+    try {
+      const ahoraUTC = new Date();
+      const offsetBolivia = -4 * 60; // Bolivia es UTC-4 (en minutos)
+      const ahoraBolivia = new Date(ahoraUTC.getTime() + (offsetBolivia * 60 * 1000));
+      
+      const inicio = new Date(fechaIni + 'T00:00:00-04:00');
+      const fin = new Date(fechaFin + 'T23:59:59-04:00');
+      
+      const fechaActualBolivia = new Date(ahoraBolivia.getFullYear(), ahoraBolivia.getMonth(), ahoraBolivia.getDate());
+      const fechaInicioBolivia = new Date(inicio.getFullYear(), inicio.getMonth(), inicio.getDate());
+      const fechaFinBolivia = new Date(fin.getFullYear(), fin.getMonth(), fin.getDate());
+      
+      return fechaActualBolivia >= fechaInicioBolivia && fechaActualBolivia <= fechaFinBolivia;
+    } catch (error) {
+      console.error('Error al validar período:', error);
+      const ahora = new Date();
+      const inicio = new Date(fechaIni);
+      const fin = new Date(fechaFin);
+      
+      ahora.setHours(0, 0, 0, 0);
+      inicio.setHours(0, 0, 0, 0);
+      fin.setHours(23, 59, 59, 999); 
+      
+      return ahora >= inicio && ahora <= fin;
+    }
   };
 
   const handleOlimpiadaChange = (e) => {
@@ -105,8 +120,8 @@ console.log(gradoAreaCurso),
           setNombreOlimpiada(olimpiadaInfo.titulo);
         } else {
           setOlimpiadaSeleccionadaInfo({
-            fechaIni: olimpiadaInfo.fecha_ini + "T00:00:00",
-            fechaFin: olimpiadaInfo.fecha_fin + "T00:00:00"
+            fechaIni: olimpiadaInfo.fecha_ini + "T00:00:00-04:00",
+            fechaFin: olimpiadaInfo.fecha_fin + "T23:59:59-04:00"
           });
           setShowPeriodoModal(true);
           setOlimpiadaSeleccionada("");
