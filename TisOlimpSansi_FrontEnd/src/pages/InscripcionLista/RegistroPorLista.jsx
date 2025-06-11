@@ -12,12 +12,12 @@ const RegistroPorLista = () => {
   const pasos = [
     "Responsable de Inscripción",
     "Seleccionar Unidad Educativa",
-    "Subir Lista",
-    "Lista de Competidores",
-    "Confirmación",
+    "Subir Lista ­",
+    "Lista de Competidores ­ ",
+    "Confirmación ­",
   ];
 
-
+ 
   useEffect(() => {
     const carousel = carouselRef.current;
     const activeStep = carousel.querySelector(`[data-step="${step}"]`);
@@ -25,7 +25,7 @@ const RegistroPorLista = () => {
       const stepWidth = activeStep.offsetWidth;
       const scrollPosition =
         activeStep.offsetLeft - carousel.offsetWidth / 2 + stepWidth / 2;
-
+    
       if (window.innerWidth < 640) {
         carousel.scrollTo({ left: scrollPosition, behavior: "smooth" });
       }
@@ -35,7 +35,7 @@ const RegistroPorLista = () => {
   return (
     <div className="p-4 sm:p-6 lg:p-10 bg-gray-100 min-h-screen">
       <div className="max-w-4xl mx-auto bg-gray-200 p-6 sm:p-9 shadow-xl rounded-xl">
-    
+  
         <div className="relative mb-8 overflow-hidden">
           <div
             ref={carouselRef}
@@ -49,7 +49,7 @@ const RegistroPorLista = () => {
               >
                 <div
                   className={`w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-full border-2 transition-all duration-300 ${
-                    index + 1 === step
+                    index + 1 <= step
                       ? "bg-blue-600 text-white border-blue-600"
                       : "border-gray-300 text-gray-400"
                   }`}
@@ -57,8 +57,8 @@ const RegistroPorLista = () => {
                   {index + 1}
                 </div>
                 <span
-                  className={`text-xs sm:text-sm mt-2 text-center font-medium transition-colors ${
-                    index + 1 === step ? "text-blue-600" : "text-gray-400"
+                  className={`text-xs sm:text-sm mt-2 text-center font-medium transition-colors whitespace-nowrap sm:whitespace-normal ${
+                    index + 1 <= step ? "text-blue-600" : "text-gray-400"
                   }`}
                 >
                   {stepLabel}
@@ -68,6 +68,7 @@ const RegistroPorLista = () => {
           </div>
         </div>
 
+       
         <div className="mt-6">
           {step === 1 && <RegistroResponsable setStep={setStep} />}
           {step === 2 && <RegistroColegio setStep={setStep} />}
