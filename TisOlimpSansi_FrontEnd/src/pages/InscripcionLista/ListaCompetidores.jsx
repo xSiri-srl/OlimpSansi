@@ -107,20 +107,20 @@ const ListaCompetidores = ({ setStep }) => {
     return categoriaUI.toUpperCase();
   };
 
-  
-
   // Función mejorada para verificar si un curso es compatible con una categoría
   const esCursoCompatibleConCategoria = (cursoEstudiante, categoria) => {
-  if (
-    !cursoEstudiante || 
-    !categoria || 
-    !categoriasGrado || 
-    !categoriasGrado[categoria]
-  ) {
-    return false;
-  }
-  return categoriasGrado[categoria].some(curso => curso.nombre === cursoEstudiante);
-};
+    if (
+      !cursoEstudiante ||
+      !categoria ||
+      !categoriasGrado ||
+      !categoriasGrado[categoria]
+    ) {
+      return false;
+    }
+    return categoriasGrado[categoria].some(
+      (curso) => curso.nombre === cursoEstudiante
+    );
+  };
 
   useEffect(() => {
     const obtenerAreasHabilitadas = async () => {
@@ -145,10 +145,10 @@ const ListaCompetidores = ({ setStep }) => {
   }, [globalData.olimpiada]);
 
   useEffect(() => {
-    const obtenerCategoriasGrado = async () => {  
+    const obtenerCategoriasGrado = async () => {
       try {
         const response = await axios.get(`${API_URL}/api/categorias-grado`);
-                
+
         setCategoriasGrado(response.data.data);
         setCategoriasLoaded(true);
       } catch (error) {
@@ -157,10 +157,9 @@ const ListaCompetidores = ({ setStep }) => {
         setCategoriasLoaded(true);
       }
     };
-    
+
     obtenerCategoriasGrado();
   }, []);
-
 
   const processedEstudiantes = useMemo(() => {
     if (!areasLoaded || !categoriasLoaded) {
@@ -208,9 +207,12 @@ const ListaCompetidores = ({ setStep }) => {
             const categoriaOriginal = convertirCategoriaAOriginal(
               area.categoria
             );
-  
+
             const categoriaValida = areaHabilitada.categorias.some((cat) => {
-              return cat.toUpperCase().trim() === categoriaOriginal.toUpperCase().trim();
+              return (
+                cat.toUpperCase().trim() ===
+                categoriaOriginal.toUpperCase().trim()
+              );
             });
 
             if (!categoriaValida) {
@@ -227,7 +229,12 @@ const ListaCompetidores = ({ setStep }) => {
                     `El curso "${cursoEstudiante}" no es válido o no está reconocido en el sistema`
                   );
                   hasError = true;
-                } else if (!esCursoCompatibleConCategoria(cursoEstudiante, categoriaOriginal)) {
+                } else if (
+                  !esCursoCompatibleConCategoria(
+                    cursoEstudiante,
+                    categoriaOriginal
+                  )
+                ) {
                   errores.push(
                     `El curso "${cursoEstudiante}" no es compatible con la categoría "${area.categoria}" en el área ${area.nombre_area}`
                   );
@@ -269,7 +276,7 @@ const ListaCompetidores = ({ setStep }) => {
           hasError = true;
         }
       }
-      
+
       mensajeError = errores.length > 0 ? errores[0] : "";
 
       const areas = est.areas_competencia
@@ -292,7 +299,13 @@ const ListaCompetidores = ({ setStep }) => {
         originalData: est,
       };
     });
-  }, [estudiantes, areasHabilitadas, areasLoaded, categoriasGrado, categoriasLoaded]);
+  }, [
+    estudiantes,
+    areasHabilitadas,
+    areasLoaded,
+    categoriasGrado,
+    categoriasLoaded,
+  ]);
 
   const filteredEstudiantes = processedEstudiantes.filter((estudiante) => {
     const matchesSearch =
@@ -397,23 +410,27 @@ const ListaCompetidores = ({ setStep }) => {
         </h2>
 
         <div className="bg-white p-3 rounded-lg shadow-md mb-4 flex flex-wrap justify-between items-center">
-          <div className="flex items-center">
-            <span className="font-medium mr-2">Total inscripciones:</span>
-            <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-md">
-              {processedEstudiantes.length}
-            </span>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 gap-2 sm:gap-0 mt-2">
+            <div className="flex items-center">
+              <span className="font-medium mr-2">Total inscripciones:</span>
+              <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-md">
+                {processedEstudiantes.length}
+              </span>
+            </div>
 
-            <span className="font-medium mx-2">Con errores:</span>
-            <span className="bg-red-100 text-red-800 px-2 py-1 rounded-md">
-              {totalErrors}
-            </span>
+            <div className="flex items-center">
+              <span className="font-medium mr-2 sm:ml-4">Con errores:</span>
+              <span className="bg-red-100 text-red-800 px-2 py-1 rounded-md">
+                {totalErrors}
+              </span>
+            </div>
           </div>
 
-          <div className="flex mt-2 sm:mt-0">
+          <div className="flex flex-col sm:flex-row mt-2 gap-2 sm:gap-0">
             <input
               type="text"
               placeholder="Buscar por nombre..."
-              className="border rounded-l-md px-3 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="border rounded-md sm:rounded-l-md sm:rounded-r-none px-3 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500 w-full sm:w-auto"
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value);
@@ -422,7 +439,7 @@ const ListaCompetidores = ({ setStep }) => {
             />
 
             <select
-              className="border-l-0 border rounded-r-md px-2 py-1 bg-gray-50 focus:outline-none"
+              className="border sm:border-l-0 rounded-md sm:rounded-r-md sm:rounded-l-none px-2 py-1 bg-gray-50 focus:outline-none w-full sm:w-auto"
               value={filter}
               onChange={(e) => {
                 setFilter(e.target.value);
@@ -554,14 +571,14 @@ const ListaCompetidores = ({ setStep }) => {
           </table>
         </div>
 
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center text-sm text-gray-500">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-4">
+          <div className="text-sm text-gray-500 text-center sm:text-left">
             Mostrando {indexOfFirstItem + 1}-
             {Math.min(indexOfLastItem, filteredEstudiantes.length)} de{" "}
             {filteredEstudiantes.length}
           </div>
 
-          <div className="flex items-center space-x-1">
+          <div className="flex flex-wrap justify-center gap-2">
             <button
               onClick={() => paginate(currentPage - 1)}
               disabled={currentPage === 1}
@@ -574,7 +591,7 @@ const ListaCompetidores = ({ setStep }) => {
               <FaChevronLeft className="h-5 w-5" />
             </button>
 
-            <div className="px-2 py-1">
+            <div className="px-2 py-1 text-center">
               Página {currentPage} de {totalPages || 1}
             </div>
 
@@ -591,7 +608,7 @@ const ListaCompetidores = ({ setStep }) => {
             </button>
           </div>
 
-          <div className="flex items-center">
+          <div className="flex justify-center sm:justify-end items-center">
             <label className="text-sm text-gray-500 mr-2">Mostrar:</label>
             <select
               className="border rounded-md px-2 py-1 text-sm bg-white"
@@ -608,6 +625,7 @@ const ListaCompetidores = ({ setStep }) => {
             </select>
           </div>
         </div>
+
         <div className="flex justify-center mt-6 space-x-4">
           <button
             onClick={() => setStep(3)}
