@@ -68,7 +68,7 @@ class ComprobanteController extends Controller
 
             if (!$validacion) {
                 return response()->json([
-                    'message' => 'El nombre ingresado no coincide con el responsable de inscripción registrado. Debe incluir nombre, apellido paterno y apellido materno en cualquier orden.',
+                    'message' => 'El nombre ingresado no coincide con el responsable de inscripción registrado.',
                     'field' => 'nombre_pagador'
                 ], 400);
             }
