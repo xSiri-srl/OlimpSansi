@@ -273,9 +273,9 @@ const SubirComprobante = () => {
   return (
     <div className="p-10">
       <div className="max-w-4xl mx-auto bg-gray-200 p-7 shadow-lg rounded-lg">
-        <div className="flex flex-center justify-between flex-nowrap overflow-x-auto mb-6">
+        <div className="flex items-center justify-between gap-4 sm:gap-6 snap-x snap-mandatory overflow-x-auto scroll-smooth pb-4 hide-scrollbar sm:justify-start lg:justify-between lg:overflow-x-hidden">
           {[
-            "Ingresar código",
+            "Ingresar código ­",
             "Subir comprobante",
             "Escanear",
             "Ver datos escaneados",
