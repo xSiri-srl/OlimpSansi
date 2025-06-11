@@ -165,15 +165,7 @@ const Login = () => {
             </button>
           </form>
 
-         {<p className="mt-6 text-center text-sm text-gray-600">
-            {showRegister ? "¿Ya tienes cuenta?" : "¿No tienes cuenta?"}{" "}
-            <button
-              onClick={() => setShowRegister(!showRegister)}
-              className="text-indigo-600 hover:underline font-medium"
-            >
-              {showRegister ? "Iniciar sesión" : "Registrarse"}
-            </button>
-          </p> } 
+         
         </div>
       </div>
     </div>

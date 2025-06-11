@@ -110,7 +110,7 @@ public function registrar(Request $request)
                     ])->exists();
 
                 if ($yaInscrito) {
-                    DB::rollback();
+                    
                      return response()->json([
                     'status' => 500,
                     'error' => "El estudiante '{$estudiante->nombre} {$estudiante->apellido_pa}' ya está inscrito en el área '{$area->nombre_area}' y categoría '{$categoria->nombre_categoria}' para esta olimpiada."
@@ -127,7 +127,7 @@ public function registrar(Request $request)
                 ->first();
 
             if (!$oac) {
-                DB::rollback();
+                
                 throw new \Exception("Combinación inválida de área/categoría para la olimpiada.");
             }
 
@@ -246,7 +246,7 @@ public function registrarLista(Request $request)
                 ])->count();
 
             if ($inscritasEnOlimpiada + count($item['areas_competencia']) > $limiteAreas) {
-                DB::rollback();
+                
                 throw new \Exception("El estudiante '{$estudiante->nombre} {$estudiante->apellido_pa}' supera el límite de áreas permitidas para esta olimpiada.");
             }
 
@@ -283,7 +283,7 @@ public function registrarLista(Request $request)
                     foreach ($combinacionesValidas as $combo) {
                         $mensaje .= "- {$combo->nombre_area} / {$combo->nombre_categoria}\n";
                     }
-                    DB::rollback();
+                    
                     throw new \Exception($mensaje);
                 }
 
@@ -297,7 +297,7 @@ public function registrarLista(Request $request)
                     ])->exists();
 
                 if ($yaInscrito) {
-                    DB::rollback();
+                   
                     throw new \Exception("El estudiante '{$estudiante->nombre} {$estudiante->apellido_pa}' ya está inscrito en el área '{$area->nombre_area}' y categoría '{$categoria->nombre_categoria}' para esta olimpiada.");
                 }
 

@@ -125,6 +125,10 @@
     <p><span class="section-label">Emitido por la Unidad:</span><br>
         Comité de las Olimpiadas Científicas San Simón, Facultad de Ciencias y Tecnología
     </p>
+     <!-- Titulo -->
+    <p><span class="section-label">Inscripcion a:</span><br>
+       {{ $ordenPago->inscripcion->first()?->olimpiadaAreaCategoria?->olimpiada?->titulo ?? 'No disponible' }}
+    </p>
 
     <!-- Responsable -->
     <p><span class="section-label">Responsable:</span><br>
