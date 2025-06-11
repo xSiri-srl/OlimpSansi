@@ -274,11 +274,11 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
 const InscripcionResponsable = () => {
   const steps = [
     "Responsable de Inscripción",
-    "Competidor",
+    "Competidor ­",
     "Áreas de Competencia",
-    "Tutor Legal",
-    "Profesor",
-    "Confirmación",
+    "Tutor Legal ­",
+    "Profesor ­",
+    "Confirmación ­",
   ];
 
   return (
