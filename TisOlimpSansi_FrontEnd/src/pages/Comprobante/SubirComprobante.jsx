@@ -226,49 +226,52 @@ const SubirComprobante = () => {
     }
   };
 
-  const guardarComprobante = async () => {
-    if (!numeroComprobante || !selectedFile || !codigoGenerado) {
-      setError("Faltan datos para guardar.");
-      return;
-    }
+const guardarComprobante = async () => {
+  if (!numeroComprobante || !selectedFile || !codigoGenerado) {
+    setError("Faltan datos para guardar.");
+    return;
+  }
 
-    setLoading(true);
-    setError(null);
-    setErrorNumeroUnico("");
+  setLoading(true);
+  setError(null);
+  setErrorNumeroUnico("");
+  setErrorNombre(""); // Limpiar error de nombre
 
-    const formData = new FormData();
-    formData.append("codigo_generado", codigoGenerado);
-    formData.append("numero_comprobante", numeroComprobante);
-    formData.append("comprobante", sinModificarFile);
-    formData.append("nombre_pagador", comprobanteNombre);
+  const formData = new FormData();
+  formData.append("codigo_generado", codigoGenerado);
+  formData.append("numero_comprobante", numeroComprobante);
+  formData.append("comprobante", sinModificarFile);
+  formData.append("nombre_pagador", comprobanteNombre);
 
-    try {
-      const response = await axios.post(
-        `${API_URL}/api/guardar-comprobante`,
-        formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
-      );
-
-      if (response.status === 200) {
-        setStep(5);
+  try {
+    const response = await axios.post(
+      `${API_URL}/api/guardar-comprobante`,
+      formData,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
       }
-    } catch (err) {
-      const errorMessage = err.response?.data?.message || "Error al guardar.";
-      const errorField = err.response?.data?.field;
-      
-      if (errorField === 'numero_comprobante') {
-        setErrorNumeroUnico(errorMessage);
-      } else if (errorField === 'nombre_pagador') {
-        setErrorNombre(errorMessage);
-      } else {
-        setError(errorMessage);
-      }
-    } finally {
-      setLoading(false);
+    );
+
+    if (response.status === 200) {
+      setStep(5);
     }
-  };
+  } catch (err) {
+    console.error("Error al guardar comprobante:", err);
+    
+    const errorMessage = err.response?.data?.message || "Error al guardar.";
+    const errorField = err.response?.data?.field;
+    
+    if (errorField === 'numero_comprobante') {
+      setErrorNumeroUnico(errorMessage);
+    } else if (errorField === 'nombre_pagador') {
+      setErrorNombre(errorMessage);
+    } else {
+      setError(errorMessage);
+    }
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="p-10">
@@ -618,9 +621,12 @@ const SubirComprobante = () => {
                     </label>
                     <input
                       type="text"
-                      placeholder="Ej. Juan Pérez"
+                      placeholder="Nombre completo del responsable"
                       value={comprobanteNombre}
-                      onChange={(e) => setcomprobanteNombre(e.target.value)}
+                      onChange={(e) => {
+                        setcomprobanteNombre(e.target.value);
+                        setErrorNombre(""); 
+                      }}
                       className={`w-full p-2 border ${
                         errorNombre ? "border-red-500" : "border-gray-300"
                       } rounded-md focus:outline-none focus:ring-2`}
