@@ -804,6 +804,7 @@ public function actualizarLista(Request $request)
                 ->leftJoin('comprobante_pago', 'orden_pago.id', '=', 'comprobante_pago.id_orden_pago')
                 ->where('olimpiada_area_categoria.id_olimpiada', $olimpiadaId)
                 ->whereNull('comprobante_pago.numero_comprobante')
+                ->distinct('inscripcion.id_estudiante')
                 ->count('inscripcion.id_estudiante');
 
             return response()->json([

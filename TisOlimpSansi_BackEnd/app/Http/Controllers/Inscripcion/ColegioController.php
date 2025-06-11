@@ -174,6 +174,7 @@ class ColegioController extends Controller
             ->join('comprobante_pago', 'orden_pago.id', '=', 'comprobante_pago.id_orden_pago')
             ->join('olimpiada_area_categoria', 'inscripcion.id_olimpiada_area_categoria', '=', 'olimpiada_area_categoria.id')
             ->where('colegio.departamento', $departamento)
+            ->distinct('inscripcion.id_estudiante')
             ->whereNotNull('comprobante_pago.comprobante_url');
 
         // Si se especifica una olimpiada, filtrar por ella
@@ -201,6 +202,7 @@ class ColegioController extends Controller
             ->join('olimpiada_area_categoria', 'inscripcion.id_olimpiada_area_categoria', '=', 'olimpiada_area_categoria.id')
             ->where('colegio.departamento', $departamento)
             ->whereNull('comprobante_pago.comprobante_url')
+            ->distinct('inscripcion.id_estudiante')
             ->whereNotNull('orden_pago.orden_pago_url');
 
         // Si se especifica una olimpiada, filtrar por ella
