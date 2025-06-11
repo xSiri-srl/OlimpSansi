@@ -108,7 +108,7 @@ const ProcesoRegistro = ({
 
   return (
     <div className="p-4 sm:p-6 lg:p-10 bg-gray-100 min-h-screen">
-      <div className="max-w-4xl mx-auto bg-gray-200 p-6 sm:p-9 shadow-xl rounded-xl">
+      <div className="max-w-4xl mx-auto bg-gray-200 p-6 sm:p-9 shadow-lg rounded-lg">
         <div className="relative mb-8 overflow-hidden">
           <div
             ref={carouselRef}
@@ -124,7 +124,7 @@ const ProcesoRegistro = ({
                   className={`w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-full border-2 transition-all duration-300 ${
                     index + 1 <= step
                       ? "bg-blue-600 text-white border-blue-600"
-                      : "border-gray-300 text-gray-400"
+                      : "border-gray-400 text-gray-400"
                   }`}
                 >
                   {index + 1}
