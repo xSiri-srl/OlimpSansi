@@ -314,17 +314,37 @@ public function registrarLista(Request $request)
                 $total += floatval($oac->precio ?? 0); // si existe columna precio
             }
 
-            // Registrar tutores académicos
+            // Registrar tutores académicos (SOLO SI EXISTEN Y TIENEN DATOS VÁLIDOS)
             if (!empty($item['tutores_academicos']) && is_array($item['tutores_academicos'])) {
                 foreach ($item['tutores_academicos'] as $tutorItem) {
-                    $area = AreaModel::where('nombre_area', $tutorItem['nombre_area'])->firstOrFail();
+                    // Validar que exista el área
+                    if (empty($tutorItem['nombre_area'])) {
+                        continue; // Saltar si no hay área especificada
+                    }
 
+                    $area = AreaModel::where('nombre_area', $tutorItem['nombre_area'])->first();
+                    if (!$area) {
+                        continue; // Saltar si el área no existe
+                    }
+
+                    // Validar que existan los datos del tutor y que el CI no esté vacío
+                    if (empty($tutorItem['tutor']) || 
+                        !is_array($tutorItem['tutor']) || 
+                        empty($tutorItem['tutor']['ci']) || 
+                        trim($tutorItem['tutor']['ci']) === '') {
+                        continue; // Saltar si no hay datos válidos del tutor
+                    }
+
+                    // Crear el tutor académico solo si todos los datos son válidos
                     $tutor = TutorAcademicoModel::firstOrCreate(
-                        ['ci' => $tutorItem['tutor']['ci']],
-                        $tutorItem['tutor']
+                        ['ci' => trim($tutorItem['tutor']['ci'])],
+                        array_filter($tutorItem['tutor'], function($value) {
+                            return $value !== null && trim($value) !== '';
+                        })
                     );
 
-                    if (isset($inscripcionesPorArea[$area->id])) {
+                    // Actualizar la inscripción con el tutor académico
+                    if (isset($inscripcionesPorArea[$area->id]) && $tutor && $tutor->id) {
                         $inscripcionesPorArea[$area->id]->update([
                             'id_tutor_academico' => $tutor->id,
                         ]);
