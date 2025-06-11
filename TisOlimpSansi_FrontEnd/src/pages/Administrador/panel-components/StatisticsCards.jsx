@@ -3,14 +3,14 @@ import { Link } from 'react-router-dom';
 import { FaUsers, FaFileInvoiceDollar, FaCheckCircle, FaUserGraduate } from "react-icons/fa";
 import StatCard from './StatCard';
 
-const StatisticsCards = ({ stats, darkMode, olimpiada }) => {
+const StatisticsCards = ({ stats, darkMode, olimpiadaSeleccionada }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       
 
       <div className="relative group">
         <Link
-          to={`/admin/preInscritos?olimpiada=${olimpiada?.id}`}
+          to={`/admin/preInscritos?olimpiada=${olimpiadaSeleccionada?.id}`}
           className="block transform transition hover:-translate-y-1 hover:shadow-lg"
         >
           <StatCard
@@ -29,7 +29,7 @@ const StatisticsCards = ({ stats, darkMode, olimpiada }) => {
 
       <div className="relative group">
         <Link
-          to={`/admin/inscritos_verificados?olimpiada=${olimpiada?.id}`}
+          to={`/admin/inscritos_verificados?olimpiada=${olimpiadaSeleccionada?.id}`}
           className="block transform transition hover:-translate-y-1 hover:shadow-lg"
         >
           <StatCard
@@ -48,7 +48,7 @@ const StatisticsCards = ({ stats, darkMode, olimpiada }) => {
 
       <div className="relative group">
         <Link
-          to={`/admin/descargar_listas?olimpiada=${olimpiada?.id}`}
+          to={`/admin/descargar_listas?olimpiada=${olimpiadaSeleccionada?.id}`}
           className="block transform transition hover:-translate-y-1 hover:shadow-lg"
         >
           <StatCard

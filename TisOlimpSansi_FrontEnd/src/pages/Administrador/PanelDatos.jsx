@@ -54,7 +54,7 @@ const PanelDatos = () => {
           </p>
         </div>
 
-        <StatisticsCards stats={stats} darkMode={darkMode} />
+        <StatisticsCards stats={stats} darkMode={darkMode} olimpiadaSeleccionada={olimpiadaSeleccionada}/>
         <ChartsSection
           chartData={chartData}
           darkMode={darkMode}

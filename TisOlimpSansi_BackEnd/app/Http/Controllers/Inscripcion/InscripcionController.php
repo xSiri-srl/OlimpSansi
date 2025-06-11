@@ -360,23 +360,29 @@ public function registrarLista(Request $request)
 
 
     
-public function listarInscritos()
+public function listarInscritos($idOlimpiada)
 {
     $inscripciones = InscripcionModel::with([
         'estudiante.colegio', 
         'estudiante.grado',
-        'estudiante.tutorLegal',
-        'responsable',
+        'tutorLegal',
         'ordenPago',
-        'inscripcionCategoria.categoria.area',
-        'inscripcionCategoria.tutorAcademico',
-    ])->get();
+        'olimpiadaAreaCategoria.olimpiada',
+        'olimpiadaAreaCategoria.area',
+        'olimpiadaAreaCategoria.categoria',
+        'tutorAcademico' 
+    ])
+    ->whereHas('olimpiadaAreaCategoria.olimpiada', function ($query) use ($idOlimpiada) {
+        $query->where('id', $idOlimpiada);
+    })
+    ->get();
 
     $resultado = $inscripciones->map(function ($inscripcion) {
         $estudiante = $inscripcion->estudiante;
-        $tutorLegal = $estudiante->tutorLegal;
+        $tutorLegal = $inscripcion->tutorLegal;
         $colegio = $estudiante->colegio;
         $grado = $estudiante->grado;
+        $olimpiadaAreaCategoria = $inscripcion->olimpiadaAreaCategoria;
 
         $datos = [
             'apellido_pa'         => $estudiante->apellido_pa,
@@ -397,32 +403,119 @@ public function listarInscritos()
             'tutor_legal_ci'          => $tutorLegal->ci ?? null,
             'tutor_legal_correo'      => $tutorLegal->correo ?? null,
             'tutor_legal_telefono'    => $tutorLegal->numero_celular ?? null,
+            // Datos de la olimpiada/área/categoría
+            'nombre_area'         => $olimpiadaAreaCategoria->area->nombre_area ?? null,
+            'categoria'           => $olimpiadaAreaCategoria->categoria->nombre_categoria ?? null,
+            'olimpiada'           => $olimpiadaAreaCategoria->olimpiada->nombre ?? null,
+            'precio'              => $olimpiadaAreaCategoria->precio ?? null,
         ];
 
-        $tutores = $inscripcion->inscripcionCategoria->map(function ($cat) {
-            $tutor = $cat->tutorAcademico;
-            $categoria = $cat->categoria;
-            $area = $categoria?->area;
-        
-            return [
-                'nombre_area' => $area?->nombre_area ?? null,
-                'categoria'   => $categoria?->nombre_categoria ?? null,
+        // Si tienes relación directa con tutor académico
+        if ($inscripcion->tutorAcademico) {
+            $tutor = $inscripcion->tutorAcademico;
+            $datos = array_merge($datos, [
                 'tutor_academico_apellido_pa' => $tutor->apellido_pa ?? null,
                 'tutor_academico_apellido_ma' => $tutor->apellido_ma ?? null,
                 'tutor_academico_nombre'      => $tutor->nombre ?? null,
                 'tutor_academico_ci'          => $tutor->ci ?? null,
                 'tutor_academico_correo'      => $tutor->correo ?? null,
-            ];
-        });
+            ]);
+        } else {
+            // Si no hay tutor académico
+            $datos = array_merge($datos, [
+                'tutor_academico_apellido_pa' => null,
+                'tutor_academico_apellido_ma' => null,
+                'tutor_academico_nombre'      => null,
+                'tutor_academico_ci'          => null,
+                'tutor_academico_correo'      => null,
+            ]);
+        }
 
-        return $tutores->map(function ($tutor) use ($datos) {
-            return array_merge($datos, $tutor);
-        });
-    })->flatten(1);
+        return $datos;
+    });
 
     return response()->json($resultado);
 }
 
+public function listarPreinscritos($idOlimpiada)
+{
+    $inscripciones = InscripcionModel::with([
+        'estudiante.colegio', 
+        'estudiante.grado',
+        'tutorLegal',
+        'ordenPago',
+        'olimpiadaAreaCategoria.olimpiada',
+        'olimpiadaAreaCategoria.area',
+        'olimpiadaAreaCategoria.categoria',
+        'tutorAcademico' 
+    ])
+    ->whereHas('ordenPago', function ($query) {
+        $query->where('estado', 'pendiente');
+    })
+    ->whereHas('olimpiadaAreaCategoria.olimpiada', function ($query) use ($idOlimpiada) {
+        $query->where('id', $idOlimpiada);
+    })
+    ->get();
+
+    $resultado = $inscripciones->map(function ($inscripcion) {
+        $estudiante = $inscripcion->estudiante;
+        $tutorLegal = $inscripcion->tutorLegal;
+        $colegio = $estudiante->colegio;
+        $grado = $estudiante->grado;
+        $olimpiadaAreaCategoria = $inscripcion->olimpiadaAreaCategoria;
+
+        $datos = [
+            'apellido_pa'         => $estudiante->apellido_pa,
+            'apellido_ma'         => $estudiante->apellido_ma,
+            'nombre'              => $estudiante->nombre,
+            'ci'                  => $estudiante->ci,
+            'fecha_nacimiento'    => $estudiante->fecha_nacimiento,
+            'correo'              => $estudiante->correo,
+            'propietario_correo'  => $estudiante->propietario_correo,
+            'curso'               => $grado->nombre_grado ?? null,
+            'colegio'             => $colegio->nombre_colegio ?? null,
+            'departamento'        => $colegio->departamento ?? null,
+            'provincia'           => $colegio->distrito ?? null,
+            'rol_tutor_legal'     => 'Tutor Legal',
+            'tutor_legal_apellido_pa' => $tutorLegal->apellido_pa ?? null,
+            'tutor_legal_apellido_ma' => $tutorLegal->apellido_ma ?? null,
+            'tutor_legal_nombre'      => $tutorLegal->nombre ?? null,
+            'tutor_legal_ci'          => $tutorLegal->ci ?? null,
+            'tutor_legal_correo'      => $tutorLegal->correo ?? null,
+            'tutor_legal_telefono'    => $tutorLegal->numero_celular ?? null,
+            // Datos de la olimpiada/área/categoría
+            'nombre_area'         => $olimpiadaAreaCategoria->area->nombre_area ?? null,
+            'categoria'           => $olimpiadaAreaCategoria->categoria->nombre_categoria ?? null,
+            'olimpiada'           => $olimpiadaAreaCategoria->olimpiada->nombre ?? null,
+            'precio'              => $olimpiadaAreaCategoria->precio ?? null,
+        ];
+
+        // Si tienes relación directa con tutor académico
+        if ($inscripcion->tutorAcademico) {
+            $tutor = $inscripcion->tutorAcademico;
+            $datos = array_merge($datos, [
+                'tutor_academico_apellido_pa' => $tutor->apellido_pa ?? null,
+                'tutor_academico_apellido_ma' => $tutor->apellido_ma ?? null,
+                'tutor_academico_nombre'      => $tutor->nombre ?? null,
+                'tutor_academico_ci'          => $tutor->ci ?? null,
+                'tutor_academico_correo'      => $tutor->correo ?? null,
+            ]);
+        } else {
+            // Si no hay tutor académico
+            $datos = array_merge($datos, [
+                'tutor_academico_apellido_pa' => null,
+                'tutor_academico_apellido_ma' => null,
+                'tutor_academico_nombre'      => null,
+                'tutor_academico_ci'          => null,
+                'tutor_academico_correo'      => null,
+            ]);
+        }
+
+        return $datos;
+    });
+
+    return response()->json($resultado);
+}
 
 
     public function inscripcionesPorArea(Request $request)
@@ -531,13 +624,16 @@ public function registrosPorCodigo(Request $request)
             ], 404);
         }
 
+        // Cargar las mismas relaciones que en listarInscritos
         $inscripciones = InscripcionModel::with([
+            'estudiante.colegio', 
             'estudiante.grado',
-            'estudiante.colegio',
             'tutorLegal',
-            'tutorAcademico',
+            'ordenPago.responsable', // Agregar la relación responsable
+            'olimpiadaAreaCategoria.olimpiada',
             'olimpiadaAreaCategoria.area',
-            'olimpiadaAreaCategoria.categoria'
+            'olimpiadaAreaCategoria.categoria',
+            'tutorAcademico' 
         ])->where('id_orden_pago', $ordenPago->id)->get();
 
         if ($inscripciones->isEmpty()) {
@@ -555,7 +651,7 @@ public function registrosPorCodigo(Request $request)
             $colegio = $estudiante->colegio;
             $tutorLegal = $inscripcion->tutorLegal ?? null;
             $tutorAcademico = $inscripcion->tutorAcademico ?? null;
-            $responsable = $ordenPago->responsable;
+            $responsable = $inscripcion->ordenPago->responsable; // Acceso correcto al responsable
             $areaCategoria = $inscripcion->olimpiadaAreaCategoria;
             $area = $areaCategoria->area;
             $categoria = $areaCategoria->categoria;

@@ -3,10 +3,11 @@ import jsPDF from "jspdf"
 import autoTable from "jspdf-autotable"
 import * as XLSX from "xlsx"
 import { saveAs } from "file-saver"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useSearchParams  } from "react-router-dom"
 import { HiArrowCircleRight } from "react-icons/hi"
 import { API_URL } from "../../../utils/api"
 import axios from 'axios'
+
 function InscritosVerificados() {
   const [busqueda, setBusqueda] = useState("")
   const [estado, setEstado] = useState("")
@@ -14,31 +15,39 @@ function InscritosVerificados() {
   const [inscritos, setInscritos] = useState([])
   const [paginaActual, setPaginaActual] = useState(1)
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams();
+const idOlimpiada = searchParams.get('olimpiada');
 
   const [cargandoPDF, setCargandoPDF] = useState(false)
   const [cargandoExcel, setCargandoExcel] = useState(false)
-  const [contadorNumeracion, setContadorNumeracion] = useState(1)
 
   useEffect(() => {
-    axios
-      .get(`${API_URL}/api/estudiantes/inscritos`) 
-      .then((response) => {
-        setInscritos(response.data.estudiantes_que_pagaron) 
-      })
-  }, [])
+    if (idOlimpiada) {
+      // Usar el endpoint con el ID de la olimpiada
+      axios
+        .get(`${API_URL}/api/lista-inscritos/${idOlimpiada}`) 
+        .then((response) => {
+          setInscritos(response.data)
+          console.log("Inscritos verificados:", response.data)
+        })
+        .catch((error) => {
+          console.error("Error al cargar inscritos verificados:", error)
+        })
+    }
+  }, [idOlimpiada])
 
   const resultadosFiltrados = inscritos.filter((inscrito) => {
     const coincideBusqueda =
       inscrito.nombre?.toLowerCase().includes(busqueda.toLowerCase()) ||
       inscrito.apellido_pa?.toLowerCase().includes(busqueda.toLowerCase()) ||
       inscrito.apellido_ma?.toLowerCase().includes(busqueda.toLowerCase()) ||
-      String(inscrito.carnet_identidad)?.toLowerCase().includes(busqueda.toLowerCase()) ||
+      String(inscrito.ci)?.toLowerCase().includes(busqueda.toLowerCase()) ||
       inscrito.correo?.toLowerCase().includes(busqueda.toLowerCase())
 
-  
     return coincideBusqueda
   })
-  const resultadosPorPagina = 10
+
+  const resultadosPorPagina = 20
   const totalPaginas = Math.ceil(resultadosFiltrados.length / resultadosPorPagina)
   const indiceInicial = (paginaActual - 1) * resultadosPorPagina
   const indiceFinal = indiceInicial + resultadosPorPagina
@@ -47,19 +56,59 @@ function InscritosVerificados() {
   const descargarPDF = () => {
     setCargandoPDF(true)
 
-    const doc = new jsPDF()
-    doc.text("Lista de inscritos verificados", 14, 10)
+    const doc = new jsPDF({
+      orientation: "landscape",
+      unit: "mm",
+      format: [260, 406],
+    })
+
+    doc.text("Lista de Inscritos Verificados", 14, 10)
+
+    const columnas = [
+      "N°",
+      "Apellido Paterno",
+      "Apellido Materno",
+      "Nombres",
+      "Carnet de Identidad",
+      "Curso",
+      "Colegio",
+      "Departamento",
+      "Provincia",
+      "Correo Electrónico",
+      "Tutor Legal Nombre",
+      "Tutor Legal CI",
+    ]
+
+    const body = resultadosFiltrados.map((item, index) => [
+      index + 1,
+      item.apellido_pa || "",
+      item.apellido_ma || "",
+      item.nombre || "",
+      item.ci || "",
+      item.curso || "",
+      item.colegio || "",
+      item.departamento || "",
+      item.provincia || "",
+      item.correo || "",
+      item.tutor_legal_nombre || "",
+      item.tutor_legal_ci || "",
+    ])
+
     autoTable(doc, {
-      head: [["N°", "Nombre", "Apellido Paterno", "Apellido Materno", "Carnet", "Fecha de Nacimiento", "Correo"]],
-      body: resultadosFiltrados.map((item, index) => [
-        index + 1,
-        item.nombre,
-        item.apellido_pa,
-        item.apellido_ma,
-        item.carnet_identidad,
-        item.fecha_nacimiento,
-        item.correo,
-      ]),
+      head: [columnas],
+      body: body,
+      startY: 20,
+      styles: {
+        fontSize: 7,
+        overflow: "linebreak",
+        cellWidth: "wrap",
+      },
+      headStyles: {
+        fillColor: [41, 128, 185],
+        textColor: [255, 255, 255],
+        fontSize: 8,
+      },
+      theme: "grid",
     })
 
     setTimeout(() => {
@@ -87,25 +136,15 @@ function InscritosVerificados() {
   }
 
   const generarNombreArchivo = (tipo) => {
-    const fechaActual = new Date().toISOString().slice(0, 10) // formato YYYY-MM-DD
+    const fechaActual = new Date().toISOString().slice(0, 10)
     return `inscritos-verificados_${fechaActual}.${tipo}`
   }
 
   useEffect(() => {
-    if (resultadosFiltrados.length < 10 && paginaActual !== 1) {
+    if (resultadosFiltrados.length < 20 && paginaActual !== 1) {
       setPaginaActual(1)
     }
   }, [resultadosFiltrados, paginaActual])
-
-  const handleSiguiente = () => {
-    setPaginaActual((prevPagina) => prevPagina + 1)
-    setContadorNumeracion(contadorNumeracion + resultadosPorPagina)
-  }
-
-  const handleAnterior = () => {
-    setPaginaActual((prevPagina) => prevPagina - 1)
-    setContadorNumeracion(contadorNumeracion - resultadosPorPagina)
-  }
 
   return (
     <div className="relative p-6 bg-white shadow-md rounded-xl">
@@ -123,7 +162,6 @@ function InscritosVerificados() {
 
       <div className="w-full max-w-5xl mx-auto mt-8 bg-sky-50 rounded-2xl shadow-lg">
         <div className="flex flex-col md:flex-row p-6 gap-4">
-
           <div className="flex-1">
             <label htmlFor="busqueda" className="block mb-2 text-sm font-semibold text-gray-700">
               Buscar por nombre, apellidos, carnet o correo
@@ -221,29 +259,139 @@ function InscritosVerificados() {
         <div className="mt-6 flex justify-center">
           <div className="overflow-x-auto w-full max-w-6xl">
             <table className="min-w-max border border-gray-300 text-sm text-left">
-              <thead className="font-semibold bg-sky-100">
+              <thead>
                 <tr>
-                  <th className="px-4 py-2 border">Número</th>
-                  <th className="px-4 py-2 border">Nombre</th>
-                  <th className="px-4 py-2 border">Apellido Paterno</th>
-                  <th className="px-4 py-2 border">Apellido Materno</th>
-                  <th className="px-4 py-2 border">Carnet de Identidad</th>
-                  <th className="px-4 py-2 border">Fecha de Nacimiento</th>
-                  <th className="px-4 py-2 border">Correo</th>
-                  <th className="px-4 py-2 border">Propietario Correo</th>
+                  <th
+                    colSpan="14"
+                    className="py-2 px-4 border border-gray-300 font-semibold bg-green-200 text-center"
+                  >
+                    Datos del competidor
+                  </th>
+                  <th
+                    colSpan="7"
+                    className="py-2 px-4 border border-gray-300 font-semibold bg-blue-200 text-center"
+                  >
+                    Datos del tutor legal
+                  </th>
+                  <th
+                    colSpan="5"
+                    className="py-2 px-4 border border-gray-300 font-semibold bg-purple-200 text-center"
+                  >
+                    Datos del tutor académico
+                  </th>
+                </tr>
+                <tr>
+                  {[
+                    "Número",
+                    "Apellido Paterno",
+                    "Apellido Materno",
+                    "Nombres",
+                    "Carnet de Identidad",
+                    "Fecha de nacimiento",
+                    "Correo Electrónico",
+                    "El correo pertenece a",
+                    "Curso",
+                    "Área",
+                    "Categoría",
+                    "Colegio",
+                    "Departamento",
+                    "Provincia",
+                    "Rol del tutor",
+                    "Apellido Paterno",
+                    "Apellido Materno",
+                    "Nombres",
+                    "Carnet de Identidad",
+                    "Correo Electrónico",
+                    "Teléfono/Celular",
+                    "Apellido Paterno",
+                    "Apellido Materno",
+                    "Nombres",
+                    "Carnet de Identidad",
+                    "Correo Electrónico",
+                  ].map((title, idx) => {
+                    let bgColor = "";
+                    if (idx < 14) bgColor = "bg-green-100";
+                    else if (idx < 21) bgColor = "bg-blue-100";
+                    else bgColor = "bg-purple-100";
+
+                    return (
+                      <th
+                        key={idx}
+                        className={`py-2 px-4 border border-gray-300 font-medium whitespace-nowrap text-center ${bgColor}`}
+                      >
+                        {title}
+                      </th>
+                    );
+                  })}
                 </tr>
               </thead>
               <tbody>
-                {resultadosPaginados.map((item, index) => (
-                  <tr key={index} className="bg-white border-b hover:bg-gray-100">
-                    <td className="px-4 py-2 border">{contadorNumeracion + index}</td>
-                    <td className="px-4 py-2 border">{item.nombre}</td>
-                    <td className="px-4 py-2 border">{item.apellido_pa}</td>
-                    <td className="px-4 py-2 border">{item.apellido_ma}</td>
-                    <td className="px-4 py-2 border">{item.carnet_identidad}</td>
-                    <td className="px-4 py-2 border">{item.fecha_nacimiento}</td>
-                    <td className="px-4 py-2 border">{item.correo}</td>
-                    <td className="px-4 py-2 border">{item.propietario_correo}</td>
+                {resultadosPaginados.map((inscritos, index) => (
+                  <tr key={index} className="hover:bg-gray-50">
+                    <td className="px-4 py-2 border text-center">
+                      {(paginaActual - 1) * resultadosPorPagina + index + 1}
+                    </td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.apellido_pa}
+                    </td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.apellido_ma}
+                    </td>
+                    <td className="px-4 py-2 border">{inscritos.nombre}</td>
+                    <td className="px-4 py-2 border">{inscritos.ci}</td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.fecha_nacimiento}
+                    </td>
+                    <td className="px-4 py-2 border">{inscritos.correo}</td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.propietario_correo}
+                    </td>
+                    <td className="px-4 py-2 border">{inscritos.curso}</td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.nombre_area}
+                    </td>
+                    <td className="px-4 py-2 border">{inscritos.categoria}</td>
+                    <td className="px-4 py-2 border">{inscritos.colegio}</td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.departamento}
+                    </td>
+                    <td className="px-4 py-2 border">{inscritos.provincia}</td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.rol_tutor_legal}
+                    </td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.tutor_legal_apellido_pa}
+                    </td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.tutor_legal_apellido_ma}
+                    </td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.tutor_legal_nombre}
+                    </td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.tutor_legal_ci}
+                    </td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.tutor_legal_correo}
+                    </td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.tutor_legal_telefono}
+                    </td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.tutor_academico_apellido_pa}
+                    </td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.tutor_academico_apellido_ma}
+                    </td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.tutor_academico_nombre}
+                    </td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.tutor_academico_ci}
+                    </td>
+                    <td className="px-4 py-2 border">
+                      {inscritos.tutor_academico_correo}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -256,7 +404,7 @@ function InscritosVerificados() {
       {resultadosFiltrados.length > 0 && (
         <div className="flex justify-center items-center gap-4 my-6">
           <button
-            onClick={handleAnterior}
+            onClick={() => setPaginaActual((prev) => Math.max(prev - 1, 1))}
             disabled={paginaActual === 1}
             className="px-3 py-1 bg-blue-500 text-white rounded disabled:opacity-50"
           >
@@ -266,7 +414,9 @@ function InscritosVerificados() {
             Página {paginaActual} de {totalPaginas}
           </span>
           <button
-            onClick={handleSiguiente}
+            onClick={() =>
+              setPaginaActual((prev) => Math.min(prev + 1, totalPaginas))
+            }
             disabled={paginaActual === totalPaginas}
             className="px-3 py-1 bg-blue-500 text-white rounded disabled:opacity-50"
           >
