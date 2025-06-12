@@ -8,7 +8,6 @@ import {
 } from "react-icons/fa";
 import ExitoModal from "../InscripcionLista/Modales/ExitoModal";
 import ErrorModal from "../InscripcionLista/Modales/RegistrosInvalidosModal";
-// import ModalEnvioCodigo from "./modales/ModalEnvioCodigo"; 
 import { API_URL } from "../../utils/api";
 
 const Confirmation = ({ navigate, handleBack }) => {
@@ -25,7 +24,6 @@ const Confirmation = ({ navigate, handleBack }) => {
   const [errorMessage, setErrorMessage] = useState("");
   const [codigoGenerado, setCodigoGenerado] = useState("");
   const [mostrarModal, setMostrarModal] = useState(false);
-  // const [showModalEnvioCodigo, setShowModalEnvioCodigo] = useState(false); 
 
   useEffect(() => {
     globalData.areas_competencia?.forEach((area) => {
@@ -117,14 +115,6 @@ const Confirmation = ({ navigate, handleBack }) => {
     navigate("/orden-pago", { state: { codigoGenerado } });
   };
 
-
-  /*
-  const handleModalEnvioCodigoClose = () => {
-    setShowModalEnvioCodigo(false);
-    setCodigoGenerado("");
-    navigate("/orden-pago", { state: { codigoGenerado } });
-  };
-  */
 
   return (
     <div className="text-center">
@@ -421,15 +411,6 @@ const Confirmation = ({ navigate, handleBack }) => {
         />
       )}
 
-      {/*
-      {showModalEnvioCodigo && (
-        <ModalEnvioCodigo
-          codigoGenerado={codigoGenerado}
-          onClose={handleModalEnvioCodigoClose}
-          globalData={globalData}
-        />
-      )}
-      */}
       
       {showErrorModal && (
         <ErrorModal
