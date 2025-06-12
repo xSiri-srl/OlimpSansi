@@ -103,6 +103,13 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
       1
     );
 
+    const isCorreoValid = validateInput(
+      formData.responsable?.correo,
+      "correo",
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+      1
+    );
+
     const { isValid: isCIValid } = validateCI(formData.responsable?.ci);
     if (!isCIValid) {
       setErrors(prev => ({
@@ -115,7 +122,8 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
       !isApellidoPaternoValid ||
       !isApellidoMaternoValid ||
       !isNombresValid ||
-      !isCIValid
+      !isCIValid ||
+      !isCorreoValid
     ) {
       return;
     }
@@ -130,6 +138,7 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
           apellido_pa: formData.responsable?.apellidoPaterno,
           apellido_ma: formData.responsable?.apellidoMaterno,
           ci: formData.responsable?.ci,
+          correo_responsable:formData.responsable?.correo
         },
       };
 
@@ -151,6 +160,7 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
     formData.responsable?.ci &&
     formData.responsable?.apellidoPaterno &&
     formData.responsable?.apellidoMaterno &&
+    formData.responsable?.correo && 
     formData.responsable?.ci?.length >= 7 &&
     formData.responsable?.nombres?.length >= 2 &&
     formData.responsable?.apellidoMaterno?.length >= 2 &&
@@ -245,6 +255,22 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
               transform={(value) => value.toUpperCase()}
             />
           </div>
+          
+           <div>
+              <TextField
+                label="Correo Electrónico"
+                icon={<FaUser className="text-black" />}
+                name="correo"
+                placeholder="correo@ejemplo.com"
+                value={formData.responsable?.correo || ""}
+                onChange={(value) =>
+                  handleInputChange("responsable", "correo", value)
+                }
+                error={errors.correo}
+                maxLength="50"
+                regex={/^[^\s@]+@[^\s@]+\.[^\s@]+$/}
+              />
+            </div>
 
           {errors.general && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">

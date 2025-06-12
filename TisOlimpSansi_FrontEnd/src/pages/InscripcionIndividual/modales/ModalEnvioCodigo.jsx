@@ -34,7 +34,7 @@ const ModalEnvioCodigo = ({
 
     try {
       await axios.post(`${API_URL}/api/enviar-codigo-preinscripcion`, {
-        correo: correoEnvio,
+        correo_tutor: correoEnvio,
         codigo: codigoGenerado,
         nombreResponsable: `${globalData.responsable_inscripcion?.nombre} ${globalData.responsable_inscripcion?.apellido_pa}`,
         nombreEstudiante: `${globalData.estudiante?.nombre} ${globalData.estudiante?.apellido_pa}`
