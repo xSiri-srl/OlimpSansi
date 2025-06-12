@@ -202,6 +202,12 @@ const ConfirmationLista = ({ setStep }) => {
                   {responsableInscripcion?.ci || ""}
                 </p>
               </div>
+              <div>
+              <p className="text-sm text-gray-500">Correo Electrónico</p>
+              <p className="font-medium">
+                {globalData.responsable_inscripcion?.correo_responsable || ""}
+              </p>
+            </div>
             </div>
           </div>
 

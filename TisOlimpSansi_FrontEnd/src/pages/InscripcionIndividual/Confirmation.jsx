@@ -114,7 +114,7 @@ const Confirmation = ({ navigate, handleBack }) => {
     setShowProgressBar(false);
     navigate("/orden-pago", { state: { codigoGenerado } });
   };
-
+  console.log("checa la joyita",globalData)
 
   return (
     <div className="text-center">
@@ -141,6 +141,12 @@ const Confirmation = ({ navigate, handleBack }) => {
               <p className="text-sm text-gray-500">Carnet de Identidad</p>
               <p className="font-medium">
                 {globalData.responsable_inscripcion?.ci || ""}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Correo Electrónico</p>
+              <p className="font-medium">
+                {globalData.responsable_inscripcion?.correo_responsable || ""}
               </p>
             </div>
           </div>
