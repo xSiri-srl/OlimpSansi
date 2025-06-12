@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Inscripcion;
 
 use App\Http\Controllers\Controller;
+use App\Mail\InscripcionCompletada;
 use App\Models\Inscripcion\AreaModel;
 use App\Models\Inscripcion\CategoriaModel;
 use App\Models\Inscripcion\ColegioModel;
@@ -17,6 +18,7 @@ use App\Models\GestionOlimpiadas\OlimpiadaModel;
 use App\Models\GestionPagos\OrdenPagoModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class InscripcionController extends Controller
 {
@@ -142,10 +144,10 @@ public function registrar(Request $request)
             $inscripcionesPorArea[$area->id] = $inscripcion;
             $total += floatval($oac->precio);
         }
-        $year = date('Y');
+        $codigoGeneradoPre = $this->generarCodigoPreinscripcion();
         $ordenPago->update([
             'monto_total' => $total,
-            'codigo_generado' => sprintf('TSOL-%s-%04d', $year, $ordenPago->id),
+            'codigo_generado' => $codigoGeneradoPre,
         ]);
 
         if (!empty($data['tutores_academicos']) && is_array($data['tutores_academicos'])) {
@@ -167,6 +169,9 @@ public function registrar(Request $request)
             }
         }
 
+        $correo_tutor = $data['responsable_inscripcion']['correo_responsable'];
+        $nombreOlimpiada = $olimpiada->titulo;
+        Mail::to($correo_tutor)->send(new InscripcionCompletada($codigoGeneradoPre, $correo_tutor,$nombreOlimpiada));
 
         DB::commit();
 
@@ -183,6 +188,9 @@ public function registrar(Request $request)
         ], 500);
     }
 }
+
+ 
+
 
 public function registrarLista(Request $request) 
 {
@@ -354,12 +362,15 @@ public function registrarLista(Request $request)
         }
         
         // Actualizar orden de pago final
-        $year = date('Y');
+        $codigoGeneradoPre = $this->generarCodigoPreinscripcion();
         $ordenPago->update([
             'monto_total' => $total,
-            'codigo_generado' => sprintf('TSOL-%s-%04d', $year, $ordenPago->id),
+            'codigo_generado' => $codigoGeneradoPre,
         ]);
 
+        $correo_tutor = $data['responsable_inscripcion']['correo_responsable'];
+        $nombreOlimpiada = $olimpiada->titulo;
+        Mail::to($correo_tutor)->send(new InscripcionCompletada($codigoGeneradoPre, $correo_tutor,$nombreOlimpiada));
         DB::commit();
 
         return response()->json([
@@ -378,84 +389,97 @@ public function registrarLista(Request $request)
 }
 
 
+    public function generarCodigoPreinscripcion()
+    {
+        $year = date('Y');
+        $codigoAlfanumerico = strtoupper(bin2hex(random_bytes(3))); 
 
-    
-public function listarInscritos($idOlimpiada)
-{
-    $inscripciones = InscripcionModel::with([
-        'estudiante.colegio', 
-        'estudiante.grado',
-        'tutorLegal',
-        'ordenPago',
-        'olimpiadaAreaCategoria.olimpiada',
-        'olimpiadaAreaCategoria.area',
-        'olimpiadaAreaCategoria.categoria',
-        'tutorAcademico' 
-    ])
-    ->whereHas('olimpiadaAreaCategoria.olimpiada', function ($query) use ($idOlimpiada) {
-        $query->where('id', $idOlimpiada);
-    })
-    ->get();
-
-    $resultado = $inscripciones->map(function ($inscripcion) {
-        $estudiante = $inscripcion->estudiante;
-        $tutorLegal = $inscripcion->tutorLegal;
-        $colegio = $estudiante->colegio;
-        $grado = $estudiante->grado;
-        $olimpiadaAreaCategoria = $inscripcion->olimpiadaAreaCategoria;
-
-        $datos = [
-            'apellido_pa'         => $estudiante->apellido_pa,
-            'apellido_ma'         => $estudiante->apellido_ma,
-            'nombre'              => $estudiante->nombre,
-            'ci'                  => $estudiante->ci,
-            'fecha_nacimiento'    => $estudiante->fecha_nacimiento,
-            'correo'              => $estudiante->correo,
-            'propietario_correo'  => $estudiante->propietario_correo,
-            'curso'               => $grado->nombre_grado ?? null,
-            'colegio'             => $colegio->nombre_colegio ?? null,
-            'departamento'        => $colegio->departamento ?? null,
-            'provincia'           => $colegio->distrito ?? null,
-            'rol_tutor_legal'     => 'Tutor Legal',
-            'tutor_legal_apellido_pa' => $tutorLegal->apellido_pa ?? null,
-            'tutor_legal_apellido_ma' => $tutorLegal->apellido_ma ?? null,
-            'tutor_legal_nombre'      => $tutorLegal->nombre ?? null,
-            'tutor_legal_ci'          => $tutorLegal->ci ?? null,
-            'tutor_legal_correo'      => $tutorLegal->correo ?? null,
-            'tutor_legal_telefono'    => $tutorLegal->numero_celular ?? null,
-            // Datos de la olimpiada/área/categoría
-            'nombre_area'         => $olimpiadaAreaCategoria->area->nombre_area ?? null,
-            'categoria'           => $olimpiadaAreaCategoria->categoria->nombre_categoria ?? null,
-            'olimpiada'           => $olimpiadaAreaCategoria->olimpiada->nombre ?? null,
-            'precio'              => $olimpiadaAreaCategoria->precio ?? null,
-        ];
-
-        // Si tienes relación directa con tutor académico
-        if ($inscripcion->tutorAcademico) {
-            $tutor = $inscripcion->tutorAcademico;
-            $datos = array_merge($datos, [
-                'tutor_academico_apellido_pa' => $tutor->apellido_pa ?? null,
-                'tutor_academico_apellido_ma' => $tutor->apellido_ma ?? null,
-                'tutor_academico_nombre'      => $tutor->nombre ?? null,
-                'tutor_academico_ci'          => $tutor->ci ?? null,
-                'tutor_academico_correo'      => $tutor->correo ?? null,
-            ]);
-        } else {
-            // Si no hay tutor académico
-            $datos = array_merge($datos, [
-                'tutor_academico_apellido_pa' => null,
-                'tutor_academico_apellido_ma' => null,
-                'tutor_academico_nombre'      => null,
-                'tutor_academico_ci'          => null,
-                'tutor_academico_correo'      => null,
-            ]);
+        //codigo final como TSOL-AÑO-XXXXXX
+        $codigoGenerado = sprintf('TSOL-%s-%s', $year, $codigoAlfanumerico);
+        while (OrdenPagoModel::where('codigo_generado', $codigoGenerado)->exists()) {
+            
+            $codigoAlfanumerico = strtoupper(bin2hex(random_bytes(3)));
+            $codigoGenerado = sprintf('TSOL-%s-%s', $year, $codigoAlfanumerico);
         }
+        return $codigoGenerado;
+    }
+    
+    public function listarInscritos($idOlimpiada)
+    {
+        $inscripciones = InscripcionModel::with([
+            'estudiante.colegio', 
+            'estudiante.grado',
+            'tutorLegal',
+            'ordenPago',
+            'olimpiadaAreaCategoria.olimpiada',
+            'olimpiadaAreaCategoria.area',
+            'olimpiadaAreaCategoria.categoria',
+            'tutorAcademico' 
+        ])
+        ->whereHas('olimpiadaAreaCategoria.olimpiada', function ($query) use ($idOlimpiada) {
+            $query->where('id', $idOlimpiada);
+        })
+        ->get();
 
-        return $datos;
-    });
+        $resultado = $inscripciones->map(function ($inscripcion) {
+            $estudiante = $inscripcion->estudiante;
+            $tutorLegal = $inscripcion->tutorLegal;
+            $colegio = $estudiante->colegio;
+            $grado = $estudiante->grado;
+            $olimpiadaAreaCategoria = $inscripcion->olimpiadaAreaCategoria;
 
-    return response()->json($resultado);
-}
+            $datos = [
+                'apellido_pa'         => $estudiante->apellido_pa,
+                'apellido_ma'         => $estudiante->apellido_ma,
+                'nombre'              => $estudiante->nombre,
+                'ci'                  => $estudiante->ci,
+                'fecha_nacimiento'    => $estudiante->fecha_nacimiento,
+                'correo'              => $estudiante->correo,
+                'propietario_correo'  => $estudiante->propietario_correo,
+                'curso'               => $grado->nombre_grado ?? null,
+                'colegio'             => $colegio->nombre_colegio ?? null,
+                'departamento'        => $colegio->departamento ?? null,
+                'provincia'           => $colegio->distrito ?? null,
+                'rol_tutor_legal'     => 'Tutor Legal',
+                'tutor_legal_apellido_pa' => $tutorLegal->apellido_pa ?? null,
+                'tutor_legal_apellido_ma' => $tutorLegal->apellido_ma ?? null,
+                'tutor_legal_nombre'      => $tutorLegal->nombre ?? null,
+                'tutor_legal_ci'          => $tutorLegal->ci ?? null,
+                'tutor_legal_correo'      => $tutorLegal->correo ?? null,
+                'tutor_legal_telefono'    => $tutorLegal->numero_celular ?? null,
+                // Datos de la olimpiada/área/categoría
+                'nombre_area'         => $olimpiadaAreaCategoria->area->nombre_area ?? null,
+                'categoria'           => $olimpiadaAreaCategoria->categoria->nombre_categoria ?? null,
+                'olimpiada'           => $olimpiadaAreaCategoria->olimpiada->nombre ?? null,
+                'precio'              => $olimpiadaAreaCategoria->precio ?? null,
+            ];
+
+            // Si tienes relación directa con tutor académico
+            if ($inscripcion->tutorAcademico) {
+                $tutor = $inscripcion->tutorAcademico;
+                $datos = array_merge($datos, [
+                    'tutor_academico_apellido_pa' => $tutor->apellido_pa ?? null,
+                    'tutor_academico_apellido_ma' => $tutor->apellido_ma ?? null,
+                    'tutor_academico_nombre'      => $tutor->nombre ?? null,
+                    'tutor_academico_ci'          => $tutor->ci ?? null,
+                    'tutor_academico_correo'      => $tutor->correo ?? null,
+                ]);
+            } else {
+                // Si no hay tutor académico
+                $datos = array_merge($datos, [
+                    'tutor_academico_apellido_pa' => null,
+                    'tutor_academico_apellido_ma' => null,
+                    'tutor_academico_nombre'      => null,
+                    'tutor_academico_ci'          => null,
+                    'tutor_academico_correo'      => null,
+                ]);
+            }
+
+            return $datos;
+        });
+
+        return response()->json($resultado);
+    }
 
 public function listarPreinscritos($idOlimpiada)
 {
