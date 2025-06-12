@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { FaUser, FaIdCard } from "react-icons/fa"
+import { FaUser, FaIdCard, FaEnvelope } from "react-icons/fa"
 import { useFormData } from "./form-context"
 import { useLocation } from "react-router-dom";
 import { API_URL } from "../../utils/api";
@@ -12,6 +12,7 @@ function RegistroResponsable({ setStep }) {
       apellidoMaterno: "",
       nombres: "",
       ci: "",
+      correo: "",
     },
   })
 const location = useLocation();
@@ -32,6 +33,7 @@ const olimpiada = parseInt(state?.id, 10);
           apellidoMaterno: resp.apellido_ma || "",
           nombres: resp.nombre || "",
           ci: resp.ci || "",
+          correo: resp.correo_responsable || "",
         }
       });
     }
@@ -58,6 +60,7 @@ const olimpiada = parseInt(state?.id, 10);
           handleInputChange('responsable', 'nombres', responsable.nombre)
           handleInputChange('responsable', 'apellidoPaterno', responsable.apellido_pa)
           handleInputChange('responsable', 'apellidoMaterno', responsable.apellido_ma)
+          handleInputChange('responsable', 'correo', responsable.correo || "")
           setResponsableFound(true)
         } else {
           setResponsableFound(false)
@@ -160,7 +163,14 @@ const olimpiada = parseInt(state?.id, 10);
       7
     )
 
-    if (!isApellidoPaternoValid || !isApellidoMaternoValid || !isNombresValid || !isCIValid) {
+    const isCorreoValid = validateInput(
+      formData.responsable?.correo,
+      "correo",
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+      1
+    )
+
+    if (!isApellidoPaternoValid || !isApellidoMaternoValid || !isNombresValid || !isCIValid || !isCorreoValid) {
       return
     }
 
@@ -175,6 +185,7 @@ const olimpiada = parseInt(state?.id, 10);
           apellido_pa: formData.responsable?.apellidoPaterno,
           apellido_ma: formData.responsable?.apellidoMaterno,
           ci: formData.responsable?.ci,
+          correo_responsable: formData.responsable?.correo,
         },
         
       }
@@ -292,6 +303,29 @@ const olimpiada = parseInt(state?.id, 10);
               placeholder="Nombres"
             />
             {errors.nombres && <p className="text-red-500 text-sm mt-1">{errors.nombres}</p>}
+          </div>
+
+          <div>
+            <div className="flex items-center gap-2">
+              <FaEnvelope className="text-black" />
+              <label>Correo Electrónico</label>
+            </div>
+            <input
+              type="email"
+              value={formData.responsable?.correo || ""}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (!value.startsWith(" ")) {
+                  handleInputChange("responsable", "correo", value);
+                  setErrors((prev) => ({ ...prev, correo: "" }));
+                }
+              }}
+              readOnly={responsableFound}
+              className={`w-full p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${responsableFound ? 'bg-gray-100' : ''}`}
+              placeholder="correo@ejemplo.com"
+              maxLength={50}
+            />
+            {errors.correo && <p className="text-red-500 text-sm mt-1">{errors.correo}</p>}
           </div>
 
           <div className="text-center mt-6">
