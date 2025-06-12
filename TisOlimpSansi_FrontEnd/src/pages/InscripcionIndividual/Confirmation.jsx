@@ -4,10 +4,11 @@ import axios from "axios"
 import {
   FaCheckCircle,
   FaTimesCircle,
-  FaExclamationTriangle,
+  FaExclamationTriangle
 } from "react-icons/fa";
 import ExitoModal from "../InscripcionLista/Modales/ExitoModal";
 import ErrorModal from "../InscripcionLista/Modales/RegistrosInvalidosModal";
+import ModalEnvioCodigo from "./modales/ModalEnvioCodigo";
 import { API_URL } from "../../utils/api";
 
 const Confirmation = ({ navigate, handleBack }) => {
@@ -24,6 +25,7 @@ const Confirmation = ({ navigate, handleBack }) => {
   const [errorMessage, setErrorMessage] = useState("");
   const [codigoGenerado, setCodigoGenerado] = useState("");
   const [mostrarModal, setMostrarModal] = useState(false);
+  const [showModalEnvioCodigo, setShowModalEnvioCodigo] = useState(false);
 
   useEffect(() => {
     globalData.areas_competencia?.forEach((area) => {
@@ -69,13 +71,13 @@ const Confirmation = ({ navigate, handleBack }) => {
         message: "Inscripción registrada correctamente.",
       });
 
-      setShowSuccessModal(true);
+      setShowProgressBar(false);
+      setShowModalEnvioCodigo(true);
     } catch (error) {
       console.error("Error al registrar los datos", error);
       clearInterval(progressInterval);
       setShowProgressBar(false);
       
-      // Procesar el mensaje de error similar a ConfirmationLista
       let rawMessage = error.response?.data?.message || error.response?.data?.error || error.message || "";
       let mensajeFinal = rawMessage;
 
@@ -105,9 +107,9 @@ const Confirmation = ({ navigate, handleBack }) => {
     }
   };
 
-  const handleSuccessModalClose = () => {
-    setShowSuccessModal(false);
-    setShowProgressBar(false);
+  const handleModalEnvioCodigoClose = () => {
+    setShowModalEnvioCodigo(false);
+    setCodigoGenerado("");
     navigate("/orden-pago", { state: { codigoGenerado } });
   };
 
@@ -119,7 +121,6 @@ const Confirmation = ({ navigate, handleBack }) => {
       </p>
 
       <div className="mt-4 bg-white rounded-lg shadow-md p-6 text-left max-w-3xl mx-auto">
-        {/* Sección del responsable de inscripción */}
         <div className="mb-6 border-b pb-4">
           <h3 className="text-lg font-semibold text-blue-600">
             Responsable de Inscripción
@@ -142,7 +143,6 @@ const Confirmation = ({ navigate, handleBack }) => {
           </div>
         </div>
 
-        {/* Sección del estudiante */}
         <div className="mb-6 border-b pb-4">
           <h3 className="text-lg font-semibold text-blue-600">
             Datos del Estudiante
@@ -174,8 +174,6 @@ const Confirmation = ({ navigate, handleBack }) => {
             </div>
           </div>
         </div>
-
-        {/* Sección del colegio */}
         <div className="mb-6 border-b pb-4">
           <h3 className="text-lg font-semibold text-blue-600">
             Datos de la Unidad Educativa
@@ -210,7 +208,6 @@ const Confirmation = ({ navigate, handleBack }) => {
           </div>
         </div>
 
-        {/* Sección de áreas de competencia */}
         <div className="mb-6 border-b pb-4">
           <h3 className="text-lg font-semibold text-blue-600">
             Áreas de Competencia
@@ -238,7 +235,6 @@ const Confirmation = ({ navigate, handleBack }) => {
           </div>
         </div>
 
-        {/* Sección del tutor legal */}
         <div className="mb-6 border-b pb-4">
           <h3 className="text-lg font-semibold text-blue-600">Tutor Legal</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
@@ -275,7 +271,6 @@ const Confirmation = ({ navigate, handleBack }) => {
           </div>
         </div>
 
-        {/* Sección de tutores académicos */}
         {globalData.tutores_academicos &&
           globalData.tutores_academicos.length > 0 && (
             <div className="mb-6">
@@ -320,8 +315,6 @@ const Confirmation = ({ navigate, handleBack }) => {
             </div>
           )}
 
-        {/* Sección de Desglose de Costos por Área */}
-
         <div className="mt-4 p-2  bg-red-100 border-4 border-red-500 rounded-xl text-center shadow-xl animate-pulse flex items-center justify-center">
           <FaExclamationTriangle className="text-red-700 text-2xl" />
           <p className="text-red-800 font-bold text-sm p-2 tracking-wide">
@@ -331,8 +324,6 @@ const Confirmation = ({ navigate, handleBack }) => {
         </div>
       </div>
 
-      {/* Removido el mensaje de error inline ya que ahora usamos el modal */}
-   
       <div className="flex justify-center mt-6 gap-4">
         <button
           onClick={handleGoBack}
@@ -407,11 +398,12 @@ const Confirmation = ({ navigate, handleBack }) => {
           </div>
         </div>
       )}
-      
-      {showSuccessModal && (
-        <ExitoModal
-          mensaje="Su registro ha sido procesado exitosamente."
-          onClose={handleSuccessModalClose}
+
+      {showModalEnvioCodigo && (
+        <ModalEnvioCodigo
+          codigoGenerado={codigoGenerado}
+          onClose={handleModalEnvioCodigoClose}
+          globalData={globalData}
         />
       )}
       
