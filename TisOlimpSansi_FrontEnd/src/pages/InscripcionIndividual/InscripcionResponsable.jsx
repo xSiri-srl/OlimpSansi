@@ -53,6 +53,7 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
           handleInputChange('responsable', 'nombres', responsable.nombre);
           handleInputChange('responsable', 'apellidoPaterno', responsable.apellido_pa);
           handleInputChange('responsable', 'apellidoMaterno', responsable.apellido_ma);
+          handleInputChange('responsable', 'correo', responsable.correo);
           setResponsableFound(true);
           
         } else {
@@ -268,7 +269,7 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
                 }
                 error={errors.correo}
                 maxLength="50"
-                regex={/^[^\s@]+@[^\s@]+\.[^\s@]+$/}
+                
               />
             </div>
 
