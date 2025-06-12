@@ -169,8 +169,7 @@ public function registrar(Request $request)
             }
         }
 
-        //$correo_tutor = $data['responsable_inscripcion']['correo_responsable'];
-        $correo_tutor = "isacpoly177@gmail.com";
+        $correo_tutor = $data['responsable_inscripcion']['correo_responsable'];
         $nombreOlimpiada = $olimpiada->titulo;
         Mail::to($correo_tutor)->send(new InscripcionCompletada($codigoGeneradoPre, $correo_tutor,$nombreOlimpiada));
 
