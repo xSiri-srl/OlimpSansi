@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Inscripcion;
 
 use App\Http\Controllers\Controller;
+use App\Mail\InscripcionCompletada;
 use App\Models\Inscripcion\AreaModel;
 use App\Models\Inscripcion\CategoriaModel;
 use App\Models\Inscripcion\ColegioModel;
@@ -17,6 +18,7 @@ use App\Models\GestionOlimpiadas\OlimpiadaModel;
 use App\Models\GestionPagos\OrdenPagoModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class InscripcionController extends Controller
 {
@@ -167,6 +169,10 @@ public function registrar(Request $request)
             }
         }
 
+        //$correo_tutor = $data['responsable_inscripcion']['correo_responsable'];
+        $correo_tutor = "isacpoly177@gmail.com";
+        $nombreOlimpiada = $olimpiada->titulo;
+        Mail::to($correo_tutor)->send(new InscripcionCompletada($codigoGeneradoPre, $correo_tutor,$nombreOlimpiada));
 
         DB::commit();
 
@@ -363,6 +369,9 @@ public function registrarLista(Request $request)
             'codigo_generado' => $codigoGeneradoPre,
         ]);
 
+        $correo_tutor = $data['responsable_inscripcion']['correo_responsable'];
+        $nombreOlimpiada = $olimpiada->titulo;
+        Mail::to($correo_tutor)->send(new InscripcionCompletada($codigoGeneradoPre, $correo_tutor,$nombreOlimpiada));
         DB::commit();
 
         return response()->json([

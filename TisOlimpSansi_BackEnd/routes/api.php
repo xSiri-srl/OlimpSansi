@@ -25,7 +25,8 @@ use App\Http\Controllers\Inscripcion\CategoriaController;
 use App\Http\Controllers\GestionPagos\OrdenPagoController;
 use App\Http\Controllers\GestionPagos\ComprobanteController;
 use App\Http\Middleware\VerificarPermiso;
-
+use App\Mail\InscripcionCompletada;
+use Illuminate\Support\Facades\Mail;
 
 //registrarResponsableInscripcion
 Route::controller(ResponsableInscripcionController::class)->group(function(){
@@ -195,3 +196,5 @@ Route::get('/inscripciones/por-area', [InscripcionController::class, 'inscripcio
 Route::get('/inscripciones/por-categoria', [InscripcionController::class, 'inscripcionesPorCategoria']);
 
 Route::post('/obtener-nombre-responsable', [OrdenPagoController::class, 'obtenerNombreResponsable']);
+
+
