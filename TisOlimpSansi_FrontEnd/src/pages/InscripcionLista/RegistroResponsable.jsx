@@ -234,6 +234,19 @@ function RegistroResponsable({ setStep }) {
     setShowConfirmModal(false);
   };
 
+  function correoValido(correo) {
+    const dominiosPermitidos = ["gmail.com", "outlook.com", "yahoo.com", "hotmail.com"];
+    const partes = correo.split("@");
+    if (partes.length !== 2) return false;
+
+    const [usuario, dominio] = partes;
+
+    const usuarioValido = /^[a-zA-Z0-9._%+-]+$/.test(usuario);
+    const dominioValido = dominiosPermitidos.includes(dominio);
+
+    return usuarioValido && dominioValido;
+  }
+
   return (
     <div className="flex justify-center">
       <div className="w-full max-w-2xl">
@@ -392,31 +405,21 @@ function RegistroResponsable({ setStep }) {
             {errors.correo && (
               <p className="text-red-500 text-sm mt-1">{errors.correo}</p>
             )}
-            {formData.responsable?.correo && (
-              <div className="mt-3 bg-red-200 border-red-700 rounded-lg p-4 shadow-sm animate-pulse">
+            {formData.responsable?.correo && correoValido(formData.responsable?.correo) && (
+              <div className="mt-3 bg-blue-200 border-blue-700 rounded-lg p-4 shadow-sm animate-pulse">
                 <div className="flex items-start">
-                  <div className="bg-red-100 p-2 rounded-full mr-3 flex-shrink-0">
-                    <FaInfoCircle className="text-red-600 text-sl" />
+                  <div className="bg-blue-100 p-2 rounded-full mr-3 flex-shrink-0">
+                    <FaInfoCircle className="text-blue-600 text-sl" />
                   </div>
                   <div>
-                    <p className="text-xl font-semibold text-red-700">
-                      ¡Atención!
+                    <p className="text-xl font-semibold text-blue-700 flex">
+                      ¡Atención! Verifica que tu correo sea correcto.
                     </p>
 
-                    <p className="text-xs text-red-700 leading-relaxed">
-                      Al completar la Pre-inscripción, se enviará un código al
-                      correo{" "}
-                      <span className="font-semibold">
-                        {formData.responsable.correo}
-                      </span>{" "}
+                    <p className=" text-blue-700 leading-relaxed">
+                      Al completar la Pre-inscripción, se enviará un código al correo ingresado
                       para generar la orden de pago.
                     </p>
-                    <div className="flex items-center mt-2">
-                      <FaEnvelope className="text-red-500 text-xs mr-1" />
-                      <span className="text-xs text-red-600 font-medium">
-                        Verifica que tu correo sea correcto
-                      </span>
-                    </div>
                   </div>
                 </div>
               </div>
