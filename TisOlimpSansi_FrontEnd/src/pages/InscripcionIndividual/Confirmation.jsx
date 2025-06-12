@@ -8,7 +8,7 @@ import {
 } from "react-icons/fa";
 import ExitoModal from "../InscripcionLista/Modales/ExitoModal";
 import ErrorModal from "../InscripcionLista/Modales/RegistrosInvalidosModal";
-import ModalEnvioCodigo from "./modales/ModalEnvioCodigo";
+// import ModalEnvioCodigo from "./modales/ModalEnvioCodigo"; 
 import { API_URL } from "../../utils/api";
 
 const Confirmation = ({ navigate, handleBack }) => {
@@ -25,7 +25,7 @@ const Confirmation = ({ navigate, handleBack }) => {
   const [errorMessage, setErrorMessage] = useState("");
   const [codigoGenerado, setCodigoGenerado] = useState("");
   const [mostrarModal, setMostrarModal] = useState(false);
-  const [showModalEnvioCodigo, setShowModalEnvioCodigo] = useState(false);
+  // const [showModalEnvioCodigo, setShowModalEnvioCodigo] = useState(false); 
 
   useEffect(() => {
     globalData.areas_competencia?.forEach((area) => {
@@ -37,7 +37,6 @@ const Confirmation = ({ navigate, handleBack }) => {
     e.preventDefault();
     handleBack();
   };
-
 
 
   console.log('Datos sd:',globalData)
@@ -76,7 +75,7 @@ const Confirmation = ({ navigate, handleBack }) => {
       });
 
       setShowProgressBar(false);
-      setShowModalEnvioCodigo(true);
+      setShowSuccessModal(true); 
     } catch (error) {
       console.error("Error al registrar los datos", error);
       clearInterval(progressInterval);
@@ -111,11 +110,21 @@ const Confirmation = ({ navigate, handleBack }) => {
     }
   };
 
+
+  const handleSuccessModalClose = () => {
+    setShowSuccessModal(false);
+    setShowProgressBar(false);
+    navigate("/orden-pago", { state: { codigoGenerado } });
+  };
+
+
+  /*
   const handleModalEnvioCodigoClose = () => {
     setShowModalEnvioCodigo(false);
     setCodigoGenerado("");
     navigate("/orden-pago", { state: { codigoGenerado } });
   };
+  */
 
   return (
     <div className="text-center">
@@ -178,6 +187,7 @@ const Confirmation = ({ navigate, handleBack }) => {
             </div>
           </div>
         </div>
+
         <div className="mb-6 border-b pb-4">
           <h3 className="text-lg font-semibold text-blue-600">
             Datos de la Unidad Educativa
@@ -403,6 +413,15 @@ const Confirmation = ({ navigate, handleBack }) => {
         </div>
       )}
 
+
+      {showSuccessModal && (
+        <ExitoModal
+          mensaje="Su registro ha sido procesado exitosamente."
+          onClose={handleSuccessModalClose}
+        />
+      )}
+
+      {/*
       {showModalEnvioCodigo && (
         <ModalEnvioCodigo
           codigoGenerado={codigoGenerado}
@@ -410,6 +429,7 @@ const Confirmation = ({ navigate, handleBack }) => {
           globalData={globalData}
         />
       )}
+      */}
       
       {showErrorModal && (
         <ErrorModal
