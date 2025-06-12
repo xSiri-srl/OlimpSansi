@@ -12,7 +12,7 @@ import ModalEnvioCodigo from "./modales/ModalEnvioCodigo";
 import { API_URL } from "../../utils/api";
 
 const Confirmation = ({ navigate, handleBack }) => {
-  const { globalData } = useFormData();
+  const {globalData, setGlobalData}  = useFormData();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState({
     success: null,
@@ -38,6 +38,10 @@ const Confirmation = ({ navigate, handleBack }) => {
     handleBack();
   };
 
+
+
+  console.log('Datos sd:',globalData)
+
   const handleSubmit = async () => {
     setIsSubmitting(true);
     setSubmitStatus({ success: null, message: "" });
@@ -54,7 +58,7 @@ const Confirmation = ({ navigate, handleBack }) => {
         return newValue;
       });
     }, 100);
-
+    
     try {
       const response = await axios.post(
         `${API_URL}/api/inscribir`,
