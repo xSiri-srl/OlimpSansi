@@ -114,7 +114,6 @@ const Confirmation = ({ navigate, handleBack }) => {
     setShowProgressBar(false);
     navigate("/orden-pago", { state: { codigoGenerado } });
   };
-  console.log("checa la joyita",globalData)
 
   return (
     <div className="text-center">
