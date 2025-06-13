@@ -3,7 +3,7 @@
 use App\Http\Controllers\AuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
+use App\helpers\OrdenPagoHelper;
 use App\Http\Controllers\NombreDeHU1\UserPruebaController;
 use App\Http\Controllers\Inscripcion\ResponsableInscripcionController;
 use App\Http\Controllers\Inscripcion\TutorLegalController; 
@@ -25,7 +25,8 @@ use App\Http\Controllers\Inscripcion\CategoriaController;
 use App\Http\Controllers\GestionPagos\OrdenPagoController;
 use App\Http\Controllers\GestionPagos\ComprobanteController;
 use App\Http\Middleware\VerificarPermiso;
-
+use App\Mail\InscripcionCompletada;
+use Illuminate\Support\Facades\Mail;
 
 //registrarResponsableInscripcion
 Route::controller(ResponsableInscripcionController::class)->group(function(){
@@ -59,16 +60,7 @@ Route::controller(TutorAcademicoController::class)->group(function(){
     Route::get('/buscar-tutor/{ci}', [TutorAcademicoController::class, 'buscarTutor']); 
 });
 
-//SeleccionarAreasCompetencia
-Route::controller(InscripcionCategoriaController::class)->group(function(){
 
-    Route::get('/todasInscripciones', [InscripcionCategoriaController::class, 'index']);
-    Route::post('/agregarInscripcionCategoria', [InscripcionCategoriaController::class, 'store']);
-    Route::get('/inscripcionCategoria/{id}', [InscripcionCategoriaController::class, 'show']);
-    Route::put('/actualizarInscripcionCategoria/{id}', [InscripcionCategoriaController::class, 'update']);
-    Route::delete('/eliminarInscripcionCategoria/{id}', [InscripcionCategoriaController::class, 'destroy']);
-    
-});
 Route::controller(CategoriaController::class)->group(function(){
 
     Route::get('/categorias', [CategoriaController::class, 'index']);
@@ -129,15 +121,6 @@ Route::controller(ConvocatoriaController::class)->group(function(){
     Route::get('/convocatoria-por-area/{id}', [ConvocatoriaController::class, 'convocatoriaPorArea']);
 });
 
-//olimpiada
-Route::controller(OlimpiadaController::class)->group(function(){
-
-    Route::get('/olimpiadas', [OlimpiadaController::class, 'index']);
-    Route::post('/agregar-olimpiada', [OlimpiadaController::class, 'store']);
-    Route::get('/olimpiada/{id}', [OlimpiadaController::class, 'show']);
-    Route::post('/actualizar-olimpiada/{id}', [OlimpiadaController::class, 'update']);
-    Route::delete('/eliminar-olimpiada/{id}', [OlimpiadaController::class, 'destroy']);
-});
 
 
 
@@ -149,7 +132,7 @@ Route::post('/procesar-comprobanteOCR', [OrdenPagoController::class, 'procesarCo
 Route::get('/obtener-orden-pago/{codigo}', [OrdenPagoController::class, 'obtenerOrdenPagoPorCodigo']);
 Route::get('/resumen-orden-pago/{codigo}', [OrdenPagoController::class, 'obtenerResumenPorCodigo']);
 Route::get('/dinero-por-departamento', [OrdenPagoController::class, 'dineroRecaudadoPorDepartamento']);
-Route::get('/ordenes-recientes', [OrdenPagoController::class, 'obtenerOrdenesConResponsable']);
+
 Route::get('/orden-de-pago/info', [OrdenPagoController::class, 'getInfOrdenesDePago']);
 Route::get('/orden-pago-existe/{codigo}', [OrdenPagoController::class, 'ordenPagoExiste']);
 Route::get('/todas-publicas', [OlimpiadaController::class, ' getTodasLasOlimpiadas']);
@@ -158,16 +141,14 @@ Route::get('/obtener-olimpiada/{codigo}', [OrdenPagoController::class, 'obtenerI
 Route::post('/guardar-comprobante', [ComprobanteController::class, 'guardarComprobante']);
 
 
-Route::get('/inscripciones/por-area', [InscripcionController::class, 'inscripcionesPorArea']);
-Route::get('/inscripciones/por-categoria', [InscripcionController::class, 'inscripcionesPorCategoria']);
+
+
 Route::post('/inscribir', [InscripcionController::class, 'registrar']);
 Route::post('/inscribir-lista', [InscripcionController::class, 'registrarLista']);
 Route::post('/editar-lista', [InscripcionController::class, 'actualizarLista']);
-Route::get('/lista-inscritos', [InscripcionController::class, 'listarInscritos']);
 Route::get('/preinscritos-por-codigo', [InscripcionController::class, 'registrosPorCodigo']);
-//contar preinscritos
-Route::get('/estudiantes/pre-inscritos', [InscripcionController::class, 'contarPreinscritos']);
-Route::get('/estudiantes/inscritos', [InscripcionController::class, 'contarInscritos']);
+Route::get('/lista-inscritos/{idOlimpiada}', [InscripcionController::class, 'listarInscritos']);
+Route::get('/lista-preinscritos/{idOlimpiada}', [InscripcionController::class, 'listarPreinscritos']);
 
 
 Route::get('/buscarEstudiante/{ci}', [EstudianteController::class, 'buscarEstudiante']);
@@ -178,8 +159,7 @@ Route::post('/estudiantes/departamento', [ColegioController::class, 'contarPorDe
 Route::post('/estudiantes/colegio', [ColegioController::class, 'contarPorColegio']);
 Route::post('/estudiantes/grado', [ColegioController::class, 'contarPorGrado']);
 Route::post('/estudiantes/categoria-area', [ColegioController::class, 'filtrarPorCategoriaArea']);
-Route::post('/estudiantes/inscritos/departamento', [ColegioController::class, 'contarInscritosPorDepartamento']);
-Route::post('/estudiantes/preinscritos/departamento', [ColegioController::class, 'contarPreinscritosPorDepartamento']);
+
 
 
 
@@ -195,9 +175,26 @@ Route::get('/areas-categorias-olimpiada', [OlimpiadaController::class, 'getAreas
 
 
 Route::get('/curso-area-categoria-por-olimpiada', [CategoriaGradoController::class, 'obtenerCategoriasPorGrado']);
+Route::get('/categorias-grado', [CategoriaGradoController::class, 'obtenerCategoriasGrado']);
 
-//mostrar todas las categorias de esa materia de una olimpiada
+
+Route::get('/orden-pago-olimpiada', [OrdenPagoController::class, 'obtenerOrdenPagoPorOlimpiada']);
+Route::get('/estudiantes/pre-inscritos-olimpiada', [InscripcionController::class, 'contarPreinscritosPorOlimpiada']);
+Route::get('/estudiantes/inscritos-olimpiada', [InscripcionController::class, 'contarInscritosPorOlimpiada']);
 
 
+Route::get('/ordenes-recientes', [OrdenPagoController::class, 'obtenerOrdenesConResponsable']);
+
+
+
+Route::post('/estudiantes/inscritos/departamento', [ColegioController::class, 'contarInscritosPorDepartamento']);
+Route::post('/estudiantes/preinscritos/departamento', [ColegioController::class, 'contarPreinscritosPorDepartamento']);
+
+
+
+Route::get('/inscripciones/por-area', [InscripcionController::class, 'inscripcionesPorArea']);
+Route::get('/inscripciones/por-categoria', [InscripcionController::class, 'inscripcionesPorCategoria']);
+
+Route::post('/obtener-nombre-responsable', [OrdenPagoController::class, 'obtenerNombreResponsable']);
 
 

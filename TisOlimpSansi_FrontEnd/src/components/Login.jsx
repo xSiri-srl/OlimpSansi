@@ -14,7 +14,7 @@ const Login = () => {
   const [newUsername, setNewUsername] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [registerError, setRegisterError] = useState("");
-  const [rolBasico] = useState(1);
+  const [rolBasico] = useState(2); // Cambiado a 2 para CreadorDeOlimpiada
   const navigate = useNavigate();
   const [auth, setAuth] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -67,8 +67,8 @@ const Login = () => {
     try {
       const data = await loginUser(username, password);
       setLoginError("");
-      localStorage.setItem("user", JSON.stringify(data));
-      navigate("/admin/crear-olimpiada");
+      // Redirigir a inicio en lugar de crear olimpiada
+      navigate("/", { replace: true });
     } catch (error) {
       console.error(error);
       setLoginError(error.response?.data?.message || "Error al iniciar sesión");
@@ -165,15 +165,7 @@ const Login = () => {
             </button>
           </form>
 
-         {/*<p className="mt-6 text-center text-sm text-gray-600">
-            {showRegister ? "¿Ya tienes cuenta?" : "¿No tienes cuenta?"}{" "}
-            <button
-              onClick={() => setShowRegister(!showRegister)}
-              className="text-indigo-600 hover:underline font-medium"
-            >
-              {showRegister ? "Iniciar sesión" : "Registrarse"}
-            </button>
-          </p>*/ } 
+         
         </div>
       </div>
     </div>

@@ -28,13 +28,103 @@ const PasosInscripcion = () => {
     }
   }, [globalData.codigoGenerado]);
 
-  const handleCopyCode = () => {
-    navigator.clipboard.writeText(codigo);
-    alert("Código copiado al portapapeles");
-  };
+  const handleCopyCode = async () => {
+  if (!codigo) return;
+  
+  try {
+    // Método moderno para navegadores compatibles
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(codigo);
+      showSuccessTooltip();
+      return;
+    }
+    
+    // Método fallback para navegadores más antiguos o contextos no seguros
+    const textArea = document.createElement("textarea");
+    textArea.value = codigo;
+    textArea.style.position = "fixed";
+    textArea.style.left = "-999999px";
+    textArea.style.top = "-999999px";
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    return new Promise((resolve, reject) => {
+      // Usar el comando deprecated como último recurso
+      if (document.execCommand('copy')) {
+        document.body.removeChild(textArea);
+        showSuccessTooltip();
+        resolve();
+      } else {
+        document.body.removeChild(textArea);
+        throw new Error('Copy command failed');
+      }
+    });
+    
+  } catch (err) {
+    console.error("Error copiando:", err);
+    // Mostrar mensaje de error al usuario
+    showErrorTooltip();
+  }
+};
 
+const showSuccessTooltip = () => {
+  const tooltip = document.createElement("div");
+  tooltip.innerText = "¡Código copiado!";
+  Object.assign(tooltip.style, {
+    position: "fixed",
+    bottom: "20px",
+    left: "50%",
+    transform: "translateX(-50%)",
+    backgroundColor: "#4ade80", 
+    color: "#1f2937",
+    padding: "10px 20px",
+    borderRadius: "999px",
+    fontWeight: "bold",
+    zIndex: "9999",
+    transition: "opacity 0.5s ease-in-out",
+  });
+  document.body.appendChild(tooltip);
+  
+  setTimeout(() => {
+    tooltip.style.opacity = "0";
+    setTimeout(() => {
+      if (document.body.contains(tooltip)) {
+        document.body.removeChild(tooltip);
+      }
+    }, 500);
+  }, 1500);
+};
+
+const showErrorTooltip = () => {
+  const tooltip = document.createElement("div");
+  tooltip.innerText = "No se pudo copiar. Selecciona y copia manualmente.";
+  Object.assign(tooltip.style, {
+    position: "fixed",
+    bottom: "20px",
+    left: "50%",
+    transform: "translateX(-50%)",
+    backgroundColor: "#ef4444", 
+    color: "white",
+    padding: "10px 20px",
+    borderRadius: "999px",
+    fontWeight: "bold",
+    zIndex: "9999",
+    transition: "opacity 0.5s ease-in-out",
+  });
+  document.body.appendChild(tooltip);
+  
+  setTimeout(() => {
+    tooltip.style.opacity = "0";
+    setTimeout(() => {
+      if (document.body.contains(tooltip)) {
+        document.body.removeChild(tooltip);
+      }
+    }, 3000);
+  }, 3000);
+};
   return (
-    <div className="max-w-3xl mx-auto p-8 bg-white rounded-2xl shadow-2xl space-y-10 animate-fade-in">
+    <div className="max-w-3xl mx-auto p-8 bg-white rounded-2xl shadow-2xl space-y-10 animate-fade-in relative z-10">
       <div className="bg-red-100 border-l-8 border-red-600 p-6 rounded-lg shadow animate-pulse">
         <div className="text-center">
           <h1 className="text-3xl font-extrabold text-red-700 mb-2">
@@ -49,7 +139,7 @@ const PasosInscripcion = () => {
 
       <div className="text-center">
         <h2 className="text-xl font-bold text-gray-800 mb-2">
-          GUARDE Y RECUERDE ESTE CÓDIGO DE ORDEN
+          GUARDE Y RECUERDE ESTE CÓDIGO DE PREINSCRIPCION
         </h2>
         <div className="inline-flex items-center space-x-3 bg-blue-100 border-2 border-blue-500 rounded-full px-6 py-3 shadow-md">
           <span className="text-lg font-mono tracking-widest text-gray-800">
@@ -69,7 +159,7 @@ const PasosInscripcion = () => {
         </p>
       </div>
 
-      <div className="bg-yellow-50 border border-yellow-300 rounded-xl p-8">
+      <div className="bg-yellow-50 border border-yellow-300 rounded-xl p-8 relative z-10">
         <h3 className="text-2xl font-extrabold text-yellow-800 mb-6">
           Siga estos pasos:
         </h3>
@@ -83,8 +173,7 @@ const PasosInscripcion = () => {
                 Una vez que haya copiado el código generado
               </h4>
               <p className="text-sm text-gray-600">
-                Rediríjase a la pestaña <strong>"Generar Orden de pago"</strong>
-                .
+                Rediríjase a la pestaña <strong>"Generar Orden de pago"</strong>.
               </p>
               <div className="flex justify-center mt-4 w-full">
                 <img
@@ -101,9 +190,7 @@ const PasosInscripcion = () => {
               2
             </span>
             <div>
-              <h4 className="font-semibold text-gray-800">
-                Imprima la orden de pago
-              </h4>
+              <h4 className="font-semibold text-gray-800">Imprima la orden de pago</h4>
               <p className="text-sm text-gray-600">
                 Lleve el documento para realizar el pago en Caja Facultativa.
               </p>
@@ -115,15 +202,13 @@ const PasosInscripcion = () => {
               3
             </span>
             <div className="w-full">
-              <h4 className="font-semibold text-gray-800">
-                Realice el pago presencial
-              </h4>
-              <div className="h-48 mt-3 rounded-lg overflow-hidden">
+              <h4 className="font-semibold text-gray-800">Realice el pago presencial</h4>
+              <div className="h-48 mt-3 rounded-lg overflow-hidden relative z-0">
                 <MapContainer
                   center={ubicacionCaja}
                   zoom={17}
                   scrollWheelZoom={false}
-                  className="h-full w-full"
+                  className="h-full w-full z-0 rounded-lg"
                 >
                   <TileLayer
                     attribution="&copy; OpenStreetMap contributors"
@@ -143,11 +228,11 @@ const PasosInscripcion = () => {
                 </MapContainer>
               </div>
               <p className="text-xs text-gray-600 mt-2">
-                Horario de atención: Lunes a Viernes 8:30 - 12:30 / 14:30 -
-                18:30
+                Horario de atención: Lunes a Viernes 8:30 - 12:30 / 14:30 - 18:30
               </p>
             </div>
           </div>
+
           <div className="flex items-start">
             <span className="bg-blue-500 font-bold text-white px-3 py-1 rounded-full mr-4">
               4
@@ -172,8 +257,7 @@ const PasosInscripcion = () => {
       </div>
 
       <p className="text-center text-sm text-gray-500">
-        Una vez realizado el pago, vuelva a esta plataforma para subir el
-        comprobante.
+        Una vez realizado el pago, vuelva a esta plataforma para subir el comprobante.
       </p>
 
       <div className="flex justify-center mt-6">

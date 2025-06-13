@@ -3,31 +3,14 @@ import { Link } from 'react-router-dom';
 import { FaUsers, FaFileInvoiceDollar, FaCheckCircle, FaUserGraduate } from "react-icons/fa";
 import StatCard from './StatCard';
 
-const StatisticsCards = ({ stats, darkMode }) => {
+const StatisticsCards = ({ stats, darkMode, olimpiadaSeleccionada }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-      <div className="relative group">
-        <Link
-          to="/admin/ordenes-pago"
-          className="block transform transition hover:-translate-y-1 hover:shadow-lg"
-        >
-          <StatCard
-            title="Órdenes de Pago"
-            value={stats.ordenesPago}
-            icon={<FaFileInvoiceDollar />}
-            bgColor="bg-blue-50"
-            textColor="text-blue-600"
-            darkMode={darkMode}
-          />
-        </Link>
-        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs font-medium px-3 py-1 rounded-md shadow-lg z-50 whitespace-nowrap">
-          Generar órdenes de pago
-        </div>
-      </div>
+      
 
       <div className="relative group">
         <Link
-          to="/admin/preInscritos"
+          to={`/admin/preInscritos?olimpiada=${olimpiadaSeleccionada?.id}`}
           className="block transform transition hover:-translate-y-1 hover:shadow-lg"
         >
           <StatCard
@@ -46,7 +29,7 @@ const StatisticsCards = ({ stats, darkMode }) => {
 
       <div className="relative group">
         <Link
-          to="/admin/inscritos_verificados"
+          to={`/admin/inscritos_verificados?olimpiada=${olimpiadaSeleccionada?.id}`}
           className="block transform transition hover:-translate-y-1 hover:shadow-lg"
         >
           <StatCard
@@ -65,7 +48,7 @@ const StatisticsCards = ({ stats, darkMode }) => {
 
       <div className="relative group">
         <Link
-          to="/admin/descargar_listas"
+          to={`/admin/descargar_listas?olimpiada=${olimpiadaSeleccionada?.id}`}
           className="block transform transition hover:-translate-y-1 hover:shadow-lg"
         >
           <StatCard

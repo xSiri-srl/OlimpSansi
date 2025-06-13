@@ -161,38 +161,60 @@ class ColegioController extends Controller
             'cantidad_estudiantes' => $cantidad
         ]);
     }
+
     public function contarInscritosPorDepartamento(Request $request)
-{
-    $departamento = $request->input('departamento');
+    {
+        $departamento = $request->input('departamento');
+        $olimpiadaId = $request->input('olimpiada_id');
 
-    $cantidad = DB::table('estudiante')
-        ->join('colegio', 'estudiante.id_unidad', '=', 'colegio.id')
-        ->join('inscripcion', 'estudiante.id', '=', 'inscripcion.id_estudiante')
-        ->join('orden_pago', 'inscripcion.id_orden_pago', '=', 'orden_pago.id')
-        ->where('colegio.departamento', $departamento)
-        ->whereNotNull('orden_pago.comprobante_url') 
-        ->count();
+        $query = DB::table('estudiante')
+            ->join('colegio', 'estudiante.id_unidad', '=', 'colegio.id')
+            ->join('inscripcion', 'estudiante.id', '=', 'inscripcion.id_estudiante')
+            ->join('orden_pago', 'inscripcion.id_orden_pago', '=', 'orden_pago.id')
+            ->join('comprobante_pago', 'orden_pago.id', '=', 'comprobante_pago.id_orden_pago')
+            ->join('olimpiada_area_categoria', 'inscripcion.id_olimpiada_area_categoria', '=', 'olimpiada_area_categoria.id')
+            ->where('colegio.departamento', $departamento)
+            ->distinct('inscripcion.id_estudiante')
+            ->whereNotNull('comprobante_pago.comprobante_url');
 
-    return response()->json([
-        'cantidad_estudiantes' => $cantidad
-    ]);
-}
-public function contarPreinscritosPorDepartamento(Request $request)
-{
-    $departamento = $request->input('departamento');
+        // Si se especifica una olimpiada, filtrar por ella
+        if ($olimpiadaId) {
+            $query->where('olimpiada_area_categoria.id_olimpiada', $olimpiadaId);
+        }
 
-    $cantidad = DB::table('estudiante')
-        ->join('colegio', 'estudiante.id_unidad', '=', 'colegio.id')
-        ->join('inscripcion', 'estudiante.id', '=', 'inscripcion.id_estudiante')
-        ->join('orden_pago', 'inscripcion.id_orden_pago', '=', 'orden_pago.id')
-        ->where('colegio.departamento', $departamento)
-        ->whereNull('orden_pago.comprobante_url') 
-        ->whereNotNull('orden_pago.orden_pago_url') 
-        ->count();
+        $cantidad = $query->count();
 
-    return response()->json([
-        'cantidad_estudiantes' => $cantidad
-    ]);
-}
+        return response()->json([
+            'cantidad_estudiantes' => $cantidad
+        ]);
+    }
+
+    public function contarPreinscritosPorDepartamento(Request $request)
+    {
+        $departamento = $request->input('departamento');
+        $olimpiadaId = $request->input('olimpiada_id');
+
+        $query = DB::table('estudiante')
+            ->join('colegio', 'estudiante.id_unidad', '=', 'colegio.id')
+            ->join('inscripcion', 'estudiante.id', '=', 'inscripcion.id_estudiante')
+            ->join('orden_pago', 'inscripcion.id_orden_pago', '=', 'orden_pago.id')
+            ->leftJoin('comprobante_pago', 'orden_pago.id', '=', 'comprobante_pago.id_orden_pago')
+            ->join('olimpiada_area_categoria', 'inscripcion.id_olimpiada_area_categoria', '=', 'olimpiada_area_categoria.id')
+            ->where('colegio.departamento', $departamento)
+            ->whereNull('comprobante_pago.comprobante_url')
+            ->distinct('inscripcion.id_estudiante')
+            ->whereNotNull('orden_pago.orden_pago_url');
+
+        // Si se especifica una olimpiada, filtrar por ella
+        if ($olimpiadaId) {
+            $query->where('olimpiada_area_categoria.id_olimpiada', $olimpiadaId);
+        }
+
+        $cantidad = $query->count();
+
+        return response()->json([
+            'cantidad_estudiantes' => $cantidad
+        ]);
+    }
     
 }

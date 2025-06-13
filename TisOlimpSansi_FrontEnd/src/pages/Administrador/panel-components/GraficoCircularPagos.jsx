@@ -10,13 +10,13 @@ const GraficoCircularPagos = ({ pagadas, pendientes, darkMode }) => {
       id: 'Pagadas',
       label: 'Pagadas',
       value: pagadas,
-      color: darkMode ? 'rgb(72, 187, 120)' : 'rgb(72, 187, 120)'
+      color: darkMode ? '#60A5FA' : '#60A5FA' 
     },
     {
       id: 'Pendientes',
       label: 'Pendientes',
       value: pendientes,
-      color: darkMode ? 'rgb(237, 137, 54)' : 'rgb(246, 173, 85)'
+      color: darkMode ? '#3B82F6' : '#3B82F6' 
     }
   ];
 
@@ -27,7 +27,7 @@ const GraficoCircularPagos = ({ pagadas, pendientes, darkMode }) => {
           Estado de Órdenes de Pago
         </h2>
         <p className={`${darkMode ? "text-gray-300" : "text-gray-600"} text-center`}>
-          El <span className="font-bold text-green-500">{porcentajePagadas}%</span> de las órdenes de pago han sido pagadas.
+          El <span className="font-bold text-blue-500">{porcentajePagadas}%</span> de las órdenes de pago han sido pagadas.
         </p>
       </div>
       
@@ -39,7 +39,7 @@ const GraficoCircularPagos = ({ pagadas, pendientes, darkMode }) => {
           padAngle={0.7}
           cornerRadius={3}
           activeOuterRadiusOffset={8}
-          colors={{ scheme: 'paired' }}
+          colors={{ datum: 'data.color' }} 
           borderWidth={1}
           borderColor={{ from: 'color', modifiers: [['darker', 0.2]] }}
           arcLinkLabelsSkipAngle={10}
@@ -73,7 +73,7 @@ const GraficoCircularPagos = ({ pagadas, pendientes, darkMode }) => {
               justify: false,
               translateX: 0,
               translateY: 56,
-              itemsSpacing: 0,
+              itemsSpacing: 20,
               itemWidth: 100,
               itemHeight: 18,
               itemTextColor: darkMode ? '#E5E7EB' : '#4B5563',
@@ -88,25 +88,22 @@ const GraficoCircularPagos = ({ pagadas, pendientes, darkMode }) => {
                     itemTextColor: darkMode ? '#FFFFFF' : '#000000'
                   }
                 }
+              ],
+              data: [
+                {
+                  id: 'Pagadas',
+                  label: `${pagadas} Pagadas`,
+                  color: '#60A5FA'
+                },
+                {
+                  id: 'Pendientes',
+                  label: `${pendientes} Pendientes`,
+                  color: '#3B82F6'
+                }
               ]
             }
           ]}
         />
-      </div>
-      
-      <div className="mt-4 flex justify-center gap-6">
-        <div className="flex items-center">
-          <div className="w-4 h-4 rounded-full bg-green-500 mr-2"></div>
-          <span className={darkMode ? "text-gray-300" : "text-gray-600"}>
-            {pagadas} Pagadas
-          </span>
-        </div>
-        <div className="flex items-center">
-          <div className="w-4 h-4 rounded-full bg-yellow-500 mr-2"></div>
-          <span className={darkMode ? "text-gray-300" : "text-gray-600"}>
-            {pendientes} Pendientes
-          </span>
-        </div>
       </div>
     </div>
   );

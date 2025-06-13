@@ -22,39 +22,34 @@ const SubirComprobante = () => {
   const [errorNumero, setErrorNumero] = useState("");
   const [errorNombre, setErrorNombre] = useState("");
   const [errorFecha, setErrorFecha] = useState("");
-
-  const storedCodigoGenerado = localStorage.getItem("codigoGenerado");
-
-  const [codigoGenerado, setCodigoGenerado] = useState(
-    storedCodigoGenerado || ""
-  );
-  useEffect(() => {
-    if (codigoGenerado) {
-      localStorage.setItem("codigoGenerado", codigoGenerado);
-    }
-  }, [codigoGenerado]);
+  const [codigoGenerado, setCodigoGenerado] = useState("");
+  const [nombreResponsableRegistrado, setNombreResponsableRegistrado] = useState("");
+  const [errorNumeroUnico, setErrorNumeroUnico] = useState("");
 
   const handleFinalizar = () => {
     let valid = true;
 
+    // Limpiar errores previos
+    setErrorNumero("");
+    setErrorNombre("");
+    setErrorFecha("");
+    setErrorNumeroUnico("");
+
+    // Validar número de comprobante
     const regexNumero = /^[0-9]+$/;
     if (!regexNumero.test(numeroComprobante)) {
       setErrorNumero("Sólo se permiten números.");
       valid = false;
-    } else {
-      setErrorNumero("");
     }
 
+    // Validar nombre del responsable
     const regexNombre = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
     if (!regexNombre.test(comprobanteNombre)) {
-      setErrorNombre(
-        "Sólo se permiten letras, acentuación y espacios en blanco."
-      );
+      setErrorNombre("Sólo se permiten letras, acentuación y espacios en blanco.");
       valid = false;
-    } else {
-      setErrorNombre("");
     }
 
+    // Validar fecha
     const regexFecha = /^\d{2}-\d{2}-\d{2}$/;
     if (!regexFecha.test(fechaComprobante)) {
       setErrorFecha("Sólo fechas con el formato dd-mm-aa");
@@ -74,19 +69,15 @@ const SubirComprobante = () => {
       ) {
         setErrorFecha("Sólo se permiten comprobantes del mes y año vigentes.");
         valid = false;
-      } else {
-        setErrorFecha("");
       }
     }
 
     if (valid) {
       guardarComprobante();
-      setStep(5);
     }
   };
 
   const handleAceptar = () => {
-    localStorage.removeItem("codigoGenerado");
     setCodigoGenerado("");
     setStep(1);
     setSelectedFile(null);
@@ -97,6 +88,8 @@ const SubirComprobante = () => {
     setcomprobanteNombre("");
     setfechaComprobante("");
     setComprobantePath("");
+    setNombreResponsableRegistrado("");
+    setErrorNumeroUnico("");
 
     window.location.href = "/";
   };
@@ -138,6 +131,7 @@ const SubirComprobante = () => {
       setStep(3);
     }
   };
+
   const handleScanAgain = () => {
     setStep(3);
   };
@@ -160,11 +154,23 @@ const SubirComprobante = () => {
       );
 
       if (response.status === 200) {
+        // Obtener el nombre del responsable registrado
+        try {
+          const responsableResponse = await axios.post(
+            `${API_URL}/api/obtener-nombre-responsable`,
+            {
+              codigo_generado: codigoGenerado,
+            }
+          );
+          setNombreResponsableRegistrado(responsableResponse.data.nombre_responsable);
+        } catch (err) {
+          console.error("Error al obtener nombre del responsable:", err);
+        }
+        
         setStep(2);
       }
     } catch (err) {
       setError(err.response?.data?.message || "Error al verificar el código.");
-
       return;
     } finally {
       setLoading(false);
@@ -187,7 +193,6 @@ const SubirComprobante = () => {
     setError(null);
 
     const formData = new FormData();
-    s;
     formData.append("comprobante_numero", selectedFile.numero);
     formData.append("comprobante_nombre", selectedFile.nombre);
     formData.append("fecha_comprobante", selectedFile.fecha);
@@ -229,6 +234,7 @@ const SubirComprobante = () => {
 
     setLoading(true);
     setError(null);
+    setErrorNumeroUnico("");
 
     const formData = new FormData();
     formData.append("codigo_generado", codigoGenerado);
@@ -249,7 +255,16 @@ const SubirComprobante = () => {
         setStep(5);
       }
     } catch (err) {
-      setError(err.response?.data?.message || "Error al guardar.");
+      const errorMessage = err.response?.data?.message || "Error al guardar.";
+      const errorField = err.response?.data?.field;
+      
+      if (errorField === 'numero_comprobante') {
+        setErrorNumeroUnico(errorMessage);
+      } else if (errorField === 'nombre_pagador') {
+        setErrorNombre(errorMessage);
+      } else {
+        setError(errorMessage);
+      }
     } finally {
       setLoading(false);
     }
@@ -258,37 +273,44 @@ const SubirComprobante = () => {
   return (
     <div className="p-10">
       <div className="max-w-4xl mx-auto bg-gray-200 p-7 shadow-lg rounded-lg">
-        <div className="flex flex-center justify-between flex-nowrap overflow-x-auto mb-6">
-          {[
-            "Ingresar código",
-            "Subir comprobante",
-            "Escanear",
-            "Ver datos escaneados",
-            "Finalizar",
-          ].map((stepLabel, index) => (
-            <div
-              key={index}
-              className="flex flex-col items-center flex-shrink-0 w-24"
-            >
-              <div
-                className={`w-8 h-8 flex items-center justify-center rounded-full border-2 ${
-                  index + 1 === step
-                    ? "bg-blue-600 text-white border-blue-600"
-                    : "border-gray-400 text-gray-400"
-                }`}
-              >
-                {index + 1}
-              </div>
-              <span
-                className={`text-[13px] mt-2 text-center break-words ${
-                  index + 1 === step ? "text-blue-600" : "text-gray-400"
-                }`}
-              >
-                {stepLabel}
-              </span>
-            </div>
-          ))}
+      <div className="flex items-center justify-between gap-4 sm:gap-6 snap-x snap-mandatory overflow-x-auto scroll-smooth pb-4 hide-scrollbar sm:justify-start lg:justify-between lg:overflow-x-hidden">
+  {[
+    "Ingresar código",
+    "Subir comprobante",
+    "Escanear",
+    "Ver datos escaneados",
+    "Finalizar",
+  ].map((stepLabel, index) => {
+    const isCompleted = index + 1 < step;
+    const isActive = index + 1 === step;
+
+    return (
+      <div
+        key={index}
+        className="flex flex-col items-center flex-shrink-0 w-24"
+      >
+        <div
+          className={`w-8 h-8 flex items-center justify-center rounded-full border-2 ${
+            isActive || isCompleted
+              ? "bg-blue-600 text-white border-blue-600"
+              : "border-gray-400 text-gray-400"
+          }`}
+        >
+          {index + 1}
         </div>
+        <span
+          className={`text-[13px] mt-2 text-center break-words ${
+            isActive || isCompleted ? "text-blue-600" : "text-gray-400"
+          }`}
+        >
+          {stepLabel}
+        </span>
+      </div>
+    );
+  })}
+</div>
+
+
         {step === 1 && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-gray-300 p-4 rounded-md">
@@ -377,179 +399,189 @@ const SubirComprobante = () => {
           </div>
         )}
 
-        {step === 3 && (
-          <div>
-            <div className="flex justify-center">
-              <div className="bg-gray-400 p-6 rounded-md flex flex-col items-center justify-center">
-                <img
-                  src="/images/recibo.jpg"
-                  alt="Boleta"
-                  className="max-w-full h-auto md:max-w-md lg:max-w-lg rounded-md shadow-lg"
-                />
-              </div>
-            </div>
-            <div className="p-4">
-              <h2 className="text-lg text-center font-semibold mb-2 text-gray-500">
-                Por favor, seleccione el NÚMERO DEL COMPROBANTE
-              </h2>
-              <div className="flex justify-center mt-4">
-                <ImageCropper
-                  image={preview}
-                  onCrop={(croppedFile) => {
-                    const previewUrl = URL.createObjectURL(croppedFile);
-                    if (selectedFile?.numeroPreview) {
-                      URL.revokeObjectURL(selectedFile.numeroPreview);
-                    }
-                    setSelectedFile((prev) => ({
-                      ...prev,
-                      numero: croppedFile,
-                      numeroPreview: previewUrl,
-                    }));
-                  }}
-                />
-              </div>
-              <p className="flex justify-center text-sm text-green-600 mt-2">
-                {selectedFile?.numero
-                  ? selectedFile.numero.name
-                  : "No hay recorte de número"}
-              </p>
-            </div>
-            <div className="p-4">
-              <h2 className="text-lg text-center font-semibold mb-2 text-gray-500">
-                Por favor, seleccione el NOMBRE
-              </h2>
-              <div className="flex justify-center mt-4">
-                <ImageCropper
-                  image={preview}
-                  onCrop={(croppedFile) => {
-                    const previewUrl = URL.createObjectURL(croppedFile);
-                    if (selectedFile?.nombrePreview) {
-                      URL.revokeObjectURL(selectedFile.nombrePreview);
-                    }
-                    setSelectedFile((prev) => ({
-                      ...prev,
-                      nombre: croppedFile,
-                      nombrePreview: previewUrl,
-                    }));
-                  }}
-                />
-              </div>
-              <p className="flex justify-center text-sm text-green-600 mt-2">
-                {selectedFile?.nombre
-                  ? selectedFile.nombre.name
-                  : "No hay recorte de nombre"}
-              </p>
-            </div>
-            <div className="p-4">
-              <h2 className="text-lg text-center font-semibold mb-2 text-gray-500">
-                Por favor, seleccione la FECHA
-              </h2>
-              <div className="flex justify-center mt-4">
-                <ImageCropper
-                  image={preview}
-                  onCrop={(croppedFile) => {
-                    const previewUrl = URL.createObjectURL(croppedFile);
-                    if (selectedFile?.fechaPreview) {
-                      URL.revokeObjectURL(selectedFile.fechaPreview);
-                    }
-                    setSelectedFile((prev) => ({
-                      ...prev,
-                      fecha: croppedFile,
-                      fechaPreview: previewUrl,
-                    }));
-                  }}
-                />
-              </div>
-              <p className="flex justify-center text-sm text-green-600 mt-2">
-                {selectedFile?.fecha
-                  ? selectedFile.fecha.name
-                  : "No hay recorte de fecha"}
-              </p>
-            </div>
-            <div className="mt-8">
-              <h2 className="text-center text-lg font-semibold text-gray-600 mb-4">
-                Vista previa del recorte
-              </h2>
-              <div className="flex justify-center gap-6">
-                {selectedFile?.numeroPreview && (
-                  <div>
-                    <p className="text-center text-sm mb-1 text-gray-500">
-                      Número
-                    </p>
-                    <img
-                      src={selectedFile.numeroPreview}
-                      alt="Número Recortado"
-                      className="max-w-xs max-h-64 border rounded shadow"
-                    />
-                  </div>
-                )}
-                {selectedFile?.nombrePreview && (
-                  <div>
-                    <p className="text-center text-sm mb-1 text-gray-500">
-                      Nombre
-                    </p>
-                    <img
-                      src={selectedFile.nombrePreview}
-                      alt="Nombre Recortado"
-                      className="max-w-xs max-h-64 border rounded shadow"
-                    />
-                  </div>
-                )}
-                {selectedFile?.fechaPreview && (
-                  <div>
-                    <p className="text-center text-sm mb-1 text-gray-500">
-                      Fecha
-                    </p>
-                    <img
-                      src={selectedFile.fechaPreview}
-                      alt="Fecha Recortado"
-                      className="max-w-xs max-h-64 border rounded shadow"
-                    />
-                  </div>
-                )}
-              </div>
-            </div>
-            <div className="flex justify-center mt-6 space-x-4">
-              <button
-                onClick={() => setStep(2)}
-                className="bg-gray-500 text-white px-6 py-2 rounded-md transition duration-300 ease-in-out hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500 shadow-md"
-              >
-                Atrás
-              </button>
-              <button
-                onClick={procesarComprobante}
-                disabled={
-                  loading ||
-                  !selectedFile?.numero ||
-                  !selectedFile?.nombre ||
-                  !selectedFile?.fecha
+    {step === 3 && (
+      <div style={{ width: '100%', maxWidth: '100vw', overflow: 'hidden' }}>
+        <div className="flex justify-center">
+          <div className="bg-gray-400 p-6 rounded-md flex flex-col items-center justify-center">
+            <img
+              src="/images/recibo.jpg"
+              alt="Boleta"
+              className="max-w-full h-auto md:max-w-md lg:max-w-lg rounded-md shadow-lg"
+            />
+          </div>
+        </div>
+        
+        <div className="p-4">
+          <h2 className="text-lg text-center font-semibold mb-2 text-gray-500">
+            Por favor, seleccione el NÚMERO DEL COMPROBANTE
+          </h2>
+          <div className="flex justify-center mt-4">
+            <ImageCropper
+              image={preview}
+              onCrop={(croppedFile) => {
+                const previewUrl = URL.createObjectURL(croppedFile);
+                if (selectedFile?.numeroPreview) {
+                  URL.revokeObjectURL(selectedFile.numeroPreview);
                 }
-                className={`px-6 py-2 transition duration-300 ease-in-out text-white rounded-md shadow-md ${
-                  selectedFile?.numero &&
-                  selectedFile?.nombre &&
-                  selectedFile?.fecha &&
-                  !loading
-                    ? "bg-blue-500 hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500"
-                    : "bg-gray-400 cursor-not-allowed"
-                }`}
-              >
-                {loading ? "Escaneando..." : "Escanear"}
-              </button>
-            </div>
-
-            {error && (
-              <div className="text-red-500 text-center mt-4">{error}</div>
+                setSelectedFile((prev) => ({
+                  ...prev,
+                  numero: croppedFile,
+                  numeroPreview: previewUrl,
+                }));
+              }}
+            />
+          </div>
+          <p className="flex justify-center text-sm text-green-600 mt-2">
+            {selectedFile?.numero
+              ? selectedFile.numero.name
+              : "No hay recorte de número"}
+          </p>
+        </div>
+        
+        <div className="p-4">
+          <h2 className="text-lg text-center font-semibold mb-2 text-gray-500">
+            Por favor, seleccione el NOMBRE
+          </h2>
+          <div className="flex justify-center mt-4">
+            <ImageCropper
+              image={preview}
+              onCrop={(croppedFile) => {
+                const previewUrl = URL.createObjectURL(croppedFile);
+                if (selectedFile?.nombrePreview) {
+                  URL.revokeObjectURL(selectedFile.nombrePreview);
+                }
+                setSelectedFile((prev) => ({
+                  ...prev,
+                  nombre: croppedFile,
+                  nombrePreview: previewUrl,
+                }));
+              }}
+            />
+          </div>
+          <p className="flex justify-center text-sm text-green-600 mt-2">
+            {selectedFile?.nombre
+              ? selectedFile.nombre.name
+              : "No hay recorte de nombre"}
+          </p>
+        </div>
+        
+        <div className="p-4">
+          <h2 className="text-lg text-center font-semibold mb-2 text-gray-500">
+            Por favor, seleccione la FECHA
+          </h2>
+          <div className="flex justify-center mt-4">
+            <ImageCropper
+              image={preview}
+              onCrop={(croppedFile) => {
+                const previewUrl = URL.createObjectURL(croppedFile);
+                if (selectedFile?.fechaPreview) {
+                  URL.revokeObjectURL(selectedFile.fechaPreview);
+                }
+                setSelectedFile((prev) => ({
+                  ...prev,
+                  fecha: croppedFile,
+                  fechaPreview: previewUrl,
+                }));
+              }}
+            />
+          </div>
+          <p className="flex justify-center text-sm text-green-600 mt-2">
+            {selectedFile?.fecha
+              ? selectedFile.fecha.name
+              : "No hay recorte de fecha"}
+          </p>
+        </div>
+        
+        <div className="mt-8 px-4">
+          <h2 className="text-center text-lg font-semibold text-gray-600 mb-4">
+            Vista previa del recorte
+          </h2>
+          
+          {/* Layout responsive para las vistas previas */}
+          <div className="flex flex-col sm:flex-row sm:justify-center gap-4 sm:gap-6">
+            {selectedFile?.numeroPreview && (
+              <div className="flex flex-col items-center">
+                <p className="text-center text-sm mb-2 text-gray-500">
+                  Número:
+                </p>
+                <img
+                  src={selectedFile.numeroPreview}
+                  alt="Número Recortado"
+                  className="w-full max-w-xs max-h-32 sm:max-h-48 object-contain border rounded shadow"
+                />
+              </div>
+            )}
+            
+            {selectedFile?.nombrePreview && (
+              <div className="flex flex-col items-center">
+                <p className="text-center text-sm mb-2 text-gray-500">
+                  Nombre:
+                </p>
+                <img
+                  src={selectedFile.nombrePreview}
+                  alt="Nombre Recortado"
+                  className="w-full max-w-xs max-h-32 sm:max-h-48 object-contain border rounded shadow"
+                />
+              </div>
+            )}
+            
+            {selectedFile?.fechaPreview && (
+              <div className="flex flex-col items-center">
+                <p className="text-center text-sm mb-2 text-gray-500">
+                  Fecha:
+                </p>
+                <img
+                  src={selectedFile.fechaPreview}
+                  alt="Fecha Recortado"
+                  className="w-full max-w-xs max-h-32 sm:max-h-48 object-contain border rounded shadow"
+                />
+              </div>
             )}
           </div>
+        </div>
+        
+        <div className="flex flex-col sm:flex-row justify-center mt-6 space-y-3 sm:space-y-0 sm:space-x-4 px-4">
+          <button
+            onClick={() => setStep(2)}
+            className="bg-gray-500 text-white px-6 py-2 rounded-md transition duration-300 ease-in-out hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500 shadow-md w-full sm:w-auto"
+          >
+            Atrás
+          </button>
+          <button
+            onClick={procesarComprobante}
+            disabled={
+              loading ||
+              !selectedFile?.numero ||
+              !selectedFile?.nombre ||
+              !selectedFile?.fecha
+            }
+            className={`px-6 py-2 transition duration-300 ease-in-out text-white rounded-md shadow-md w-full sm:w-auto ${
+              selectedFile?.numero &&
+              selectedFile?.nombre &&
+              selectedFile?.fecha &&
+              !loading
+                ? "bg-blue-500 hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500"
+                : "bg-gray-400 cursor-not-allowed"
+            }`}
+          >
+            {loading ? "Escaneando..." : "Escanear"}
+          </button>
+        </div>
+
+        {error && (
+          <div className="text-red-500 text-center mt-4 px-4">{error}</div>
         )}
+      </div>
+    )}
+
         {step === 4 && (
           <div className="text-center">
             <h2 className="text-xl font-semibold mb-4 text-gray-600">
               Comprobante de pago
             </h2>
 
-            <div className="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center space-y-4">
-              <div className="border-2 border-blue-500 p-4 w-64 h-64 flex items-center justify-center bg-gray-100 rounded-lg">
+            <div className="bg-white p-4 rounded-lg shadow-lg flex flex-col items-center space-y-4">
+              <div className="border-2 border-blue-500 p-2 sm:p-4 w-full max-w-sm sm:max-w-lg md:max-w-xl lg:max-w-3xl xl:max-w-5xl h-48 sm:h-72 md:h-96 lg:h-[28rem] xl:h-[32rem] flex items-center justify-center bg-gray-100 rounded-lg mx-auto">
                 {preview ? (
                   selectedFile?.type === "application/pdf" ? (
                     <embed
@@ -563,11 +595,13 @@ const SubirComprobante = () => {
                     <img
                       src={preview}
                       alt="Comprobante"
-                      className="max-w-full max-h-full rounded-lg"
+                      className="max-w-full max-h-full rounded-lg object-contain"
                     />
                   )
                 ) : (
-                  <span className="text-gray-500">Vista previa</span>
+                  <span className="text-gray-500 text-sm sm:text-base text-center px-2">
+                    Vista previa
+                  </span>
                 )}
               </div>
               <div className="w-full bg-gray-50 p-4 rounded-lg border shadow-sm">
@@ -580,13 +614,19 @@ const SubirComprobante = () => {
                       type="text"
                       placeholder="Ej. 123456"
                       value={numeroComprobante}
-                      onChange={(e) => setNumeroComprobante(e.target.value)}
+                      onChange={(e) => {
+                        setNumeroComprobante(e.target.value);
+                        setErrorNumeroUnico(""); // Limpiar error al escribir
+                      }}
                       className={`w-full p-2 border ${
-                        errorNumero ? "border-red-500" : "border-gray-300"
+                        errorNumero || errorNumeroUnico ? "border-red-500" : "border-gray-300"
                       } rounded-md focus:outline-none focus:ring-2`}
                     />
                     {errorNumero && (
                       <p className="text-red-500 text-sm mt-1">{errorNumero}</p>
+                    )}
+                    {errorNumeroUnico && (
+                      <p className="text-red-500 text-sm mt-1">{errorNumeroUnico}</p>
                     )}
                   </div>
                   <div>
@@ -627,9 +667,9 @@ const SubirComprobante = () => {
               </div>
             </div>
             <p className="text-3xl font-bold mt-6">
-              Verifique que sus datos esten correctos
+              Verifique que sus datos estén correctos
             </p>
-            <p className="text-2xl  font-semibold mt-6">
+            <p className="text-2xl font-semibold mt-6">
               ¿Los datos que ingresó son correctos?
             </p>
             <div className="flex justify-center mt-4 space-x-4">
@@ -651,8 +691,14 @@ const SubirComprobante = () => {
                 {loading ? "Finalizando..." : "Finalizar"}
               </button>
             </div>
+
+            {/* Mostrar error general si existe */}
+            {error && (
+              <div className="text-red-500 text-center mt-4">{error}</div>
+            )}
           </div>
         )}
+
         {step === 5 && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
             <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm text-center">

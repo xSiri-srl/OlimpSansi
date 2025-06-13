@@ -18,6 +18,7 @@ class ResponsableInscripcionModel extends Model
         'apellido_ma',
         'ci',
         'complemento',
+        'correo_responsable'
     ];
     public function ordenPago(){
         return $this->hasMany(OrdenPagoModel::class, 'id_responsable', 'id');

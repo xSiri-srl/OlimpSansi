@@ -4,12 +4,14 @@ import axios from "axios"
 import {
   FaCheckCircle,
   FaTimesCircle,
-  FaExclamationTriangle,
+  FaExclamationTriangle
 } from "react-icons/fa";
 import ExitoModal from "../InscripcionLista/Modales/ExitoModal";
+import ErrorModal from "../InscripcionLista/Modales/RegistrosInvalidosModal";
 import { API_URL } from "../../utils/api";
+
 const Confirmation = ({ navigate, handleBack }) => {
-  const { globalData } = useFormData();
+  const {globalData, setGlobalData}  = useFormData();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState({
     success: null,
@@ -18,6 +20,8 @@ const Confirmation = ({ navigate, handleBack }) => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [showProgressBar, setShowProgressBar] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [codigoGenerado, setCodigoGenerado] = useState("");
   const [mostrarModal, setMostrarModal] = useState(false);
 
@@ -31,6 +35,9 @@ const Confirmation = ({ navigate, handleBack }) => {
     e.preventDefault();
     handleBack();
   };
+
+
+  console.log('Datos sd:',globalData)
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
@@ -48,7 +55,7 @@ const Confirmation = ({ navigate, handleBack }) => {
         return newValue;
       });
     }, 100);
-
+    
     try {
       const response = await axios.post(
         `${API_URL}/api/inscribir`,
@@ -65,22 +72,43 @@ const Confirmation = ({ navigate, handleBack }) => {
         message: "Inscripción registrada correctamente.",
       });
 
-
-      setShowSuccessModal(true);
+      setShowProgressBar(false);
+      setShowSuccessModal(true); 
     } catch (error) {
       console.error("Error al registrar los datos", error);
       clearInterval(progressInterval);
       setShowProgressBar(false);
+      
+      let rawMessage = error.response?.data?.message || error.response?.data?.error || error.message || "";
+      let mensajeFinal = rawMessage;
+
+      if (rawMessage.includes("Areas/categorias válidas:")) {
+        const [mensajeBase, combinacionesRaw] = rawMessage.split(
+          "Combinaciones válidas:"
+        );
+        const combinaciones = combinacionesRaw
+          .split("-")
+          .map((item) => item.trim())
+          .filter((item) => item.length > 0);
+
+        mensajeFinal = `${mensajeBase.trim()}\n\nCombinaciones válidas:\n${combinaciones
+          .map((c) => `• ${c}`)
+          .join("\n")}`;
+      }
+
+      setErrorMessage(mensajeFinal);
+      setShowErrorModal(true);
+      
       setSubmitStatus({
         success: false,
-        message:
-          error.response?.data?.error ||
-          "Error al registrar los datos",
+        message: mensajeFinal,
       });
     } finally {
       setIsSubmitting(false);
     }
   };
+
+
   const handleSuccessModalClose = () => {
     setShowSuccessModal(false);
     setShowProgressBar(false);
@@ -95,7 +123,6 @@ const Confirmation = ({ navigate, handleBack }) => {
       </p>
 
       <div className="mt-4 bg-white rounded-lg shadow-md p-6 text-left max-w-3xl mx-auto">
-        {/* Sección del responsable de inscripción */}
         <div className="mb-6 border-b pb-4">
           <h3 className="text-lg font-semibold text-blue-600">
             Responsable de Inscripción
@@ -115,10 +142,15 @@ const Confirmation = ({ navigate, handleBack }) => {
                 {globalData.responsable_inscripcion?.ci || ""}
               </p>
             </div>
+            <div>
+              <p className="text-sm text-gray-500">Correo Electrónico</p>
+              <p className="font-medium">
+                {globalData.responsable_inscripcion?.correo_responsable || ""}
+              </p>
+            </div>
           </div>
         </div>
 
-        {/* Sección del estudiante */}
         <div className="mb-6 border-b pb-4">
           <h3 className="text-lg font-semibold text-blue-600">
             Datos del Estudiante
@@ -151,7 +183,6 @@ const Confirmation = ({ navigate, handleBack }) => {
           </div>
         </div>
 
-        {/* Sección del colegio */}
         <div className="mb-6 border-b pb-4">
           <h3 className="text-lg font-semibold text-blue-600">
             Datos de la Unidad Educativa
@@ -186,7 +217,6 @@ const Confirmation = ({ navigate, handleBack }) => {
           </div>
         </div>
 
-        {/* Sección de áreas de competencia */}
         <div className="mb-6 border-b pb-4">
           <h3 className="text-lg font-semibold text-blue-600">
             Áreas de Competencia
@@ -214,7 +244,6 @@ const Confirmation = ({ navigate, handleBack }) => {
           </div>
         </div>
 
-        {/* Sección del tutor legal */}
         <div className="mb-6 border-b pb-4">
           <h3 className="text-lg font-semibold text-blue-600">Tutor Legal</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
@@ -251,7 +280,6 @@ const Confirmation = ({ navigate, handleBack }) => {
           </div>
         </div>
 
-        {/* Sección de tutores académicos */}
         {globalData.tutores_academicos &&
           globalData.tutores_academicos.length > 0 && (
             <div className="mb-6">
@@ -296,8 +324,6 @@ const Confirmation = ({ navigate, handleBack }) => {
             </div>
           )}
 
-        {/* Sección de Desglose de Costos por Área */}
-
         <div className="mt-4 p-2  bg-red-100 border-4 border-red-500 rounded-xl text-center shadow-xl animate-pulse flex items-center justify-center">
           <FaExclamationTriangle className="text-red-700 text-2xl" />
           <p className="text-red-800 font-bold text-sm p-2 tracking-wide">
@@ -307,13 +333,6 @@ const Confirmation = ({ navigate, handleBack }) => {
         </div>
       </div>
 
-      {submitStatus.success === false && (
-        <div className="mt-4 p-3 rounded-md bg-red-100 text-red-700">
-          {submitStatus.message}
-        </div>
-      )}
-
-   
       <div className="flex justify-center mt-6 gap-4">
         <button
           onClick={handleGoBack}
@@ -388,10 +407,20 @@ const Confirmation = ({ navigate, handleBack }) => {
           </div>
         </div>
       )}
+
+
       {showSuccessModal && (
         <ExitoModal
           mensaje="Su registro ha sido procesado exitosamente."
           onClose={handleSuccessModalClose}
+        />
+      )}
+
+      
+      {showErrorModal && (
+        <ErrorModal
+          mensaje={errorMessage}
+          onClose={() => setShowErrorModal(false)}
         />
       )}
     </div>

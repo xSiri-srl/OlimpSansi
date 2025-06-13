@@ -391,7 +391,7 @@ const AsignarCosto = () => {
           guardando={guardando}
           mensajeExito={mensajeExito}
           textoBoton="Guardar Costos"
-          bloqueado={olimpiadaBloqueada} 
+          bloqueado={olimpiadaBloqueada || areasAsociadas.length === 0} 
           
         />
       </div>

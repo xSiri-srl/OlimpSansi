@@ -2,14 +2,14 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaUserAlt, FaUsers } from "react-icons/fa";
 import { motion } from "framer-motion";
-import { useFormData } from "./form-data-context";
+import { useFormData  } from "./form-data-context";
 import ModalPeriodo from "./modales/ModalPeriodo";
 import { API_URL } from "../../utils/api";
 import axios from "axios"
 
 export default function FormularioEstudiante() {
   const navigate = useNavigate();
-  const { setGlobalData } = useFormData();
+  const { globalData, setGlobalData } = useFormData();
   const [olimpiadas, setOlimpiadas] = useState([]);
   const [olimpiadaSeleccionada, setOlimpiadaSeleccionada] = useState("");
   const [nombreOlimpiada, setNombreOlimpiada] = useState("");
@@ -21,36 +21,46 @@ export default function FormularioEstudiante() {
     fechaFin: ""
   });
 
+  useEffect(() => {
+    if (globalData?.olimpiada?.id) {
+      setOlimpiadaSeleccionada(globalData.olimpiada.id.toString());
+      setNombreOlimpiada(globalData.olimpiada.titulo || "");
+    }
+  }, [globalData]);
+
   const handleSeleccion = async () => {
+    console.log(olimpiadaSeleccionada)
+        
     try {
-      const response = await axios.get(`${API_URL}/api/curso-area-categoria-por-olimpiada?id=${olimpiadaSeleccionada}`);
-
-      const gradoAreaCurso = response.data;
-
-      if (!gradoAreaCurso || gradoAreaCurso.length === 0) {
-        throw new Error("No se encontraron datos de grado, área y curso.");
-      }
+      
+        const response = await axios.get(`${API_URL}/api/curso-area-categoria-por-olimpiada?id=${olimpiadaSeleccionada}`);
+        const gradoAreaCurso = response.data;
+          
+        if (!gradoAreaCurso || gradoAreaCurso.length === 0) {
+          throw new Error("No se encontraron datos de grado, área y curso.");
+        }
+      
 
       setGlobalData(prevState => ({
         ...prevState,
         olimpiada: {
-          id: olimpiadaSeleccionada,
+          id: parseInt(olimpiadaSeleccionada),
           titulo: nombreOlimpiada
         },
         gradoAreaCurso
       }));
-
+console.log(gradoAreaCurso),
       navigate("/inscripcion/responsable", {
-      
-    state: { 
-      id: olimpiadaSeleccionada,
-      gradoAreaCurso 
-  }
-  });
+        
+        state: { 
+          id: olimpiadaSeleccionada,
+          gradoAreaCurso 
+        }
+      });
 
     } catch (err) {
       console.error("Error al obtener los datos de la olimpiada:", err);
-      alert("Ocurrió un error al cargar los datos de la olimpiada: ", err.message);
+      alert("Ocurrió un error al cargar los datos de la olimpiada: " + err.message);
     }
   };
 
@@ -58,28 +68,43 @@ export default function FormularioEstudiante() {
     setGlobalData(prevState => ({
       ...prevState,
       olimpiada: {
-        id: olimpiadaSeleccionada,
+        id: parseInt(olimpiadaSeleccionada),
         titulo: nombreOlimpiada
       }
     }));
     
     navigate(`/inscripcion-lista/tutorial`, {
-      
-    state: { id: olimpiadaSeleccionada }
-  });
+      state: { id: olimpiadaSeleccionada }
+    });
   };
 
   const estaEnPeriodo = (fechaIni, fechaFin) => {
-  const ahora = new Date();
-  const inicio = new Date(fechaIni);
-  const fin = new Date(fechaFin);
-  
-  ahora.setHours(0, 0, 0, 0);
-  inicio.setHours(0, 0, 0, 0);
-  fin.setHours(23, 59, 59, 999); 
-  
-  return ahora >= inicio && ahora <= fin;
-};
+    try {
+      const ahoraUTC = new Date();
+      const offsetBolivia = -4 * 60; // Bolivia es UTC-4 (en minutos)
+      const ahoraBolivia = new Date(ahoraUTC.getTime() + (offsetBolivia * 60 * 1000));
+      
+      const inicio = new Date(fechaIni + 'T00:00:00-04:00');
+      const fin = new Date(fechaFin + 'T23:59:59-04:00');
+      
+      const fechaActualBolivia = new Date(ahoraBolivia.getFullYear(), ahoraBolivia.getMonth(), ahoraBolivia.getDate());
+      const fechaInicioBolivia = new Date(inicio.getFullYear(), inicio.getMonth(), inicio.getDate());
+      const fechaFinBolivia = new Date(fin.getFullYear(), fin.getMonth(), fin.getDate());
+      
+      return fechaActualBolivia >= fechaInicioBolivia && fechaActualBolivia <= fechaFinBolivia;
+    } catch (error) {
+      console.error('Error al validar período:', error);
+      const ahora = new Date();
+      const inicio = new Date(fechaIni);
+      const fin = new Date(fechaFin);
+      
+      ahora.setHours(0, 0, 0, 0);
+      inicio.setHours(0, 0, 0, 0);
+      fin.setHours(23, 59, 59, 999); 
+      
+      return ahora >= inicio && ahora <= fin;
+    }
+  };
 
   const handleOlimpiadaChange = (e) => {
     const idSeleccionado = e.target.value;
@@ -92,17 +117,20 @@ export default function FormularioEstudiante() {
       if (olimpiadaInfo) {
         if (estaEnPeriodo(olimpiadaInfo.fecha_ini, olimpiadaInfo.fecha_fin)) {
           setOlimpiadaSeleccionada(idSeleccionado);
+          setNombreOlimpiada(olimpiadaInfo.titulo);
         } else {
           setOlimpiadaSeleccionadaInfo({
-            fechaIni: olimpiadaInfo.fecha_ini + "T00:00:00",
-            fechaFin: olimpiadaInfo.fecha_fin + "T00:00:00"
+            fechaIni: olimpiadaInfo.fecha_ini + "T00:00:00-04:00",
+            fechaFin: olimpiadaInfo.fecha_fin + "T23:59:59-04:00"
           });
           setShowPeriodoModal(true);
           setOlimpiadaSeleccionada("");
+          setNombreOlimpiada("");
         }
       }
     } else {
       setOlimpiadaSeleccionada("");
+      setNombreOlimpiada("");
     }
   };
 
@@ -116,7 +144,6 @@ export default function FormularioEstudiante() {
         
         if (response.status === 200) {
           setOlimpiadas(response.data.data || []);
-
         } else {
           throw new Error("No se pudieron cargar las olimpiadas");
         }
@@ -130,17 +157,6 @@ export default function FormularioEstudiante() {
   
     cargarOlimpiadas();
   }, []);
-
-  useEffect(() => {
-    if (olimpiadaSeleccionada) {
-      const olimpiada = olimpiadas.find(
-        (o) => o.id.toString() === olimpiadaSeleccionada
-      );
-      setNombreOlimpiada(olimpiada ? olimpiada.titulo : "");
-    } else {
-      setNombreOlimpiada("");
-    }
-  }, [olimpiadaSeleccionada, olimpiadas]);
 
   return (
     <div className="p-10 flex flex-col items-center justify-center from-indigo-100 to-purple-200">

@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { FaCalendarTimes } from "react-icons/fa";
 
-export default function ModalPeriodo({ isOpen, onClose, fechaIni, fechaFin }) {
+export default function ModalPeriodo({ isOpen, onClose, fechaIni, fechaFin, titulo }) {
   
   const obtenerFechaBolivia = () => {
     const ahora = new Date();
@@ -52,7 +52,7 @@ export default function ModalPeriodo({ isOpen, onClose, fechaIni, fechaFin }) {
       }
       return "activa";
     } catch (error) {
-      console.error('Error al determinar estado de edición:', error);
+      console.error('Error al determinar estado:', error);
       const ahora = new Date();
       const inicio = new Date(fechaIni.split('T')[0]);
       const fin = new Date(fechaFin.split('T')[0]);
@@ -109,15 +109,15 @@ export default function ModalPeriodo({ isOpen, onClose, fechaIni, fechaFin }) {
 
         <h2 className="text-2xl font-bold text-gray-800 mb-4">
           {estadoInscripcion === "no_iniciada"
-            ? "Edición aún no disponible"
-            : "Período de edición finalizado"}
+            ? "Generación de orden aún no disponible"
+            : "Período de inscripción finalizado"}
         </h2>
 
         <div className="text-gray-600 mb-6">
           <p className="mb-4">
             {estadoInscripcion === "no_iniciada"
-              ? "La edición de inscripciones para esta olimpiada aún no está disponible."
-              : "El período de edición para esta olimpiada ya ha finalizado."}
+              ? "La generación de órdenes de pago para esta olimpiada aún no está disponible."
+              : "El período de inscripción para esta olimpiada ya ha finalizado. No se pueden generar nuevas órdenes de pago."}
           </p>
 
           <div className="bg-gray-50 p-4 rounded-lg">

@@ -18,7 +18,7 @@ class CategoriaSeeder extends Seeder
 
             'GUACAMAYO', 'GUANACO', 'LONDRA', 'JUCUMARI', 'BUFEO', 'PUMA',
 
-            '3P', '4P', '5P', '6P', '1S', '2S', '3S', '4S', '5S', '6S',
+            '1P','2P','3P', '4P', '5P', '6P', '1S', '2S', '3S', '4S', '5S', '6S',
         ];
 
         foreach (array_unique($categorias) as $nombre) {

@@ -9,6 +9,7 @@ use App\Models\GestionPagos\ComprobantePagoModel
 use App\Models\Inscripcion\InscripcionModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class OrdenPagoModel extends Model
 {
@@ -16,6 +17,7 @@ class OrdenPagoModel extends Model
     protected $table = 'orden_pago';
     protected $fillable = [
         'id_responsable',
+        'numero_orden_pago',
         'codigo_generado',
         'monto_total',
         'orden_pago_url',
@@ -23,6 +25,19 @@ class OrdenPagoModel extends Model
         'fecha_subida_imagen_comprobante',
         'estado'
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+        
+        // Evento que se ejecuta ANTES de crear un registro
+        static::creating(function ($ordenPago) {
+            // Si no tiene número asignado, generarlo
+            if (empty($ordenPago->numero_orden_pago)) {
+                $ordenPago->numero_orden_pago = self::generarNumeroOrdenSecuencial();
+            }
+        });
+    }
     public function inscripcionArea(){
         return $this->belongsTo(ColegioModel::class, 'id_inscripcion_area', 'id');
     }
@@ -39,6 +54,29 @@ class OrdenPagoModel extends Model
     }
 
     public function comprobantePago(){
-        return $this->hasMany(ComprobantePagoModel::class, 'id_orden_pago');
+        return $this->hasOne(ComprobantePagoModel::class, 'id_orden_pago');
+    }
+     public static function generarNumeroOrdenSecuencial()
+    {
+        return DB::transaction(function () {
+            // Buscar la última orden de pago por número
+            $ultimaOrden = self::whereNotNull('numero_orden_pago')
+                              ->where('numero_orden_pago', '!=', '')
+                              ->orderBy('numero_orden_pago', 'desc')
+                              ->lockForUpdate() // Bloquear para evitar duplicados
+                              ->first();
+            
+            if (!$ultimaOrden) {
+                // Primera orden de pago
+                $siguienteNumero = 1;
+            } else {
+                // Convertir a entero y sumar 1
+                $ultimoNumero = (int) $ultimaOrden->numero_orden_pago;
+                $siguienteNumero = $ultimoNumero + 1;
+            }
+            
+            // Formatear con ceros a la izquierda (6 dígitos)
+            return str_pad($siguienteNumero, 6, '0', STR_PAD_LEFT);
+        });
     }
 }

@@ -119,11 +119,15 @@
     </div>
 
     <!-- Orden de Pago -->
-    <h4 class="mb-3">Orden de Pago: 8755{{ $ordenPago->id }}</h4>
+    <h4 class="mb-3">Orden de Pago:{{ $ordenPago->numero_orden_pago }}</h4>
 
     <!-- Unidad -->
     <p><span class="section-label">Emitido por la Unidad:</span><br>
         Comité de las Olimpiadas Científicas San Simón, Facultad de Ciencias y Tecnología
+    </p>
+     <!-- Titulo -->
+    <p><span class="section-label">Inscripcion a:</span><br>
+       {{ $ordenPago->inscripcion->first()?->olimpiadaAreaCategoria?->olimpiada?->titulo ?? 'No disponible' }}
     </p>
 
     <!-- Responsable -->

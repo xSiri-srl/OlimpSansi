@@ -3,7 +3,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-import { useNavigate } from "react-router-dom";
+import { useNavigate ,useSearchParams} from "react-router-dom";
 import { HiArrowCircleRight } from "react-icons/hi";
 import { API_URL } from "../../../utils/api";
 import axios from "axios"
@@ -77,7 +77,8 @@ function DescargarListas() {
 
   const [cargandoPDF, setCargandoPDF] = useState(false);
   const [cargandoExcel, setCargandoExcel] = useState(false);
-
+  const [searchParams] = useSearchParams();
+const idOlimpiada = searchParams.get('olimpiada');
   const departamentosDisponibles = [
     ...new Set(inscritos.map((i) => i.departamento).filter(Boolean)),
   ];
@@ -92,10 +93,24 @@ function DescargarListas() {
   ];
 
   useEffect(() => {
-    axios.get(`${API_URL}/api/lista-inscritos`).then((response) => {
-      setInscritos(response.data);
-    });
-  }, []);
+  const fetchData = async () => {
+    try {
+      const [inscritosResponse, preInscritosResponse] = await Promise.all([
+        axios.get(`${API_URL}/api/lista-inscritos/${idOlimpiada}`),
+        axios.get(`${API_URL}/api/lista-preinscritos/${idOlimpiada}`)
+      ]);
+      
+      // Combinar ambas listas
+      const listaCompleta = [...inscritosResponse.data, ...preInscritosResponse.data];
+      setInscritos(listaCompleta);
+    } catch (error) {
+      console.error('Error al cargar las listas:', error);
+    }
+  };
+
+  fetchData();
+}, [idOlimpiada]);
+
 
   const resultadosFiltrados = inscritos.filter((inscrito) => {
     return (
@@ -396,7 +411,7 @@ function DescargarListas() {
 
       <div className="flex justify-center gap-8 mt-4 text-gray-700">
         <div className="bg-gray-100 px-4 py-2 rounded-lg shadow-sm">
-          <p className="text-sm font-medium">Total de estudiantes:</p>
+          <p className="text-sm font-medium">Total de inscritos y preinscritos:</p>
           <p className="text-xl font-semibold text-blue-600">
             {inscritos.length}
           </p>

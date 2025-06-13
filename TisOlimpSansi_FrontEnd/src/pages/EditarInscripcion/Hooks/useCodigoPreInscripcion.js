@@ -30,16 +30,55 @@ const useCodigoPreInscripcion = () => {
   });
   const [selectedStudent, setSelectedStudent] = useState(null);
 
-  const estaEnPeriodo = (fechaIni, fechaFin) => {
+  const obtenerFechaBolivia = () => {
     const ahora = new Date();
-    const inicio = new Date(fechaIni);
-    const fin = new Date(fechaFin);
+    const fechaBolivia = new Date(ahora.toLocaleString("en-US", {timeZone: "America/La_Paz"}));
+    return fechaBolivia;
+  };
 
-    ahora.setHours(0, 0, 0, 0);
-    inicio.setHours(0, 0, 0, 0);
-    fin.setHours(23, 59, 59, 999);
-
-    return ahora > inicio && ahora <= fin;
+  const estaEnPeriodo = (fechaIni, fechaFin) => {
+    try {
+      console.log('Validando período con fechas:', { fechaIni, fechaFin });
+      
+      const ahoraBolivia = obtenerFechaBolivia();
+      
+      const fechaIniStr = fechaIni.replace('T00:00:00-04:00', '').replace('T23:59:59-04:00', '');
+      const fechaFinStr = fechaFin.replace('T00:00:00-04:00', '').replace('T23:59:59-04:00', '');
+      
+      const inicio = new Date(fechaIniStr + 'T00:00:00');
+      const fin = new Date(fechaFinStr + 'T23:59:59');
+      
+      const soloFechaHoy = new Date(ahoraBolivia.getFullYear(), ahoraBolivia.getMonth(), ahoraBolivia.getDate());
+      const soloFechaInicio = new Date(inicio.getFullYear(), inicio.getMonth(), inicio.getDate());
+      const soloFechaFin = new Date(fin.getFullYear(), fin.getMonth(), fin.getDate());
+      
+      console.log('Fechas para comparación:', {
+        hoy: soloFechaHoy.toDateString(),
+        inicio: soloFechaInicio.toDateString(),
+        fin: soloFechaFin.toDateString()
+      });
+      
+      const puedeEditar = soloFechaHoy >= soloFechaInicio && soloFechaHoy <= soloFechaFin;
+      
+      console.log('Resultado validación edición:', {
+        mayorOIgualAInicio: soloFechaHoy >= soloFechaInicio,
+        menorOIgualAFin: soloFechaHoy <= soloFechaFin,
+        puedeEditar
+      });
+      
+      return puedeEditar;
+    } catch (error) {
+      console.error('Error al validar período de edición:', error);
+      const ahora = new Date();
+      const inicio = new Date(fechaIni.split('T')[0]);
+      const fin = new Date(fechaFin.split('T')[0]);
+      
+      const hoy = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate());
+      const inicioSoloFecha = new Date(inicio.getFullYear(), inicio.getMonth(), inicio.getDate());
+      const finSoloFecha = new Date(fin.getFullYear(), fin.getMonth(), fin.getDate());
+      
+      return hoy >= inicioSoloFecha && hoy <= finSoloFecha;
+    }
   };
 
   const verificarCodigo = async () => {
@@ -86,6 +125,7 @@ const useCodigoPreInscripcion = () => {
       const estudiantesLista = Array.isArray(response.data)
         ? response.data
         : response.data.estudiantes;
+        
       if (estudiantesLista?.length > 0 && estudiantesLista[0].id_olimpiada) {
         const idOlimpiada = estudiantesLista[0].id_olimpiada;
 
@@ -94,11 +134,18 @@ const useCodigoPreInscripcion = () => {
             `${API_URL}/olimpiada/${idOlimpiada}`
           );
           const olimpiada = olimpiadaResponse.data;
-          const fechaIni = olimpiada.fecha_ini + "T00:00:00";
-          const fechaFin = olimpiada.fecha_fin + "T00:00:00";
+          
+          console.log('Datos de olimpiada obtenidos:', olimpiada);
+          
+          // Usar las fechas tal como vienen del backend (YYYY-MM-DD)
+          const fechaIni = olimpiada.fecha_ini;
+          const fechaFin = olimpiada.fecha_fin;
 
           if (!estaEnPeriodo(fechaIni, fechaFin)) {
-            setOlimpiadaSeleccionadaInfo({ fechaIni, fechaFin });
+            setOlimpiadaSeleccionadaInfo({ 
+              fechaIni: fechaIni, 
+              fechaFin: fechaFin 
+            });
             setShowPeriodoModal(true);
             setLoading(false);
             return;
@@ -113,6 +160,7 @@ const useCodigoPreInscripcion = () => {
             setError("No se pudieron cargar las áreas y categorías.");
           }
         } catch (olimpiadaError) {
+          console.error('Error al obtener datos de olimpiada:', olimpiadaError);
           setError("No se pudo verificar el período de inscripción.");
           setLoading(false);
           return;
@@ -205,6 +253,7 @@ const useCodigoPreInscripcion = () => {
   };
 
   const filteredEstudiantes = processedEstudiantes.filter((estudiante) => {
+    console.log(estudiante.nombres);
     const matchesSearch =
       estudiante.nombres.toLowerCase().includes(searchTerm.toLowerCase()) ||
       estudiante.apellidoPaterno
@@ -230,6 +279,13 @@ const useCodigoPreInscripcion = () => {
       type: "details",
     });
     setShowModal(true);
+  };
+
+  const nuevosErrores = (id, mensaje) => {
+    const nuevos = processedEstudiantes.map(e =>
+      e.id === id ? { ...e, error: true, mensajeError: mensaje } : e
+    );
+    setProcessedEstudiantes(nuevos);
   };
 
   const handleCloseModal = () => {
@@ -355,6 +411,7 @@ const useCodigoPreInscripcion = () => {
     guardarTodosLosCambios,
     paginate,
     totalErrors,
+    nuevosErrores
   };
 };
 

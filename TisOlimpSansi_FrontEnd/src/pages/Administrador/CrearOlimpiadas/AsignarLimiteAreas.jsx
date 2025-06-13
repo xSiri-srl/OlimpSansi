@@ -25,6 +25,8 @@ const AsignarLimiteAreas = () => {
   const [periodoTerminado, setPeriodoTerminado] = useState(false);
   const [razonBloqueo, setRazonBloqueo] = useState(null);
   const [fechaFin, setFechaFin] = useState(null);
+  const [cantidadAreasAsociadas, setCantidadAreasAsociadas] = useState(0);
+  const [cargandoAreas, setCargandoAreas] = useState(false);
   const { modalProgreso, mostrarProgreso, cerrarProgreso } = useNotificarProgreso();
 
   const { verificarInscripciones, verificando } = useVerificarInscripciones();
@@ -83,6 +85,44 @@ const AsignarLimiteAreas = () => {
         return `El período de inscripción para esta olimpiada terminó el ${new Date(fechaFin).toLocaleDateString('es-ES')}. No se pueden modificar el límite de áreas.`;
       default:
         return '';
+    }
+  };
+
+  const obtenerCantidadAreasAsociadas = async (olimpiadaId) => {
+    try {
+      setCargandoAreas(true);
+      
+      await axios.get(`${API_URL}/api/sanctum/csrf-cookie`, {
+        withCredentials: true,
+      });
+      
+      const csrfToken = Cookies.get('XSRF-TOKEN');
+      
+      const config = {
+        headers: {
+          'X-XSRF-TOKEN': csrfToken,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        withCredentials: true
+      };
+      
+      const response = await axios.get(`${API_URL}/areas-olimpiada/${olimpiadaId}`, config);
+      
+      if (response.status === 200 && response.data && response.data.data) {
+        const areasUnicas = new Set();
+        response.data.data.forEach(area => {
+          areasUnicas.add(area.id);
+        });
+        setCantidadAreasAsociadas(areasUnicas.size);
+      } else {
+        setCantidadAreasAsociadas(0);
+      }
+    } catch (error) {
+      console.error("Error al obtener áreas asociadas:", error);
+      setCantidadAreasAsociadas(0);
+    } finally {
+      setCargandoAreas(false);
     }
   };
 
@@ -153,6 +193,8 @@ const AsignarLimiteAreas = () => {
       );
       setNombreOlimpiada(olimpiada ? olimpiada.titulo : "");
 
+      obtenerCantidadAreasAsociadas(olimpiadaSeleccionada);
+
       verificarInscripciones(olimpiadaSeleccionada).then(resultado => {
         setOlimpiadaBloqueada(resultado.estaBloqueada);
         setCantidadInscripciones(resultado.cantidad);
@@ -203,8 +245,10 @@ const AsignarLimiteAreas = () => {
       setPeriodoTerminado(false);
       setRazonBloqueo(null);
       setFechaFin(null);
+      setCantidadAreasAsociadas(0);
     }
   }, [olimpiadaSeleccionada, olimpiadas]);
+
   const guardarConfiguracion = async () => {
     if (!olimpiadaSeleccionada) {
       mostrarAlerta("Error", "Por favor seleccione una olimpiada", "warning");
@@ -227,6 +271,24 @@ const AsignarLimiteAreas = () => {
       }
       
       mostrarAlerta("Olimpiada bloqueada", mensaje, "error");
+      return;
+    }
+
+    if (cantidadAreasAsociadas === 0) {
+      mostrarAlerta(
+        "Sin áreas asociadas", 
+        "Esta olimpiada no tiene áreas asociadas. Primero debe configurar las áreas de competencia antes de establecer el límite por participante.", 
+        "warning"
+      );
+      return;
+    }
+
+    if (contador > cantidadAreasAsociadas) {
+      mostrarAlerta(
+        "Límite excedido", 
+        `No puede establecer un límite de ${contador} ${contador === 1 ? 'área' : 'áreas'} cuando la olimpiada solo tiene ${cantidadAreasAsociadas} ${cantidadAreasAsociadas === 1 ? 'área asociada' : 'áreas asociadas'}. El límite máximo permitido es ${cantidadAreasAsociadas}.`, 
+        "error"
+      );
       return;
     }
 
@@ -314,7 +376,18 @@ const AsignarLimiteAreas = () => {
 
   const incrementar = () => {
     if (contador < 7 && !olimpiadaBloqueada) {
-      setContador(contador + 1);
+      const nuevoContador = contador + 1;
+      
+      if (cantidadAreasAsociadas > 0 && nuevoContador > cantidadAreasAsociadas) {
+        mostrarAlerta(
+          "Límite máximo alcanzado", 
+          `No puede establecer más de ${cantidadAreasAsociadas} ${cantidadAreasAsociadas === 1 ? 'área' : 'áreas'} porque es la cantidad total de áreas asociadas a esta olimpiada.`, 
+          "warning"
+        );
+        return;
+      }
+      
+      setContador(nuevoContador);
     }
   };
 
@@ -323,6 +396,8 @@ const AsignarLimiteAreas = () => {
       setContador(contador - 1);
     }
   };
+
+  const maximoPermitido = cantidadAreasAsociadas > 0 ? Math.min(7, cantidadAreasAsociadas) : 7;
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
@@ -352,15 +427,45 @@ const AsignarLimiteAreas = () => {
           </div>
         )}
 
+        {/* Mostrar información sobre áreas asociadas */}
+        {olimpiadaSeleccionada && cantidadAreasAsociadas > 0 && (
+          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 text-blue-700 rounded-lg">
+            <div className="flex items-center">
+              <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd"></path>
+              </svg>
+              <span>
+                Esta olimpiada tiene <strong>{cantidadAreasAsociadas}</strong> {cantidadAreasAsociadas === 1 ? 'área asociada' : 'áreas asociadas'}. 
+                El límite máximo recomendado es <strong>{maximoPermitido}</strong>.
+              </span>
+            </div>
+          </div>
+        )}
+
+        {olimpiadaSeleccionada && cantidadAreasAsociadas === 0 && !cargandoAreas && (
+          <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 text-yellow-700 rounded-lg">
+            <div className="flex items-center">
+              <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd"></path>
+              </svg>
+              <span>
+                Esta olimpiada no tiene áreas asociadas. Configure primero las áreas de competencia antes de establecer el límite por participante.
+              </span>
+            </div>
+          </div>
+        )}
+
         {!olimpiadaSeleccionada ? (
           <div className="p-8 text-center text-gray-600">
             Seleccione una olimpiada para asignar un límite de áreas por participante.
           </div>
-        ) : cargandoOlimpiadas || verificando ? (
+        ) : cargandoOlimpiadas || verificando || cargandoAreas ? (
           <div className="text-center py-8">
             <div className="animate-spin mx-auto h-8 w-8 border-t-2 border-b-2 border-blue-500 rounded-full"></div>
             <p className="mt-2 text-gray-600">
-              {cargandoOlimpiadas ? "Cargando olimpiadas..." : "Verificando inscripciones..."}
+              {cargandoOlimpiadas ? "Cargando olimpiadas..." : 
+               verificando ? "Verificando inscripciones..." : 
+               "Cargando áreas asociadas..."}
             </p>
           </div>
         ) : (
@@ -396,9 +501,9 @@ const AsignarLimiteAreas = () => {
               </div>
               <button
                 onClick={incrementar}
-                disabled={contador === 7 || olimpiadaBloqueada}
+                disabled={contador === maximoPermitido || olimpiadaBloqueada}
                 className={`flex items-center justify-center w-12 h-12 rounded-full shadow-md transition-all duration-200 transform hover:scale-105 ${
-                  contador === 7 || olimpiadaBloqueada
+                  contador === maximoPermitido || olimpiadaBloqueada
                     ? "bg-gray-200 text-gray-400 cursor-not-allowed"
                     : "bg-blue-500 hover:bg-blue-600 text-white active:translate-y-1"
                 }`}
@@ -415,14 +520,16 @@ const AsignarLimiteAreas = () => {
                       ? "bg-blue-500 scale-125"
                       : num < contador
                       ? "bg-blue-300"
-                      : "bg-gray-300"
+                      : num <= maximoPermitido
+                      ? "bg-gray-300"
+                      : "bg-red-200"
                   }`}
                 />
               ))}
             </div>
 
             <div className="text-xs text-gray-400 mt-4">
-              Rango: 1 - 7 áreas
+              Rango: 1 - {maximoPermitido} áreas
             </div>
           </div>
         )}

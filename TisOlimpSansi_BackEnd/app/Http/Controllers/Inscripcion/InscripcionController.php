@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Inscripcion;
 
 use App\Http\Controllers\Controller;
+use App\Mail\InscripcionCompletada;
 use App\Models\Inscripcion\AreaModel;
 use App\Models\Inscripcion\CategoriaModel;
 use App\Models\Inscripcion\ColegioModel;
@@ -17,6 +18,7 @@ use App\Models\GestionOlimpiadas\OlimpiadaModel;
 use App\Models\GestionPagos\OrdenPagoModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class InscripcionController extends Controller
 {
@@ -47,6 +49,7 @@ public function registrar(Request $request)
         );
         $grado = GradoModel::where('nombre_grado', $data['colegio']['curso'])->firstOrFail();
 
+       
         // ESTUDIANTE (verificar si ya existe)
         $estudiante = EstudianteModel::where([
             'nombre' => $data['estudiante']['nombre'],
@@ -64,7 +67,7 @@ public function registrar(Request $request)
             ]);
         }
 
-      
+     
         $olimpiada = OlimpiadaModel::findOrFail($data['olimpiada']['id']);
         $limiteAreas = $olimpiada->max_materias;
         
@@ -100,7 +103,23 @@ public function registrar(Request $request)
         foreach ($data['areas_competencia'] as $item) {
             $area = AreaModel::where('nombre_area', $item['nombre_area'])->firstOrFail();
             $categoria = CategoriaModel::where('nombre_categoria', $item['categoria'])->firstOrFail();
+            
+            $yaInscrito = InscripcionModel::join('olimpiada_area_categoria as oac', 'inscripcion.id_olimpiada_area_categoria', '=', 'oac.id')->where([
+                        ['inscripcion.id_estudiante', $estudiante->id],
+                        ['oac.id_olimpiada', $olimpiada->id],
+                        ['oac.id_area', $area->id],
+                        ['oac.id_categoria', $categoria->id],
+                    ])->exists();
 
+                if ($yaInscrito) {
+                    
+                     return response()->json([
+                    'status' => 500,
+                    'error' => "El estudiante '{$estudiante->nombre} {$estudiante->apellido_pa}' ya está inscrito en el área '{$area->nombre_area}' y categoría '{$categoria->nombre_categoria}' para esta olimpiada."
+                ], 500);
+                    
+                }
+                
             $oac = DB::table('olimpiada_area_categoria')
                 ->where([
                     ['id_olimpiada', '=', $data['olimpiada']['id']],
@@ -110,6 +129,7 @@ public function registrar(Request $request)
                 ->first();
 
             if (!$oac) {
+                
                 throw new \Exception("Combinación inválida de área/categoría para la olimpiada.");
             }
 
@@ -124,10 +144,10 @@ public function registrar(Request $request)
             $inscripcionesPorArea[$area->id] = $inscripcion;
             $total += floatval($oac->precio);
         }
-        $year = date('Y');
+        $codigoGeneradoPre = $this->generarCodigoPreinscripcion();
         $ordenPago->update([
             'monto_total' => $total,
-            'codigo_generado' => sprintf('TSOL-%s-%04d', $year, $ordenPago->id),
+            'codigo_generado' => $codigoGeneradoPre,
         ]);
 
         if (!empty($data['tutores_academicos']) && is_array($data['tutores_academicos'])) {
@@ -149,6 +169,9 @@ public function registrar(Request $request)
             }
         }
 
+        $correo_tutor = $data['responsable_inscripcion']['correo_responsable'];
+        $nombreOlimpiada = $olimpiada->titulo;
+        Mail::to($correo_tutor)->send(new InscripcionCompletada($codigoGeneradoPre, $correo_tutor,$nombreOlimpiada));
 
         DB::commit();
 
@@ -165,6 +188,9 @@ public function registrar(Request $request)
         ], 500);
     }
 }
+
+ 
+
 
 public function registrarLista(Request $request) 
 {
@@ -228,6 +254,7 @@ public function registrarLista(Request $request)
                 ])->count();
 
             if ($inscritasEnOlimpiada + count($item['areas_competencia']) > $limiteAreas) {
+                
                 throw new \Exception("El estudiante '{$estudiante->nombre} {$estudiante->apellido_pa}' supera el límite de áreas permitidas para esta olimpiada.");
             }
 
@@ -264,7 +291,7 @@ public function registrarLista(Request $request)
                     foreach ($combinacionesValidas as $combo) {
                         $mensaje .= "- {$combo->nombre_area} / {$combo->nombre_categoria}\n";
                     }
-
+                    
                     throw new \Exception($mensaje);
                 }
 
@@ -278,6 +305,7 @@ public function registrarLista(Request $request)
                     ])->exists();
 
                 if ($yaInscrito) {
+                   
                     throw new \Exception("El estudiante '{$estudiante->nombre} {$estudiante->apellido_pa}' ya está inscrito en el área '{$area->nombre_area}' y categoría '{$categoria->nombre_categoria}' para esta olimpiada.");
                 }
 
@@ -294,17 +322,37 @@ public function registrarLista(Request $request)
                 $total += floatval($oac->precio ?? 0); // si existe columna precio
             }
 
-            // Registrar tutores académicos
+            // Registrar tutores académicos (SOLO SI EXISTEN Y TIENEN DATOS VÁLIDOS)
             if (!empty($item['tutores_academicos']) && is_array($item['tutores_academicos'])) {
                 foreach ($item['tutores_academicos'] as $tutorItem) {
-                    $area = AreaModel::where('nombre_area', $tutorItem['nombre_area'])->firstOrFail();
+                    // Validar que exista el área
+                    if (empty($tutorItem['nombre_area'])) {
+                        continue; // Saltar si no hay área especificada
+                    }
 
+                    $area = AreaModel::where('nombre_area', $tutorItem['nombre_area'])->first();
+                    if (!$area) {
+                        continue; // Saltar si el área no existe
+                    }
+
+                    // Validar que existan los datos del tutor y que el CI no esté vacío
+                    if (empty($tutorItem['tutor']) || 
+                        !is_array($tutorItem['tutor']) || 
+                        empty($tutorItem['tutor']['ci']) || 
+                        trim($tutorItem['tutor']['ci']) === '') {
+                        continue; // Saltar si no hay datos válidos del tutor
+                    }
+
+                    // Crear el tutor académico solo si todos los datos son válidos
                     $tutor = TutorAcademicoModel::firstOrCreate(
-                        ['ci' => $tutorItem['tutor']['ci']],
-                        $tutorItem['tutor']
+                        ['ci' => trim($tutorItem['tutor']['ci'])],
+                        array_filter($tutorItem['tutor'], function($value) {
+                            return $value !== null && trim($value) !== '';
+                        })
                     );
 
-                    if (isset($inscripcionesPorArea[$area->id])) {
+                    // Actualizar la inscripción con el tutor académico
+                    if (isset($inscripcionesPorArea[$area->id]) && $tutor && $tutor->id) {
                         $inscripcionesPorArea[$area->id]->update([
                             'id_tutor_academico' => $tutor->id,
                         ]);
@@ -312,14 +360,17 @@ public function registrarLista(Request $request)
                 }
             }
         }
-
+        
         // Actualizar orden de pago final
-        $year = date('Y');
+        $codigoGeneradoPre = $this->generarCodigoPreinscripcion();
         $ordenPago->update([
             'monto_total' => $total,
-            'codigo_generado' => sprintf('TSOL-%s-%04d', $year, $ordenPago->id),
+            'codigo_generado' => $codigoGeneradoPre,
         ]);
 
+        $correo_tutor = $data['responsable_inscripcion']['correo_responsable'];
+        $nombreOlimpiada = $olimpiada->titulo;
+        Mail::to($correo_tutor)->send(new InscripcionCompletada($codigoGeneradoPre, $correo_tutor,$nombreOlimpiada));
         DB::commit();
 
         return response()->json([
@@ -338,25 +389,124 @@ public function registrarLista(Request $request)
 }
 
 
+    public function generarCodigoPreinscripcion()
+    {
+        $year = date('Y');
+        $codigoAlfanumerico = strtoupper(bin2hex(random_bytes(3))); 
 
+        //codigo final como TSOL-AÑO-XXXXXX
+        $codigoGenerado = sprintf('TSOL-%s-%s', $year, $codigoAlfanumerico);
+        while (OrdenPagoModel::where('codigo_generado', $codigoGenerado)->exists()) {
+            
+            $codigoAlfanumerico = strtoupper(bin2hex(random_bytes(3)));
+            $codigoGenerado = sprintf('TSOL-%s-%s', $year, $codigoAlfanumerico);
+        }
+        return $codigoGenerado;
+    }
     
-public function listarInscritos()
+    public function listarInscritos($idOlimpiada)
+    {
+        $inscripciones = InscripcionModel::with([
+            'estudiante.colegio', 
+            'estudiante.grado',
+            'tutorLegal',
+            'ordenPago',
+            'olimpiadaAreaCategoria.olimpiada',
+            'olimpiadaAreaCategoria.area',
+            'olimpiadaAreaCategoria.categoria',
+            'tutorAcademico' 
+        ])
+        ->whereHas('olimpiadaAreaCategoria.olimpiada', function ($query) use ($idOlimpiada) {
+            $query->where('id', $idOlimpiada);
+        })
+        ->get();
+
+        $resultado = $inscripciones->map(function ($inscripcion) {
+            $estudiante = $inscripcion->estudiante;
+            $tutorLegal = $inscripcion->tutorLegal;
+            $colegio = $estudiante->colegio;
+            $grado = $estudiante->grado;
+            $olimpiadaAreaCategoria = $inscripcion->olimpiadaAreaCategoria;
+
+            $datos = [
+                'apellido_pa'         => $estudiante->apellido_pa,
+                'apellido_ma'         => $estudiante->apellido_ma,
+                'nombre'              => $estudiante->nombre,
+                'ci'                  => $estudiante->ci,
+                'fecha_nacimiento'    => $estudiante->fecha_nacimiento,
+                'correo'              => $estudiante->correo,
+                'propietario_correo'  => $estudiante->propietario_correo,
+                'curso'               => $grado->nombre_grado ?? null,
+                'colegio'             => $colegio->nombre_colegio ?? null,
+                'departamento'        => $colegio->departamento ?? null,
+                'provincia'           => $colegio->distrito ?? null,
+                'rol_tutor_legal'     => 'Tutor Legal',
+                'tutor_legal_apellido_pa' => $tutorLegal->apellido_pa ?? null,
+                'tutor_legal_apellido_ma' => $tutorLegal->apellido_ma ?? null,
+                'tutor_legal_nombre'      => $tutorLegal->nombre ?? null,
+                'tutor_legal_ci'          => $tutorLegal->ci ?? null,
+                'tutor_legal_correo'      => $tutorLegal->correo ?? null,
+                'tutor_legal_telefono'    => $tutorLegal->numero_celular ?? null,
+                // Datos de la olimpiada/área/categoría
+                'nombre_area'         => $olimpiadaAreaCategoria->area->nombre_area ?? null,
+                'categoria'           => $olimpiadaAreaCategoria->categoria->nombre_categoria ?? null,
+                'olimpiada'           => $olimpiadaAreaCategoria->olimpiada->nombre ?? null,
+                'precio'              => $olimpiadaAreaCategoria->precio ?? null,
+            ];
+
+            // Si tienes relación directa con tutor académico
+            if ($inscripcion->tutorAcademico) {
+                $tutor = $inscripcion->tutorAcademico;
+                $datos = array_merge($datos, [
+                    'tutor_academico_apellido_pa' => $tutor->apellido_pa ?? null,
+                    'tutor_academico_apellido_ma' => $tutor->apellido_ma ?? null,
+                    'tutor_academico_nombre'      => $tutor->nombre ?? null,
+                    'tutor_academico_ci'          => $tutor->ci ?? null,
+                    'tutor_academico_correo'      => $tutor->correo ?? null,
+                ]);
+            } else {
+                // Si no hay tutor académico
+                $datos = array_merge($datos, [
+                    'tutor_academico_apellido_pa' => null,
+                    'tutor_academico_apellido_ma' => null,
+                    'tutor_academico_nombre'      => null,
+                    'tutor_academico_ci'          => null,
+                    'tutor_academico_correo'      => null,
+                ]);
+            }
+
+            return $datos;
+        });
+
+        return response()->json($resultado);
+    }
+
+public function listarPreinscritos($idOlimpiada)
 {
     $inscripciones = InscripcionModel::with([
         'estudiante.colegio', 
         'estudiante.grado',
-        'estudiante.tutorLegal',
-        'responsable',
+        'tutorLegal',
         'ordenPago',
-        'inscripcionCategoria.categoria.area',
-        'inscripcionCategoria.tutorAcademico',
-    ])->get();
+        'olimpiadaAreaCategoria.olimpiada',
+        'olimpiadaAreaCategoria.area',
+        'olimpiadaAreaCategoria.categoria',
+        'tutorAcademico' 
+    ])
+    ->whereHas('ordenPago', function ($query) {
+        $query->where('estado', 'pendiente');
+    })
+    ->whereHas('olimpiadaAreaCategoria.olimpiada', function ($query) use ($idOlimpiada) {
+        $query->where('id', $idOlimpiada);
+    })
+    ->get();
 
     $resultado = $inscripciones->map(function ($inscripcion) {
         $estudiante = $inscripcion->estudiante;
-        $tutorLegal = $estudiante->tutorLegal;
+        $tutorLegal = $inscripcion->tutorLegal;
         $colegio = $estudiante->colegio;
         $grado = $estudiante->grado;
+        $olimpiadaAreaCategoria = $inscripcion->olimpiadaAreaCategoria;
 
         $datos = [
             'apellido_pa'         => $estudiante->apellido_pa,
@@ -377,143 +527,128 @@ public function listarInscritos()
             'tutor_legal_ci'          => $tutorLegal->ci ?? null,
             'tutor_legal_correo'      => $tutorLegal->correo ?? null,
             'tutor_legal_telefono'    => $tutorLegal->numero_celular ?? null,
+            // Datos de la olimpiada/área/categoría
+            'nombre_area'         => $olimpiadaAreaCategoria->area->nombre_area ?? null,
+            'categoria'           => $olimpiadaAreaCategoria->categoria->nombre_categoria ?? null,
+            'olimpiada'           => $olimpiadaAreaCategoria->olimpiada->nombre ?? null,
+            'precio'              => $olimpiadaAreaCategoria->precio ?? null,
         ];
 
-        $tutores = $inscripcion->inscripcionCategoria->map(function ($cat) {
-            $tutor = $cat->tutorAcademico;
-            $categoria = $cat->categoria;
-            $area = $categoria?->area;
-        
-            return [
-                'nombre_area' => $area?->nombre_area ?? null,
-                'categoria'   => $categoria?->nombre_categoria ?? null,
+        // Si tienes relación directa con tutor académico
+        if ($inscripcion->tutorAcademico) {
+            $tutor = $inscripcion->tutorAcademico;
+            $datos = array_merge($datos, [
                 'tutor_academico_apellido_pa' => $tutor->apellido_pa ?? null,
                 'tutor_academico_apellido_ma' => $tutor->apellido_ma ?? null,
                 'tutor_academico_nombre'      => $tutor->nombre ?? null,
                 'tutor_academico_ci'          => $tutor->ci ?? null,
                 'tutor_academico_correo'      => $tutor->correo ?? null,
-            ];
-        });
+            ]);
+        } else {
+            // Si no hay tutor académico
+            $datos = array_merge($datos, [
+                'tutor_academico_apellido_pa' => null,
+                'tutor_academico_apellido_ma' => null,
+                'tutor_academico_nombre'      => null,
+                'tutor_academico_ci'          => null,
+                'tutor_academico_correo'      => null,
+            ]);
+        }
 
-        return $tutores->map(function ($tutor) use ($datos) {
-            return array_merge($datos, $tutor);
-        });
-    })->flatten(1);
+        return $datos;
+    });
 
     return response()->json($resultado);
 }
 
 
-    public function contarPreinscritos()
+    public function inscripcionesPorArea(Request $request)
     {
-        $estudiantes = DB::table('inscripcion')
-            ->join('orden_pago', 'inscripcion.id_orden_pago', '=', 'orden_pago.id')
-            ->join('estudiante', 'inscripcion.id_estudiante', '=', 'estudiante.id')
-            ->whereNull('orden_pago.fecha_subida_imagen_comprobante')
-            ->select(
-                'estudiante.nombre',
-                'estudiante.apellido_pa',
-                'estudiante.apellido_ma',
-                'estudiante.ci as carnet_identidad',
-                DB::raw("DATE(estudiante.fecha_nacimiento) as fecha_nacimiento"),
-                'estudiante.correo',
-                'estudiante.propietario_correo'
-            )
-            ->distinct()
-            ->get();
+        $olimpiadaId = $request->input('olimpiada_id');
+        
+        if (!$olimpiadaId) {
+            return response()->json(['error' => 'ID de olimpiada requerido'], 400);
+        }
 
-        return response()->json([
-            'estudiantes_no_pagados' => $estudiantes
-        ]);
-    }
-
-
-    public function contarInscritos()
-    {
-        $estudiantes = DB::table('inscripcion')
-            ->join('orden_pago', 'inscripcion.id_orden_pago', '=', 'orden_pago.id')
-            ->join('estudiante', 'inscripcion.id_estudiante', '=', 'estudiante.id')
-            ->whereNotNull('orden_pago.fecha_subida_imagen_comprobante')
-            ->select(
-                'estudiante.nombre',
-                'estudiante.apellido_pa',
-                'estudiante.apellido_ma',
-                'estudiante.ci as carnet_identidad',
-                DB::raw("DATE(estudiante.fecha_nacimiento) as fecha_nacimiento"),
-                'estudiante.correo',
-                'estudiante.propietario_correo'
-            )
-            ->distinct()
-            ->get();
-
-        return response()->json([
-            'estudiantes_que_pagaron' => $estudiantes
-        ]);
-    }
-
-    public function inscripcionesPorArea()
-    {
         $areas = AreaModel::all();
         $resultado = [];
-    
+
         foreach ($areas as $area) {
-            // Contar inscritos (con comprobante) a través de categoria
-            $inscritos = DB::table('inscripcion_categoria')
-                ->join('categoria', 'inscripcion_categoria.id_categoria', '=', 'categoria.id')
-                ->join('inscripcion', 'inscripcion_categoria.id_inscripcion', '=', 'inscripcion.id')
+            // Contar inscritos (con comprobante) a través de olimpiada_area_categoria
+            $inscritos = DB::table('inscripcion')
+                ->join('olimpiada_area_categoria', 'inscripcion.id_olimpiada_area_categoria', '=', 'olimpiada_area_categoria.id')
                 ->join('orden_pago', 'inscripcion.id_orden_pago', '=', 'orden_pago.id')
-                ->where('categoria.id_area', $area->id)
-                ->whereNotNull('orden_pago.comprobante_url')
+                ->join('comprobante_pago', 'orden_pago.id', '=', 'comprobante_pago.id_orden_pago')
+                ->where('olimpiada_area_categoria.id_area', $area->id)
+                ->where('olimpiada_area_categoria.id_olimpiada', $olimpiadaId)
+                ->whereNotNull('comprobante_pago.comprobante_url')
                 ->count();
                 
-            // Contar preinscritos (sin comprobante pero con orden de pago) a través de categoria
-            $preinscritos = DB::table('inscripcion_categoria')
-                ->join('categoria', 'inscripcion_categoria.id_categoria', '=', 'categoria.id')
-                ->join('inscripcion', 'inscripcion_categoria.id_inscripcion', '=', 'inscripcion.id')
+            // Contar preinscritos (sin comprobante pero con orden de pago)
+            $preinscritos = DB::table('inscripcion')
+                ->join('olimpiada_area_categoria', 'inscripcion.id_olimpiada_area_categoria', '=', 'olimpiada_area_categoria.id')
                 ->join('orden_pago', 'inscripcion.id_orden_pago', '=', 'orden_pago.id')
-                ->where('categoria.id_area', $area->id)
-                ->whereNull('orden_pago.comprobante_url')
+                ->leftJoin('comprobante_pago', 'orden_pago.id', '=', 'comprobante_pago.id_orden_pago')
+                ->where('olimpiada_area_categoria.id_area', $area->id)
+                ->where('olimpiada_area_categoria.id_olimpiada', $olimpiadaId)
+                ->whereNull('comprobante_pago.comprobante_url')
                 ->whereNotNull('orden_pago.orden_pago_url')
                 ->count();
                 
-            $resultado[] = [
-                'area' => $area->nombre_area,
-                'inscritos' => $inscritos,
-                'preinscritos' => $preinscritos
-            ];
+            // Solo incluir áreas que tengan al menos una inscripción o preinscripción
+            if ($inscritos > 0 || $preinscritos > 0) {
+                $resultado[] = [
+                    'area' => $area->nombre_area,
+                    'inscritos' => $inscritos,
+                    'preinscritos' => $preinscritos
+                ];
+            }
         }
         
         return response()->json($resultado);
     }
 
-    public function inscripcionesPorCategoria()
+    public function inscripcionesPorCategoria(Request $request)
     {
-        $categorias = CategoriaModel::with('area')->get();
+        $olimpiadaId = $request->input('olimpiada_id');
+        
+        if (!$olimpiadaId) {
+            return response()->json(['error' => 'ID de olimpiada requerido'], 400);
+        }
+
+        $categorias = CategoriaModel::all();
         $resultado = [];
 
         foreach ($categorias as $categoria) {
             // Contar inscritos (con comprobante)
-            $inscritos = DB::table('inscripcion_categoria')
-                ->join('inscripcion', 'inscripcion_categoria.id_inscripcion', '=', 'inscripcion.id')
+            $inscritos = DB::table('inscripcion')
+                ->join('olimpiada_area_categoria', 'inscripcion.id_olimpiada_area_categoria', '=', 'olimpiada_area_categoria.id')
                 ->join('orden_pago', 'inscripcion.id_orden_pago', '=', 'orden_pago.id')
-                ->where('inscripcion_categoria.id_categoria', $categoria->id)
-                ->whereNotNull('orden_pago.comprobante_url')
+                ->join('comprobante_pago', 'orden_pago.id', '=', 'comprobante_pago.id_orden_pago')
+                ->where('olimpiada_area_categoria.id_categoria', $categoria->id)
+                ->where('olimpiada_area_categoria.id_olimpiada', $olimpiadaId)
+                ->whereNotNull('comprobante_pago.comprobante_url')
                 ->count();
                 
             // Contar preinscritos (sin comprobante pero con orden de pago)
-            $preinscritos = DB::table('inscripcion_categoria')
-                ->join('inscripcion', 'inscripcion_categoria.id_inscripcion', '=', 'inscripcion.id')
+            $preinscritos = DB::table('inscripcion')
+                ->join('olimpiada_area_categoria', 'inscripcion.id_olimpiada_area_categoria', '=', 'olimpiada_area_categoria.id')
                 ->join('orden_pago', 'inscripcion.id_orden_pago', '=', 'orden_pago.id')
-                ->where('inscripcion_categoria.id_categoria', $categoria->id)
-                ->whereNull('orden_pago.comprobante_url')
+                ->leftJoin('comprobante_pago', 'orden_pago.id', '=', 'comprobante_pago.id_orden_pago')
+                ->where('olimpiada_area_categoria.id_categoria', $categoria->id)
+                ->where('olimpiada_area_categoria.id_olimpiada', $olimpiadaId)
+                ->whereNull('comprobante_pago.comprobante_url')
                 ->whereNotNull('orden_pago.orden_pago_url')
                 ->count();
                 
-            $resultado[] = [
-                'categoria' => $categoria->nombre_categoria . ' (' . $categoria->area->nombre_area . ')',
-                'inscritos' => $inscritos,
-                'preinscritos' => $preinscritos
-            ];
+            // Solo incluir categorías que tengan al menos una inscripción o preinscripción
+            if ($inscritos > 0 || $preinscritos > 0) {
+                $resultado[] = [
+                    'categoria' => $categoria->nombre_categoria,
+                    'inscritos' => $inscritos,
+                    'preinscritos' => $preinscritos
+                ];
+            }
         }
         
         return response()->json($resultado);
@@ -533,13 +668,16 @@ public function registrosPorCodigo(Request $request)
             ], 404);
         }
 
+        // Cargar las mismas relaciones que en listarInscritos
         $inscripciones = InscripcionModel::with([
+            'estudiante.colegio', 
             'estudiante.grado',
-            'estudiante.colegio',
             'tutorLegal',
-            'tutorAcademico',
+            'ordenPago.responsable', // Agregar la relación responsable
+            'olimpiadaAreaCategoria.olimpiada',
             'olimpiadaAreaCategoria.area',
-            'olimpiadaAreaCategoria.categoria'
+            'olimpiadaAreaCategoria.categoria',
+            'tutorAcademico' 
         ])->where('id_orden_pago', $ordenPago->id)->get();
 
         if ($inscripciones->isEmpty()) {
@@ -557,7 +695,7 @@ public function registrosPorCodigo(Request $request)
             $colegio = $estudiante->colegio;
             $tutorLegal = $inscripcion->tutorLegal ?? null;
             $tutorAcademico = $inscripcion->tutorAcademico ?? null;
-            $responsable = $ordenPago->responsable;
+            $responsable = $inscripcion->ordenPago->responsable; // Acceso correcto al responsable
             $areaCategoria = $inscripcion->olimpiadaAreaCategoria;
             $area = $areaCategoria->area;
             $categoria = $areaCategoria->categoria;
@@ -791,5 +929,107 @@ public function actualizarLista(Request $request)
         ], 500);
     }
 }
+    public function contarPreinscritosPorOlimpiada(Request $request)
+    {
+        $olimpiadaId = $request->input('olimpiada_id');
+        
+        if (!$olimpiadaId) {
+            return response()->json(['error' => 'ID de olimpiada requerido'], 400);
+        }
+
+        try {
+            $estudiantes = DB::table('inscripcion')
+                ->join('olimpiada_area_categoria', 'inscripcion.id_olimpiada_area_categoria', '=', 'olimpiada_area_categoria.id')
+                ->join('orden_pago', 'inscripcion.id_orden_pago', '=', 'orden_pago.id')
+                ->leftJoin('comprobante_pago', 'orden_pago.id', '=', 'comprobante_pago.id_orden_pago')
+                ->where('olimpiada_area_categoria.id_olimpiada', $olimpiadaId)
+                ->whereNull('comprobante_pago.numero_comprobante')
+                ->distinct('inscripcion.id_estudiante')
+                ->count('inscripcion.id_estudiante');
+
+            return response()->json([
+                'estudiantes_no_pagados' => $estudiantes
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error al contar pre-inscritos por olimpiada: ' . $e->getMessage());
+            return response()->json([
+                'error' => 'Error interno del servidor',
+                'estudiantes_no_pagados' => 0
+            ], 500);
+        }
+    }
+
+    public function contarInscritosPorOlimpiada(Request $request)
+    {
+        $olimpiadaId = $request->input('olimpiada_id');
+        
+        if (!$olimpiadaId) {
+            return response()->json(['error' => 'ID de olimpiada requerido'], 400);
+        }
+
+        try {
+            $estudiantes = DB::table('inscripcion')
+                ->join('olimpiada_area_categoria', 'inscripcion.id_olimpiada_area_categoria', '=', 'olimpiada_area_categoria.id')
+                ->join('orden_pago', 'inscripcion.id_orden_pago', '=', 'orden_pago.id')
+                ->join('comprobante_pago', 'orden_pago.id', '=', 'comprobante_pago.id_orden_pago')
+                ->where('olimpiada_area_categoria.id_olimpiada', $olimpiadaId)
+                ->whereNotNull('comprobante_pago.numero_comprobante')
+                ->distinct('inscripcion.id_estudiante')
+                ->count('inscripcion.id_estudiante');
+
+            return response()->json([
+                'estudiantes_que_pagaron' => $estudiantes
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error al contar inscritos por olimpiada: ' . $e->getMessage());
+            return response()->json([
+                'error' => 'Error interno del servidor',
+                'estudiantes_que_pagaron' => 0
+            ], 500);
+        }
+    }
+
+    public function contarPreinscritos()
+    {
+        try {
+            $estudiantes = DB::table('inscripcion')
+                ->join('orden_pago', 'inscripcion.id_orden_pago', '=', 'orden_pago.id')
+                ->whereNull('orden_pago.numero_comprobante')
+                ->distinct('inscripcion.id_estudiante')
+                ->count('inscripcion.id_estudiante');
+
+            return response()->json([
+                'estudiantes_no_pagados' => $estudiantes
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error al contar pre-inscritos: ' . $e->getMessage());
+            return response()->json([
+                'error' => 'Error interno del servidor',
+                'estudiantes_no_pagados' => 0
+            ], 500);
+        }
+    }
+
+    public function contarInscritos()
+    {
+        try {
+            $estudiantes = DB::table('inscripcion')
+                ->join('orden_pago', 'inscripcion.id_orden_pago', '=', 'orden_pago.id')
+                ->whereNotNull('orden_pago.numero_comprobante')
+                ->distinct('inscripcion.id_estudiante')
+                ->count('inscripcion.id_estudiante');
+
+            return response()->json([
+                'estudiantes_que_pagaron' => $estudiantes
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error al contar inscritos: ' . $e->getMessage());
+            return response()->json([
+                'error' => 'Error interno del servidor',
+                'estudiantes_que_pagaron' => 0
+            ], 500);
+        }
+    }
+
 
 }
