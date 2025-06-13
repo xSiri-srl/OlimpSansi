@@ -28,41 +28,101 @@ const PasosInscripcion = () => {
     }
   }, [globalData.codigoGenerado]);
 
-  const handleCopyCode = () => {
-    if (!codigo) return;
-    try {
-      const textArea = document.createElement("textarea");
-      textArea.value = codigo;
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand("copy");
-      document.body.removeChild(textArea);
-
-      const tooltip = document.createElement("div");
-      tooltip.innerText = "Código copiado!";
-      Object.assign(tooltip.style, {
-        position: "fixed",
-        bottom: "20px",
-        left: "50%",
-        transform: "translateX(-50%)",
-        backgroundColor: "#4ade80", 
-        color: "#1f2937",
-        padding: "10px 20px",
-        borderRadius: "999px",
-        fontWeight: "bold",
-        zIndex: 9999,
-        transition: "opacity 0.5s ease-in-out",
-      });
-      document.body.appendChild(tooltip);
-      setTimeout(() => {
-        tooltip.style.opacity = "0";
-        setTimeout(() => document.body.removeChild(tooltip), 500);
-      }, 1500);
-    } catch (err) {
-      console.error("Error copiando:", err);
+  const handleCopyCode = async () => {
+  if (!codigo) return;
+  
+  try {
+    // Método moderno para navegadores compatibles
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(codigo);
+      showSuccessTooltip();
+      return;
     }
-  };
+    
+    // Método fallback para navegadores más antiguos o contextos no seguros
+    const textArea = document.createElement("textarea");
+    textArea.value = codigo;
+    textArea.style.position = "fixed";
+    textArea.style.left = "-999999px";
+    textArea.style.top = "-999999px";
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    return new Promise((resolve, reject) => {
+      // Usar el comando deprecated como último recurso
+      if (document.execCommand('copy')) {
+        document.body.removeChild(textArea);
+        showSuccessTooltip();
+        resolve();
+      } else {
+        document.body.removeChild(textArea);
+        throw new Error('Copy command failed');
+      }
+    });
+    
+  } catch (err) {
+    console.error("Error copiando:", err);
+    // Mostrar mensaje de error al usuario
+    showErrorTooltip();
+  }
+};
 
+const showSuccessTooltip = () => {
+  const tooltip = document.createElement("div");
+  tooltip.innerText = "¡Código copiado!";
+  Object.assign(tooltip.style, {
+    position: "fixed",
+    bottom: "20px",
+    left: "50%",
+    transform: "translateX(-50%)",
+    backgroundColor: "#4ade80", 
+    color: "#1f2937",
+    padding: "10px 20px",
+    borderRadius: "999px",
+    fontWeight: "bold",
+    zIndex: "9999",
+    transition: "opacity 0.5s ease-in-out",
+  });
+  document.body.appendChild(tooltip);
+  
+  setTimeout(() => {
+    tooltip.style.opacity = "0";
+    setTimeout(() => {
+      if (document.body.contains(tooltip)) {
+        document.body.removeChild(tooltip);
+      }
+    }, 500);
+  }, 1500);
+};
+
+const showErrorTooltip = () => {
+  const tooltip = document.createElement("div");
+  tooltip.innerText = "No se pudo copiar. Selecciona y copia manualmente.";
+  Object.assign(tooltip.style, {
+    position: "fixed",
+    bottom: "20px",
+    left: "50%",
+    transform: "translateX(-50%)",
+    backgroundColor: "#ef4444", 
+    color: "white",
+    padding: "10px 20px",
+    borderRadius: "999px",
+    fontWeight: "bold",
+    zIndex: "9999",
+    transition: "opacity 0.5s ease-in-out",
+  });
+  document.body.appendChild(tooltip);
+  
+  setTimeout(() => {
+    tooltip.style.opacity = "0";
+    setTimeout(() => {
+      if (document.body.contains(tooltip)) {
+        document.body.removeChild(tooltip);
+      }
+    }, 3000);
+  }, 3000);
+};
   return (
     <div className="max-w-3xl mx-auto p-8 bg-white rounded-2xl shadow-2xl space-y-10 animate-fade-in relative z-10">
       <div className="bg-red-100 border-l-8 border-red-600 p-6 rounded-lg shadow animate-pulse">
@@ -79,7 +139,7 @@ const PasosInscripcion = () => {
 
       <div className="text-center">
         <h2 className="text-xl font-bold text-gray-800 mb-2">
-          GUARDE Y RECUERDE ESTE CÓDIGO DE ORDEN
+          GUARDE Y RECUERDE ESTE CÓDIGO DE PREINSCRIPCION
         </h2>
         <div className="inline-flex items-center space-x-3 bg-blue-100 border-2 border-blue-500 rounded-full px-6 py-3 shadow-md">
           <span className="text-lg font-mono tracking-widest text-gray-800">
