@@ -63,7 +63,7 @@ const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
             "apellidoMaterno",
             responsable.apellido_ma
           );
-          handleInputChange("responsable", "correo", responsable.correo);
+          handleInputChange("responsable", "correo", responsable.correo_responsable);
           setResponsableFound(true);
         } else {
           setResponsableFound(false);

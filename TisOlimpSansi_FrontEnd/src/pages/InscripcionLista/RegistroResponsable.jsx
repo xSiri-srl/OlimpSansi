@@ -71,7 +71,7 @@ function RegistroResponsable({ setStep }) {
             "apellidoMaterno",
             responsable.apellido_ma
           );
-          handleInputChange("responsable", "correo", responsable.correo || "");
+          handleInputChange("responsable", "correo", responsable.correo_responsable || "");
           setResponsableFound(true);
         } else {
           setResponsableFound(false);
@@ -395,7 +395,7 @@ function RegistroResponsable({ setStep }) {
                   setErrors((prev) => ({ ...prev, correo: "" }));
                 }
               }}
-              readOnly={responsableFound}
+              //readOnly={responsableFound}
               className={`w-full p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                 responsableFound ? "bg-gray-100" : ""
               }`}

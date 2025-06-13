@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('apellido_ma');
             $table->integer('ci');
             $table->string('complemento')->nullable();
-            $table->string('correo_responsable')->nullable();
+            $table->string('correo_responsable');
             $table->timestamps();
         });
     }
