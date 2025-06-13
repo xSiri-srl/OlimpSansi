@@ -76,11 +76,23 @@
         $detallesAreas = [];
         
         if ($costosOlimpiada['success'] && $costosOlimpiada['costo_unico']) {
-            // Caso: Costo único para todas las áreas
-            $totalInscritos = $ordenPago->inscripcion->count();
+            // Caso: Costo único para todas las áreas - PERO mostramos desglose por área
             $costoUnitario = $costosOlimpiada['costo'];
-            $totalGeneral = $totalInscritos * $costoUnitario;
             $tieneCostoUnico = true;
+            
+            // Crear detalles por área con el mismo precio unitario
+            foreach ($inscripcionesPorArea as $nombreArea => $inscripciones) {
+                $cantidadInscripciones = $inscripciones->count();
+                $subtotal = $cantidadInscripciones * $costoUnitario;
+                $totalGeneral += $subtotal;
+                
+                $detallesAreas[] = [
+                    'area' => $nombreArea,
+                    'cantidad' => $cantidadInscripciones,
+                    'costo_unitario' => $costoUnitario,
+                    'subtotal' => $subtotal
+                ];
+            }
         } else {
             // Caso: Costos diferentes por área
             $tieneCostoUnico = false;
@@ -154,25 +166,15 @@
             </tr>
         </thead>
         <tbody>
-            @if($tieneCostoUnico)
-                {{-- Costo único para todos los participantes --}}
+            {{-- Siempre mostrar desglose por área --}}
+            @foreach($detallesAreas as $detalle)
                 <tr class="text-center">
-                    <td>{{ $totalInscritos }}</td>
-                    <td>Inscripción de estudiante(s) para olimpiada asociado al código de preinscripción {{ $ordenPago->codigo_generado }}</td>
-                    <td>{{ $costoUnitario }}</td>
-                    <td>{{ $totalGeneral }}</td>
+                    <td>{{ $detalle['cantidad'] }}</td>
+                    <td>Inscripción de estudiante(s) - Área: {{ $detalle['area'] }} (Código: {{ $ordenPago->codigo_generado }})</td>
+                    <td>{{ $detalle['costo_unitario'] }}</td>
+                    <td>{{ $detalle['subtotal'] }}</td>
                 </tr>
-            @else
-                {{-- Desglose por área con costos diferentes --}}
-                @foreach($detallesAreas as $detalle)
-                    <tr class="text-center">
-                        <td>{{ $detalle['cantidad'] }}</td>
-                        <td>Inscripción de estudiante(s) - Área: {{ $detalle['area'] }} (Código: {{ $ordenPago->codigo_generado }})</td>
-                        <td>{{ $detalle['costo_unitario'] }}</td>
-                        <td>{{ $detalle['subtotal'] }}</td>
-                    </tr>
-                @endforeach
-            @endif
+            @endforeach
         </tbody>
         <tfoot>
             <tr class="text-end">
