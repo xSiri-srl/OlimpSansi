@@ -4,8 +4,8 @@ import { FaSave } from "react-icons/fa";
 import FormularioCodigo from "./components/FormularioCodigo";
 import TablaEstudiantes from "./components/TablaEstudiantes";
 import PanelAcciones from "./components/PanelAcciones";
-import EditarEstudianteModal from "./Modales/EditarEstudianteModal";
-import ModalPeriodo from "./Modales/ModalPeriodo";
+import EditarEstudianteModal from "../../../components/Modales/EditarEstudianteModal";
+import ModalPeriodo from "../../../components/Modales/ModalPeriodo";
 import useCodigoPreInscripcion from "./hooks/useCodigoPreInscripcion";
 
 const CodigoPreInscripcion = () => {
