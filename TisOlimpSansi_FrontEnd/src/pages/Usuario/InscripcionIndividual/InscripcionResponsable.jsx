@@ -11,7 +11,7 @@ import { TextField } from "./components/FormComponents";
 import { validateField, validateCI } from "./utils/validationsUtils";
 import { API_URL } from "../../../utils/api";
 import axios from "axios";
-import ModalConfirmacionCorreo from "./modales/ModalConfirmacionCorreo";
+import ModalConfirmacionCorreo from "../../../components/Modales/ModalConfirmacionCorreo";
 
 const ResponsableForm = ({ formData, handleInputChange, handleNext }) => {
   const [errors, setErrors] = useState({});
