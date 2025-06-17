@@ -34,7 +34,7 @@ import CodigoPreInscripcion from "./pages/Usuario/EditarInscripcion";
 import { useState } from "react";
 import { FormDataProvider } from "./pages/Usuario/InscripcionIndividual/form-data-context";
 
-import AsignarLimiteAreas from "./pages/Administrador/AsignarLimiteAreas/AsignarLimiteAreas";
+import AsignarLimiteAreas from "./pages/Administrador/AsignarLimiteAreas/index";
 import AsignarCosto from "./pages/Administrador/AsignarCosto/index";
 import AsociarAreaNivel from "./pages/Administrador/AsignarAreaNivel/index";
 
