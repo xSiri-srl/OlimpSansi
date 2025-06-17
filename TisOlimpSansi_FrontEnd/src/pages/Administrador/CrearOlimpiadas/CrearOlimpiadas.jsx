@@ -15,7 +15,7 @@ import {
   FaExclamationTriangle,
 } from "react-icons/fa";
 import { API_URL } from "../../../utils/api";
-import ModalTareasPendientes from "./Modales/ModalTareasPendientes";
+import ModalTareasPendientes from "../../../components/Modales/ModalTareasPendientes";
 import obtenerUsuario from "../../../funciones/obtenerUser";
 
 const CrearOlimpiadas = () => {

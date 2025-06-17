@@ -8,7 +8,8 @@ import {
   FaBullseye,
   FaCheck
 } from 'react-icons/fa';
-import { useVerificarProgreso } from '../hooks/useVerificarProgreso';
+import { useVerificarProgreso } from '../../pages/Administrador/CrearOlimpiadas/hooks/useVerificarProgreso';
+
 
 const ModalTareasPendientes = ({ 
   isOpen, 

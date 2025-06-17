@@ -6,10 +6,10 @@ import AreaCosto from "../CrearOlimpiadas/AreasCompetencia/AreaCosto";
 import AccionesFooter from "../CrearOlimpiadas/AreasCompetencia/AccionesFooter";
 import { API_URL } from "../../../utils/api";
 import { useVerificarInscripciones } from "../useVerificarInscripciones";
-import ModalConfirmacion from "../CrearOlimpiadas/Modales/ModalConfirmacion";
-import ModalAlerta from "../CrearOlimpiadas/Modales/ModalAlerta";
+import ModalConfirmacion from "../../../components/Modales/ModalConfirmacion";
+import ModalAlerta from "../../../components/Modales/ModalAlerta";
 import { useNotificarProgreso } from "../CrearOlimpiadas/hooks/useNotificarProgreso";
-import ModalTareasPendientes from "../CrearOlimpiadas/Modales/ModalTareasPendientes";
+import ModalTareasPendientes from "../../../components/Modales/ModalTareasPendientes";
 
 const AsignarCosto = () => {
   const [olimpiadas, setOlimpiadas] = useState([]);

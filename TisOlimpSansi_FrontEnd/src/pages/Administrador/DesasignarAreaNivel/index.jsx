@@ -7,8 +7,8 @@ import { gradosDisponibles } from "../CrearOlimpiadas/AreasCompetencia/constants
 import { API_URL } from "../../../utils/api";
 import axios from "axios";
 import { useVerificarInscripciones } from "../useVerificarInscripciones";
-import ModalConfirmacion from "../CrearOlimpiadas/Modales/ModalConfirmacion";
-import ModalAlerta from "../CrearOlimpiadas/Modales/ModalAlerta";
+import ModalConfirmacion from "../../../components/Modales/ModalConfirmacion";
+import ModalAlerta from "../../../components/Modales/ModalAlerta";
 import ModalResumenCambios from "../../../components/Modales/ModalResumenCambios";
 
 const DesasignarAreaNivel = () => {

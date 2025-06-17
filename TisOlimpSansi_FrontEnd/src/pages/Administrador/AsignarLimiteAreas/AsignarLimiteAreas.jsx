@@ -5,9 +5,9 @@ import AccionesFooter from "../CrearOlimpiadas/AreasCompetencia/AccionesFooter";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { API_URL } from "../../../utils/api";
 import axios from "axios";
-import ModalAlerta from "../CrearOlimpiadas/Modales/ModalAlerta";
-import ModalTareasPendientes from "../CrearOlimpiadas/Modales/ModalTareasPendientes";
-import ModalConfirmacion from "../CrearOlimpiadas/Modales/ModalConfirmacion";
+import ModalAlerta from "../../../components/Modales/ModalAlerta";
+import ModalTareasPendientes from "../../../components/Modales/ModalTareasPendientes";
+import ModalConfirmacion from "../../../components/Modales/ModalConfirmacion";
 import { useNotificarProgreso } from "../CrearOlimpiadas/hooks/useNotificarProgreso";
 import { useVerificarInscripciones } from "../useVerificarInscripciones";
 
