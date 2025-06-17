@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { FaCoins } from "react-icons/fa";
-import ModalCosto from "./ModalCosto";
+import ModalCosto from "../../../../components/Modales/ModalCosto";
+
 
 const AreaCosto = ({ area, actualizarCosto }) => {
   const [modalCostoOpen, setModalCostoOpen] = useState(false);

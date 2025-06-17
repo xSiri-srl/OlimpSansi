@@ -27,22 +27,23 @@ import SubirConvocatoria from "./pages/Administrador/Convocatorias/SubirConvocat
 
 import EditarConvocatoria from "./pages/Administrador/Convocatorias/EditarConvocatoria";
 import CrearOlimpiadas from "./pages/Administrador/CrearOlimpiadas/CrearOlimpiadas";
-import AsociarAreaNivel from "./pages/Administrador/CrearOlimpiadas/AsociarAreaNivel";
+
 import RutaPrivada from "./components/RutasPrivadas";
-import DesasignarAreaNivel from "./pages/Administrador/CrearOlimpiadas/DesasignarAreaNivel";
+import DesasignarAreaNivel from "./pages/Administrador/DesasignarAreaNivel/index";
 import CodigoPreInscripcion from "./pages/Usuario/EditarInscripcion";
 import { useState } from "react";
 import { FormDataProvider } from "./pages/Usuario/InscripcionIndividual/form-data-context";
-import AsignarCosto from "./pages/Administrador/CrearOlimpiadas/AsignarCosto";
-import AsignarLimiteAreas from "./pages/Administrador/CrearOlimpiadas/AsignarLimiteAreas";
+
+import AsignarLimiteAreas from "./pages/Administrador/AsignarLimiteAreas/AsignarLimiteAreas";
+import AsignarCosto from "./pages/Administrador/AsignarCosto/index";
+import AsociarAreaNivel from "./pages/Administrador/AsignarAreaNivel/index";
 
 export default function App() {
   return (
     <ThemeProvider>
-      <FormDataProvider >
+      <FormDataProvider>
         <Navbar />
         <div className="pt-20">
-          
           <FormProvider>
             {/* ORDEN DE PAGO */}
             <Routes>
@@ -142,7 +143,10 @@ export default function App() {
                   element={<AsociarAreaNivel />}
                 />
 
-                <Route path="/admin/asignar-costo" element={<AsignarCosto />} />
+                <Route path="/admin/asignar-costo" 
+                element={<AsignarCosto />}
+                 />
+
                 <Route
                   path="/admin/asignar-limite"
                   element={<AsignarLimiteAreas />}
@@ -154,9 +158,8 @@ export default function App() {
               </Route>
             </Routes>
           </FormProvider>
-        
         </div>
- </FormDataProvider >
+      </FormDataProvider>
     </ThemeProvider>
   );
 }

@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
-import HeaderSelector from "./HeaderSelector";
-import AreaCompetencia from "./AreaCompetencia";
-import AccionesFooter from "./AccionesFooter";
+
+import AreaCompetencia from "./components/AreaCompetencia";
+
 import { gradosDisponibles, areasDefault } from "./constants";
+import AccionesFooter from "../../components/AccionesFooter";
+import HeaderSelector from "../../components/HeaderSelector";
 
 const AreasCompetenciaManager = () => {
   const [olimpiadas, setOlimpiadas] = useState([]);
@@ -59,44 +61,47 @@ const AreasCompetenciaManager = () => {
       alert("Debe mantener al menos una combinación de área");
     }
   };
-  
 
   const guardarConfiguracion = async () => {
     if (!olimpiadaSeleccionada) {
       alert("Por favor seleccione una olimpiada");
       return;
     }
-  if (areasHabilitadas.length === 0) {
-    alert("Debe habilitar al menos un área de competencia");
-    return;
-  }
-    const areasSinCategorias = areasHabilitadas.filter(combo => 
-    !combo.categorias || combo.categorias.length === 0
-  );
-  
-  if (areasSinCategorias.length > 0) {
-    const areasNombres = areasSinCategorias.map(a => a.area).join(", ");
-    alert(`Las siguientes áreas no tienen categorías definidas: ${areasNombres}. Debe definir al menos una categoría por área.`);
-    return;
-  }
-    areasHabilitadas.forEach(combo => {
-    const categoriasVistas = new Set();
-    
-    combo.categorias.forEach(cat => {
-      if (categoriasVistas.has(cat.nombre)) {
-        tieneCategoriaDuplicada = true;
-        areaDuplicada = combo.area;
-        categoriaDuplicada = cat.nombre;
-      } else {
-        categoriasVistas.add(cat.nombre);
-      }
+    if (areasHabilitadas.length === 0) {
+      alert("Debe habilitar al menos un área de competencia");
+      return;
+    }
+    const areasSinCategorias = areasHabilitadas.filter(
+      (combo) => !combo.categorias || combo.categorias.length === 0
+    );
+
+    if (areasSinCategorias.length > 0) {
+      const areasNombres = areasSinCategorias.map((a) => a.area).join(", ");
+      alert(
+        `Las siguientes áreas no tienen categorías definidas: ${areasNombres}. Debe definir al menos una categoría por área.`
+      );
+      return;
+    }
+    areasHabilitadas.forEach((combo) => {
+      const categoriasVistas = new Set();
+
+      combo.categorias.forEach((cat) => {
+        if (categoriasVistas.has(cat.nombre)) {
+          tieneCategoriaDuplicada = true;
+          areaDuplicada = combo.area;
+          categoriaDuplicada = cat.nombre;
+        } else {
+          categoriasVistas.add(cat.nombre);
+        }
+      });
     });
-  });
-  
-  if (tieneCategoriaDuplicada) {
-    alert(`Error: El área "${areaDuplicada}" tiene la categoría "${categoriaDuplicada}" duplicada. No se pueden asociar dos categorías iguales a la misma área.`);
-    return;
-  }
+
+    if (tieneCategoriaDuplicada) {
+      alert(
+        `Error: El área "${areaDuplicada}" tiene la categoría "${categoriaDuplicada}" duplicada. No se pueden asociar dos categorías iguales a la misma área.`
+      );
+      return;
+    }
     let datosCompletos = true;
     let mensaje = "";
 

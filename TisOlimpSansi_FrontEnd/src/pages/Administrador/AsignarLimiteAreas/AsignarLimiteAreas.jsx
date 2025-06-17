@@ -1,15 +1,16 @@
 import { useState, useEffect } from "react";
 import Cookies from "js-cookie";
-import HeaderSelector from "./AreasCompetencia/HeaderSelector";
-import AccionesFooter from "./AreasCompetencia/AccionesFooter";
+import HeaderSelector from "../components/HeaderSelector";
+import AccionesFooter from "../components/AccionesFooter";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { API_URL } from "../../../utils/api";
-import { useVerificarInscripciones } from "../useVerificarInscripciones";
 import axios from "axios";
-import ModalConfirmacion from "./Modales/ModalConfirmacion";
-import ModalAlerta from "./Modales/ModalAlerta";
-import { useNotificarProgreso } from "./hooks/useNotificarProgreso";
-import ModalTareasPendientes from "./Modales/ModalTareasPendientes";
+import ModalAlerta from "../../../components/Modales/ModalAlerta";
+import ModalTareasPendientes from "../../../components/Modales/ModalTareasPendientes";
+import ModalConfirmacion from "../../../components/Modales/ModalConfirmacion";
+import { useNotificarProgreso } from "../hooks/useNotificarProgreso";
+import { useVerificarInscripciones } from "../hooks/useVerificarInscripciones";
+
 
 const AsignarLimiteAreas = () => {
   const [olimpiadas, setOlimpiadas] = useState([]);
