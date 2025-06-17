@@ -27,14 +27,16 @@ import SubirConvocatoria from "./pages/Administrador/Convocatorias/SubirConvocat
 
 import EditarConvocatoria from "./pages/Administrador/Convocatorias/EditarConvocatoria";
 import CrearOlimpiadas from "./pages/Administrador/CrearOlimpiadas/CrearOlimpiadas";
-import AsociarAreaNivel from "./pages/Administrador/CrearOlimpiadas/AsociarAreaNivel";
+
 import RutaPrivada from "./components/RutasPrivadas";
 import DesasignarAreaNivel from "./pages/Administrador/CrearOlimpiadas/DesasignarAreaNivel";
 import CodigoPreInscripcion from "./pages/Usuario/EditarInscripcion";
 import { useState } from "react";
 import { FormDataProvider } from "./pages/Usuario/InscripcionIndividual/form-data-context";
-import AsignarCosto from "./pages/Administrador/CrearOlimpiadas/AsignarCosto";
-import AsignarLimiteAreas from "./pages/Administrador/CrearOlimpiadas/AsignarLimiteAreas";
+
+import AsignarLimiteAreas from "./pages/Administrador/AsignarLimiteAreas/AsignarLimiteAreas";
+import AsignarCosto from "./pages/Administrador/AsignarCosto/AsignarCosto";
+import AsociarAreaNivel from "./pages/Administrador/AsignarAreaNivel/AsociarAreaNivel";
 
 export default function App() {
   return (
@@ -142,7 +144,10 @@ export default function App() {
                   element={<AsociarAreaNivel />}
                 />
 
-                <Route path="/admin/asignar-costo" element={<AsignarCosto />} />
+                <Route path="/admin/asignar-costo" 
+                element={<AsignarCosto />}
+                 />
+
                 <Route
                   path="/admin/asignar-limite"
                   element={<AsignarLimiteAreas />}

@@ -1,15 +1,15 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Cookies from 'js-cookie';
-import HeaderSelector from "./AreasCompetencia/HeaderSelector";
-import AreaCosto from "./AreasCompetencia/AreaCosto";
-import AccionesFooter from "./AreasCompetencia/AccionesFooter";
+import HeaderSelector from "../CrearOlimpiadas/AreasCompetencia/HeaderSelector";
+import AreaCosto from "../CrearOlimpiadas/AreasCompetencia/AreaCosto";
+import AccionesFooter from "../CrearOlimpiadas/AreasCompetencia/AccionesFooter";
 import { API_URL } from "../../../utils/api";
 import { useVerificarInscripciones } from "../useVerificarInscripciones";
-import ModalConfirmacion from "./Modales/ModalConfirmacion";
-import ModalAlerta from "./Modales/ModalAlerta";
-import { useNotificarProgreso } from "./hooks/useNotificarProgreso";
-import ModalTareasPendientes from "./Modales/ModalTareasPendientes";
+import ModalConfirmacion from "../CrearOlimpiadas/Modales/ModalConfirmacion";
+import ModalAlerta from "../CrearOlimpiadas/Modales/ModalAlerta";
+import { useNotificarProgreso } from "../CrearOlimpiadas/hooks/useNotificarProgreso";
+import ModalTareasPendientes from "../CrearOlimpiadas/Modales/ModalTareasPendientes";
 
 const AsignarCosto = () => {
   const [olimpiadas, setOlimpiadas] = useState([]);

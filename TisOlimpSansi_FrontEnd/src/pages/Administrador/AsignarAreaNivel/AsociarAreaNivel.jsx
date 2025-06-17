@@ -1,17 +1,18 @@
 import { useState, useEffect } from "react";
 import Cookies from 'js-cookie';
-import HeaderSelector from "./AreasCompetencia/HeaderSelector";
-import AreaCompetencia from "./AreasCompetencia/AreaCompetencia";
-import AccionesFooter from "./AreasCompetencia/AccionesFooter";
-import { gradosDisponibles } from "./AreasCompetencia/constants";
+import HeaderSelector from "../CrearOlimpiadas/AreasCompetencia/HeaderSelector";
+import AreaCompetencia from "../CrearOlimpiadas/AreasCompetencia/AreaCompetencia";
+import AccionesFooter from "../CrearOlimpiadas/AreasCompetencia/AccionesFooter";
+import { gradosDisponibles } from "../CrearOlimpiadas/AreasCompetencia/constants";
 import { API_URL } from "../../../utils/api";
 import axios from "axios";
 import { useVerificarInscripciones } from "../useVerificarInscripciones";
-import ModalConfirmacion from "./Modales/ModalConfirmacion";
-import ModalAlerta from "./Modales/ModalAlerta";
-import ModalValidacion from "./Modales/ModalValidacion";
-import { useNotificarProgreso } from "./hooks/useNotificarProgreso";
-import ModalTareasPendientes from "./Modales/ModalTareasPendientes";
+import ModalConfirmacion from "../CrearOlimpiadas/Modales/ModalConfirmacion";
+import ModalAlerta from "../CrearOlimpiadas/Modales/ModalAlerta";
+import ModalValidacion from "../CrearOlimpiadas/Modales/ModalValidacion";
+
+import ModalTareasPendientes from "../CrearOlimpiadas/Modales/ModalTareasPendientes";
+import { useNotificarProgreso } from "../CrearOlimpiadas/hooks/useNotificarProgreso";
 
 const SelectorAreaGrado = () => {
   const [olimpiadas, setOlimpiadas] = useState([]);
