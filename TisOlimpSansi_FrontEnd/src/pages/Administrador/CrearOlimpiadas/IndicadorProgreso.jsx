@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { FaCheck, FaClock } from 'react-icons/fa';
-import { useVerificarProgreso } from './hooks/useVerificarProgreso';
+import { useVerificarProgreso } from '../hooks/useVerificarProgreso';
+
+
 
 const IndicadorProgreso = ({ olimpiadaId, nombreOlimpiada }) => {
   const [progreso, setProgreso] = useState({

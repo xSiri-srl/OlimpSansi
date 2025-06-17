@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import { API_URL } from '../../utils/api';
+import { API_URL } from "../../../utils/api";
 
 export const useVerificarInscripciones = () => {
   const [verificando, setVerificando] = useState(false);

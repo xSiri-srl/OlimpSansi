@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useFormData } from "./form-context";
-import ExitoModal from "./Modales/ExitoModal";
-import ErrorModal from "./Modales/RegistrosInvalidosModal";
+import ExitoModal from "../../../components/Modales/ExitoModal";
+import ErrorModal from "../../../components/Modales/RegistrosInvalidosModal";
 import {
   FaCheckCircle,
   FaTimesCircle,

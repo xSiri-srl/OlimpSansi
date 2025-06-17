@@ -1,15 +1,15 @@
 import { useState, useEffect } from "react";
 import Cookies from "js-cookie";
-import HeaderSelector from "../CrearOlimpiadas/AreasCompetencia/HeaderSelector";
-import AccionesFooter from "../CrearOlimpiadas/AreasCompetencia/AccionesFooter";
+import HeaderSelector from "../components/HeaderSelector";
+import AccionesFooter from "../components/AccionesFooter";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { API_URL } from "../../../utils/api";
 import axios from "axios";
 import ModalAlerta from "../../../components/Modales/ModalAlerta";
 import ModalTareasPendientes from "../../../components/Modales/ModalTareasPendientes";
 import ModalConfirmacion from "../../../components/Modales/ModalConfirmacion";
-import { useNotificarProgreso } from "../CrearOlimpiadas/hooks/useNotificarProgreso";
-import { useVerificarInscripciones } from "../useVerificarInscripciones";
+import { useNotificarProgreso } from "../hooks/useNotificarProgreso";
+import { useVerificarInscripciones } from "../hooks/useVerificarInscripciones";
 
 
 const AsignarLimiteAreas = () => {

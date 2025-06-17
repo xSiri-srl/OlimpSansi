@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import { API_URL } from '../../../../utils/api';
+import { API_URL } from "../../../utils/api";
 
 export const useVerificarProgreso = () => {
   const [verificando, setVerificando] = useState(false);

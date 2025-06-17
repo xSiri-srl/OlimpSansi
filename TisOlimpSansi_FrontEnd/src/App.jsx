@@ -35,8 +35,8 @@ import { useState } from "react";
 import { FormDataProvider } from "./pages/Usuario/InscripcionIndividual/form-data-context";
 
 import AsignarLimiteAreas from "./pages/Administrador/AsignarLimiteAreas/AsignarLimiteAreas";
-import AsignarCosto from "./pages/Administrador/AsignarCosto/AsignarCosto";
-import AsociarAreaNivel from "./pages/Administrador/AsignarAreaNivel/AsociarAreaNivel";
+import AsignarCosto from "./pages/Administrador/AsignarCosto/index";
+import AsociarAreaNivel from "./pages/Administrador/AsignarAreaNivel/index";
 
 export default function App() {
   return (

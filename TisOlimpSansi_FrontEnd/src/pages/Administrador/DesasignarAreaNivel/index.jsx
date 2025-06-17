@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import Cookies from "js-cookie";
-import HeaderSelector from "../CrearOlimpiadas/AreasCompetencia/HeaderSelector";
-import AreaCompetencia from "../CrearOlimpiadas/AreasCompetencia/AreaCompetencia";
-import AccionesFooter from "../CrearOlimpiadas/AreasCompetencia/AccionesFooter";
+import HeaderSelector from "../components/HeaderSelector";
+import AreaCompetencia from "../components/AreaCompetencia";
+import AccionesFooter from "../components/AccionesFooter";
 import { gradosDisponibles } from "../CrearOlimpiadas/AreasCompetencia/constants";
 import { API_URL } from "../../../utils/api";
 import axios from "axios";
-import { useVerificarInscripciones } from "../useVerificarInscripciones";
+import { useVerificarInscripciones } from "../hooks/useVerificarInscripciones";
 import ModalConfirmacion from "../../../components/Modales/ModalConfirmacion";
 import ModalAlerta from "../../../components/Modales/ModalAlerta";
 import ModalResumenCambios from "../../../components/Modales/ModalResumenCambios";
