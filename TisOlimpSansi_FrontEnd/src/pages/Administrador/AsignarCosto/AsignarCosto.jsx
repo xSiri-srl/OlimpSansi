@@ -8,7 +8,7 @@ import { API_URL } from "../../../utils/api";
 import { useVerificarInscripciones } from "../useVerificarInscripciones";
 import ModalConfirmacion from "../../../components/Modales/ModalConfirmacion";
 import ModalAlerta from "../../../components/Modales/ModalAlerta";
-import { useNotificarProgreso } from "../CrearOlimpiadas/hooks/useNotificarProgreso";
+import { useNotificarProgreso } from "../hooks/useNotificarProgreso";
 import ModalTareasPendientes from "../../../components/Modales/ModalTareasPendientes";
 
 const AsignarCosto = () => {

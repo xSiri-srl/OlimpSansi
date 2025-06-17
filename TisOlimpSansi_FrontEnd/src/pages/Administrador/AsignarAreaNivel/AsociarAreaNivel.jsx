@@ -11,8 +11,9 @@ import ModalConfirmacion from "../../../components/Modales/ModalConfirmacion";
 import ModalAlerta from "../../../components/Modales/ModalAlerta";
 import ModalValidacion from "../../../components/Modales/ModalValidacion";
 
-import { useNotificarProgreso } from "../CrearOlimpiadas/hooks/useNotificarProgreso";
+
 import ModalTareasPendientes from "../../../components/Modales/ModalTareasPendientes";
+import { useNotificarProgreso } from "../hooks/useNotificarProgreso";
 
 const SelectorAreaGrado = () => {
   const [olimpiadas, setOlimpiadas] = useState([]);

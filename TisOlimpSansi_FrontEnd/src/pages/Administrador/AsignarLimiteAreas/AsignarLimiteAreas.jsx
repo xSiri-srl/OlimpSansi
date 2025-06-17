@@ -8,7 +8,7 @@ import axios from "axios";
 import ModalAlerta from "../../../components/Modales/ModalAlerta";
 import ModalTareasPendientes from "../../../components/Modales/ModalTareasPendientes";
 import ModalConfirmacion from "../../../components/Modales/ModalConfirmacion";
-import { useNotificarProgreso } from "../CrearOlimpiadas/hooks/useNotificarProgreso";
+import { useNotificarProgreso } from "../hooks/useNotificarProgreso";
 import { useVerificarInscripciones } from "../useVerificarInscripciones";
 
 
