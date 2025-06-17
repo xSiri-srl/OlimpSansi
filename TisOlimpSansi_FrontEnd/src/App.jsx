@@ -36,7 +36,7 @@ import { FormDataProvider } from "./pages/Usuario/InscripcionIndividual/form-dat
 
 import AsignarLimiteAreas from "./pages/Administrador/AsignarLimiteAreas/AsignarLimiteAreas";
 import AsignarCosto from "./pages/Administrador/AsignarCosto/index";
-import AsociarAreaNivel from "./pages/Administrador/AsignarAreaNivel/AsociarAreaNivel";
+import AsociarAreaNivel from "./pages/Administrador/AsignarAreaNivel/index";
 
 export default function App() {
   return (
