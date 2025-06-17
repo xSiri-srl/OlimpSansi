@@ -41,6 +41,9 @@ class DatabaseSeeder extends Seeder
             GradoSeeder::class,
         ]);
          $this->call([
+            CategoriaGradoSeeder::class,
+        ]);
+         $this->call([
              OlimpiadaAreaCategoriaSeeder::class
          ]);
     }
