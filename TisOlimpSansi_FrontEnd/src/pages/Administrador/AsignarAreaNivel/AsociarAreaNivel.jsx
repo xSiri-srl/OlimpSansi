@@ -6,7 +6,7 @@ import AccionesFooter from "../CrearOlimpiadas/AreasCompetencia/AccionesFooter";
 import { gradosDisponibles } from "../CrearOlimpiadas/AreasCompetencia/constants";
 import { API_URL } from "../../../utils/api";
 import axios from "axios";
-import { useVerificarInscripciones } from "../useVerificarInscripciones";
+
 import ModalConfirmacion from "../../../components/Modales/ModalConfirmacion";
 import ModalAlerta from "../../../components/Modales/ModalAlerta";
 import ModalValidacion from "../../../components/Modales/ModalValidacion";
@@ -14,6 +14,7 @@ import ModalValidacion from "../../../components/Modales/ModalValidacion";
 
 import ModalTareasPendientes from "../../../components/Modales/ModalTareasPendientes";
 import { useNotificarProgreso } from "../hooks/useNotificarProgreso";
+import { useVerificarInscripciones } from "../hooks/useVerificarInscripciones";
 
 const SelectorAreaGrado = () => {
   const [olimpiadas, setOlimpiadas] = useState([]);

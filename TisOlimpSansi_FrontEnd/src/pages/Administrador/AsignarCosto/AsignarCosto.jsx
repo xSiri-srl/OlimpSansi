@@ -5,7 +5,7 @@ import HeaderSelector from "../CrearOlimpiadas/AreasCompetencia/HeaderSelector";
 import AreaCosto from "../CrearOlimpiadas/AreasCompetencia/AreaCosto";
 import AccionesFooter from "../CrearOlimpiadas/AreasCompetencia/AccionesFooter";
 import { API_URL } from "../../../utils/api";
-import { useVerificarInscripciones } from "../useVerificarInscripciones";
+import { useVerificarInscripciones } from "../hooks/useVerificarInscripciones";
 import ModalConfirmacion from "../../../components/Modales/ModalConfirmacion";
 import ModalAlerta from "../../../components/Modales/ModalAlerta";
 import { useNotificarProgreso } from "../hooks/useNotificarProgreso";
