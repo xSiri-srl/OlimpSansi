@@ -1,15 +1,15 @@
 import { useState, useEffect } from "react";
-import Cookies from 'js-cookie';
-import HeaderSelector from "./AreasCompetencia/HeaderSelector";
-import AreaCompetencia from "./AreasCompetencia/AreaCompetencia";
-import AccionesFooter from "./AreasCompetencia/AccionesFooter";
-import { gradosDisponibles } from "./AreasCompetencia/constants";
+import Cookies from "js-cookie";
+import HeaderSelector from "../CrearOlimpiadas/AreasCompetencia/HeaderSelector";
+import AreaCompetencia from "../CrearOlimpiadas/AreasCompetencia/AreaCompetencia";
+import AccionesFooter from "../CrearOlimpiadas/AreasCompetencia/AccionesFooter";
+import { gradosDisponibles } from "../CrearOlimpiadas/AreasCompetencia/constants";
 import { API_URL } from "../../../utils/api";
 import axios from "axios";
 import { useVerificarInscripciones } from "../useVerificarInscripciones";
-import ModalConfirmacion from "./Modales/ModalConfirmacion";
-import ModalAlerta from "./Modales/ModalAlerta";
-import ModalResumenCambios from "./Modales/ModalResumenCambios";
+import ModalConfirmacion from "../CrearOlimpiadas/Modales/ModalConfirmacion";
+import ModalAlerta from "../CrearOlimpiadas/Modales/ModalAlerta";
+import ModalResumenCambios from "../../../components/Modales/ModalResumenCambios";
 
 const DesasignarAreaNivel = () => {
   const [olimpiadas, setOlimpiadas] = useState([]);
@@ -30,12 +30,12 @@ const DesasignarAreaNivel = () => {
   const { verificarInscripciones, verificando } = useVerificarInscripciones();
 
   const [modalEstado, setModalEstado] = useState({
-    tipo: null, 
+    tipo: null,
     titulo: "",
     mensaje: "",
     isOpen: false,
     onConfirm: null,
-    datos: null
+    datos: null,
   });
 
   const cerrarModal = () => {
@@ -45,107 +45,124 @@ const DesasignarAreaNivel = () => {
       mensaje: "",
       isOpen: false,
       onConfirm: null,
-      datos: null
+      datos: null,
     });
   };
   const mostrarAlerta = (titulo, mensaje, tipo = "error") => {
     setModalEstado({
-      tipo: 'alerta',
+      tipo: "alerta",
       titulo,
       mensaje,
       isOpen: true,
       tipoAlerta: tipo,
       onConfirm: null,
-      datos: null
+      datos: null,
     });
   };
-  
-  const mostrarConfirmacion = (titulo, mensaje, onConfirm, tipo = "warning") => {
+
+  const mostrarConfirmacion = (
+    titulo,
+    mensaje,
+    onConfirm,
+    tipo = "warning"
+  ) => {
     setModalEstado({
-      tipo: 'confirmacion',
+      tipo: "confirmacion",
       titulo,
       mensaje,
       isOpen: true,
       tipoConfirmacion: tipo,
       onConfirm,
-      datos: null
+      datos: null,
     });
   };
-  const mostrarResumenCambios = (areasParaDesasociar, categoriasParaEliminar, onConfirm) => {
+  const mostrarResumenCambios = (
+    areasParaDesasociar,
+    categoriasParaEliminar,
+    onConfirm
+  ) => {
     setModalEstado({
-      tipo: 'resumenCambios',
+      tipo: "resumenCambios",
       titulo: "",
       mensaje: "",
       isOpen: true,
       onConfirm,
-      datos: { areasParaDesasociar, categoriasParaEliminar }
+      datos: { areasParaDesasociar, categoriasParaEliminar },
     });
   };
   const obtenerMensajeBloqueo = () => {
-    switch(razonBloqueo) {
-      case 'inscripciones_y_periodo':
-        return `Esta olimpiada tiene ${cantidadInscripciones} inscripción(es) registrada(s) y el período de inscripción terminó el ${new Date(fechaFin).toLocaleDateString('es-ES')}. No se pueden desasociar áreas ni categorías.`;
-      case 'inscripciones':
+    switch (razonBloqueo) {
+      case "inscripciones_y_periodo":
+        return `Esta olimpiada tiene ${cantidadInscripciones} inscripción(es) registrada(s) y el período de inscripción terminó el ${new Date(
+          fechaFin
+        ).toLocaleDateString(
+          "es-ES"
+        )}. No se pueden desasociar áreas ni categorías.`;
+      case "inscripciones":
         return `Esta olimpiada tiene ${cantidadInscripciones} inscripción(es) registrada(s). No se pueden desasociar áreas ni categorías mientras existan inscripciones activas.`;
-      case 'periodo':
-        return `El período de inscripción para esta olimpiada terminó el ${new Date(fechaFin).toLocaleDateString('es-ES')}. No se pueden desasociar áreas ni categorías.`;
+      case "periodo":
+        return `El período de inscripción para esta olimpiada terminó el ${new Date(
+          fechaFin
+        ).toLocaleDateString(
+          "es-ES"
+        )}. No se pueden desasociar áreas ni categorías.`;
       default:
-        return '';
+        return "";
     }
   };
 
-const [combinaciones, setCombinaciones] = useState([
-  {
-    area: "ASTRONOMIA Y ASTROFISICA",
-    habilitado: false,
-    categorias: [],
-    categoriasEliminadas: []
-  },
-  {
-    area: "BIOLOGIA",
-    habilitado: false,
-    categorias: [],
-    categoriasEliminadas: []
-  },
-  {
-    area: "FISICA",
-    habilitado: false,
-    categorias: [],
-    categoriasEliminadas: []
-  },
-  {
-    area: "INFORMATICA",
-    habilitado: false,
-    categorias: [],
-    categoriasEliminadas: []
-  },
-  {
-    area: "MATEMATICAS",
-    habilitado: false,
-    categorias: [],
-    categoriasEliminadas: []
-  },
-  {
-    area: "QUIMICA",
-    habilitado: false,
-    categorias: [],
-    categoriasEliminadas: []
-  },
-  {
-    area: "ROBOTICA",
-    habilitado: false,
-    categorias: [],
-    categoriasEliminadas: []
-  },
-]);
+  const [combinaciones, setCombinaciones] = useState([
+    {
+      area: "ASTRONOMIA Y ASTROFISICA",
+      habilitado: false,
+      categorias: [],
+      categoriasEliminadas: [],
+    },
+    {
+      area: "BIOLOGIA",
+      habilitado: false,
+      categorias: [],
+      categoriasEliminadas: [],
+    },
+    {
+      area: "FISICA",
+      habilitado: false,
+      categorias: [],
+      categoriasEliminadas: [],
+    },
+    {
+      area: "INFORMATICA",
+      habilitado: false,
+      categorias: [],
+      categoriasEliminadas: [],
+    },
+    {
+      area: "MATEMATICAS",
+      habilitado: false,
+      categorias: [],
+      categoriasEliminadas: [],
+    },
+    {
+      area: "QUIMICA",
+      habilitado: false,
+      categorias: [],
+      categoriasEliminadas: [],
+    },
+    {
+      area: "ROBOTICA",
+      habilitado: false,
+      categorias: [],
+      categoriasEliminadas: [],
+    },
+  ]);
 
   useEffect(() => {
     const cargarGrados = async () => {
       try {
         const response = await axios.get(`${API_URL}/grados`, {
-          withCredentials: true
+          withCredentials: true,
         });
-        
+
         if (response.status === 200 && response.data.data) {
           setTodosLosGrados(response.data.data);
         }
@@ -153,7 +170,7 @@ const [combinaciones, setCombinaciones] = useState([
         console.error("Error al cargar grados:", error);
       }
     };
-    
+
     cargarGrados();
   }, []);
 
@@ -161,27 +178,31 @@ const [combinaciones, setCombinaciones] = useState([
     const cargarOlimpiadas = async () => {
       setCargandoOlimpiadas(true);
       setErrorCarga("");
-      
+
       try {
         await axios.get(`${API_URL}/api/sanctum/csrf-cookie`, {
           withCredentials: true,
         });
-        
-        const csrfToken = Cookies.get('XSRF-TOKEN');
-        
+
+        const csrfToken = Cookies.get("XSRF-TOKEN");
+
         const config = {
           headers: {
-            'X-XSRF-TOKEN': csrfToken,
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
+            "X-XSRF-TOKEN": csrfToken,
+            "Content-Type": "application/json",
+            Accept: "application/json",
           },
-          withCredentials: true
+          withCredentials: true,
         };
- 
+
         const response = await axios.get(`${API_URL}/getOlimpiadas`, config);
-        
+
         if (response.status === 200) {
-          if (response.data && response.data.data && Array.isArray(response.data.data)) {
+          if (
+            response.data &&
+            response.data.data &&
+            Array.isArray(response.data.data)
+          ) {
             setOlimpiadas(response.data.data);
           } else if (response.data && Array.isArray(response.data)) {
             setOlimpiadas(response.data);
@@ -193,21 +214,25 @@ const [combinaciones, setCombinaciones] = useState([
         }
       } catch (error) {
         console.error("Error al cargar olimpiadas:", error);
-        
+
         let mensajeError = "Error al conectar con el servidor.";
-        
+
         if (error.response) {
           if (error.response.status === 401) {
-            mensajeError = "No tienes autorización para acceder a esta información.";
+            mensajeError =
+              "No tienes autorización para acceder a esta información.";
           } else if (error.response.status === 403) {
-            mensajeError = "No tienes permisos suficientes para ver las olimpiadas.";
+            mensajeError =
+              "No tienes permisos suficientes para ver las olimpiadas.";
           } else {
-            mensajeError = `Error ${error.response.status}: ${error.response.data?.message || "Error del servidor"}`;
+            mensajeError = `Error ${error.response.status}: ${
+              error.response.data?.message || "Error del servidor"
+            }`;
           }
         } else if (error.message) {
           mensajeError = error.message;
         }
-        
+
         setErrorCarga(mensajeError);
       } finally {
         setCargandoOlimpiadas(false);
@@ -224,7 +249,7 @@ const [combinaciones, setCombinaciones] = useState([
       );
       setNombreOlimpiada(olimpiada ? olimpiada.titulo : "");
 
-      verificarInscripciones(olimpiadaSeleccionada).then(resultado => {
+      verificarInscripciones(olimpiadaSeleccionada).then((resultado) => {
         setOlimpiadaBloqueada(resultado.estaBloqueada);
         setCantidadInscripciones(resultado.cantidad);
         setPeriodoTerminado(resultado.periodoTerminado);
@@ -241,66 +266,76 @@ const [combinaciones, setCombinaciones] = useState([
       setRazonBloqueo(null);
       setFechaFin(null);
 
-      setCombinaciones(prev => 
-        prev.map(combo => ({...combo, habilitado: false, yaAsociada: false, categorias: [], categoriasEliminadas: []}))
+      setCombinaciones((prev) =>
+        prev.map((combo) => ({
+          ...combo,
+          habilitado: false,
+          yaAsociada: false,
+          categorias: [],
+          categoriasEliminadas: [],
+        }))
       );
     }
   }, [olimpiadaSeleccionada, olimpiadas]);
 
   const cargarAreasAsociadas = async (idOlimpiada) => {
     setCargandoAreas(true);
-    
+
     try {
       await axios.get(`${API_URL}/api/sanctum/csrf-cookie`, {
         withCredentials: true,
       });
-      
-      const csrfToken = Cookies.get('XSRF-TOKEN');
+
+      const csrfToken = Cookies.get("XSRF-TOKEN");
 
       const config = {
         headers: {
-          'X-XSRF-TOKEN': csrfToken,
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          "X-XSRF-TOKEN": csrfToken,
+          "Content-Type": "application/json",
+          Accept: "application/json",
         },
-        withCredentials: true
+        withCredentials: true,
       };
-      
-      const response = await axios.get(`${API_URL}/areas-olimpiada/${idOlimpiada}`, config);
-      
+
+      const response = await axios.get(
+        `${API_URL}/areas-olimpiada/${idOlimpiada}`,
+        config
+      );
+
       if (response.status === 200 && response.data.data) {
         const areasAsociadas = response.data.data;
 
         const normalizarNombre = (nombre) => {
-          if (!nombre) return '';
-          return nombre.toUpperCase()
-            .normalize("NFD").replace(/[\u0300-\u036f]/g, "") 
-            .replace(/[^A-Z0-9\s\-]/g, ""); 
+          if (!nombre) return "";
+          return nombre
+            .toUpperCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/[^A-Z0-9\s\-]/g, "");
         };
-        
+
         const areasNormalizadasMap = new Map();
-        
-        areasAsociadas.forEach(area => {
+
+        areasAsociadas.forEach((area) => {
           const nombreNormalizado = normalizarNombre(area.area);
           areasNormalizadasMap.set(nombreNormalizado, area);
         });
-        
-        setCombinaciones(prev => {
-          const nuevasCombinaciones = prev.map(combo => {
+
+        setCombinaciones((prev) => {
+          const nuevasCombinaciones = prev.map((combo) => {
             const nombreNormalizado = normalizarNombre(combo.area);
             const areaAsociada = areasNormalizadasMap.get(nombreNormalizado);
-            
+
             if (areaAsociada) {
-        
               return {
                 ...combo,
                 habilitado: true,
                 yaAsociada: true,
-                categorias: (areaAsociada.categorias || []).map(cat => ({
+                categorias: (areaAsociada.categorias || []).map((cat) => ({
                   ...cat,
-                  marcadaParaEliminar: false
+                  marcadaParaEliminar: false,
                 })),
-                categoriasEliminadas: [] 
+                categoriasEliminadas: [],
               };
             } else {
               return {
@@ -308,23 +343,23 @@ const [combinaciones, setCombinaciones] = useState([
                 habilitado: false,
                 yaAsociada: false,
                 categorias: [],
-                categoriasEliminadas: []
+                categoriasEliminadas: [],
               };
             }
           });
-          
+
           return nuevasCombinaciones;
         });
       }
     } catch (error) {
       console.error("Error al cargar áreas asociadas:", error);
-      setCombinaciones(prev => 
-        prev.map(combo => ({
-          ...combo, 
-          habilitado: false, 
-          yaAsociada: false, 
+      setCombinaciones((prev) =>
+        prev.map((combo) => ({
+          ...combo,
+          habilitado: false,
+          yaAsociada: false,
           categorias: [],
-          categoriasEliminadas: [] 
+          categoriasEliminadas: [],
         }))
       );
     } finally {
@@ -340,38 +375,54 @@ const [combinaciones, setCombinaciones] = useState([
 
     if (olimpiadaBloqueada) {
       let mensaje = "No se pueden realizar cambios en esta olimpiada.";
-      
-      switch(razonBloqueo) {
-        case 'inscripciones_y_periodo':
-          mensaje = `No se pueden realizar cambios en esta olimpiada porque tiene ${cantidadInscripciones} inscripción(es) registrada(s) y el período de inscripción terminó el ${new Date(fechaFin).toLocaleDateString('es-ES')}.`;
+
+      switch (razonBloqueo) {
+        case "inscripciones_y_periodo":
+          mensaje = `No se pueden realizar cambios en esta olimpiada porque tiene ${cantidadInscripciones} inscripción(es) registrada(s) y el período de inscripción terminó el ${new Date(
+            fechaFin
+          ).toLocaleDateString("es-ES")}.`;
           break;
-        case 'inscripciones':
+        case "inscripciones":
           mensaje = `No se pueden realizar cambios en esta olimpiada porque ya tiene ${cantidadInscripciones} inscripción(es) registrada(s). Para desasociar áreas, primero debe eliminar todas las inscripciones asociadas.`;
           break;
-        case 'periodo':
-          mensaje = `No se pueden realizar cambios en esta olimpiada porque el período de inscripción terminó el ${new Date(fechaFin).toLocaleDateString('es-ES')}.`;
+        case "periodo":
+          mensaje = `No se pueden realizar cambios en esta olimpiada porque el período de inscripción terminó el ${new Date(
+            fechaFin
+          ).toLocaleDateString("es-ES")}.`;
           break;
       }
-      
+
       mostrarAlerta("Olimpiada bloqueada", mensaje, "error");
       return;
     }
 
-    const areasParaDesasociar = combinaciones.filter(combo => 
-      combo.yaAsociada && !combo.habilitado
+    const areasParaDesasociar = combinaciones.filter(
+      (combo) => combo.yaAsociada && !combo.habilitado
     );
-   
+
     const categoriasParaEliminar = [];
-    combinaciones.forEach(combo => {
-      if (combo.yaAsociada && combo.habilitado && combo.categoriasEliminadas && combo.categoriasEliminadas.length > 0) {
+    combinaciones.forEach((combo) => {
+      if (
+        combo.yaAsociada &&
+        combo.habilitado &&
+        combo.categoriasEliminadas &&
+        combo.categoriasEliminadas.length > 0
+      ) {
         categoriasParaEliminar.push({
           combo: combo,
-          categorias: combo.categoriasEliminadas
+          categorias: combo.categoriasEliminadas,
         });
       }
     });
-    if (areasParaDesasociar.length === 0 && categoriasParaEliminar.length === 0) {
-      mostrarAlerta("Sin cambios", "No hay cambios para guardar. Seleccione áreas para desasociar o marque categorías para desasociar.", "warning");
+    if (
+      areasParaDesasociar.length === 0 &&
+      categoriasParaEliminar.length === 0
+    ) {
+      mostrarAlerta(
+        "Sin cambios",
+        "No hay cambios para guardar. Seleccione áreas para desasociar o marque categorías para desasociar.",
+        "warning"
+      );
       return;
     }
 
@@ -381,24 +432,26 @@ const [combinaciones, setCombinaciones] = useState([
     });
   };
 
-  const ejecutarGuardado = async (areasParaDesasociar, categoriasParaEliminar) => {
+  const ejecutarGuardado = async (
+    areasParaDesasociar,
+    categoriasParaEliminar
+  ) => {
     setGuardando(true);
 
     try {
- 
       await axios.get(`${API_URL}/api/sanctum/csrf-cookie`, {
         withCredentials: true,
       });
-      
-      const csrfToken = Cookies.get('XSRF-TOKEN');
- 
+
+      const csrfToken = Cookies.get("XSRF-TOKEN");
+
       const config = {
         headers: {
-          'X-XSRF-TOKEN': csrfToken,
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          "X-XSRF-TOKEN": csrfToken,
+          "Content-Type": "application/json",
+          Accept: "application/json",
         },
-        withCredentials: true
+        withCredentials: true,
       };
 
       if (areasParaDesasociar.length > 0) {
@@ -406,12 +459,12 @@ const [combinaciones, setCombinaciones] = useState([
           id_olimpiada: olimpiadaSeleccionada,
           areas: areasParaDesasociar.map((combo) => ({
             area: combo.area,
-            habilitado: false
-          }))
+            habilitado: false,
+          })),
         };
-      
+
         const responseAreas = await axios.post(
-          `${API_URL}/desasociar-areas-olimpiada`, 
+          `${API_URL}/desasociar-areas-olimpiada`,
           datosAreasDesasociar,
           config
         );
@@ -421,32 +474,41 @@ const [combinaciones, setCombinaciones] = useState([
         }
       }
       if (categoriasParaEliminar.length > 0) {
-        const responseAreas = await axios.get(`${API_URL}/areas-olimpiada/${olimpiadaSeleccionada}`, config);
+        const responseAreas = await axios.get(
+          `${API_URL}/areas-olimpiada/${olimpiadaSeleccionada}`,
+          config
+        );
         const areasAsociadas = responseAreas.data.data || [];
 
         for (const item of categoriasParaEliminar) {
-          const nombreAreaNormalizado = item.combo.area.toUpperCase()
-            .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+          const nombreAreaNormalizado = item.combo.area
+            .toUpperCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
             .replace(/[^A-Z0-9\s\-]/g, "");
 
-          const areaEncontrada = areasAsociadas.find(area => {
-            const nombreNormalizado = area.area.toUpperCase()
-              .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+          const areaEncontrada = areasAsociadas.find((area) => {
+            const nombreNormalizado = area.area
+              .toUpperCase()
+              .normalize("NFD")
+              .replace(/[\u0300-\u036f]/g, "")
               .replace(/[^A-Z0-9\s\-]/g, "");
             return nombreNormalizado === nombreAreaNormalizado;
           });
 
           if (!areaEncontrada) {
-            throw new Error(`No se pudo encontrar el área "${item.combo.area}" en el servidor`);
+            throw new Error(
+              `No se pudo encontrar el área "${item.combo.area}" en el servidor`
+            );
           }
 
           const datosCategorias = {
             id_olimpiada: olimpiadaSeleccionada,
             id_area: areaEncontrada.id,
-            categorias_eliminar: item.categorias.map(cat => ({
+            categorias_eliminar: item.categorias.map((cat) => ({
               id: cat.id,
-              nombre: cat.nombre
-            }))
+              nombre: cat.nombre,
+            })),
           };
           const responseCategorias = await axios.post(
             `${API_URL}/desasociar-categorias-olimpiada`,
@@ -455,7 +517,9 @@ const [combinaciones, setCombinaciones] = useState([
           );
 
           if (responseCategorias.status !== 200) {
-            throw new Error(`Error al desasociar categorías del área "${item.combo.area}"`);
+            throw new Error(
+              `Error al desasociar categorías del área "${item.combo.area}"`
+            );
           }
         }
       }
@@ -463,24 +527,24 @@ const [combinaciones, setCombinaciones] = useState([
       setMensajeExito("¡Cambios aplicados exitosamente!");
       setTimeout(() => setMensajeExito(""), 3000);
       cargarAreasAsociadas(olimpiadaSeleccionada);
-
     } catch (error) {
       console.error("Error al guardar:", error);
-      
+
       let mensaje = "Error al guardar la configuración";
-      
+
       if (error.response) {
         if (error.response.status === 401) {
           mensaje = "No tienes autorización para realizar esta acción.";
         } else if (error.response.status === 403) {
           mensaje = "No tienes permisos suficientes para esta acción.";
         } else if (error.response.status === 419) {
-          mensaje = "Error de validación CSRF. Por favor, recarga la página e intenta nuevamente.";
+          mensaje =
+            "Error de validación CSRF. Por favor, recarga la página e intenta nuevamente.";
         } else {
           mensaje = error.response.data?.message || mensaje;
         }
       }
-      
+
       mostrarAlerta("Error al guardar", mensaje, "error");
     } finally {
       setGuardando(false);
@@ -494,19 +558,23 @@ const [combinaciones, setCombinaciones] = useState([
     }
     if (olimpiadaBloqueada) {
       let mensaje = "No se pueden desasociar categorías de esta olimpiada.";
-      
-      switch(razonBloqueo) {
-        case 'inscripciones_y_periodo':
-          mensaje = `No se pueden desasociar categorías de esta olimpiada porque tiene ${cantidadInscripciones} inscripción(es) registrada(s) y el período de inscripción terminó el ${new Date(fechaFin).toLocaleDateString('es-ES')}.`;
+
+      switch (razonBloqueo) {
+        case "inscripciones_y_periodo":
+          mensaje = `No se pueden desasociar categorías de esta olimpiada porque tiene ${cantidadInscripciones} inscripción(es) registrada(s) y el período de inscripción terminó el ${new Date(
+            fechaFin
+          ).toLocaleDateString("es-ES")}.`;
           break;
-        case 'inscripciones':
+        case "inscripciones":
           mensaje = `No se pueden desasociar categorías de esta olimpiada porque ya tiene ${cantidadInscripciones} inscripción(es) registrada(s). Para desasociar categorías, primero debe eliminar todas las inscripciones asociadas.`;
           break;
-        case 'periodo':
-          mensaje = `No se pueden desasociar categorías de esta olimpiada porque el período de inscripción terminó el ${new Date(fechaFin).toLocaleDateString('es-ES')}.`;
+        case "periodo":
+          mensaje = `No se pueden desasociar categorías de esta olimpiada porque el período de inscripción terminó el ${new Date(
+            fechaFin
+          ).toLocaleDateString("es-ES")}.`;
           break;
       }
-      
+
       mostrarAlerta("Olimpiada bloqueada", mensaje, "error");
       return;
     }
@@ -515,35 +583,39 @@ const [combinaciones, setCombinaciones] = useState([
       "Confirmar desasociación de categoría",
       `¿Está seguro que desea marcar para desasociar la categoría "${categoria.nombre}" del área "${combo.area}"?\n\nLos cambios se aplicarán al presionar "Guardar Configuración".`,
       () => {
-        setCombinaciones(prev => 
-          prev.map(combinacion => {
+        setCombinaciones((prev) =>
+          prev.map((combinacion) => {
             if (combinacion.area === combo.area) {
               return {
                 ...combinacion,
-                categorias: combinacion.categorias.filter(cat => cat.id !== categoria.id),
+                categorias: combinacion.categorias.filter(
+                  (cat) => cat.id !== categoria.id
+                ),
                 categoriasEliminadas: [
                   ...(combinacion.categoriasEliminadas || []),
-                  categoria
-                ]
+                  categoria,
+                ],
               };
             }
             return combinacion;
           })
         );
 
-        setMensajeExito("Categoría eliminada. Presione 'Guardar Configuración' para aplicar los cambios permanentemente.");
+        setMensajeExito(
+          "Categoría eliminada. Presione 'Guardar Configuración' para aplicar los cambios permanentemente."
+        );
         setTimeout(() => setMensajeExito(""), 3000);
-        
+
         cerrarModal();
       },
       "danger"
     );
   };
-  
+
   return (
     <div className="p-6 max-w-5xl mx-auto">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">  
-       Desasignar Area/Nivel
+      <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+        Desasignar Area/Nivel
       </h2>
       <HeaderSelector
         nombreOlimpiada={nombreOlimpiada}
@@ -558,14 +630,22 @@ const [combinaciones, setCombinaciones] = useState([
         {olimpiadaBloqueada && (
           <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
             <div className="flex items-center">
-              <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd"></path>
+              <svg
+                className="w-5 h-5 mr-2"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                  clipRule="evenodd"
+                ></path>
               </svg>
-              <strong className="font-bold">Olimpiada bloqueada para modificaciones</strong>
+              <strong className="font-bold">
+                Olimpiada bloqueada para modificaciones
+              </strong>
             </div>
-            <span className="block mt-1">
-              {obtenerMensajeBloqueo()}
-            </span>
+            <span className="block mt-1">{obtenerMensajeBloqueo()}</span>
           </div>
         )}
 
@@ -573,15 +653,17 @@ const [combinaciones, setCombinaciones] = useState([
           <div className="text-center py-8">
             <div className="animate-spin mx-auto h-8 w-8 border-t-2 border-b-2 border-blue-500 rounded-full"></div>
             <p className="mt-2 text-gray-600">
-              {cargandoOlimpiadas ? "Cargando olimpiadas..." : 
-               verificando ? "Verificando inscripciones..." :
-               "Cargando áreas asociadas..."}
+              {cargandoOlimpiadas
+                ? "Cargando olimpiadas..."
+                : verificando
+                ? "Verificando inscripciones..."
+                : "Cargando áreas asociadas..."}
             </p>
           </div>
         ) : errorCarga ? (
           <div className="text-center py-8 text-red-600">
             <p>{errorCarga}</p>
-            <button 
+            <button
               onClick={() => window.location.reload()}
               className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
             >
@@ -598,9 +680,9 @@ const [combinaciones, setCombinaciones] = useState([
                 gradosDisponibles={gradosDisponibles}
                 combinaciones={combinaciones}
                 setCombinaciones={setCombinaciones}
-                eliminarCombinacion={() => {}} 
+                eliminarCombinacion={() => {}}
                 olimpiadaSeleccionada={olimpiadaSeleccionada}
-                modoAsociacion={false} 
+                modoAsociacion={false}
                 todosLosGrados={todosLosGrados}
                 onEliminarCategoria={eliminarCategoriaIndividual}
                 bloqueado={olimpiadaBloqueada}
@@ -619,7 +701,7 @@ const [combinaciones, setCombinaciones] = useState([
         )}
       </div>
 
-      {modalEstado.tipo === 'alerta' && (
+      {modalEstado.tipo === "alerta" && (
         <ModalAlerta
           isOpen={modalEstado.isOpen}
           onClose={cerrarModal}
@@ -629,7 +711,7 @@ const [combinaciones, setCombinaciones] = useState([
         />
       )}
 
-      {modalEstado.tipo === 'confirmacion' && (
+      {modalEstado.tipo === "confirmacion" && (
         <ModalConfirmacion
           isOpen={modalEstado.isOpen}
           onClose={cerrarModal}
@@ -640,13 +722,15 @@ const [combinaciones, setCombinaciones] = useState([
         />
       )}
 
-      {modalEstado.tipo === 'resumenCambios' && (
+      {modalEstado.tipo === "resumenCambios" && (
         <ModalResumenCambios
           isOpen={modalEstado.isOpen}
           onClose={cerrarModal}
           onConfirm={modalEstado.onConfirm}
           areasParaDesasociar={modalEstado.datos?.areasParaDesasociar || []}
-          categoriasParaEliminar={modalEstado.datos?.categoriasParaEliminar || []}
+          categoriasParaEliminar={
+            modalEstado.datos?.categoriasParaEliminar || []
+          }
         />
       )}
     </div>
