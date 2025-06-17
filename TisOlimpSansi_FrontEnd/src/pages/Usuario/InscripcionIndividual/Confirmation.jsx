@@ -6,8 +6,8 @@ import {
   FaTimesCircle,
   FaExclamationTriangle
 } from "react-icons/fa";
-import ExitoModal from "../InscripcionLista/Modales/ExitoModal";
-import ErrorModal from "../InscripcionLista/Modales/RegistrosInvalidosModal";
+import ExitoModal from "../../../components/Modales/ExitoModal";
+import ErrorModal from "../../../components/Modales/RegistrosInvalidosModal";
 import { API_URL } from "../../../utils/api";
 
 const Confirmation = ({ navigate, handleBack }) => {

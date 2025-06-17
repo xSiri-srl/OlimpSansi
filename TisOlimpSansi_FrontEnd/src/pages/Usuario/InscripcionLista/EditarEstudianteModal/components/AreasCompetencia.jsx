@@ -1,8 +1,8 @@
 "use client";
 import { useEffect, useState, useMemo } from "react";
-import { API_URL } from "../../../../../../utils/api";
+import { API_URL } from "../../../../../utils/api";
 import axios from "axios";
-import { useFormData } from "../../../form-context";
+import { useFormData } from "../../form-context";
 
 const AreasCompetencia = ({
   estudianteData,

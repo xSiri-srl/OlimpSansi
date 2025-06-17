@@ -11,10 +11,10 @@ import {
   FaExclamationCircle,
 } from "react-icons/fa";
 import { useFormData } from "./form-context";
-import ErrorModal from "./Modales/RegistrosInvalidosModal";
-import DemasiadosErroresModal from "./Modales/DemasiadosErroresModal";
-import ExitoModal from "./Modales/ExitoModal";
-import EditarEstudianteModal from "./Modales/EditarEstudianteModal";
+import ErrorModal from "../../../components/Modales/RegistrosInvalidosModal";
+import DemasiadosErroresModal from "../../../components/Modales/DemasiadosErroresModal";
+import ExitoModal from "../../../components/Modales/ExitoModal";
+import EditarEstudianteModal from "./EditarEstudianteModal";
 import { API_URL } from "../../../utils/api";
 import axios from "axios";
 
