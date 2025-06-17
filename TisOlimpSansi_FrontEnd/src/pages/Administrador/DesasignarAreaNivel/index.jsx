@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import Cookies from "js-cookie";
-import HeaderSelector from "../CrearOlimpiadas/AreasCompetencia/HeaderSelector";
+import HeaderSelector from "../components/HeaderSelector";
 import AreaCompetencia from "../CrearOlimpiadas/AreasCompetencia/AreaCompetencia";
-import AccionesFooter from "../CrearOlimpiadas/AreasCompetencia/AccionesFooter";
+import AccionesFooter from "../components/AccionesFooter";
 import { gradosDisponibles } from "../CrearOlimpiadas/AreasCompetencia/constants";
 import { API_URL } from "../../../utils/api";
 import axios from "axios";

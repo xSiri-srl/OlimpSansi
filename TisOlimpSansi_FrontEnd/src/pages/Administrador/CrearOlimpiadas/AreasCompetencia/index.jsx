@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
-import HeaderSelector from "./HeaderSelector";
+
 import AreaCompetencia from "./AreaCompetencia";
-import AccionesFooter from "./AccionesFooter";
+
 import { gradosDisponibles, areasDefault } from "./constants";
+import AccionesFooter from "../../components/AccionesFooter";
+import HeaderSelector from "../../components/HeaderSelector";
 
 const AreasCompetenciaManager = () => {
   const [olimpiadas, setOlimpiadas] = useState([]);

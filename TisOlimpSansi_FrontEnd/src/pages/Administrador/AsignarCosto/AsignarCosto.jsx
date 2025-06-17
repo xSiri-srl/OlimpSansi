@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Cookies from 'js-cookie';
-import HeaderSelector from "../CrearOlimpiadas/AreasCompetencia/HeaderSelector";
+import HeaderSelector from "../components/HeaderSelector";
 import AreaCosto from "../CrearOlimpiadas/AreasCompetencia/AreaCosto";
-import AccionesFooter from "../CrearOlimpiadas/AreasCompetencia/AccionesFooter";
+import AccionesFooter from "../components/AccionesFooter";
 import { API_URL } from "../../../utils/api";
 import { useVerificarInscripciones } from "../hooks/useVerificarInscripciones";
 import ModalConfirmacion from "../../../components/Modales/ModalConfirmacion";

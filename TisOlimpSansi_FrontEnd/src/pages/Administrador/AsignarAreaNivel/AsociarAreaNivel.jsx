@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import Cookies from 'js-cookie';
-import HeaderSelector from "../CrearOlimpiadas/AreasCompetencia/HeaderSelector";
+
 import AreaCompetencia from "../CrearOlimpiadas/AreasCompetencia/AreaCompetencia";
-import AccionesFooter from "../CrearOlimpiadas/AreasCompetencia/AccionesFooter";
+
 import { gradosDisponibles } from "../CrearOlimpiadas/AreasCompetencia/constants";
 import { API_URL } from "../../../utils/api";
 import axios from "axios";
@@ -15,6 +15,8 @@ import ModalValidacion from "../../../components/Modales/ModalValidacion";
 import ModalTareasPendientes from "../../../components/Modales/ModalTareasPendientes";
 import { useNotificarProgreso } from "../hooks/useNotificarProgreso";
 import { useVerificarInscripciones } from "../hooks/useVerificarInscripciones";
+import AccionesFooter from "../components/AccionesFooter";
+import HeaderSelector from "../components/HeaderSelector";
 
 const SelectorAreaGrado = () => {
   const [olimpiadas, setOlimpiadas] = useState([]);

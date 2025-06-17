@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Cookies from "js-cookie";
-import HeaderSelector from "../CrearOlimpiadas/AreasCompetencia/HeaderSelector";
-import AccionesFooter from "../CrearOlimpiadas/AreasCompetencia/AccionesFooter";
+import HeaderSelector from "../components/HeaderSelector";
+import AccionesFooter from "../components/AccionesFooter";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { API_URL } from "../../../utils/api";
 import axios from "axios";
