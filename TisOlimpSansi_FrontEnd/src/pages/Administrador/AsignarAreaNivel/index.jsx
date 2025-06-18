@@ -20,7 +20,7 @@ import { useNotificarProgreso } from "../hooks/useNotificarProgreso";
 import { useVerificarInscripciones } from "../hooks/useVerificarInscripciones";
 
 // Constants
-import { gradosDisponibles } from "../CrearOlimpiadas/AreasCompetencia/constants";
+import { gradosDisponibles } from "../components/constants";
 
 const SelectorAreaGrado = () => {
   // Estados básicos

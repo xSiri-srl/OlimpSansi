@@ -1,7 +1,7 @@
 import HeaderSelector from "../components/HeaderSelector";
 import AreaCompetencia from "../components/AreaCompetencia";
 import AccionesFooter from "../components/AccionesFooter";
-import { gradosDisponibles } from "../CrearOlimpiadas/AreasCompetencia/constants";
+import { gradosDisponibles } from "../components/constants";
 import { useVerificarInscripciones } from "../hooks/useVerificarInscripciones";
 
 import ModalConfirmacion from "../../../components/Modales/ModalConfirmacion";
