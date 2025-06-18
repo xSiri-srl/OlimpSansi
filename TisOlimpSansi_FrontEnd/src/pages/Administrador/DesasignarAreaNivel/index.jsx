@@ -3,6 +3,7 @@ import AreaCompetencia from "../components/AreaCompetencia";
 import AccionesFooter from "../components/AccionesFooter";
 import { gradosDisponibles } from "../CrearOlimpiadas/AreasCompetencia/constants";
 import { useVerificarInscripciones } from "../hooks/useVerificarInscripciones";
+
 import ModalConfirmacion from "../../../components/Modales/ModalConfirmacion";
 import ModalAlerta from "../../../components/Modales/ModalAlerta";
 import ModalResumenCambios from "../../../components/Modales/ModalResumenCambios";

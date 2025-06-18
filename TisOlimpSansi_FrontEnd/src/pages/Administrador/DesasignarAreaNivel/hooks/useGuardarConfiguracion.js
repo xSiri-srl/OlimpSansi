@@ -30,7 +30,6 @@ export const useGuardarConfiguracion = (cargarAreasAsociadas) => {
         withCredentials: true,
       };
 
-      // Desasociar áreas completas
       if (areasParaDesasociar.length > 0) {
         const datosAreasDesasociar = {
           id_olimpiada: olimpiadaSeleccionada,
@@ -51,7 +50,6 @@ export const useGuardarConfiguracion = (cargarAreasAsociadas) => {
         }
       }
 
-      // Eliminar categorías específicas
       if (categoriasParaEliminar.length > 0) {
         const responseAreas = await axios.get(
           `${API_URL}/areas-olimpiada/${olimpiadaSeleccionada}`,
