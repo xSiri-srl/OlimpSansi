@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { FaUserAlt, FaUsers } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { useFormData  } from "./form-data-context";
-import ModalPeriodo from "./modales/ModalPeriodo";
+import ModalPeriodo from "../../../components/Modales/ModalPeriodo";
 import { API_URL } from "../../../utils/api";
 import axios from "axios"
 
