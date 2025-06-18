@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Cookies from "js-cookie";
 import axios from "axios";
-import { API_URL } from "../../../utils/api";
+import { API_URL } from "../../../../utils/api";
 
 const AREAS_INICIAL = [
   "ASTRONOMIA Y ASTROFISICA",

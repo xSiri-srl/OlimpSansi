@@ -1,18 +1,19 @@
-import { useState, useEffect } from "react";
-import Cookies from "js-cookie";
 import HeaderSelector from "../components/HeaderSelector";
 import AreaCompetencia from "../components/AreaCompetencia";
 import AccionesFooter from "../components/AccionesFooter";
 import { gradosDisponibles } from "../CrearOlimpiadas/AreasCompetencia/constants";
-import { API_URL } from "../../../utils/api";
-import axios from "axios";
 import { useVerificarInscripciones } from "../hooks/useVerificarInscripciones";
-import { useOlimpiadas } from "../hooks/useOlimpiadas";
-import { useAreasOlimpiada } from "../hooks/useAreasCompetencia";
 import ModalConfirmacion from "../../../components/Modales/ModalConfirmacion";
 import ModalAlerta from "../../../components/Modales/ModalAlerta";
 import ModalResumenCambios from "../../../components/Modales/ModalResumenCambios";
-import { useGrados } from "../hooks/useGrados";
+
+import { useOlimpiadas } from "./hooks/useOlimpiadas";
+import { useAreasOlimpiada } from "./hooks/useAreasCompetencia";
+import { useGrados } from "./hooks/useGrados";
+import { useModalState } from "./hooks/useModalState";
+import { useOlimpiadaState } from "./hooks/useOlimpiadaState";
+import { useGuardarConfiguracion } from "./hooks/useGuardarConfiguracion";
+import { useEliminarCategoria } from "./hooks/useEliminarCategoria";
 
 const DesasignarAreaNivel = () => {
   const { olimpiadas, cargandoOlimpiadas, errorCarga } = useOlimpiadas();
@@ -24,132 +25,48 @@ const DesasignarAreaNivel = () => {
     resetearAreas,
     marcarCategoriaParaEliminar,
   } = useAreasOlimpiada();
-
-  const [olimpiadaSeleccionada, setOlimpiadaSeleccionada] = useState("");
-  const [nombreOlimpiada, setNombreOlimpiada] = useState("");
-  const [guardando, setGuardando] = useState(false);
-  const [mensajeExito, setMensajeExito] = useState("");
-
-  const [olimpiadaBloqueada, setOlimpiadaBloqueada] = useState(false);
-  const [cantidadInscripciones, setCantidadInscripciones] = useState(0);
-  const [periodoTerminado, setPeriodoTerminado] = useState(false);
-  const [razonBloqueo, setRazonBloqueo] = useState(null);
-  const [fechaFin, setFechaFin] = useState(null);
   const { verificarInscripciones, verificando } = useVerificarInscripciones();
   const { todosLosGrados, cargandoGrados, errorGrados } = useGrados();
 
-  const [modalEstado, setModalEstado] = useState({
-    tipo: null,
-    titulo: "",
-    mensaje: "",
-    isOpen: false,
-    onConfirm: null,
-    datos: null,
-  });
+  const {
+    modalEstado,
+    cerrarModal,
+    mostrarAlerta,
+    mostrarConfirmacion,
+    mostrarResumenCambios,
+  } = useModalState();
 
-  const cerrarModal = () => {
-    setModalEstado({
-      tipo: null,
-      titulo: "",
-      mensaje: "",
-      isOpen: false,
-      onConfirm: null,
-      datos: null,
-    });
-  };
+  const {
+    olimpiadaSeleccionada,
+    setOlimpiadaSeleccionada,
+    nombreOlimpiada,
+    olimpiadaBloqueada,
+    cantidadInscripciones,
+    razonBloqueo,
+    fechaFin,
+    obtenerMensajeBloqueo,
+  } = useOlimpiadaState(
+    olimpiadas,
+    verificarInscripciones,
+    cargarAreasAsociadas,
+    resetearAreas
+  );
 
-  const mostrarAlerta = (titulo, mensaje, tipo = "error") => {
-    setModalEstado({
-      tipo: "alerta",
-      titulo,
-      mensaje,
-      isOpen: true,
-      tipoAlerta: tipo,
-      onConfirm: null,
-      datos: null,
-    });
-  };
+  const { guardando, mensajeExito, setMensajeExito, ejecutarGuardado } =
+    useGuardarConfiguracion(cargarAreasAsociadas);
 
-  const mostrarConfirmacion = (
-    titulo,
-    mensaje,
-    onConfirm,
-    tipo = "warning"
-  ) => {
-    setModalEstado({
-      tipo: "confirmacion",
-      titulo,
-      mensaje,
-      isOpen: true,
-      tipoConfirmacion: tipo,
-      onConfirm,
-      datos: null,
-    });
-  };
-
-  const mostrarResumenCambios = (
-    areasParaDesasociar,
-    categoriasParaEliminar,
-    onConfirm
-  ) => {
-    setModalEstado({
-      tipo: "resumenCambios",
-      titulo: "",
-      mensaje: "",
-      isOpen: true,
-      onConfirm,
-      datos: { areasParaDesasociar, categoriasParaEliminar },
-    });
-  };
-
-  const obtenerMensajeBloqueo = () => {
-    switch (razonBloqueo) {
-      case "inscripciones_y_periodo":
-        return `Esta olimpiada tiene ${cantidadInscripciones} inscripción(es) registrada(s) y el período de inscripción terminó el ${new Date(
-          fechaFin
-        ).toLocaleDateString(
-          "es-ES"
-        )}. No se pueden desasociar áreas ni categorías.`;
-      case "inscripciones":
-        return `Esta olimpiada tiene ${cantidadInscripciones} inscripción(es) registrada(s). No se pueden desasociar áreas ni categorías mientras existan inscripciones activas.`;
-      case "periodo":
-        return `El período de inscripción para esta olimpiada terminó el ${new Date(
-          fechaFin
-        ).toLocaleDateString(
-          "es-ES"
-        )}. No se pueden desasociar áreas ni categorías.`;
-      default:
-        return "";
-    }
-  };
-
-  useEffect(() => {
-    if (olimpiadaSeleccionada) {
-      const olimpiada = olimpiadas.find(
-        (o) => o.id.toString() === olimpiadaSeleccionada
-      );
-      setNombreOlimpiada(olimpiada ? olimpiada.titulo : "");
-
-      verificarInscripciones(olimpiadaSeleccionada).then((resultado) => {
-        setOlimpiadaBloqueada(resultado.estaBloqueada);
-        setCantidadInscripciones(resultado.cantidad);
-        setPeriodoTerminado(resultado.periodoTerminado);
-        setRazonBloqueo(resultado.razonBloqueo);
-        setFechaFin(resultado.fechaFin);
-      });
-
-      cargarAreasAsociadas(olimpiadaSeleccionada);
-    } else {
-      setNombreOlimpiada("");
-      setOlimpiadaBloqueada(false);
-      setCantidadInscripciones(0);
-      setPeriodoTerminado(false);
-      setRazonBloqueo(null);
-      setFechaFin(null);
-      resetearAreas();
-    }
-  }, [olimpiadaSeleccionada, olimpiadas]);
-
+  const { eliminarCategoriaIndividual } = useEliminarCategoria(
+    olimpiadaSeleccionada,
+    olimpiadaBloqueada,
+    razonBloqueo,
+    cantidadInscripciones,
+    fechaFin,
+    marcarCategoriaParaEliminar,
+    mostrarAlerta,
+    mostrarConfirmacion,
+    setMensajeExito,
+    cerrarModal
+  );
   const guardarConfiguracion = async () => {
     if (!olimpiadaSeleccionada) {
       mostrarAlerta("Error", "Por favor seleccione una olimpiada", "warning");
@@ -210,176 +127,21 @@ const DesasignarAreaNivel = () => {
       return;
     }
 
-    mostrarResumenCambios(areasParaDesasociar, categoriasParaEliminar, () => {
-      cerrarModal();
-      ejecutarGuardado(areasParaDesasociar, categoriasParaEliminar);
-    });
-  };
-
-  const ejecutarGuardado = async (
-    areasParaDesasociar,
-    categoriasParaEliminar
-  ) => {
-    setGuardando(true);
-
-    try {
-      await axios.get(`${API_URL}/api/sanctum/csrf-cookie`, {
-        withCredentials: true,
-      });
-
-      const csrfToken = Cookies.get("XSRF-TOKEN");
-
-      const config = {
-        headers: {
-          "X-XSRF-TOKEN": csrfToken,
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        withCredentials: true,
-      };
-
-      if (areasParaDesasociar.length > 0) {
-        const datosAreasDesasociar = {
-          id_olimpiada: olimpiadaSeleccionada,
-          areas: areasParaDesasociar.map((combo) => ({
-            area: combo.area,
-            habilitado: false,
-          })),
-        };
-
-        const responseAreas = await axios.post(
-          `${API_URL}/desasociar-areas-olimpiada`,
-          datosAreasDesasociar,
-          config
-        );
-
-        if (responseAreas.status !== 200) {
-          throw new Error("Error al desasociar áreas completas");
-        }
-      }
-
-      if (categoriasParaEliminar.length > 0) {
-        const responseAreas = await axios.get(
-          `${API_URL}/areas-olimpiada/${olimpiadaSeleccionada}`,
-          config
-        );
-        const areasAsociadas = responseAreas.data.data || [];
-
-        for (const item of categoriasParaEliminar) {
-          const nombreAreaNormalizado = item.combo.area
-            .toUpperCase()
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "")
-            .replace(/[^A-Z0-9\s\-]/g, "");
-
-          const areaEncontrada = areasAsociadas.find((area) => {
-            const nombreNormalizado = area.area
-              .toUpperCase()
-              .normalize("NFD")
-              .replace(/[\u0300-\u036f]/g, "")
-              .replace(/[^A-Z0-9\s\-]/g, "");
-            return nombreNormalizado === nombreAreaNormalizado;
-          });
-
-          if (!areaEncontrada) {
-            throw new Error(
-              `No se pudo encontrar el área "${item.combo.area}" en el servidor`
-            );
-          }
-
-          const datosCategorias = {
-            id_olimpiada: olimpiadaSeleccionada,
-            id_area: areaEncontrada.id,
-            categorias_eliminar: item.categorias.map((cat) => ({
-              id: cat.id,
-              nombre: cat.nombre,
-            })),
-          };
-
-          const responseCategorias = await axios.post(
-            `${API_URL}/desasociar-categorias-olimpiada`,
-            datosCategorias,
-            config
-          );
-
-          if (responseCategorias.status !== 200) {
-            throw new Error(
-              `Error al desasociar categorías del área "${item.combo.area}"`
-            );
-          }
-        }
-      }
-
-      setMensajeExito("¡Cambios aplicados exitosamente!");
-      setTimeout(() => setMensajeExito(""), 3000);
-      cargarAreasAsociadas(olimpiadaSeleccionada);
-    } catch (error) {
-      console.error("Error al guardar:", error);
-
-      let mensaje = "Error al guardar la configuración";
-
-      if (error.response) {
-        if (error.response.status === 401) {
-          mensaje = "No tienes autorización para realizar esta acción.";
-        } else if (error.response.status === 403) {
-          mensaje = "No tienes permisos suficientes para esta acción.";
-        } else if (error.response.status === 419) {
-          mensaje =
-            "Error de validación CSRF. Por favor, recarga la página e intenta nuevamente.";
-        } else {
-          mensaje = error.response.data?.message || mensaje;
-        }
-      }
-
-      mostrarAlerta("Error al guardar", mensaje, "error");
-    } finally {
-      setGuardando(false);
-    }
-  };
-
-  const eliminarCategoriaIndividual = async (combo, categoria, index) => {
-    if (!olimpiadaSeleccionada) {
-      mostrarAlerta("Error", "No hay olimpiada seleccionada", "error");
-      return;
-    }
-
-    if (olimpiadaBloqueada) {
-      let mensaje = "No se pueden desasociar categorías de esta olimpiada.";
-
-      switch (razonBloqueo) {
-        case "inscripciones_y_periodo":
-          mensaje = `No se pueden desasociar categorías de esta olimpiada porque tiene ${cantidadInscripciones} inscripción(es) registrada(s) y el período de inscripción terminó el ${new Date(
-            fechaFin
-          ).toLocaleDateString("es-ES")}.`;
-          break;
-        case "inscripciones":
-          mensaje = `No se pueden desasociar categorías de esta olimpiada porque ya tiene ${cantidadInscripciones} inscripción(es) registrada(s). Para desasociar categorías, primero debe eliminar todas las inscripciones asociadas.`;
-          break;
-        case "periodo":
-          mensaje = `No se pueden desasociar categorías de esta olimpiada porque el período de inscripción terminó el ${new Date(
-            fechaFin
-          ).toLocaleDateString("es-ES")}.`;
-          break;
-      }
-
-      mostrarAlerta("Olimpiada bloqueada", mensaje, "error");
-      return;
-    }
-
-    mostrarConfirmacion(
-      "Confirmar desasociación de categoría",
-      `¿Está seguro que desea marcar para desasociar la categoría "${categoria.nombre}" del área "${combo.area}"?\n\nLos cambios se aplicarán al presionar "Guardar Configuración".`,
-      () => {
-        marcarCategoriaParaEliminar(combo.area, categoria);
-
-        setMensajeExito(
-          "Categoría eliminada. Presione 'Guardar Configuración' para aplicar los cambios permanentemente."
-        );
-        setTimeout(() => setMensajeExito(""), 3000);
-
+    mostrarResumenCambios(
+      areasParaDesasociar,
+      categoriasParaEliminar,
+      async () => {
         cerrarModal();
-      },
-      "danger"
+        const resultado = await ejecutarGuardado(
+          olimpiadaSeleccionada,
+          areasParaDesasociar,
+          categoriasParaEliminar
+        );
+
+        if (!resultado.success) {
+          mostrarAlerta("Error al guardar", resultado.error, "error");
+        }
+      }
     );
   };
 

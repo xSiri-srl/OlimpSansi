@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export const useModalEstado = () => {
+export const useModalState = () => {
   const [modalEstado, setModalEstado] = useState({
     tipo: null,
     titulo: "",
@@ -50,22 +50,18 @@ export const useModalEstado = () => {
     });
   };
 
-  const mostrarValidacion = (
-    titulo,
-    mensaje,
-    validationType,
-    areas = [],
-    onConfirm = null
+  const mostrarResumenCambios = (
+    areasParaDesasociar,
+    categoriasParaEliminar,
+    onConfirm
   ) => {
     setModalEstado({
-      tipo: "validacion",
-      titulo,
-      mensaje,
+      tipo: "resumenCambios",
+      titulo: "",
+      mensaje: "",
       isOpen: true,
-      validationType,
-      areas,
       onConfirm,
-      datos: null,
+      datos: { areasParaDesasociar, categoriasParaEliminar },
     });
   };
 
@@ -74,6 +70,6 @@ export const useModalEstado = () => {
     cerrarModal,
     mostrarAlerta,
     mostrarConfirmacion,
-    mostrarValidacion,
+    mostrarResumenCambios,
   };
 };

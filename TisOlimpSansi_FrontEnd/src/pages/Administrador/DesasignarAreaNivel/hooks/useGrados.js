@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { API_URL } from "../../../utils/api";
+import { API_URL } from "../../../../utils/api";
 import axios from "axios";
 
 export const useGrados = () => {

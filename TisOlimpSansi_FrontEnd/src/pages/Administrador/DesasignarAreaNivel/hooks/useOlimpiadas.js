@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import Cookies from "js-cookie";
-import { API_URL } from "../../../utils/api";
+import { API_URL } from "../../../../utils/api";
 import axios from "axios";
 
 export const useOlimpiadas = () => {
