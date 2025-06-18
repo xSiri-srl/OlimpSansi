@@ -26,12 +26,12 @@ import ConvocatoriasPublicadas from "./pages/Administrador/Convocatorias/Convoca
 import SubirConvocatoria from "./pages/Administrador/Convocatorias/SubirConvocatoria";
 
 import EditarConvocatoria from "./pages/Administrador/Convocatorias/EditarConvocatoria";
-import CrearOlimpiadas from "./pages/Administrador/CrearOlimpiadas/CrearOlimpiadas";
+import CrearOlimpiadas from "./pages/Administrador/CrearOlimpiadas/index";
 
 import RutaPrivada from "./components/RutasPrivadas";
 import DesasignarAreaNivel from "./pages/Administrador/DesasignarAreaNivel/index";
 import CodigoPreInscripcion from "./pages/Usuario/EditarInscripcion";
-import { useState } from "react";
+
 import { FormDataProvider } from "./pages/Usuario/InscripcionIndividual/form-data-context";
 
 import AsignarLimiteAreas from "./pages/Administrador/AsignarLimiteAreas/index";
@@ -143,9 +143,7 @@ export default function App() {
                   element={<AsociarAreaNivel />}
                 />
 
-                <Route path="/admin/asignar-costo" 
-                element={<AsignarCosto />}
-                 />
+                <Route path="/admin/asignar-costo" element={<AsignarCosto />} />
 
                 <Route
                   path="/admin/asignar-limite"

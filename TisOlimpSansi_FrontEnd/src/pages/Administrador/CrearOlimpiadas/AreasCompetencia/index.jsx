@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 
 import AreaCompetencia from "./components/AreaCompetencia";
 
-import { gradosDisponibles, areasDefault } from "./constants";
+import { gradosDisponibles } from "../../components/constants";
 import AccionesFooter from "../../components/AccionesFooter";
 import HeaderSelector from "../../components/HeaderSelector";
 

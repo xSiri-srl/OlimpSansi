@@ -20,7 +20,7 @@ import { useNotificarProgreso } from "../hooks/useNotificarProgreso";
 import { useVerificarInscripciones } from "../hooks/useVerificarInscripciones";
 
 // Constants
-import { gradosDisponibles } from "../CrearOlimpiadas/AreasCompetencia/constants";
+import { gradosDisponibles } from "../components/constants";
 
 const SelectorAreaGrado = () => {
   // Estados básicos
@@ -49,9 +49,11 @@ const SelectorAreaGrado = () => {
     mostrarConfirmacion,
     mostrarValidacion,
   } = useModalEstado();
-  const { guardando, mensajeExito, ejecutarGuardado } = useGuardarConfiguracion();
+  const { guardando, mensajeExito, ejecutarGuardado } =
+    useGuardarConfiguracion();
   const { verificarInscripciones, verificando } = useVerificarInscripciones();
-  const { modalProgreso, mostrarProgreso, cerrarProgreso } = useNotificarProgreso();
+  const { modalProgreso, mostrarProgreso, cerrarProgreso } =
+    useNotificarProgreso();
 
   // Efecto para manejar cambios en la olimpiada seleccionada
   useEffect(() => {

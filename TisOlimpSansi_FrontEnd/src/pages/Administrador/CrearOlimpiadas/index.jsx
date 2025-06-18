@@ -1,11 +1,9 @@
-import React, { useEffect, useState } from "react";
-
+import { useEffect, useState } from "react";
 import DatePicker, { registerLocale } from "react-datepicker";
 import es from "date-fns/locale/es";
 import "react-datepicker/dist/react-datepicker.css";
 
 registerLocale("es", es);
-
 import axios from "axios";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
@@ -44,6 +42,7 @@ const CrearOlimpiadas = () => {
       }
     })();
   }, []);
+
   const validarCampos = () => {
     const hoy = new Date();
     const hoyString = hoy.toISOString().split("T")[0];
