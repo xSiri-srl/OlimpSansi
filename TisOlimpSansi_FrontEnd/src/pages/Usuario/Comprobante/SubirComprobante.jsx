@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { FaCloudUploadAlt } from "react-icons/fa";
 import ImageCropper from "./ImageCropper";
 import { API_URL } from "../../../utils/api";
+import ModalExitoComprobante from "../../../components/Modales/ModalExitoComprobante";
 import axios from "axios";
 
 const SubirComprobante = () => {
@@ -25,6 +26,9 @@ const SubirComprobante = () => {
   const [codigoGenerado, setCodigoGenerado] = useState("");
   const [nombreResponsableRegistrado, setNombreResponsableRegistrado] = useState("");
   const [errorNumeroUnico, setErrorNumeroUnico] = useState("");
+
+  // Estado para controlar el modal
+  const [showModalExito, setShowModalExito] = useState(false);
 
   const handleFinalizar = () => {
     let valid = true;
@@ -90,6 +94,7 @@ const SubirComprobante = () => {
     setComprobantePath("");
     setNombreResponsableRegistrado("");
     setErrorNumeroUnico("");
+    setShowModalExito(false);
 
     window.location.href = "/";
   };
@@ -252,7 +257,7 @@ const SubirComprobante = () => {
       );
 
       if (response.status === 200) {
-        setStep(5);
+        setShowModalExito(true);
       }
     } catch (err) {
       const errorMessage = err.response?.data?.message || "Error al guardar.";
@@ -310,7 +315,7 @@ const SubirComprobante = () => {
   })}
 </div>
 
-
+        {/* ...existing code para steps 1-4... */}
         {step === 1 && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-gray-300 p-4 rounded-md">
@@ -699,22 +704,11 @@ const SubirComprobante = () => {
           </div>
         )}
 
-        {step === 5 && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm text-center">
-              <h2 className="text-lg font-semibold mb-4">
-                ¡Su comprobante fue subido con éxito!
-              </h2>
-              <p className="text-gray-600">FINALIZÓ SU INSCRIPCIÓN</p>
-              <button
-                onClick={handleAceptar}
-                className="mt-4 bg-blue-600 text-white px-6 py-2 rounded-md transition duration-300 ease-in-out text-white rounded-md hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500 shadow-md"
-              >
-                Aceptar
-              </button>
-            </div>
-          </div>
-        )}
+        {/* Modal de éxito usando el componente separado */}
+        <ModalExitoComprobante 
+          isOpen={showModalExito}
+          onAceptar={handleAceptar}
+        />
       </div>
     </div>
   );
