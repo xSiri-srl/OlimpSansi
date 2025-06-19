@@ -2,6 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { API_URL } from "../../../../utils/api";
 import { useNavigate } from "react-router-dom";
+import { estaEnPeriodo } from "../../../../utils/estaEnPeriodo";
 
 const useCodigoPreInscripcion = () => {
   const [codigoPreInscripcion, setCodigoPreInscripcion] = useState("");
@@ -30,56 +31,7 @@ const useCodigoPreInscripcion = () => {
   });
   const [selectedStudent, setSelectedStudent] = useState(null);
 
-  const obtenerFechaBolivia = () => {
-    const ahora = new Date();
-    const fechaBolivia = new Date(ahora.toLocaleString("en-US", {timeZone: "America/La_Paz"}));
-    return fechaBolivia;
-  };
-
-  const estaEnPeriodo = (fechaIni, fechaFin) => {
-    try {
-      console.log('Validando período con fechas:', { fechaIni, fechaFin });
-      
-      const ahoraBolivia = obtenerFechaBolivia();
-      
-      const fechaIniStr = fechaIni.replace('T00:00:00-04:00', '').replace('T23:59:59-04:00', '');
-      const fechaFinStr = fechaFin.replace('T00:00:00-04:00', '').replace('T23:59:59-04:00', '');
-      
-      const inicio = new Date(fechaIniStr + 'T00:00:00');
-      const fin = new Date(fechaFinStr + 'T23:59:59');
-      
-      const soloFechaHoy = new Date(ahoraBolivia.getFullYear(), ahoraBolivia.getMonth(), ahoraBolivia.getDate());
-      const soloFechaInicio = new Date(inicio.getFullYear(), inicio.getMonth(), inicio.getDate());
-      const soloFechaFin = new Date(fin.getFullYear(), fin.getMonth(), fin.getDate());
-      
-      console.log('Fechas para comparación:', {
-        hoy: soloFechaHoy.toDateString(),
-        inicio: soloFechaInicio.toDateString(),
-        fin: soloFechaFin.toDateString()
-      });
-      
-      const puedeEditar = soloFechaHoy >= soloFechaInicio && soloFechaHoy <= soloFechaFin;
-      
-      console.log('Resultado validación edición:', {
-        mayorOIgualAInicio: soloFechaHoy >= soloFechaInicio,
-        menorOIgualAFin: soloFechaHoy <= soloFechaFin,
-        puedeEditar
-      });
-      
-      return puedeEditar;
-    } catch (error) {
-      console.error('Error al validar período de edición:', error);
-      const ahora = new Date();
-      const inicio = new Date(fechaIni.split('T')[0]);
-      const fin = new Date(fechaFin.split('T')[0]);
-      
-      const hoy = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate());
-      const inicioSoloFecha = new Date(inicio.getFullYear(), inicio.getMonth(), inicio.getDate());
-      const finSoloFecha = new Date(fin.getFullYear(), fin.getMonth(), fin.getDate());
-      
-      return hoy >= inicioSoloFecha && hoy <= finSoloFecha;
-    }
-  };
+  // Remover la función obtenerFechaBolivia y estaEnPeriodo ya que está en utils
 
   const verificarCodigo = async () => {
     if (!codigoPreInscripcion.trim()) return;
@@ -199,6 +151,7 @@ const useCodigoPreInscripcion = () => {
     }
   };
 
+  // ...resto del código sin cambios...
   const processStudents = (estudiantesData) => {
     const processed = estudiantesData.map((est, index) => {
       const errores = [];
