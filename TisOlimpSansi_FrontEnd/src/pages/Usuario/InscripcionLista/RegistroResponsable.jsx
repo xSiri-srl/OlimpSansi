@@ -4,7 +4,7 @@ import { useFormData } from "./form-context";
 import { useLocation } from "react-router-dom";
 import { API_URL } from "../../../utils/api";
 import axios from "axios";
-import ModalConfirmacionCorreo from "../InscripcionIndividual/modales/ModalConfirmacionCorreo";
+import ModalConfirmacionCorreo from "../../../components/Modales/ModalConfirmacionCorreo";
 
 function RegistroResponsable({ setStep }) {
   const [formData, setFormData] = useState({
