@@ -506,65 +506,80 @@ public function verificarCodigo(Request $request)
     return response()->json($ordenesPago);
     }
 
-    public function obtenerOrdenesConResponsable(Request $request)
-    {
-        try {
-            $olimpiadaId = $request->query('olimpiada_id');
+public function obtenerOrdenesConResponsable(Request $request)
+{
+    try {
+        $olimpiadaId = $request->query('olimpiada_id');
+        
+        if (!$olimpiadaId) {
+            return response()->json(['error' => 'olimpiada_id es requerido'], 400);
+        }
+        
+        
+        $ordenesPago = OrdenPagoModel::with([
+                'responsable', 
+                'comprobantePago', 
+                'inscripcion.olimpiadaAreaCategoria.olimpiada'
+            ])
+            ->whereHas('inscripcion', function($query) use ($olimpiadaId) {
+                $query->whereHas('olimpiadaAreaCategoria', function($subQuery) use ($olimpiadaId) {
+                    $subQuery->where('id_olimpiada', $olimpiadaId);
+                });
+            })
+            ->orderBy('fecha_emision', 'desc')
+            ->get();
+        
+        $resultado = $ordenesPago->map(function($orden) {
+            $responsable = $orden->responsable;
             
-            if (!$olimpiadaId) {
-                return response()->json(['error' => 'olimpiada_id es requerido'], 400);
+
+            $nombreResponsable = 'No disponible';
+            if ($responsable) {
+                $partes = array_filter([
+                    $responsable->nombre ?? '',
+                    $responsable->apellido_pa ?? '',
+                    $responsable->apellido_ma ?? ''
+                ]);
+                $nombreResponsable = !empty($partes) ? implode(' ', $partes) : 'No disponible';
             }
             
-         
-            $ordenesPago = OrdenPagoModel::with([
-                    'responsable', 
-                    'comprobantePago', 
-                    'inscripcion' 
-                ])
-                ->whereHas('inscripcion', function($query) use ($olimpiadaId) {
-                    $query->whereHas('olimpiadaAreaCategoria', function($subQuery) use ($olimpiadaId) {
-                        $subQuery->where('id_olimpiada', $olimpiadaId);
-                    });
-                })
-                
-                ->orderBy('fecha_emision', 'desc')
-                ->get();
-            
-            $resultado = $ordenesPago->map(function($orden) {
-                $responsable = $orden->responsable;
-                
-                $nombreResponsable = 'No disponible';
-                if ($responsable) {
-                    $nombreResponsable = trim(
-                        ($responsable->nombre ?? '') . ' ' .
-                        ($responsable->apellido_pa ?? '') . ' ' .
-                        ($responsable->apellido_ma ?? '')
-                    );
+            $fecha = 'No disponible';
+            if ($orden->fecha_emision) {
+                try {
+                    $fecha = \Carbon\Carbon::parse($orden->fecha_emision)->format('d/m/Y');
+                } catch (\Exception $e) {
+                    $fecha = $orden->fecha_emision; 
                 }
-                
-                $fecha = $orden->fecha_emision;
-                
-                $estado = $orden->estado;
-                
-                return [
-                    'id' => $orden->codigo_generado,
-                    'responsable' => $nombreResponsable,
-                    'fecha' => $fecha,
-                    'monto' => number_format($orden->monto_total, 2),
-                    'estado' => $estado
-                ];
-            });
+            }
             
-            return response()->json($resultado->toArray());
             
-        } catch (\Exception $e) {
-            \Log::error('Error en obtenerOrdenesConResponsable: ' . $e->getMessage());
-            return response()->json([
-                'error' => 'Error al procesar la solicitud', 
-                'message' => $e->getMessage()
-            ], 500);
-        }
+            $estado = strtolower($orden->estado ?? 'pendiente');
+            
+            
+            $monto = is_numeric($orden->monto_total) ? number_format($orden->monto_total, 2) : '0.00';
+            
+            return [
+                'id' => $orden->codigo_generado ?? $orden->numero_orden_pago ?? $orden->id,
+                'responsable' => $nombreResponsable,
+                'fecha' => $fecha,
+                'monto' => $monto,
+                'estado' => $estado,
+            ];
+        });
+        
+   
+        return response()->json($resultado->toArray());
+        
+    } catch (\Exception $e) {
+  
+        
+        return response()->json([
+            'error' => 'Error al procesar la solicitud', 
+            'message' => config('app.debug') ? $e->getMessage() : 'Error interno del servidor',
+            'olimpiada_id' => $request->query('olimpiada_id')
+        ], 500);
     }
+}
 
 
 
@@ -679,7 +694,7 @@ public function verificarCodigo(Request $request)
                     'comprobante_pago.nombre_pagador',
                     'comprobante_pago.fecha_subida_imagen_comprobante'
                 )
-                ->distinct('orden_pago.id')
+                //->distinct('orden_pago.id')
                 ->get();
 
             return response()->json($ordenes);
