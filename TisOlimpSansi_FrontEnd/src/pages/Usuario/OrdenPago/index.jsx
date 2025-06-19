@@ -3,7 +3,7 @@ import { useOrdenPago } from "./hooks/useOrdenPago";
 import CodigoVerificacion from "./componentes/CodigoVerificacion";
 import ResumenPreinscripcion from "./componentes/ResumenPreInscripcion";
 import AccionesOrdenPago from "./componentes/AccionesOrdenPago";
-import ModalPeriodo from "./componentes/ModalPeriodo";
+import ModalPeriodo from "../../../components/Modales/ModalPeriodoOrdenPago";
 
 const GenerarOrdenPago = () => {
   const {
