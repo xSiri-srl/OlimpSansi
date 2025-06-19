@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\GestionPagos;
-
+use Carbon\Carbon;
 use App\Http\Controllers\Controller;
 use App\Models\GestionPagos\OrdenPagoModel;
 
@@ -13,7 +13,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 use App\Models\GestionPagos\ComprobantePagoModel
 ;
-
+use Illuminate\Support\Str;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Log;
 
@@ -212,7 +212,7 @@ private function generarNumeroOrdenSecuencial()
     ]);
 }
 
-public function verificarCodigo(Request $request)
+    public function verificarCodigo(Request $request)
     {
     
         $validated = $request->validate([
@@ -239,8 +239,44 @@ public function verificarCodigo(Request $request)
             ], 400);
         }
 
-        return response()->json(['message' => 'Código generado válido, puedes continuar con la subida de la imagen.'], 200);
+
+        $olimpiada = DB::table('inscripcion')
+        ->join('olimpiada_area_categoria', 'inscripcion.id_olimpiada_area_categoria', '=', 'olimpiada_area_categoria.id')
+        ->join('olimpiada', 'olimpiada_area_categoria.id_olimpiada', '=', 'olimpiada.id')
+        ->where('inscripcion.id_orden_pago', $ordenPago->id)
+        ->select('olimpiada.fecha_ini', 'olimpiada.fecha_fin', 'olimpiada.titulo')
+        ->first();
+
+        if (!$olimpiada) {
+            return response()->json(['message' => 'No se pudo encontrar la olimpiada asociada a esta orden de pago.'], 400);
+        }
+
+        $fechaActual = now();
+        $fechaInicio = Carbon::parse($olimpiada->fecha_ini)->startOfDay();
+        $fechaFin    = Carbon::parse($olimpiada->fecha_fin)->endOfDay();
+
+        if ($fechaActual->lt($fechaInicio)) {
+            return response()->json([
+                'message' => "La olimpiada '{$olimpiada->titulo}' aún no ha comenzado. Periodo: {$fechaInicio->format('d/m/Y')} - {$fechaFin->format('d/m/Y')}."
+            ], 400);
+        }
+
+        if ($fechaActual->gt($fechaFin)) {
+            return response()->json([
+                'message' => "La olimpiada '{$olimpiada->titulo}' ya finalizó. Periodo: {$fechaInicio->format('d/m/Y')} - {$fechaFin->format('d/m/Y')}."
+            ], 400);
+        }
+
+        return response()->json([
+            'message' => 'Código generado válido, puedes continuar con la subida de la imagen.',
+            'olimpiada' => [
+                'titulo' => $olimpiada->titulo,
+                'fecha_inicio' => $fechaInicio->format('d/m/Y'),
+                'fecha_fin' => $fechaFin->format('d/m/Y')
+            ]
+        ], 200);
     }
+
 
 
 
@@ -334,17 +370,16 @@ public function verificarCodigo(Request $request)
             $body = json_decode($response->getBody()->getContents(), true);
             
           
-            Log::info('Respuesta completa de OCR.space', $body);
-
-            
+       
             if (isset($body['ErrorMessage']) && !empty($body['ErrorMessage'])) {
-                $errorMessages = is_array($body['ErrorMessage']) 
-                    ? implode(', ', $body['ErrorMessage']) 
-                    : $body['ErrorMessage'];
-                Log::error('OCR Error Message: ' . $errorMessages);
-                return 'OCR Error: ' . $errorMessages;
-            }
+            $errorMessages = is_array($body['ErrorMessage'])
+                ? implode(', ', $body['ErrorMessage'])
+                : $body['ErrorMessage'];
 
+    
+            // Cualquier otro error de OCR
+            return 'Hubo un error procesando la imagen.';
+        }
             
             if (!isset($body['ParsedResults']) || empty($body['ParsedResults'])) {
                 Log::error('No se encontraron resultados en la respuesta de OCR');
@@ -362,19 +397,13 @@ public function verificarCodigo(Request $request)
             
             $cleanText = trim($parsedText);
             
-            Log::info('Texto extraído exitosamente', ['text' => $cleanText]);
+    
             
             return $cleanText;
 
         } catch (\Exception $e) {
-            Log::error('Error en OCR Request', [
-                'message' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString()
-            ]);
-            return 'Error OCR: ' . $e->getMessage();
-        }
+            return 'Hubo un error procesando la imagen.';
+            }
     };
 
     $numeroComprobante = $ocrRequest($imagenComprobante);
