@@ -59,24 +59,20 @@ class OrdenPagoModel extends Model
      public static function generarNumeroOrdenSecuencial()
     {
         return DB::transaction(function () {
-            // Buscar la última orden de pago por número
             $ultimaOrden = self::whereNotNull('numero_orden_pago')
                               ->where('numero_orden_pago', '!=', '')
                               ->orderBy('numero_orden_pago', 'desc')
-                              ->lockForUpdate() // Bloquear para evitar duplicados
+                              ->lockForUpdate() 
                               ->first();
             
             if (!$ultimaOrden) {
-                // Primera orden de pago
                 $siguienteNumero = 1;
             } else {
-                // Convertir a entero y sumar 1
                 $ultimoNumero = (int) $ultimaOrden->numero_orden_pago;
                 $siguienteNumero = $ultimoNumero + 1;
             }
             
-            // Formatear con ceros a la izquierda (6 dígitos)
-            return str_pad($siguienteNumero, 6, '0', STR_PAD_LEFT);
+            return str_pad($siguienteNumero, 8, '0', STR_PAD_LEFT);
         });
     }
 }

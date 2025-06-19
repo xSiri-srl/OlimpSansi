@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\GestionPagos;
-
+use Carbon\Carbon;
 use App\Http\Controllers\Controller;
 use App\Models\GestionPagos\OrdenPagoModel;
 
@@ -13,7 +13,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 use App\Models\GestionPagos\ComprobantePagoModel
 ;
-
+use Illuminate\Support\Str;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Log;
 
@@ -24,7 +24,6 @@ class OrdenPagoController extends Controller
 
   public function generarYGuardarOrdenPagoPDF(Request $request) 
 {
-    // Crear archivo de log específico
     $debugLog = storage_path('logs/pdf_debug.log');
     
     try {
@@ -32,13 +31,11 @@ class OrdenPagoController extends Controller
             'codigo_generado' => 'required|string|max:255',
         ]);
 
-        // Verificar extensiones necesarias
         $ordenPago = OrdenPagoModel::where('codigo_generado', $validated['codigo_generado'])->first();
         if (!$ordenPago) {
             return response()->json(['message' => 'Orden de pago no encontrada'], 404);
         }
 
-        // **NUEVO: Asignar número de orden si no lo tiene**
         if (empty($ordenPago->numero_orden_pago)) {
             $ordenPago->numero_orden_pago = $this->generarNumeroOrdenSecuencial();
             $ordenPago->save();
@@ -49,11 +46,9 @@ class OrdenPagoController extends Controller
             return response()->json(['message' => 'Inscripción no encontrada'], 404);
         }
         
-        // Configurar rutas para DomPDF
         $publicPath = public_path();
         $basePath = base_path();
         
-        // Configurar DomPDF antes de usarlo
         $options = new \Dompdf\Options();
         $options->set('isRemoteEnabled', true);
         $options->set('isHtml5ParserEnabled', true);
@@ -66,7 +61,6 @@ class OrdenPagoController extends Controller
         $storagePath = storage_path('app/public');
         $ordenesPath = $storagePath . '/ordenes_pago';
       
-        // Verificar y crear directorios
         if (!is_dir(storage_path('app'))) {
             $created = mkdir(storage_path('app'), 0755, true);
         }
@@ -79,7 +73,6 @@ class OrdenPagoController extends Controller
             $created = mkdir($ordenesPath, 0755, true);
         }
         
-        // Crear directorio de fonts si no existe
         if (!is_dir(storage_path('fonts'))) {
             $created = mkdir(storage_path('fonts'), 0755, true);
         }
@@ -89,11 +82,9 @@ class OrdenPagoController extends Controller
         }
     
         try {
-            // Aumentar límites
             ini_set('memory_limit', '512M');
             ini_set('max_execution_time', 300);
             
-            // Método 1: Usar DomPDF directamente con configuración personalizada
             try {
                 $html = view('pdf.orden_pago', [
                     'ordenPago' => $ordenPago,
@@ -108,7 +99,6 @@ class OrdenPagoController extends Controller
                 $pdfContent = $dompdf->output();
                 
             } catch (\Exception $directError) {
-                // Método 2: Usar Laravel PDF con configuración
                 $pdf = Pdf::setOptions($options->getOptions())
                     ->loadView('pdf.orden_pago', [
                         'ordenPago' => $ordenPago,
@@ -126,8 +116,7 @@ class OrdenPagoController extends Controller
             return response()->json(['message' => 'Error generando PDF: ' . $pdfError->getMessage()], 500);
         }
         
-        // Guardar archivo - **ACTUALIZADO: usar numero_orden_pago en lugar de codigo_generado**
-        $fileName = 'orden_pago_' . $ordenPago->numero_orden_pago . '.pdf';
+        $fileName = 'orden_pago_' . $ordenPago->codigo_generado . '.pdf';
         $filePath = 'ordenes_pago/' . $fileName;
         $fullPath = $ordenesPath . '/' . $fileName;
         
@@ -138,7 +127,6 @@ class OrdenPagoController extends Controller
                 throw new \Exception("file_put_contents retornó false");
             }
             
-            // Verificar que el archivo existe
             if (!file_exists($fullPath)) {
                 throw new \Exception("El archivo no existe después de guardarlo");
             }
@@ -153,7 +141,6 @@ class OrdenPagoController extends Controller
             return response()->json(['message' => 'Error guardando PDF: ' . $saveError->getMessage()], 500);
         }
         
-        // Actualizar base de datos
         $ordenPago->orden_pago_url = $filePath;
         $ordenPago->fecha_emision = now();
         $ordenPago->save();
@@ -167,7 +154,7 @@ class OrdenPagoController extends Controller
                 'full_path' => $fullPath,
                 'file_exists' => file_exists($fullPath),
                 'file_size' => file_exists($fullPath) ? filesize($fullPath) : 0,
-                'numero_orden_pago' => $ordenPago->numero_orden_pago, // **NUEVO campo en debug**
+                'numero_orden_pago' => $ordenPago->numero_orden_pago,  
             ]
         ]);
         
@@ -181,38 +168,28 @@ class OrdenPagoController extends Controller
     }
 }
 
-/**
- * **NUEVA FUNCIÓN: Generar número de orden secuencial**
- * Genera números como: 000001, 000002, 000003, etc.
- */
+
 private function generarNumeroOrdenSecuencial()
 {
     return DB::transaction(function () {
-        // Buscar la última orden de pago por número
         $ultimaOrden = OrdenPagoModel::whereNotNull('numero_orden_pago')
                                     ->where('numero_orden_pago', '!=', '')
                                     ->orderBy('numero_orden_pago', 'desc')
                                     ->first();
         
         if (!$ultimaOrden) {
-            // Primera orden de pago
             $siguienteNumero = 1;
         } else {
-            // Convertir a entero y sumar 1
             $ultimoNumero = (int) $ultimaOrden->numero_orden_pago;
             $siguienteNumero = $ultimoNumero + 1;
         }
         
-        // Formatear con ceros a la izquierda (6 dígitos)
-        return str_pad($siguienteNumero, 6, '0', STR_PAD_LEFT);
+        return str_pad($siguienteNumero, 8, '0', STR_PAD_LEFT);
     });
 }
-    /**
-     * Descarga la orden de pago como PDF
-     */
+    
     public function descargarOrdenPago($codigo)
 {
-    // Buscar la orden de pago por el código
     $ordenPago = OrdenPagoModel::where('codigo_generado', $codigo)->first();
 
     if (!$ordenPago) {
@@ -235,7 +212,7 @@ private function generarNumeroOrdenSecuencial()
     ]);
 }
 
-public function verificarCodigo(Request $request)
+    public function verificarCodigo(Request $request)
     {
     
         $validated = $request->validate([
@@ -262,8 +239,44 @@ public function verificarCodigo(Request $request)
             ], 400);
         }
 
-        return response()->json(['message' => 'Código generado válido, puedes continuar con la subida de la imagen.'], 200);
+
+        $olimpiada = DB::table('inscripcion')
+        ->join('olimpiada_area_categoria', 'inscripcion.id_olimpiada_area_categoria', '=', 'olimpiada_area_categoria.id')
+        ->join('olimpiada', 'olimpiada_area_categoria.id_olimpiada', '=', 'olimpiada.id')
+        ->where('inscripcion.id_orden_pago', $ordenPago->id)
+        ->select('olimpiada.fecha_ini', 'olimpiada.fecha_fin', 'olimpiada.titulo')
+        ->first();
+
+        if (!$olimpiada) {
+            return response()->json(['message' => 'No se pudo encontrar la olimpiada asociada a esta orden de pago.'], 400);
+        }
+
+        $fechaActual = now();
+        $fechaInicio = Carbon::parse($olimpiada->fecha_ini)->startOfDay();
+        $fechaFin    = Carbon::parse($olimpiada->fecha_fin)->endOfDay();
+
+        if ($fechaActual->lt($fechaInicio)) {
+            return response()->json([
+                'message' => "La olimpiada '{$olimpiada->titulo}' aún no ha comenzado. Periodo: {$fechaInicio->format('d/m/Y')} - {$fechaFin->format('d/m/Y')}."
+            ], 400);
+        }
+
+        if ($fechaActual->gt($fechaFin)) {
+            return response()->json([
+                'message' => "La olimpiada '{$olimpiada->titulo}' ya finalizó. Periodo: {$fechaInicio->format('d/m/Y')} - {$fechaFin->format('d/m/Y')}."
+            ], 400);
+        }
+
+        return response()->json([
+            'message' => 'Código generado válido, puedes continuar con la subida de la imagen.',
+            'olimpiada' => [
+                'titulo' => $olimpiada->titulo,
+                'fecha_inicio' => $fechaInicio->format('d/m/Y'),
+                'fecha_fin' => $fechaFin->format('d/m/Y')
+            ]
+        ], 200);
     }
+
 
 
 
@@ -291,7 +304,6 @@ public function verificarCodigo(Request $request)
 
     $ocrRequest = function($uploadedFile) use ($client, $apiKey, $debugDir) {
         try {
-            // Verificar que el archivo existe y es válido
             if (!$uploadedFile || !$uploadedFile->isValid()) {
                 Log::error('Archivo no válido o no existe');
                 return 'Archivo no válido';
@@ -358,17 +370,16 @@ public function verificarCodigo(Request $request)
             $body = json_decode($response->getBody()->getContents(), true);
             
           
-            Log::info('Respuesta completa de OCR.space', $body);
-
-            
+       
             if (isset($body['ErrorMessage']) && !empty($body['ErrorMessage'])) {
-                $errorMessages = is_array($body['ErrorMessage']) 
-                    ? implode(', ', $body['ErrorMessage']) 
-                    : $body['ErrorMessage'];
-                Log::error('OCR Error Message: ' . $errorMessages);
-                return 'OCR Error: ' . $errorMessages;
-            }
+            $errorMessages = is_array($body['ErrorMessage'])
+                ? implode(', ', $body['ErrorMessage'])
+                : $body['ErrorMessage'];
 
+    
+            // Cualquier otro error de OCR
+            return 'Hubo un error procesando la imagen.';
+        }
             
             if (!isset($body['ParsedResults']) || empty($body['ParsedResults'])) {
                 Log::error('No se encontraron resultados en la respuesta de OCR');
@@ -386,25 +397,17 @@ public function verificarCodigo(Request $request)
             
             $cleanText = trim($parsedText);
             
-            Log::info('Texto extraído exitosamente', ['text' => $cleanText]);
+    
             
             return $cleanText;
 
         } catch (\Exception $e) {
-            Log::error('Error en OCR Request', [
-                'message' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString()
-            ]);
-            return 'Error OCR: ' . $e->getMessage();
-        }
+            return 'Hubo un error procesando la imagen.';
+            }
     };
 
-    // Procesar las imágenes
     $numeroComprobante = $ocrRequest($imagenComprobante);
     if (strpos($numeroComprobante, 'Error') !== false || strpos($numeroComprobante, 'no válido') !== false) {
-        // Guardar imagen con error para depuración
         try {
             $imagenComprobante->move($debugDir, 'comprobante_error_' . time() . '.jpg');
         } catch (\Exception $e) {
@@ -454,9 +457,8 @@ public function verificarCodigo(Request $request)
 
     public function obtenerResumenPorCodigo($codigo)
 {
-    // Buscar la orden de pago con todas las relaciones necesarias
     $ordenPago = OrdenPagoModel::with([
-        'responsable', // El responsable está en la tabla orden_pago
+        'responsable', 
         'inscripcion.estudiante.grado',
         'inscripcion.olimpiadaAreaCategoria.categoria',
         'inscripcion.olimpiadaAreaCategoria.area'
@@ -501,7 +503,6 @@ public function verificarCodigo(Request $request)
         }
     }
 
-    // Obtener el responsable desde la tabla orden_pago
     $responsable = $ordenPago->responsable;
     $nombreCompleto = trim(
         ($responsable->nombre ?? '') . ' ' . 
@@ -534,69 +535,80 @@ public function verificarCodigo(Request $request)
     return response()->json($ordenesPago);
     }
 
-    public function obtenerOrdenesConResponsable(Request $request)
-    {
-        try {
-            // Validar que se envíe el olimpiada_id
-            $olimpiadaId = $request->query('olimpiada_id');
+public function obtenerOrdenesConResponsable(Request $request)
+{
+    try {
+        $olimpiadaId = $request->query('olimpiada_id');
+        
+        if (!$olimpiadaId) {
+            return response()->json(['error' => 'olimpiada_id es requerido'], 400);
+        }
+        
+        
+        $ordenesPago = OrdenPagoModel::with([
+                'responsable', 
+                'comprobantePago', 
+                'inscripcion.olimpiadaAreaCategoria.olimpiada'
+            ])
+            ->whereHas('inscripcion', function($query) use ($olimpiadaId) {
+                $query->whereHas('olimpiadaAreaCategoria', function($subQuery) use ($olimpiadaId) {
+                    $subQuery->where('id_olimpiada', $olimpiadaId);
+                });
+            })
+            ->orderBy('fecha_emision', 'desc')
+            ->get();
+        
+        $resultado = $ordenesPago->map(function($orden) {
+            $responsable = $orden->responsable;
             
-            if (!$olimpiadaId) {
-                return response()->json(['error' => 'olimpiada_id es requerido'], 400);
+
+            $nombreResponsable = 'No disponible';
+            if ($responsable) {
+                $partes = array_filter([
+                    $responsable->nombre ?? '',
+                    $responsable->apellido_pa ?? '',
+                    $responsable->apellido_ma ?? ''
+                ]);
+                $nombreResponsable = !empty($partes) ? implode(' ', $partes) : 'No disponible';
             }
             
-         
-            // Obtener las órdenes de pago con sus relaciones
-            $ordenesPago = OrdenPagoModel::with([
-                    'responsable', // Relación directa con responsable_inscripcion
-                    'comprobantePago', // Para verificar si tiene comprobante
-                    'inscripcion' // Cargar las inscripciones relacionadas
-                ])
-                ->whereHas('inscripcion', function($query) use ($olimpiadaId) {
-                    $query->whereHas('olimpiadaAreaCategoria', function($subQuery) use ($olimpiadaId) {
-                        $subQuery->where('id_olimpiada', $olimpiadaId);
-                    });
-                })
-                
-                ->orderBy('fecha_emision', 'desc')
-                ->get();
-            
-            $resultado = $ordenesPago->map(function($orden) {
-                // Obtener el responsable directamente de la relación
-                $responsable = $orden->responsable;
-                
-                $nombreResponsable = 'No disponible';
-                if ($responsable) {
-                    $nombreResponsable = trim(
-                        ($responsable->nombre ?? '') . ' ' .
-                        ($responsable->apellido_pa ?? '') . ' ' .
-                        ($responsable->apellido_ma ?? '')
-                    );
+            $fecha = 'No disponible';
+            if ($orden->fecha_emision) {
+                try {
+                    $fecha = \Carbon\Carbon::parse($orden->fecha_emision)->format('d/m/Y');
+                } catch (\Exception $e) {
+                    $fecha = $orden->fecha_emision; 
                 }
-                
-                $fecha = $orden->fecha_emision;
-                
-                // Determinar estado basado en el campo estado de la orden
-                $estado = $orden->estado;
-                
-                return [
-                    'id' => $orden->codigo_generado,
-                    'responsable' => $nombreResponsable,
-                    'fecha' => $fecha,
-                    'monto' => number_format($orden->monto_total, 2),
-                    'estado' => $estado
-                ];
-            });
+            }
             
-            return response()->json($resultado->toArray());
             
-        } catch (\Exception $e) {
-            \Log::error('Error en obtenerOrdenesConResponsable: ' . $e->getMessage());
-            return response()->json([
-                'error' => 'Error al procesar la solicitud', 
-                'message' => $e->getMessage()
-            ], 500);
-        }
+            $estado = strtolower($orden->estado ?? 'pendiente');
+            
+            
+            $monto = is_numeric($orden->monto_total) ? number_format($orden->monto_total, 2) : '0.00';
+            
+            return [
+                'id' => $orden->codigo_generado ?? $orden->numero_orden_pago ?? $orden->id,
+                'responsable' => $nombreResponsable,
+                'fecha' => $fecha,
+                'monto' => $monto,
+                'estado' => $estado,
+            ];
+        });
+        
+   
+        return response()->json($resultado->toArray());
+        
+    } catch (\Exception $e) {
+  
+        
+        return response()->json([
+            'error' => 'Error al procesar la solicitud', 
+            'message' => config('app.debug') ? $e->getMessage() : 'Error interno del servidor',
+            'olimpiada_id' => $request->query('olimpiada_id')
+        ], 500);
     }
+}
 
 
 
@@ -649,7 +661,6 @@ public function verificarCodigo(Request $request)
     
     public function dineroRecaudadoPorDepartamento()
     {
-        // Subconsulta: obtener sumatoria total por departamento (con montos únicos)
         $subquery = DB::table('orden_pago')
             ->whereNull('orden_pago.numero_comprobante')
             ->join('inscripcion', 'inscripcion.id_orden_pago', '=', 'orden_pago.id')
@@ -658,7 +669,6 @@ public function verificarCodigo(Request $request)
             ->groupBy('colegio.departamento')
             ->select('colegio.departamento', DB::raw('SUM(DISTINCT orden_pago.monto_total) as monto_total'));
     
-        // Consulta principal: mostrar todos los departamentos con su total o cero
         $resultados = DB::table('colegio')
             ->select('colegio.departamento', DB::raw('COALESCE(t.monto_total, 0) as total_recaudado'))
             ->leftJoinSub($subquery, 't', 'colegio.departamento', '=', 't.departamento')
@@ -673,7 +683,6 @@ public function verificarCodigo(Request $request)
  public function obtenerIdOlimpiada($codigo)
 {
     try {
-        // Buscar la orden de pago por código generado
         $ordenPago = OrdenPagoModel::with(['inscripcion.olimpiadaAreaCategoria'])
             ->where('codigo_generado', $codigo)
             ->first();
@@ -682,12 +691,10 @@ public function verificarCodigo(Request $request)
             return response()->json(['message' => 'No se encontró la orden de pago con el código proporcionado'], 404);
         }
 
-        // Verificar que tenga al menos una inscripción
         if ($ordenPago->inscripcion->isEmpty()) {
             return response()->json(['message' => 'No se encontraron inscripciones para esta orden de pago'], 404);
         }
 
-        // Obtener el id_olimpiada de la primera inscripción
         $idOlimpiada = $ordenPago->inscripcion->first()->olimpiadaAreaCategoria->id_olimpiada;
 
         return response()->json(['id_olimpiada' => $idOlimpiada]);
@@ -716,7 +723,7 @@ public function verificarCodigo(Request $request)
                     'comprobante_pago.nombre_pagador',
                     'comprobante_pago.fecha_subida_imagen_comprobante'
                 )
-                ->distinct('orden_pago.id')
+                //->distinct('orden_pago.id')
                 ->get();
 
             return response()->json($ordenes);
