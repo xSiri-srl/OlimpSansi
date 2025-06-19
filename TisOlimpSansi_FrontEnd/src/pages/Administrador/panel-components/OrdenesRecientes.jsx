@@ -9,7 +9,6 @@ const OrdenesRecientes = ({ darkMode, olimpiadaSeleccionada }) => {
   const [error, setError] = useState(null);
   
   useEffect(() => {
-   
     const fetchOrdenesRecientes = async () => {
       try {
         setLoading(true);
@@ -25,19 +24,21 @@ const OrdenesRecientes = ({ darkMode, olimpiadaSeleccionada }) => {
           return;
         }
 
-       
         const olimpiadaId = olimpiadaSeleccionada.id;
+        
+        console.log('Fetching orders for olimpiada:', olimpiadaId); // Debug
         
         const response = await axios.get(`${API_URL}/api/ordenes-recientes`, {
           params: { olimpiada_id: olimpiadaId }
         });
-
-      
+        console.log("tamanioooo: ", response.data.length)
+        console.log('Response data:', response.data); // Debug
         setOrders(response.data || []);
         
       } catch (err) {
         console.error("Error al cargar órdenes recientes:", err);
-        setError("Error al cargar datos del servidor");
+        console.error("Error details:", err.response?.data); // Más detalles del error
+        setError(`Error al cargar datos del servidor: ${err.response?.data?.message || err.message}`);
         setOrders([]);
       } finally {
         setLoading(false);

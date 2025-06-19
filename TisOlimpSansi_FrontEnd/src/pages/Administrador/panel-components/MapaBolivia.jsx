@@ -33,7 +33,7 @@ const boliviaGeoFeatures = {
     {
       type: "Feature",
       id: "BOL.POTOSI",
-      properties: { name: "Potosí" },
+      properties: { name: "Potosi" },
       geometry: { type: "Polygon", coordinates: [] },
     },
     {
@@ -85,7 +85,7 @@ const MapaBolivia = ({ darkMode, olimpiadaSeleccionada }) => {
         "Cochabamba",
         "Santa Cruz",
         "Oruro",
-        "Potosí",
+        "Potosi",
         "Chuquisaca",
         "Tarija",
         "Beni",
@@ -97,7 +97,7 @@ const MapaBolivia = ({ darkMode, olimpiadaSeleccionada }) => {
         Cochabamba: "BOL.COCHABAMBA",
         "Santa Cruz": "BOL.SANTA_CRUZ",
         Oruro: "BOL.ORURO",
-        Potosí: "BOL.POTOSI",
+        Potosi: "BOL.POTOSI",
         Chuquisaca: "BOL.CHUQUISACA",
         Tarija: "BOL.TARIJA",
         Beni: "BOL.BENI",

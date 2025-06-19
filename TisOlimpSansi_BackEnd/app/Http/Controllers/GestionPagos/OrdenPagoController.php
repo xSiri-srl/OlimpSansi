@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\GestionPagos;
-
+use Carbon\Carbon;
 use App\Http\Controllers\Controller;
 use App\Models\GestionPagos\OrdenPagoModel;
 
@@ -13,7 +13,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 use App\Models\GestionPagos\ComprobantePagoModel
 ;
-
+use Illuminate\Support\Str;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Log;
 
@@ -212,7 +212,7 @@ private function generarNumeroOrdenSecuencial()
     ]);
 }
 
-public function verificarCodigo(Request $request)
+    public function verificarCodigo(Request $request)
     {
     
         $validated = $request->validate([
@@ -239,8 +239,44 @@ public function verificarCodigo(Request $request)
             ], 400);
         }
 
-        return response()->json(['message' => 'Código generado válido, puedes continuar con la subida de la imagen.'], 200);
+
+        $olimpiada = DB::table('inscripcion')
+        ->join('olimpiada_area_categoria', 'inscripcion.id_olimpiada_area_categoria', '=', 'olimpiada_area_categoria.id')
+        ->join('olimpiada', 'olimpiada_area_categoria.id_olimpiada', '=', 'olimpiada.id')
+        ->where('inscripcion.id_orden_pago', $ordenPago->id)
+        ->select('olimpiada.fecha_ini', 'olimpiada.fecha_fin', 'olimpiada.titulo')
+        ->first();
+
+        if (!$olimpiada) {
+            return response()->json(['message' => 'No se pudo encontrar la olimpiada asociada a esta orden de pago.'], 400);
+        }
+
+        $fechaActual = now();
+        $fechaInicio = Carbon::parse($olimpiada->fecha_ini)->startOfDay();
+        $fechaFin    = Carbon::parse($olimpiada->fecha_fin)->endOfDay();
+
+        if ($fechaActual->lt($fechaInicio)) {
+            return response()->json([
+                'message' => "La olimpiada '{$olimpiada->titulo}' aún no ha comenzado. Periodo: {$fechaInicio->format('d/m/Y')} - {$fechaFin->format('d/m/Y')}."
+            ], 400);
+        }
+
+        if ($fechaActual->gt($fechaFin)) {
+            return response()->json([
+                'message' => "La olimpiada '{$olimpiada->titulo}' ya finalizó. Periodo: {$fechaInicio->format('d/m/Y')} - {$fechaFin->format('d/m/Y')}."
+            ], 400);
+        }
+
+        return response()->json([
+            'message' => 'Código generado válido, puedes continuar con la subida de la imagen.',
+            'olimpiada' => [
+                'titulo' => $olimpiada->titulo,
+                'fecha_inicio' => $fechaInicio->format('d/m/Y'),
+                'fecha_fin' => $fechaFin->format('d/m/Y')
+            ]
+        ], 200);
     }
+
 
 
 
@@ -334,17 +370,16 @@ public function verificarCodigo(Request $request)
             $body = json_decode($response->getBody()->getContents(), true);
             
           
-            Log::info('Respuesta completa de OCR.space', $body);
-
-            
+       
             if (isset($body['ErrorMessage']) && !empty($body['ErrorMessage'])) {
-                $errorMessages = is_array($body['ErrorMessage']) 
-                    ? implode(', ', $body['ErrorMessage']) 
-                    : $body['ErrorMessage'];
-                Log::error('OCR Error Message: ' . $errorMessages);
-                return 'OCR Error: ' . $errorMessages;
-            }
+            $errorMessages = is_array($body['ErrorMessage'])
+                ? implode(', ', $body['ErrorMessage'])
+                : $body['ErrorMessage'];
 
+    
+            // Cualquier otro error de OCR
+            return 'Hubo un error procesando la imagen.';
+        }
             
             if (!isset($body['ParsedResults']) || empty($body['ParsedResults'])) {
                 Log::error('No se encontraron resultados en la respuesta de OCR');
@@ -362,19 +397,13 @@ public function verificarCodigo(Request $request)
             
             $cleanText = trim($parsedText);
             
-            Log::info('Texto extraído exitosamente', ['text' => $cleanText]);
+    
             
             return $cleanText;
 
         } catch (\Exception $e) {
-            Log::error('Error en OCR Request', [
-                'message' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString()
-            ]);
-            return 'Error OCR: ' . $e->getMessage();
-        }
+            return 'Hubo un error procesando la imagen.';
+            }
     };
 
     $numeroComprobante = $ocrRequest($imagenComprobante);
@@ -506,65 +535,80 @@ public function verificarCodigo(Request $request)
     return response()->json($ordenesPago);
     }
 
-    public function obtenerOrdenesConResponsable(Request $request)
-    {
-        try {
-            $olimpiadaId = $request->query('olimpiada_id');
+public function obtenerOrdenesConResponsable(Request $request)
+{
+    try {
+        $olimpiadaId = $request->query('olimpiada_id');
+        
+        if (!$olimpiadaId) {
+            return response()->json(['error' => 'olimpiada_id es requerido'], 400);
+        }
+        
+        
+        $ordenesPago = OrdenPagoModel::with([
+                'responsable', 
+                'comprobantePago', 
+                'inscripcion.olimpiadaAreaCategoria.olimpiada'
+            ])
+            ->whereHas('inscripcion', function($query) use ($olimpiadaId) {
+                $query->whereHas('olimpiadaAreaCategoria', function($subQuery) use ($olimpiadaId) {
+                    $subQuery->where('id_olimpiada', $olimpiadaId);
+                });
+            })
+            ->orderBy('fecha_emision', 'desc')
+            ->get();
+        
+        $resultado = $ordenesPago->map(function($orden) {
+            $responsable = $orden->responsable;
             
-            if (!$olimpiadaId) {
-                return response()->json(['error' => 'olimpiada_id es requerido'], 400);
+
+            $nombreResponsable = 'No disponible';
+            if ($responsable) {
+                $partes = array_filter([
+                    $responsable->nombre ?? '',
+                    $responsable->apellido_pa ?? '',
+                    $responsable->apellido_ma ?? ''
+                ]);
+                $nombreResponsable = !empty($partes) ? implode(' ', $partes) : 'No disponible';
             }
             
-         
-            $ordenesPago = OrdenPagoModel::with([
-                    'responsable', 
-                    'comprobantePago', 
-                    'inscripcion' 
-                ])
-                ->whereHas('inscripcion', function($query) use ($olimpiadaId) {
-                    $query->whereHas('olimpiadaAreaCategoria', function($subQuery) use ($olimpiadaId) {
-                        $subQuery->where('id_olimpiada', $olimpiadaId);
-                    });
-                })
-                
-                ->orderBy('fecha_emision', 'desc')
-                ->get();
-            
-            $resultado = $ordenesPago->map(function($orden) {
-                $responsable = $orden->responsable;
-                
-                $nombreResponsable = 'No disponible';
-                if ($responsable) {
-                    $nombreResponsable = trim(
-                        ($responsable->nombre ?? '') . ' ' .
-                        ($responsable->apellido_pa ?? '') . ' ' .
-                        ($responsable->apellido_ma ?? '')
-                    );
+            $fecha = 'No disponible';
+            if ($orden->fecha_emision) {
+                try {
+                    $fecha = \Carbon\Carbon::parse($orden->fecha_emision)->format('d/m/Y');
+                } catch (\Exception $e) {
+                    $fecha = $orden->fecha_emision; 
                 }
-                
-                $fecha = $orden->fecha_emision;
-                
-                $estado = $orden->estado;
-                
-                return [
-                    'id' => $orden->codigo_generado,
-                    'responsable' => $nombreResponsable,
-                    'fecha' => $fecha,
-                    'monto' => number_format($orden->monto_total, 2),
-                    'estado' => $estado
-                ];
-            });
+            }
             
-            return response()->json($resultado->toArray());
             
-        } catch (\Exception $e) {
-            \Log::error('Error en obtenerOrdenesConResponsable: ' . $e->getMessage());
-            return response()->json([
-                'error' => 'Error al procesar la solicitud', 
-                'message' => $e->getMessage()
-            ], 500);
-        }
+            $estado = strtolower($orden->estado ?? 'pendiente');
+            
+            
+            $monto = is_numeric($orden->monto_total) ? number_format($orden->monto_total, 2) : '0.00';
+            
+            return [
+                'id' => $orden->codigo_generado ?? $orden->numero_orden_pago ?? $orden->id,
+                'responsable' => $nombreResponsable,
+                'fecha' => $fecha,
+                'monto' => $monto,
+                'estado' => $estado,
+            ];
+        });
+        
+   
+        return response()->json($resultado->toArray());
+        
+    } catch (\Exception $e) {
+  
+        
+        return response()->json([
+            'error' => 'Error al procesar la solicitud', 
+            'message' => config('app.debug') ? $e->getMessage() : 'Error interno del servidor',
+            'olimpiada_id' => $request->query('olimpiada_id')
+        ], 500);
     }
+}
 
 
 
@@ -679,7 +723,7 @@ public function verificarCodigo(Request $request)
                     'comprobante_pago.nombre_pagador',
                     'comprobante_pago.fecha_subida_imagen_comprobante'
                 )
-                ->distinct('orden_pago.id')
+                //->distinct('orden_pago.id')
                 ->get();
 
             return response()->json($ordenes);

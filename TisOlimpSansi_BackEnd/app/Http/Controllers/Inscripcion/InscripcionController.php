@@ -597,7 +597,6 @@ public function listarPreinscritos($idOlimpiada)
                 ->where('olimpiada_area_categoria.id_area', $area->id)
                 ->where('olimpiada_area_categoria.id_olimpiada', $olimpiadaId)
                 ->whereNull('comprobante_pago.comprobante_url')
-                ->whereNotNull('orden_pago.orden_pago_url')
                 ->count();
                 
             // Solo incluir áreas que tengan al menos una inscripción o preinscripción
@@ -643,7 +642,6 @@ public function listarPreinscritos($idOlimpiada)
                 ->where('olimpiada_area_categoria.id_categoria', $categoria->id)
                 ->where('olimpiada_area_categoria.id_olimpiada', $olimpiadaId)
                 ->whereNull('comprobante_pago.comprobante_url')
-                ->whereNotNull('orden_pago.orden_pago_url')
                 ->count();
                 
             // Solo incluir categorías que tengan al menos una inscripción o preinscripción
@@ -673,12 +671,11 @@ public function registrosPorCodigo(Request $request)
             ], 404);
         }
 
-        // Cargar las mismas relaciones que en listarInscritos
         $inscripciones = InscripcionModel::with([
             'estudiante.colegio', 
             'estudiante.grado',
             'tutorLegal',
-            'ordenPago.responsable', // Agregar la relación responsable
+            'ordenPago.responsable', 
             'olimpiadaAreaCategoria.olimpiada',
             'olimpiadaAreaCategoria.area',
             'olimpiadaAreaCategoria.categoria',
@@ -949,7 +946,7 @@ public function actualizarLista(Request $request)
                 ->leftJoin('comprobante_pago', 'orden_pago.id', '=', 'comprobante_pago.id_orden_pago')
                 ->where('olimpiada_area_categoria.id_olimpiada', $olimpiadaId)
                 ->whereNull('comprobante_pago.numero_comprobante')
-                ->distinct('inscripcion.id_estudiante')
+                //->distinct('inscripcion.id_estudiante')
                 ->count('inscripcion.id_estudiante');
 
             return response()->json([
@@ -979,7 +976,7 @@ public function actualizarLista(Request $request)
                 ->join('comprobante_pago', 'orden_pago.id', '=', 'comprobante_pago.id_orden_pago')
                 ->where('olimpiada_area_categoria.id_olimpiada', $olimpiadaId)
                 ->whereNotNull('comprobante_pago.numero_comprobante')
-                ->distinct('inscripcion.id_estudiante')
+                //->distinct('inscripcion.id_estudiante')
                 ->count('inscripcion.id_estudiante');
 
             return response()->json([
