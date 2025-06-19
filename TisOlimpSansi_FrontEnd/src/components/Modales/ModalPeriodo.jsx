@@ -4,6 +4,9 @@ import { FaCalendarTimes } from "react-icons/fa";
 
 export default function ModalPeriodo({ isOpen, onClose, fechaIni, fechaFin }) {
   
+  console.log("ModalPeriodo - fechaIni recibida:", fechaIni);
+  console.log("ModalPeriodo - fechaFin recibida:", fechaFin);
+  
   const obtenerFechaBolivia = () => {
     const ahora = new Date();
     const fechaBolivia = new Date(ahora.toLocaleString("en-US", {timeZone: "America/La_Paz"}));
@@ -12,8 +15,42 @@ export default function ModalPeriodo({ isOpen, onClose, fechaIni, fechaFin }) {
 
   const formatFecha = (fechaString) => {
     try {
-      const fechaLimpia = fechaString.replace('T00:00:00-04:00', '').replace('T23:59:59-04:00', '');
-      const fecha = new Date(fechaLimpia + 'T12:00:00');
+      console.log("Formateando fecha:", fechaString);
+      
+      if (!fechaString || fechaString === "") {
+        console.error("Fecha vacía o undefined");
+        return "Fecha no disponible";
+      }
+      
+
+      let fechaSolo;
+      if (fechaString.includes('T')) {
+        fechaSolo = fechaString.split('T')[0];
+      } else {
+        fechaSolo = fechaString;
+      }
+      
+      console.log("Fecha extraída:", fechaSolo);
+      
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(fechaSolo)) {
+        console.error("Formato de fecha inválido:", fechaSolo);
+        return "Formato de fecha inválido";
+      }
+      
+      const [año, mes, dia] = fechaSolo.split('-').map(Number);
+      
+      if (año < 1900 || año > 2100 || mes < 1 || mes > 12 || dia < 1 || dia > 31) {
+        console.error("Valores de fecha fuera de rango:", { año, mes, dia });
+        return "Fecha fuera de rango";
+      }
+      
+      const fecha = new Date(año, mes - 1, dia);
+      console.log("Fecha creada:", fecha);
+      
+      if (isNaN(fecha.getTime())) {
+        console.error("Fecha inválida después de parsing");
+        return "Fecha inválida";
+      }
       
       return fecha.toLocaleDateString("es-ES", {
         year: "numeric",
@@ -21,13 +58,8 @@ export default function ModalPeriodo({ isOpen, onClose, fechaIni, fechaFin }) {
         day: "numeric",
       });
     } catch (error) {
-      console.error('Error al formatear fecha:', error);
-      const fecha = new Date(fechaString.split('T')[0]);
-      return fecha.toLocaleDateString("es-ES", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      });
+      console.error('Error al formatear fecha:', error, 'Fecha original:', fechaString);
+      return "Error en fecha";
     }
   };
 
@@ -35,38 +67,26 @@ export default function ModalPeriodo({ isOpen, onClose, fechaIni, fechaFin }) {
     try {
       const ahoraBolivia = obtenerFechaBolivia();
       
-      const fechaIniStr = fechaIni.replace('T00:00:00-04:00', '').replace('T23:59:59-04:00', '');
-      const fechaFinStr = fechaFin.replace('T00:00:00-04:00', '').replace('T23:59:59-04:00', '');
+      const fechaIniSolo = fechaIni.includes('T') ? fechaIni.split('T')[0] : fechaIni;
+      const fechaFinSolo = fechaFin.includes('T') ? fechaFin.split('T')[0] : fechaFin;
       
-      const inicio = new Date(fechaIniStr + 'T00:00:00');
-      const fin = new Date(fechaFinStr + 'T23:59:59');
+      const [añoIni, mesIni, diaIni] = fechaIniSolo.split('-').map(Number);
+      const [añoFin, mesFin, diaFin] = fechaFinSolo.split('-').map(Number);
+      
+      const inicio = new Date(añoIni, mesIni - 1, diaIni);
+      const fin = new Date(añoFin, mesFin - 1, diaFin);
       
       const soloFechaHoy = new Date(ahoraBolivia.getFullYear(), ahoraBolivia.getMonth(), ahoraBolivia.getDate());
-      const soloFechaInicio = new Date(inicio.getFullYear(), inicio.getMonth(), inicio.getDate());
-      const soloFechaFin = new Date(fin.getFullYear(), fin.getMonth(), fin.getDate());
 
-      if (soloFechaHoy < soloFechaInicio) {
+      if (soloFechaHoy < inicio) {
         return "no_iniciada";
-      } else if (soloFechaHoy > soloFechaFin) {
+      } else if (soloFechaHoy > fin) {
         return "finalizada";
       }
       return "activa";
     } catch (error) {
-      console.error('Error al determinar estado de edición:', error);
-      const ahora = new Date();
-      const inicio = new Date(fechaIni.split('T')[0]);
-      const fin = new Date(fechaFin.split('T')[0]);
-
-      const hoy = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate());
-      const inicioSoloFecha = new Date(inicio.getFullYear(), inicio.getMonth(), inicio.getDate());
-      const finSoloFecha = new Date(fin.getFullYear(), fin.getMonth(), fin.getDate());
-
-      if (hoy < inicioSoloFecha) {
-        return "no_iniciada";
-      } else if (hoy > finSoloFecha) {
-        return "finalizada";
-      }
-      return "activa";
+      console.error('Error al determinar estado de inscripción:', error);
+      return "finalizada";
     }
   };
 
@@ -109,15 +129,15 @@ export default function ModalPeriodo({ isOpen, onClose, fechaIni, fechaFin }) {
 
         <h2 className="text-2xl font-bold text-gray-800 mb-4">
           {estadoInscripcion === "no_iniciada"
-            ? "Edición aún no disponible"
-            : "Período de edición finalizado"}
+            ? "Período de inscripción aún no disponible"
+            : "Período de inscripción finalizado"}
         </h2>
 
         <div className="text-gray-600 mb-6">
           <p className="mb-4">
             {estadoInscripcion === "no_iniciada"
-              ? "La edición de inscripciones para esta olimpiada aún no está disponible."
-              : "El período de edición para esta olimpiada ya ha finalizado."}
+              ? "El período para subir comprobantes de esta olimpiada aún no está disponible."
+              : "El período para subir comprobantes de esta olimpiada ya ha finalizado."}
           </p>
 
           <div className="bg-gray-50 p-4 rounded-lg">

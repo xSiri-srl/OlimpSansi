@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { API_URL } from "../../../../utils/api";
+import { estaEnPeriodo } from "../../../../utils/estaEnPeriodo";
 import axios from "axios";
 
 export const useSubirComprobante = () => {
@@ -20,6 +21,12 @@ export const useSubirComprobante = () => {
   const [nombreResponsableRegistrado, setNombreResponsableRegistrado] = useState("");
   const [errorNumeroUnico, setErrorNumeroUnico] = useState("");
   const [showModalExito, setShowModalExito] = useState(false);
+  const [showPeriodoModal, setShowPeriodoModal] = useState(false);
+  const [olimpiadaInfo, setOlimpiadaInfo] = useState({
+    fechaIni: "",
+    fechaFin: "",
+    titulo: ""
+  });
 
   const validateFinalizar = () => {
     let valid = true;
@@ -164,8 +171,72 @@ export const useSubirComprobante = () => {
         setStep(2);
       }
     } catch (err) {
-      setError(err.response?.data?.message || "Error al verificar el código.");
-      return;
+      const errorMessage = err.response?.data?.message || "Error al verificar el código.";
+      
+      if (errorMessage.includes("aún no ha comenzado") || errorMessage.includes("ya finalizó")) {
+        const tituloMatch = errorMessage.match(/La olimpiada '([^']+)'/);
+        const periodoMatch = errorMessage.match(/Periodo: ([^.]+)/);
+        
+        if (tituloMatch && periodoMatch) {
+          const titulo = tituloMatch[1];
+          const periodo = periodoMatch[1];
+          const [fechaIni, fechaFin] = periodo.split(' - ');
+          
+          console.log("Fechas extraídas del backend:", { fechaIni, fechaFin });
+          
+          const convertirFecha = (fechaStr) => {
+            try {
+              const [dia, mes, año] = fechaStr.split('/');
+              
+              if (!dia || !mes || !año) {
+                console.error("Formato de fecha incorrecto:", fechaStr);
+                return new Date().toISOString().split('T')[0];
+              }
+              
+              let añoCompleto;
+              const añoNum = parseInt(año);
+              
+              if (añoNum >= 0 && añoNum <= 30) {
+                añoCompleto = 2000 + añoNum;
+              } else if (añoNum >= 31 && añoNum <= 99) {
+                añoCompleto = 1900 + añoNum;
+              } else {
+                añoCompleto = añoNum;
+              }
+              
+              const fechaFormateada = `${añoCompleto}-${mes.padStart(2, '0')}-${dia.padStart(2, '0')}`;
+              console.log(`Convirtiendo ${fechaStr} a ${fechaFormateada}`);
+              
+              return fechaFormateada;
+            } catch (error) {
+              console.error("Error al convertir fecha:", error, fechaStr);
+              return new Date().toISOString().split('T')[0];
+            }
+          };
+          
+          const fechaIniConvertida = convertirFecha(fechaIni);
+          const fechaFinConvertida = convertirFecha(fechaFin);
+          
+          setOlimpiadaInfo({
+            fechaIni: fechaIniConvertida + "T00:00:00-04:00",
+            fechaFin: fechaFinConvertida + "T23:59:59-04:00",
+            titulo: titulo
+          });
+          
+          console.log("Info de olimpiada establecida:", {
+            fechaIni: fechaIniConvertida + "T00:00:00-04:00",
+            fechaFin: fechaFinConvertida + "T23:59:59-04:00",
+            titulo: titulo
+          });
+          
+          setShowPeriodoModal(true);
+          setError(""); 
+        } else {
+          setError(errorMessage);
+        }
+      } else {
+        setError(errorMessage);
+      }
     } finally {
       setLoading(false);
     }
@@ -276,7 +347,7 @@ export const useSubirComprobante = () => {
     }));
   };
 
-  return {
+    return {
     step,
     setStep,
     selectedFile,
@@ -298,6 +369,9 @@ export const useSubirComprobante = () => {
     errorNumeroUnico,
     setErrorNumeroUnico,
     showModalExito,
+    showPeriodoModal,
+    setShowPeriodoModal,
+    olimpiadaInfo,
     verificarCodigo,
     handleFileChange,
     procesarComprobante,

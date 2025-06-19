@@ -17,6 +17,19 @@ const DatosEscaneadosStep = ({
   onScanAgain,
   onFinalizar
 }) => {
+  const handleNumeroChange = (e) => {
+    const value = e.target.value;
+    if (/^\d*$/.test(value) && value.length <= 7) {
+      setNumeroComprobante(value);
+      setErrorNumeroUnico("");
+    }
+  };
+
+  const handleNombreChange = (e) => {
+    const value = e.target.value.toUpperCase();
+    setcomprobanteNombre(value);
+  };
+
   return (
     <div className="text-center">
       <h2 className="text-xl font-semibold mb-4 text-gray-600">
@@ -51,16 +64,14 @@ const DatosEscaneadosStep = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="text-gray-700 text-sm font-medium mb-1">
-                Número de comprobante *
+                Número de comprobante * 
               </label>
               <input
                 type="text"
                 placeholder="Ej. 123456"
                 value={numeroComprobante}
-                onChange={(e) => {
-                  setNumeroComprobante(e.target.value);
-                  setErrorNumeroUnico("");
-                }}
+                onChange={handleNumeroChange}
+                maxLength={7}
                 className={`w-full p-2 border ${
                   errorNumero || errorNumeroUnico ? "border-red-500" : "border-gray-300"
                 } rounded-md focus:outline-none focus:ring-2`}
@@ -78,9 +89,10 @@ const DatosEscaneadosStep = ({
               </label>
               <input
                 type="text"
-                placeholder="Ej. Juan Pérez"
+                placeholder="Ej. JUAN PÉREZ"
                 value={comprobanteNombre}
-                onChange={(e) => setcomprobanteNombre(e.target.value)}
+                onChange={handleNombreChange}
+                style={{ textTransform: 'uppercase' }}
                 className={`w-full p-2 border ${
                   errorNombre ? "border-red-500" : "border-gray-300"
                 } rounded-md focus:outline-none focus:ring-2`}

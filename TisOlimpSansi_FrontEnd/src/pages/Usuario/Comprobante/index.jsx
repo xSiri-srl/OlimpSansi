@@ -3,7 +3,8 @@ import CodigoStep from "./components/CodigoStep";
 import SubirArchivoStep from "./components/SubirArchivoStep";
 import EscanearStep from "./components/EscanearStep";
 import DatosEscaneadosStep from "./components/DatosEscaneadosStep";
-import ModalExitoComprobante from "../../../components/Modales/ModalExitoComprobante";
+import ExitoModal from "../../../components/Modales/ExitoModal";
+import ModalPeriodo from "../../../components/Modales/ModalPeriodo";
 import { useSubirComprobante } from "./hooks/useSubirComprobante";
 
 const SubirComprobante = () => {
@@ -29,6 +30,9 @@ const SubirComprobante = () => {
     errorNumeroUnico,
     setErrorNumeroUnico,
     showModalExito,
+    showPeriodoModal,
+    setShowPeriodoModal,
+    olimpiadaInfo,
     verificarCodigo,
     handleFileChange,
     procesarComprobante,
@@ -103,9 +107,19 @@ const SubirComprobante = () => {
           />
         )}
 
-        <ModalExitoComprobante 
+        <ExitoModal 
           isOpen={showModalExito}
-          onAceptar={handleAceptar}
+          titulo="¡Su comprobante fue subido con éxito!"
+          mensaje="FINALIZÓ SU INSCRIPCIÓN"
+          textoBoton="Aceptar"
+          onClose={handleAceptar}
+        />
+
+        <ModalPeriodo
+          isOpen={showPeriodoModal}
+          onClose={() => setShowPeriodoModal(false)}
+          fechaIni={olimpiadaInfo.fechaIni}
+          fechaFin={olimpiadaInfo.fechaFin}
         />
       </div>
     </div>
