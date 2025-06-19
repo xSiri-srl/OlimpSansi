@@ -6,7 +6,7 @@ import { ThemeProvider } from "./ThemeContext";
 import InscripcionResponsable from "./pages/Usuario/InscripcionIndividual/InscripcionResponsable";
 import InscripcionEstudiante from "./pages/Usuario/InscripcionIndividual/InscripcionEstudiante";
 import InscripcionTutorLegal from "./pages/Usuario/InscripcionIndividual/InscripcionTutorLegal";
-import SubirComprobante from "./pages/Usuario/Comprobante/SubirComprobante";
+import SubirComprobante from "./pages/Usuario/Comprobante";
 import AreaCompetencia from "./pages/Usuario/InscripcionIndividual/AreasCompetencia";
 import InscripcionTutorAcademico from "./pages/Usuario/InscripcionIndividual/InscripcionTutorAcademico";
 import FormaInscripcion from "./pages/Usuario/InscripcionIndividual/FormaInscripcion";
