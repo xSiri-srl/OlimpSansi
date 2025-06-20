@@ -19,7 +19,7 @@ const DatosEscaneadosStep = ({
 }) => {
   const handleNumeroChange = (e) => {
     const value = e.target.value;
-    if (/^\d*$/.test(value) && value.length <= 7) {
+    if (value === "" || (/^\d*$/.test(value) && value.length <= 7)) {
       setNumeroComprobante(value);
       setErrorNumeroUnico("");
     }
