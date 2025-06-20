@@ -7,12 +7,12 @@ import ModalConfirmacion from "../../../components/Modales/ModalConfirmacion";
 import ModalAlerta from "../../../components/Modales/ModalAlerta";
 import { useNotificarProgreso } from "../hooks/useNotificarProgreso";
 import ModalTareasPendientes from "../../../components/Modales/ModalTareasPendientes";
-// Hooks 
+ 
 import { useOlimpiadas } from "./hooks/useOlimpiadas";
 import { useAreasAsociadas } from "./hooks/useAreasAsociadas";
 import { useModalEstado } from "./hooks/useModalEstado";
 import { useGuardarCostos } from "./hooks/useGuardarCostos";
-// Componentes
+
 import { AlertaBloqueada } from "./components/AlertaBloqueada";
 import { ContenidoPrincipal } from "./components/ContenidoPrincipal";
 

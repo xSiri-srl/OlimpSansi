@@ -406,20 +406,23 @@ public function registrarLista(Request $request)
     
     public function listarInscritos($idOlimpiada)
     {
-        $inscripciones = InscripcionModel::with([
-            'estudiante.colegio', 
-            'estudiante.grado',
-            'tutorLegal',
-            'ordenPago',
-            'olimpiadaAreaCategoria.olimpiada',
-            'olimpiadaAreaCategoria.area',
-            'olimpiadaAreaCategoria.categoria',
-            'tutorAcademico' 
-        ])
-        ->whereHas('olimpiadaAreaCategoria.olimpiada', function ($query) use ($idOlimpiada) {
-            $query->where('id', $idOlimpiada);
-        })
-        ->get();
+         $inscripciones = InscripcionModel::with([
+        'estudiante.colegio', 
+        'estudiante.grado',
+        'tutorLegal',
+        'ordenPago',
+        'olimpiadaAreaCategoria.olimpiada',
+        'olimpiadaAreaCategoria.area',
+        'olimpiadaAreaCategoria.categoria',
+        'tutorAcademico' 
+    ])
+    ->whereHas('ordenPago', function ($query) {
+        $query->where('estado', 'pagado'); 
+    })
+    ->whereHas('olimpiadaAreaCategoria.olimpiada', function ($query) use ($idOlimpiada) {
+        $query->where('id', $idOlimpiada);
+    })
+    ->get();
 
         $resultado = $inscripciones->map(function ($inscripcion) {
             $estudiante = $inscripcion->estudiante;
@@ -433,7 +436,8 @@ public function registrarLista(Request $request)
                 'apellido_ma'         => $estudiante->apellido_ma,
                 'nombre'              => $estudiante->nombre,
                 'ci'                  => $estudiante->ci,
-                'fecha_nacimiento'    => $estudiante->fecha_nacimiento,
+                'fecha_nacimiento' => $estudiante->fecha_nacimiento ? 
+                \Carbon\Carbon::parse($estudiante->fecha_nacimiento)->format('d-m-y') : null,
                 'correo'              => $estudiante->correo,
                 'propietario_correo'  => $estudiante->propietario_correo,
                 'curso'               => $grado->nombre_grado ?? null,
@@ -513,7 +517,8 @@ public function listarPreinscritos($idOlimpiada)
             'apellido_ma'         => $estudiante->apellido_ma,
             'nombre'              => $estudiante->nombre,
             'ci'                  => $estudiante->ci,
-            'fecha_nacimiento'    => $estudiante->fecha_nacimiento,
+            'fecha_nacimiento' => $estudiante->fecha_nacimiento ? 
+            \Carbon\Carbon::parse($estudiante->fecha_nacimiento)->format('d-m-y') : null,
             'correo'              => $estudiante->correo,
             'propietario_correo'  => $estudiante->propietario_correo,
             'curso'               => $grado->nombre_grado ?? null,
@@ -592,7 +597,6 @@ public function listarPreinscritos($idOlimpiada)
                 ->where('olimpiada_area_categoria.id_area', $area->id)
                 ->where('olimpiada_area_categoria.id_olimpiada', $olimpiadaId)
                 ->whereNull('comprobante_pago.comprobante_url')
-                ->whereNotNull('orden_pago.orden_pago_url')
                 ->count();
                 
             // Solo incluir áreas que tengan al menos una inscripción o preinscripción
@@ -638,7 +642,6 @@ public function listarPreinscritos($idOlimpiada)
                 ->where('olimpiada_area_categoria.id_categoria', $categoria->id)
                 ->where('olimpiada_area_categoria.id_olimpiada', $olimpiadaId)
                 ->whereNull('comprobante_pago.comprobante_url')
-                ->whereNotNull('orden_pago.orden_pago_url')
                 ->count();
                 
             // Solo incluir categorías que tengan al menos una inscripción o preinscripción
@@ -668,12 +671,11 @@ public function registrosPorCodigo(Request $request)
             ], 404);
         }
 
-        // Cargar las mismas relaciones que en listarInscritos
         $inscripciones = InscripcionModel::with([
             'estudiante.colegio', 
             'estudiante.grado',
             'tutorLegal',
-            'ordenPago.responsable', // Agregar la relación responsable
+            'ordenPago.responsable', 
             'olimpiadaAreaCategoria.olimpiada',
             'olimpiadaAreaCategoria.area',
             'olimpiadaAreaCategoria.categoria',
@@ -944,7 +946,7 @@ public function actualizarLista(Request $request)
                 ->leftJoin('comprobante_pago', 'orden_pago.id', '=', 'comprobante_pago.id_orden_pago')
                 ->where('olimpiada_area_categoria.id_olimpiada', $olimpiadaId)
                 ->whereNull('comprobante_pago.numero_comprobante')
-                ->distinct('inscripcion.id_estudiante')
+                //->distinct('inscripcion.id_estudiante')
                 ->count('inscripcion.id_estudiante');
 
             return response()->json([
@@ -974,7 +976,7 @@ public function actualizarLista(Request $request)
                 ->join('comprobante_pago', 'orden_pago.id', '=', 'comprobante_pago.id_orden_pago')
                 ->where('olimpiada_area_categoria.id_olimpiada', $olimpiadaId)
                 ->whereNotNull('comprobante_pago.numero_comprobante')
-                ->distinct('inscripcion.id_estudiante')
+                //->distinct('inscripcion.id_estudiante')
                 ->count('inscripcion.id_estudiante');
 
             return response()->json([

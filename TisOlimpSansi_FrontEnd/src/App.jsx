@@ -6,7 +6,7 @@ import { ThemeProvider } from "./ThemeContext";
 import InscripcionResponsable from "./pages/Usuario/InscripcionIndividual/InscripcionResponsable";
 import InscripcionEstudiante from "./pages/Usuario/InscripcionIndividual/InscripcionEstudiante";
 import InscripcionTutorLegal from "./pages/Usuario/InscripcionIndividual/InscripcionTutorLegal";
-import SubirComprobante from "./pages/Usuario/Comprobante/SubirComprobante";
+import SubirComprobante from "./pages/Usuario/Comprobante";
 import AreaCompetencia from "./pages/Usuario/InscripcionIndividual/AreasCompetencia";
 import InscripcionTutorAcademico from "./pages/Usuario/InscripcionIndividual/InscripcionTutorAcademico";
 import FormaInscripcion from "./pages/Usuario/InscripcionIndividual/FormaInscripcion";
@@ -26,15 +26,15 @@ import ConvocatoriasPublicadas from "./pages/Administrador/Convocatorias/Convoca
 import SubirConvocatoria from "./pages/Administrador/Convocatorias/SubirConvocatoria";
 
 import EditarConvocatoria from "./pages/Administrador/Convocatorias/EditarConvocatoria";
-import CrearOlimpiadas from "./pages/Administrador/CrearOlimpiadas/CrearOlimpiadas";
+import CrearOlimpiadas from "./pages/Administrador/CrearOlimpiadas/index";
 
 import RutaPrivada from "./components/RutasPrivadas";
 import DesasignarAreaNivel from "./pages/Administrador/DesasignarAreaNivel/index";
 import CodigoPreInscripcion from "./pages/Usuario/EditarInscripcion";
-import { useState } from "react";
+
 import { FormDataProvider } from "./pages/Usuario/InscripcionIndividual/form-data-context";
 
-import AsignarLimiteAreas from "./pages/Administrador/AsignarLimiteAreas/AsignarLimiteAreas";
+import AsignarLimiteAreas from "./pages/Administrador/AsignarLimiteAreas/index";
 import AsignarCosto from "./pages/Administrador/AsignarCosto/index";
 import AsociarAreaNivel from "./pages/Administrador/AsignarAreaNivel/index";
 
@@ -143,9 +143,7 @@ export default function App() {
                   element={<AsociarAreaNivel />}
                 />
 
-                <Route path="/admin/asignar-costo" 
-                element={<AsignarCosto />}
-                 />
+                <Route path="/admin/asignar-costo" element={<AsignarCosto />} />
 
                 <Route
                   path="/admin/asignar-limite"
