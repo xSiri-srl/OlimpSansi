@@ -408,6 +408,7 @@ const ConfirmationLista = ({ setStep }) => {
       )}
       {showSuccessModal && (
         <ExitoModal
+          isOpen={showSuccessModal}
           mensaje="La lista de competidores ha sido registrada exitosamente."
           onClose={handleSuccessModalClose}
         />
