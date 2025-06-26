@@ -51,6 +51,8 @@ const esFechaValida = (fecha) => {
   
   if (dia > diasPorMes[mes - 1]) return false;
   
+   const añoActual = new Date().getFullYear();
+  if (año > añoActual - 5) return false;
   return true;
 };
 
@@ -243,16 +245,6 @@ const DatosCompetidor = ({
               maxLength={10}
             />
             
-            {/* Input date como selector alternativo */}
-            {fechaEsEditable() && (
-              <input
-                type="date"
-                className="mt-1 p-2 border rounded-md"
-                value={fechaAInputDate(fechaActual)}
-                onChange={handleFechaDateChange}
-                title="Seleccionar fecha usando calendario"
-              />
-            )}
           </div>
           
           {fechaTieneError && (
@@ -278,7 +270,7 @@ const DatosCompetidor = ({
               handleChange("estudiante", "correo", e.target.value)
             }
             readOnly={!campoEditable("correo")}
-          />
+          />fechaEsEditable
           {tieneError("correo") && (
             <p className="text-red-500 text-xs mt-1">{errores.correo}</p>
           )}
