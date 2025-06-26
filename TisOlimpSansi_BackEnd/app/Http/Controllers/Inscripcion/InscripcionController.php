@@ -406,20 +406,23 @@ public function registrarLista(Request $request)
     
     public function listarInscritos($idOlimpiada)
     {
-        $inscripciones = InscripcionModel::with([
-            'estudiante.colegio', 
-            'estudiante.grado',
-            'tutorLegal',
-            'ordenPago',
-            'olimpiadaAreaCategoria.olimpiada',
-            'olimpiadaAreaCategoria.area',
-            'olimpiadaAreaCategoria.categoria',
-            'tutorAcademico' 
-        ])
-        ->whereHas('olimpiadaAreaCategoria.olimpiada', function ($query) use ($idOlimpiada) {
-            $query->where('id', $idOlimpiada);
-        })
-        ->get();
+         $inscripciones = InscripcionModel::with([
+        'estudiante.colegio', 
+        'estudiante.grado',
+        'tutorLegal',
+        'ordenPago',
+        'olimpiadaAreaCategoria.olimpiada',
+        'olimpiadaAreaCategoria.area',
+        'olimpiadaAreaCategoria.categoria',
+        'tutorAcademico' 
+    ])
+    ->whereHas('ordenPago', function ($query) {
+        $query->where('estado', 'pagado'); 
+    })
+    ->whereHas('olimpiadaAreaCategoria.olimpiada', function ($query) use ($idOlimpiada) {
+        $query->where('id', $idOlimpiada);
+    })
+    ->get();
 
         $resultado = $inscripciones->map(function ($inscripcion) {
             $estudiante = $inscripcion->estudiante;
@@ -433,7 +436,8 @@ public function registrarLista(Request $request)
                 'apellido_ma'         => $estudiante->apellido_ma,
                 'nombre'              => $estudiante->nombre,
                 'ci'                  => $estudiante->ci,
-                'fecha_nacimiento'    => $estudiante->fecha_nacimiento,
+                'fecha_nacimiento' => $estudiante->fecha_nacimiento ? 
+                \Carbon\Carbon::parse($estudiante->fecha_nacimiento)->format('d-m-y') : null,
                 'correo'              => $estudiante->correo,
                 'propietario_correo'  => $estudiante->propietario_correo,
                 'curso'               => $grado->nombre_grado ?? null,
@@ -513,7 +517,8 @@ public function listarPreinscritos($idOlimpiada)
             'apellido_ma'         => $estudiante->apellido_ma,
             'nombre'              => $estudiante->nombre,
             'ci'                  => $estudiante->ci,
-            'fecha_nacimiento'    => $estudiante->fecha_nacimiento,
+            'fecha_nacimiento' => $estudiante->fecha_nacimiento ? 
+            \Carbon\Carbon::parse($estudiante->fecha_nacimiento)->format('d-m-y') : null,
             'correo'              => $estudiante->correo,
             'propietario_correo'  => $estudiante->propietario_correo,
             'curso'               => $grado->nombre_grado ?? null,

@@ -38,6 +38,7 @@ function SubirArchivo({ setStep }) {
     { contenido: "Carnet de Identidad", fila: 1, columna: 20 },
     { contenido: "Correo Electronico", fila: 1, columna: 21 },
   ];
+  
   function validarCabecerasExcel(rawData) {
     const errores = [];
 
@@ -233,7 +234,7 @@ function SubirArchivo({ setStep }) {
           apellido_ma: row[apellidoMaternoIdx] || "",
           ci: row[ciIdx] ? String(row[ciIdx]) : "",
           fecha_nacimiento: row[fechaNacimientoIdx]
-            ? formatDate(row[fechaNacimientoIdx])
+            ? formatDateToDDMMYYYY(row[fechaNacimientoIdx])
             : "",
           correo: row[correoIdx] || "",
           propietario_correo: row[propietarioCorreoIdx] || "Estudiante",
@@ -299,33 +300,46 @@ function SubirArchivo({ setStep }) {
     };
   };
 
-  const formatDate = (dateValue) => {
+  // Función modificada para devolver fecha en formato dd/mm/aaaa
+  const formatDateToDDMMYYYY = (dateValue) => {
     if (!dateValue) return "";
 
-    if (/^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
-      return dateValue;
-    }
-
-    if (typeof dateValue === "number") {
-      const date = new Date(Math.round((dateValue - 25569) * 86400 * 1000));
-      return date.toISOString().split("T")[0];
-    }
-
+    // Si ya está en formato dd/mm/aaaa, devolverla tal como está
     if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(dateValue)) {
       const parts = dateValue.split("/");
-      return `${parts[2]}-${parts[1].padStart(2, "0")}-${parts[0].padStart(
-        2,
-        "0"
-      )}`;
+      const day = parts[0].padStart(2, "0");
+      const month = parts[1].padStart(2, "0");
+      const year = parts[2];
+      return `${day}/${month}/${year}`;
     }
 
+    // Si está en formato ISO (aaaa-mm-dd), convertir a dd/mm/aaaa
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
+      const parts = dateValue.split("-");
+      return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+
+    // Si es un número de Excel (serial date)
+    if (typeof dateValue === "number") {
+      const date = new Date(Math.round((dateValue - 25569) * 86400 * 1000));
+      const day = date.getDate().toString().padStart(2, "0");
+      const month = (date.getMonth() + 1).toString().padStart(2, "0");
+      const year = date.getFullYear();
+      return `${day}/${month}/${year}`;
+    }
+
+    // Intentar parsear como fecha y convertir a dd/mm/aaaa
     try {
       const date = new Date(dateValue);
       if (!isNaN(date.getTime())) {
-        return date.toISOString().split("T")[0];
+        const day = date.getDate().toString().padStart(2, "0");
+        const month = (date.getMonth() + 1).toString().padStart(2, "0");
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
       }
     } catch (e) {}
 
+    // Si no se puede convertir, devolver el valor original
     return dateValue;
   };
 

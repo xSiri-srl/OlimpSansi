@@ -411,6 +411,7 @@ const Confirmation = ({ navigate, handleBack }) => {
 
       {showSuccessModal && (
         <ExitoModal
+          isOpen={showSuccessModal}
           mensaje="Su registro ha sido procesado exitosamente."
           onClose={handleSuccessModalClose}
         />
